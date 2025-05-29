@@ -1,6 +1,6 @@
 package com.example.swp.entity;
 
-import com.example.swp.enums.Role;
+import com.example.swp.enums.RoleName;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,7 +24,7 @@ public class Staff {
     private String password;
     private String phone;
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private RoleName roleName;
     private boolean sex;
     private String idCitizenCard;
 
@@ -34,7 +34,5 @@ public class Staff {
 
     @OneToMany(mappedBy = "staff")
     private List<Feedback> feedbacks;
-    //contract
-    //
 
 }

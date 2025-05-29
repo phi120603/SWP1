@@ -25,7 +25,7 @@ private StaffReponsitory staffReponsitory;
         staff.setEmail(staffRequest.getEmail());
         staff.setPassword(staffRequest.getPassword());
         staff.setPhone(staffRequest.getPhone());
-        staff.setRole(staffRequest.getRole());
+        staff.setRoleName(staffRequest.getRoleName());
         staff.setSex(staffRequest.isSex());
         staff.setIdCitizenCard(staffRequest.getIdCitizenCard());
         return staffReponsitory.save(staff);
