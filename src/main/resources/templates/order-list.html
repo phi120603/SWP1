@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+<title>Danh sách đơn hàng</title>
+<style>
+    table {
+        width: 90%;
+        border-collapse: collapse;
+        margin: 20px auto;
+    }
+    th, td {
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: center;
+    }
+    h2 {
+        text-align: center;
+        margin-top: 20px;
+    }
+</style>
+</head>
+<body>
+<h2>Danh sách đơn hàng</h2>
+
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Ngày đặt</th>
+        <th>Tổng tiền</th>
+<!--        <th>Đã xác nhận</th>-->
+<!--        <th>Khách hàng</th>-->
+        <th>Trang thai</th>
+        <th>Khách hàng</th>
+        <!--        <th>Nhân viên xác nhận</th>-->
+<!--        <th>Quản lý xác nhận</th>-->
+        <th>Thao tac</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="order : ${orders}">
+        <td th:text="${order.getId()}"></td>
+        <td th:text="${order.getOrderDate()}"></td>
+        <td th:text="${order.getTotalAmount()} + ' VND'"></td>
+<!--        <td th:text="${order.isConfirmed() ? 'Đã xác nhận' : 'Chưa xác nhận'}"></td>-->
+<!--        <td th:text="${order.customer != null ? order.customer.fullname : 'N/A'}"></td>-->
+        <td th:text="${order.getStatus()}"></td>
+        <td th:text="${order.customer != null ? order.customer.fullname : 'N/A'}"></td>
+        <td>
+            <a th:href="@{'/SWP/orders/' + ${order.id}}" class="btn btn-view">Chi tiết</a>
+        </td>
+
+
+        <!--        <td th:if="${order.staff != null}" th:text="${order.staff.getFullname()}"></td>-->
+<!--&lt;!&ndash;        <td th:if="${order.staff == null}">Chưa có</td>&ndash;&gt;-->
+
+<!--        <td th:if="${order.manager != null}" th:text="${order.manager.getFullname()}"></td>-->
+<!--&lt;!&ndash;        <td th:if="${order.manager == null}">Chưa có</td>&ndash;&gt;-->
+<!--        <td>-->
+<!--            &lt;!&ndash; Nút xem chi tiết &ndash;&gt;-->
+<!--            <a th:href="@{'/orders/' + ${order.id}}" class="btn btn-view">Chi tiết</a>-->
+<!--        </td>-->
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

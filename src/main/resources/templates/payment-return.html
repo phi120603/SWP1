@@ -1,0 +1,37 @@
+<!-- src/main/resources/templates/payment-return.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>VNPay Payment Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f8fa;
+            padding: 40px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>VNPay Payment Result</h2>
+    <p><strong>Transaction ID:</strong> <span th:text="${vnp_TransactionNo}">123456</span></p>
+    <p><strong>Order Info:</strong> <span th:text="${vnp_OrderInfo}">Thanh toán đơn hàng</span></p>
+    <p><strong>Amount:</strong> <span th:text="${vnp_Amount}">100,000 VNĐ</span></p>
+    <p><strong>Payment Status:</strong>
+        <span th:if="${vnp_ResponseCode == '00'}" class="success">Thành công</span>
+        <span th:if="${vnp_ResponseCode != '01'}" class="error">Thất bại</span>
+    </p>
+</div>
+</body>
+</html>

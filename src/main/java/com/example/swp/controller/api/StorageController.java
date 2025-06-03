@@ -1,8 +1,7 @@
-package com.example.swp.controller;
+package com.example.swp.controller.api;
 
 import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Storage;
-import com.example.swp.repository.StorageResponsitory;
 import com.example.swp.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

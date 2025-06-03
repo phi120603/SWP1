@@ -17,16 +17,26 @@ public class Storage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int storageid;
+
     private String storagename;
     private String address;
     private String city;
     private String state;
-    private boolean status;
 
+    private double area;
+    private double pricePerDay;
+    private String description;
+
+    private boolean status; // true: còn trống, false: đang bị thuê
+
+//    private String imageUrl; // hoặc dùng List<StorageImage> nếu nhiều ảnh
 
     @OneToMany(mappedBy = "storage")
     private List<Contact> contacts;
 
     @OneToMany(mappedBy = "storage")
-    private List<InventoryTransaction> inventoryTransactions;
+    private List<StorageTransaction> storageTransactions;
+
+
 }
+

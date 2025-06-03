@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 
 
-public class InventoryTransaction {
+public class StorageTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

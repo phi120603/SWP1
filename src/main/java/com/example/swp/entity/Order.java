@@ -16,29 +16,43 @@ import java.util.Date;
 @Table(name = "orders") // Đặt tên khác vì "Order" là từ khóa SQL
 public class Order {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private int id;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date orderDate;
+        @Temporal(TemporalType.TIMESTAMP)
+        @Column(nullable = false)
+        private Date startDate;
 
-    private double totalAmount;
+        @Temporal(TemporalType.TIMESTAMP)
+        @Column(nullable = false)
+        private Date endDate;
 
-    private boolean confirmed;
+        @Temporal(TemporalType.TIMESTAMP)
+        @Column(nullable = false)
+        private Date orderDate;
 
-    // Mối quan hệ với Customer (nhiều Order thuộc về một Customer)
-    @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
+        private double totalAmount;
 
-    // Mối quan hệ với Staff (nếu được xác nhận bởi nhân viên)
-    @ManyToOne
-    @JoinColumn(name = "staff_id")
-    private Staff staff;
+        @Column(nullable = false)
+        private String status; // PENDING, APPROVED, REJECTED, PAID
 
-    // Mối quan hệ với Manager (nếu cần xác nhận cấp cao)
-    @ManyToOne
-    @JoinColumn(name = "manager_id")
-    private Manager manager;
-}
+        @ManyToOne
+        @JoinColumn(name = "customer_id", nullable = false)
+        private Customer customer;
+
+        @ManyToOne
+        @JoinColumn(name = "staff_id")
+        private Staff staff;
+
+        @ManyToOne
+        @JoinColumn(name = "manager_id")
+        private Manager manager;
+
+        @ManyToOne
+        @JoinColumn(name = "storage_id", nullable = false)
+        private Storage storage;
+
+    }
+
+

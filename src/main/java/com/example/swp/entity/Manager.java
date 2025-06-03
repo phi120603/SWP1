@@ -19,6 +19,7 @@ import java.util.List;
         private int id;
         private String fullname;
         private String email;
+        private String password;
         private String phone;
 
         @Enumerated(EnumType.STRING)

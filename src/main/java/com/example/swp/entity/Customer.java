@@ -26,6 +26,7 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     private RoleName roleName;
     private String id_citizen;
+    private String password;
 
     @OneToMany(mappedBy = "customer")
     private List<Contact> contacts;
@@ -34,7 +35,7 @@ public class Customer {
     private List<Feedback> feedbacks;
 
     @OneToMany
-    private List<InventoryTransaction> inventoryTransactions;
+    private List<StorageTransaction> storageTransactions;
 
     @OneToMany
     private List<Payment> payments;
