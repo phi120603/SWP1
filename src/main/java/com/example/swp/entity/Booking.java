@@ -19,6 +19,8 @@ import java.util.Date;
         private int id;
         private Date bookingDate;
         private String purpose;
+        private int rentalDays;
+        private double totalAmount;
 
         @ManyToOne
         @JoinColumn(name = "customer_id")

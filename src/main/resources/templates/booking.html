@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Form</title>
+</head>
+<body>
+<h2>Booking Form</h2>
+
+<form th:action="@{/api/bookings}" th:object="${bookingRequest}" method="post">
+    <label>Purpose:</label>
+    <input type="text" th:field="*{purpose}"><br>
+
+    <label>Booking Date:</label>
+    <label>
+        <input type="date" th:field="*{bookingDate}">
+    </label><br>
+
+    <label>Rental Days:</label>
+    <input type="number" th:field="*{rentalDays}"><br>
+
+    <label>Customer ID:</label>
+    <label>
+        <input type="number" th:field="*{customerId}">
+    </label><br>
+
+    <label>Staff ID:</label>
+    <label>
+        <input type="number" th:field="*{staffId}">
+    </label><br>
+
+    <label>Storage ID:</label>
+    <input type="number" th:field="*{storageId}"><br>
+
+    <button type="submit">Submit</button>
+</form>
+
+<p th:text="${message}"></p>
+</body>
+</html>
