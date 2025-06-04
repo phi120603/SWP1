@@ -2,8 +2,10 @@ package com.example.swp.service.impl;
 
 import com.example.swp.dto.OrderRequest;
 import com.example.swp.dto.StorageRequest;
+import com.example.swp.entity.Customer;
 import com.example.swp.entity.Order;
 import com.example.swp.entity.Storage;
+import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.OrderRepository;
 import com.example.swp.repository.StorageReponsitory;
 import com.example.swp.service.OrderService;
@@ -18,6 +20,8 @@ import java.time.temporal.Temporal;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
 @Component
 public class OrderServiceimpl implements OrderService {
     @Autowired
@@ -26,6 +30,8 @@ public class OrderServiceimpl implements OrderService {
     private StorageReponsitory storageReponsitory;
     @Autowired
     private StorageRequest storageRequest;
+    @Autowired
+    private CustomerRepository customerRepository;
     @Override
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
@@ -34,18 +40,25 @@ public class OrderServiceimpl implements OrderService {
     @Override
     public Optional<Order> getOrderById(int id) {return orderRepository.findById(id);}
 
+
     @Override
     public Order createOrder(OrderRequest orderRequest) {
+        Customer customer =  customerRepository.findById(orderRequest.getCustomerId())
+                .orElseThrow(() -> new RuntimeException("ko co customer " +orderRequest.getCustomerId()));
+        Storage storage = storageReponsitory.findById(orderRequest.getStorageId())
+                .orElseThrow(() -> new RuntimeException("ko co storage " +orderRequest.getStorageId()));
         Order order = new Order();
         order.setStartDate(orderRequest.getStartDate());
         order.setEndDate(orderRequest.getEndDate());
         order.setOrderDate(orderRequest.getOrderDate());
-        long rentalDays = ChronoUnit.DAYS.between((Temporal) orderRequest.getStartDate(), (Temporal) orderRequest.getEndDate());
+        long rentalDays = ChronoUnit.DAYS.between(orderRequest.getStartDate(), orderRequest.getEndDate());
         // Tính tổng tiền thuê
-        double dailyRate = storageRequest.getPricePerDay(); // hoặc giá cố định
+        double dailyRate =storage.getPricePerDay(); // hoặc giá cố định
         double totalAmount = rentalDays * dailyRate;
         order.setTotalAmount(totalAmount);
         order.setStatus(orderRequest.getStatus());
+        order.setCustomer(customer);
+        order.setStorage(storage);
         return orderRepository.save(order);
     }
 
@@ -64,37 +77,5 @@ public class OrderServiceimpl implements OrderService {
 
 
     }
-
-//    public Order createOrder(OrderRequest dto) {
-//        // Lấy thông tin kho
-//        Storage storage = storageRepository.findById(dto.getStorageId())
-//                .orElseThrow(() -> new RuntimeException("Không tìm thấy kho"));
-//
-//        // Tính tổng tiền thuê (giá mỗi ngày * số ngày thuê)
-//        BigDecimal totalAmount = calculateTotalAmount(dto.getStartDate(), dto.getEndDate(), storage.getPricePerDay());
-//
-//        // Khởi tạo đơn hàng
-//        Order order = new Order();
-//        order.setStartDate(dto.getStartDate());
-//        order.setEndDate(dto.getEndDate());
-//        order.setStorage(storage);
-//
-//        // Lấy thông tin khách hàng
-//        Customer customer = customerRepository.findById(dto.getCustomerId())
-//                .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng"));
-//        order.setCustomer(customer);
-//
-//        // Gán ngày đặt hàng là thời điểm hiện tại
-//        order.setOrderDate(LocalDate.now());
-//
-//        // Gán tổng tiền
-//        order.setTotalAmount(totalAmount);
-//
-//        // Gán trạng thái đơn hàng ban đầu là "PENDING"
-//        order.setStatus("PENDING");
-//
-//        // Lưu đơn hàng vào database
-//        return orderRepository.save(order);
-//    }
 
 }

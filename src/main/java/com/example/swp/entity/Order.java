@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Setter
 @Getter
@@ -20,25 +20,22 @@ public class Order {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private int id;
 
-        @Temporal(TemporalType.TIMESTAMP)
-        @Column(nullable = false)
-        private Date startDate;
+        @Column(nullable = true)
+        private LocalDate startDate;
 
-        @Temporal(TemporalType.TIMESTAMP)
-        @Column(nullable = false)
-        private Date endDate;
+        @Column(nullable = true)
+        private LocalDate endDate;
 
-        @Temporal(TemporalType.TIMESTAMP)
-        @Column(nullable = false)
-        private Date orderDate;
+        @Column(nullable = true)
+        private LocalDate orderDate;
 
         private double totalAmount;
 
-        @Column(nullable = false)
+        @Column(nullable = true)
         private String status; // PENDING, APPROVED, REJECTED, PAID
 
         @ManyToOne
-        @JoinColumn(name = "customer_id", nullable = false)
+        @JoinColumn(name = "customer_id", nullable = true)
         private Customer customer;
 
         @ManyToOne
@@ -50,7 +47,7 @@ public class Order {
         private Manager manager;
 
         @ManyToOne
-        @JoinColumn(name = "storage_id", nullable = false)
+        @JoinColumn(name = "storage_id", nullable = true)
         private Storage storage;
 
     }

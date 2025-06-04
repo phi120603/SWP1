@@ -41,15 +41,14 @@ public class OrderDetailController {
         Optional<Order> optionalOrder = orderService.getOrderById(id);
         if (optionalOrder.isPresent()) {
             Order order = optionalOrder.get();
-
             // Cập nhật trạng thái đơn hàng
             order.setStatus("Approved");
             orderService.save(order);
 
             // Gửi email xác nhận cho khách hàng
-            String customerEmail = order.getCustomer().getEmail(); // Giả sử có thông tin khách hàng trong Order
-            String warehouseInfo = order.getStorage().getStoragename(); // Giả sử có thông tin kho
-            double totalAmount = order.getTotalAmount(); // Tổng tiền phải trả
+            String customerEmail = order.getCustomer().getEmail();
+            String warehouseInfo = order.getStorage().getStoragename();
+            double totalAmount = order.getTotalAmount();
 
             String subject = "Xác nhận đơn hàng #" + id + " đã được duyệt";
             String body = "Kính gửi khách hàng,\n\n" +
@@ -61,7 +60,7 @@ public class OrderDetailController {
             emailService.sendEmail(customerEmail, subject, body);
 
             redirectAttributes.addFlashAttribute("message", "Đã duyệt đơn hàng #" + id + " và gửi email xác nhận.");
-            return "redirect:/SWP/orders/" + id;
+            return "redirect:/SWP/orders/{id}";
         } else {
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy đơn hàng.");
             return "redirect:/SWP/orders";
