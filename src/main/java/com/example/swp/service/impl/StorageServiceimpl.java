@@ -2,8 +2,8 @@ package com.example.swp.service.impl;
 
 import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Storage;
-import com.example.swp.repository.StorageReponsitory;
-import com.example.swp.repository.StorageReponsitory;
+import com.example.swp.repository.StorageRepository;
+import com.example.swp.repository.StorageRepository;
 import com.example.swp.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,7 +14,7 @@ import java.util.Optional;
 @Component
 public class StorageServiceimpl implements StorageService {
     @Autowired
-    private StorageReponsitory storageReponsitory;
+    private StorageRepository storageReponsitory;
     @Override
     public List<Storage> getAll() {
         return storageReponsitory.findAll();

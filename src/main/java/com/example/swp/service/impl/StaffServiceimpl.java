@@ -2,7 +2,7 @@ package com.example.swp.service.impl;
 
 import com.example.swp.dto.StaffRequest;
 import com.example.swp.entity.Staff;
-import com.example.swp.repository.StaffReponsitory;
+import com.example.swp.repository.StaffRepository;
 import com.example.swp.service.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,10 +12,10 @@ import java.util.List;
 @Component
 public class StaffServiceimpl implements StaffService {
 @Autowired
-private StaffReponsitory staffReponsitory;
+private StaffRepository staffRepository;
     @Override
     public List<Staff> getAllStaff() {
-        return staffReponsitory.findAll() ;
+        return staffRepository.findAll() ;
     }
 
     @Override
@@ -28,7 +28,7 @@ private StaffReponsitory staffReponsitory;
         staff.setRoleName(staffRequest.getRoleName());
         staff.setSex(staffRequest.isSex());
         staff.setIdCitizenCard(staffRequest.getIdCitizenCard());
-        return staffReponsitory.save(staff);
+        return staffRepository.save(staff);
     }
 
 

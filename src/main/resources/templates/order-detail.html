@@ -18,8 +18,19 @@
 
 <p>ID: <span th:text="${order.getId()}"></span></p>
 <p>Ngày đặt: <span th:text="${order.getOrderDate()}"></span></p>
-<p>Ngày sử dụng: <span th:text="${order.getStartDate()}"></span></p>
-<p>Ngày kết thúc: <span th:text="${order.getEndDate()}"></span></p>
+<p>
+    Ngày sử dụng:
+    <input type="date" name="startDate"
+           th:value="${order.startDate}" />
+</p>
+
+<!-- Chọn ngày kết thúc -->
+<p>
+    Ngày kết thúc:
+    <input type="date" name="endDate"
+           th:value="${order.endDate}" />
+</p>
+
 <p>Tổng tiền: <span th:text="${order.getTotalAmount()} + ' VND'"></span></p>
 <p>Trạng thái: <span th:text="${order.getStatus()}"></span></p>
 <p>Khách hàng: <span th:text="${order.customer.fullname}"></span></p>
