@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Transaction Detail</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
+    .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+    h2 { text-align: center; color: #333; }
+    p { margin: 10px 0; color: #555; }
+    .message { color: green; font-weight: bold; }
+    .error { color: red; font-weight: bold; }
+    form { margin-top: 20px; }
+    button { padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background-color: #218838; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Transaction Detail</h2>
+  <div th:if="${message}" class="message" th:text="${message}"></div>
+  <div th:if="${error}" class="error" th:text="${error}"></div>
+  <p><strong>ID:</strong> <span th:text="${transaction.id}"></span></p>
+  <p><strong>Type:</strong> <span th:text="${transaction.type}"></span></p>
+  <p><strong>Transaction Date:</strong> <span th:text="${#dates.format(transaction.transactionDate, 'yyyy-MM-dd HH:mm')}"></span></p>
+  <p><strong>Storage ID:</strong> <span th:text="${transaction.storage != null ? transaction.storage.storageid : 'N/A'}"></span></p>
+  <p><strong>Customer ID:</strong> <span th:text="${transaction.customer != null ? transaction.customer.id : 'N/A'}"></span></p>
+
+  <form th:action="@{/SWP/storage-transactions/{id}/complete(id=${transaction.id})}" method="post">
+    <button type="submit">Mark as Completed</button>
+  </form>
+  <form th:action="@{/SWP/storage-transactions/{id}/fail(id=${transaction.id})}" method="post">
+    <button type="submit">Mark as Failed</button>
+  </form>
+</div>
+</body>
+</html>

@@ -69,7 +69,7 @@ public class OrderServiceimpl implements OrderService {
 
     //Hàm tính total amount
     public BigDecimal calculateTotalAmount(LocalDate startDate, LocalDate endDate, BigDecimal pricePerDay) {
-        long days = ChronoUnit.DAYS.between(startDate, endDate);
+        long days = ChronoUnit.DAYS.between(startDate, endDate) + 1;
         if (days <= 0) {
             throw new IllegalArgumentException("Ngày kết thúc phải sau ngày bắt đầu");
         }

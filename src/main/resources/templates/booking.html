@@ -6,81 +6,126 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f4f4f9;
     }
-
-    form {
+    .container {
+      max-width: 500px;
+      width: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
       margin-bottom: 20px;
+      font-size: 24px;
     }
-
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
     label {
       display: block;
       margin: 10px 0 5px;
+      color: #555;
+      font-weight: bold;
+      font-size: 14px;
     }
-
-    input[type="date"],
-    input[type="submit"] {
-      padding: 8px;
+    input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
       font-size: 16px;
     }
-
     input[type="submit"] {
+      width: 100%;
+      padding: 12px;
       background-color: #28a745;
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
     }
-
     input[type="submit"]:hover {
       background-color: #218838;
     }
-
     .total-amount {
+      background: #e8f0fe;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
       font-weight: bold;
+      font-size: 18px;
+      color: #2c6ed5;
+      margin: 15px 0;
+      border: 1px solid #d1e7ff;
+    }
+    a {
+      display: block;
+      text-align: center;
       margin-top: 15px;
+      text-decoration: none;
+      color: #007BFF;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    a:hover {
+      text-decoration: underline;
     }
   </style>
-  <script>
-    function calculateTotal() {
-      const start = new Date(document.getElementById("startDate").value);
-      const end = new Date(document.getElementById("endDate").value);
-      const pricePerDay = parseFloat(document.getElementById("pricePerDay").value);
-
-      if (start && end && !isNaN(pricePerDay)) {
-        const diffTime = end - start;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-        if (diffDays > 0) {
-          document.getElementById("totalAmount").innerText =
-                  "Tổng tiền: " + (diffDays * pricePerDay).toLocaleString() + " VND";
-        } else {
-          document.getElementById("totalAmount").innerText = "Ngày kết thúc phải sau ngày bắt đầu.";
-        }
-      }
-    }
-  </script>
 </head>
 <body>
+<div class="container">
+  <h2>Booking</h2>
 
-<h2>Booking Kho</h2>
+  <form th:action="@{/SWP/storage/{id}/booking/save(id=${storage.storageid})}" method="post" oninput="calculateTotal()">
+    <input type="hidden" id="pricePerDay" th:value="${storage.pricePerDay}" />
+    <label for="startDate">Ngày bắt đầu:</label>
+    <input type="date" id="startDate" name="startDate" required>
 
-<form th:action="@{/SWP/storage/{id}/booking/save(id=${storage.storageid})}" method="post" oninput="calculateTotal()">
-  <label></label>
-  <label for="startDate">Ngày bắt đầu:</label>
-  <input type="date" id="startDate" name="startDate" required>
+    <label for="endDate">Ngày kết thúc:</label>
+    <input type="date" id="endDate" name="endDate" required>
 
-  <label for="endDate">Ngày kết thúc:</label>
-  <input type="date" id="endDate" name="endDate" required>
+    <div id="totalAmount" class="total-amount">Tổng tiền: 0 VNĐ</div>
 
-  <input type="hidden" id="pricePerDay" th:value="${storage.pricePerDay}" />
+    <input type="submit" value="Xác nhận Booking">
+  </form>
 
-  <div id="totalAmount" class="total-amount"></div>
+  <a th:href="@{/SWP/storage/{id}(id=${storage.storageid})}">Quay lại chi tiết</a>
+</div>
 
-  <input type="submit" value="Xác nhận Booking">
-</form>
+<script>
+  function calculateTotal() {
+    const start = new Date(document.getElementById("startDate").value);
+    const end = new Date(document.getElementById("endDate").value);
+    const pricePerDay = parseFloat(document.getElementById("pricePerDay").value);
+    const totalAmountElement = document.getElementById("totalAmount");
 
-<a href="/SWP/storages" th:href="@{/SWP/storage/{id}(id=${storage.storageid})}">Quay lại chi tiết kho</a>
-
+    if (start && end && !isNaN(pricePerDay)) {
+      const diffTime = end - start;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays > 0) {
+        totalAmountElement.textContent = "Tổng tiền: " + (diffDays * pricePerDay).toLocaleString('vi-VN') + " VNĐ";
+      } else {
+        totalAmountElement.textContent = "Ngày kết thúc phải sau ngày bắt đầu.";
+      }
+    } else {
+      totalAmountElement.textContent = "Tổng tiền: 0 VNĐ";
+    }
+  }
+</script>
 </body>
 </html>
