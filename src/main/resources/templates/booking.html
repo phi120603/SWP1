@@ -117,7 +117,7 @@
     <div id="totalAmount" class="total-amount">Tổng tiền: 0 VNĐ</div>
 
     <input type="submit" value="Xác nhận Booking" id="submitButton">
-    <div id="successMessage" class="success-message">Xác nhận đặt hàng</div>
+    <div id="successMessage" class="success-message">Booking thành công</div>
   </form>
 
   <a th:href="@{/SWP/storages/{id}(id=${storage.storageid})}">Quay lại chi tiết</a>
@@ -143,16 +143,13 @@
     }
   }
 
-  // Simulate success message after form submission
   document.getElementById('bookingForm').addEventListener('submit', function(event) {
-    // This is a simulation; actual success depends on server redirect
+    event.preventDefault(); // Prevent default form submission
+    const successMessage = document.getElementById('successMessage');
+    successMessage.style.display = 'block'; // Show success message
     setTimeout(function() {
-      const successMessage = document.getElementById('successMessage');
-      successMessage.style.display = 'block'; // Show success message
-      setTimeout(function() {
-        successMessage.style.display = 'none'; // Hide after 2 seconds
-      }, 2000);
-    }, 100); // Delay to simulate server response
+      successMessage.style.display = 'none'; // Hide after 2 seconds
+    }, 2000);
   });
 </script>
 </body>
