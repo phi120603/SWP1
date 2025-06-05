@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách kho</title>
+    <style>
+        table {
+            width: 90%;
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+        h2 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .btn {
+            text-decoration: none;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+<h2>Danh sách kho</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Tên</th>
+        <th>Trạng thái</th>
+        <th>Địa chỉ</th>
+        <th>Thao tác</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="storage : ${storages}">
+        <td th:text="${storage.storagename}"></td>
+        <td th:text="${storage.status} ? 'Còn trống' : 'Đang thuê'"></td>
+        <td th:text="${storage.city}"></td>
+        <td>
+            <a th:href="@{'/SWP/storages/' + ${storage.storageid}}" class="btn btn-view">Chi tiết</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

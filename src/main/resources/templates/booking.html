@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Booking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    input[type="date"],
+    input[type="submit"] {
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    input[type="submit"] {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #218838;
+    }
+
+    .total-amount {
+      font-weight: bold;
+      margin-top: 15px;
+    }
+  </style>
+  <script>
+    function calculateTotal() {
+      const start = new Date(document.getElementById("startDate").value);
+      const end = new Date(document.getElementById("endDate").value);
+      const pricePerDay = parseFloat(document.getElementById("pricePerDay").value);
+
+      if (start && end && !isNaN(pricePerDay)) {
+        const diffTime = end - start;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 0) {
+          document.getElementById("totalAmount").innerText =
+                  "Tổng tiền: " + (diffDays * pricePerDay).toLocaleString() + " VND";
+        } else {
+          document.getElementById("totalAmount").innerText = "Ngày kết thúc phải sau ngày bắt đầu.";
+        }
+      }
+    }
+  </script>
+</head>
+<body>
+
+<h2>Booking Kho</h2>
+
+<form th:action="@{/SWP/storage/{id}/booking/save(id=${storage.storageid})}" method="post" oninput="calculateTotal()">
+  <label></label>
+  <label for="startDate">Ngày bắt đầu:</label>
+  <input type="date" id="startDate" name="startDate" required>
+
+  <label for="endDate">Ngày kết thúc:</label>
+  <input type="date" id="endDate" name="endDate" required>
+
+  <input type="hidden" id="pricePerDay" th:value="${storage.pricePerDay}" />
+
+  <div id="totalAmount" class="total-amount"></div>
+
+  <input type="submit" value="Xác nhận Booking">
+</form>
+
+<a href="/SWP/storages" th:href="@{/SWP/storage/{id}(id=${storage.storageid})}">Quay lại chi tiết kho</a>
+
+</body>
+</html>

@@ -2,8 +2,8 @@ package com.example.swp.service.impl;
 
 import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Storage;
-import com.example.swp.repository.StorageReponsitory;
-import com.example.swp.repository.StorageReponsitory;
+import com.example.swp.repository.StorageRepository;
+import com.example.swp.repository.StorageRepository;
 import com.example.swp.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,10 +14,10 @@ import java.util.Optional;
 @Component
 public class StorageServiceimpl implements StorageService {
     @Autowired
-    private StorageReponsitory storageReponsitory;
+    private StorageRepository storageRepository;
     @Override
     public List<Storage> getAll() {
-        return storageReponsitory.findAll();
+        return storageRepository.findAll();
     }
 
     @Override
@@ -31,12 +31,12 @@ public class StorageServiceimpl implements StorageService {
         storage.setPricePerDay(storageRequest.getPricePerDay());
         storage.setDescription(storageRequest.getDescription());
         storage.setStatus(storageRequest.isStatus());
-        return storageReponsitory.save(storage);
+        return storageRepository.save(storage);
     }
 
     @Override
     public Optional<Storage> findByID(int id) {
-        return storageReponsitory.findById(id);
+        return storageRepository.findById(id);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class StorageServiceimpl implements StorageService {
         storage.setCity(storageRequest.getCity());
         storage.setState(storageRequest.getState());
         storage.setStatus(storageRequest.isStatus());
-        return storageReponsitory.save(storage);
+        return storageRepository.save(storage);
     }
 
 
