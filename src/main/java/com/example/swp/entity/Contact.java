@@ -13,6 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+
 public class Contact {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,14 +24,17 @@ public class Contact {
     private Date dateFrom;
     private Date dateTo;
     private double amount;
+
     //customer 1-many
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
+
     //staff 1-many
     @ManyToOne
     @JoinColumn(name = "staff_id")
     private Staff staff;
+
     //storage 1-many
     @ManyToOne
     @JoinColumn(name = "storage_id")
