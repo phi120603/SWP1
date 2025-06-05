@@ -84,6 +84,20 @@
         a:hover {
             text-decoration: underline;
         }
+        .error {
+            color: red;
+            background-color: #ffe6e6;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .success {
+            color: green;
+            background-color: #e6ffe6;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -92,7 +106,12 @@
 
     <div class="form-section">
         <h3>Add New Transaction</h3>
-        <form th:action="@{/api/storage-transaction/createStorageTransaction}" method="post">
+
+        <!-- Display error message if exists -->
+        <div th:if="${error}" class="error" th:text="${error}"></div>
+
+        <!-- Fixed form action to use the web controller -->
+        <form th:action="@{/SWP/createStorageTransaction}" method="post">
             <label for="type">Type (IMPORT/EXPORT):</label>
             <select id="type" name="type" required>
                 <option value="IMPORT">IMPORT</option>

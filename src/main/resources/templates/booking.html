@@ -20,35 +20,27 @@
       padding: 20px;
       box-sizing: border-box;
     }
-    h2 {
+    h1 {
       text-align: center;
       color: #333;
-      margin-bottom: 20px;
-      font-size: 24px;
     }
-    form {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    .form-group {
+      margin-bottom: 15px;
     }
     label {
       display: block;
-      margin: 10px 0 5px;
+      margin-bottom: 5px;
       color: #555;
       font-weight: bold;
-      font-size: 14px;
     }
     input[type="date"] {
       width: 100%;
       padding: 10px;
-      margin-bottom: 15px;
       border: 1px solid #ccc;
       border-radius: 4px;
       box-sizing: border-box;
-      font-size: 16px;
     }
-    input[type="submit"] {
+    button {
       width: 100%;
       padding: 12px;
       background-color: #28a745;
@@ -57,10 +49,36 @@
       border-radius: 4px;
       cursor: pointer;
       font-size: 16px;
-      transition: background-color 0.3s;
     }
-    input[type="submit"]:hover {
+    button:hover {
       background-color: #218838;
+    }
+    button:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+    a {
+      display: block;
+      text-align: center;
+      margin-top: 15px;
+      text-decoration: none;
+      color: #007BFF;
+      font-weight: bold;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .success {
+      color: green;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
     .total-amount {
       background: #e8f0fe;
@@ -73,84 +91,172 @@
       margin: 15px 0;
       border: 1px solid #d1e7ff;
     }
-    a {
-      display: block;
+    .loading {
+      display: none;
       text-align: center;
-      margin-top: 15px;
-      text-decoration: none;
       color: #007BFF;
       font-weight: bold;
-      font-size: 14px;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    .error {
-      color: red;
-      text-align: center;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .success-message {
-      color: green;
-      text-align: center;
-      font-weight: bold;
-      margin-top: 10px;
-      display: none; /* Hidden by default */
     }
   </style>
 </head>
 <body>
 <div class="container">
-  <h2>Booking</h2>
+  <h1>Booking</h1>
 
   <div th:if="${error}" class="error" th:text="${error}"></div>
+  <div id="dynamicMessage"></div>
 
-  <form th:action="@{/SWP/storages/{id}/booking/save(id=${storage.storageid})}" method="post" oninput="calculateTotal()" id="bookingForm">
-    <input type="hidden" id="pricePerDay" th:value="${storage.pricePerDay}" />
-    <label for="startDate">Ngày bắt đầu:</label>
-    <input type="date" id="startDate" name="startDate" required th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
+  <div th:if="${storage == null}">
+    <div class="error">Không tìm thấy thông tin kho!</div>
+    <a th:href="@{/SWP/storages}">Quay lại danh sách</a>
+  </div>
 
-    <label for="endDate">Ngày kết thúc:</label>
-    <input type="date" id="endDate" name="endDate" required th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
+  <div th:if="${storage != null}">
+    <!-- Hidden inputs để lưu thông tin -->
+    <input type="hidden" id="storageId" th:value="${storage.storageid}" />
+    <input type="hidden" id="customerId" value="1" /> <!-- Thay bằng customer ID thực tế -->
+    <input type="hidden" id="pricePerDay" th:value="${storage.pricePerDay != null ? storage.pricePerDay : 0}" />
 
-    <div id="totalAmount" class="total-amount">Tổng tiền: 0 VNĐ</div>
+    <div class="form-group">
+      <label>Ngày bắt đầu:</label>
+      <input type="date" id="startDate" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required>
+    </div>
 
-    <input type="submit" value="Xác nhận Booking" id="submitButton">
-    <div id="successMessage" class="success-message">Booking thành công</div>
-  </form>
+    <div class="form-group">
+      <label>Ngày kết thúc:</label>
+      <input type="date" id="endDate" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required>
+    </div>
 
-  <a th:href="@{/SWP/storages/{id}(id=${storage.storageid})}">Quay lại chi tiết</a>
-</div>
+    <div class="form-group">
+      <label>Giá mỗi ngày:</label>
+      <span th:text="${storage.pricePerDay != null ? storage.pricePerDay + ' VNĐ' : 'Chưa có giá'}"></span>
+    </div>
 
-<script>
-  function calculateTotal() {
-    const start = new Date(document.getElementById("startDate").value);
-    const end = new Date(document.getElementById("endDate").value);
-    const pricePerDay = parseFloat(document.getElementById("pricePerDay").value);
-    const totalAmountElement = document.getElementById("totalAmount");
+    <div class="form-group total-amount" id="totalAmountDisplay">
+      Tổng tiền: 0 VNĐ
+    </div>
 
-    if (start && end && !isNaN(pricePerDay)) {
-      const diffTime = end - start;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Include both start and end dates
-      if (diffDays > 1) { // diffDays includes both dates, so > 1 means at least one full day
-        totalAmountElement.textContent = "Tổng tiền: " + ((diffDays - 1) * pricePerDay).toLocaleString('vi-VN') + " VNĐ";
-      } else {
-        totalAmountElement.textContent = "Ngày kết thúc phải sau ngày bắt đầu.";
+    <div class="loading" id="loadingMessage">Đang xử lý...</div>
+
+    <button id="bookingBtn" onclick="confirmBooking()">Xác nhận đặt hàng</button>
+
+    <a th:href="@{/SWP/storages/{id}(id=${storage.storageid})}">Quay lại chi tiết</a>
+  </div>
+
+  <script>
+    function calculateTotal() {
+      const startDate = document.getElementById("startDate");
+      const endDate = document.getElementById("endDate");
+      const pricePerDay = parseFloat(document.getElementById("pricePerDay")?.value) || 0;
+      const totalAmountDisplay = document.getElementById("totalAmountDisplay");
+
+      if (!startDate.value || !endDate.value) {
+        totalAmountDisplay.textContent = "Tổng tiền: 0 VNĐ";
+        return;
       }
-    } else {
-      totalAmountElement.textContent = "Tổng tiền: 0 VNĐ";
-    }
-  }
 
-  document.getElementById('bookingForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent default form submission
-    const successMessage = document.getElementById('successMessage');
-    successMessage.style.display = 'block'; // Show success message
-    setTimeout(function() {
-      successMessage.style.display = 'none'; // Hide after 2 seconds
-    }, 2000);
-  });
-</script>
+      const start = new Date(startDate.value);
+      const end = new Date(endDate.value);
+      const diffTime = end - start;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays > 0 && pricePerDay > 0) {
+        const total = diffDays * pricePerDay;
+        totalAmountDisplay.textContent = "Tổng tiền: " + total.toLocaleString('vi-VN') + " VNĐ";
+      } else if (diffDays <= 0) {
+        totalAmountDisplay.textContent = "Ngày kết thúc phải sau ngày bắt đầu.";
+      } else {
+        totalAmountDisplay.textContent = "Tổng tiền: 0 VNĐ";
+      }
+    }
+
+    // Gắn sự kiện onchange cho các trường ngày
+    document.getElementById("startDate")?.addEventListener("change", calculateTotal);
+    document.getElementById("endDate")?.addEventListener("change", calculateTotal);
+
+    function confirmBooking() {
+      // Validate form
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
+      const storageId = document.getElementById("storageId").value;
+      const customerId = document.getElementById("customerId").value;
+
+      if (!startDate || !endDate) {
+        showMessage("Vui lòng chọn ngày bắt đầu và kết thúc!", "error");
+        return;
+      }
+
+      if (new Date(startDate) >= new Date(endDate)) {
+        showMessage("Ngày kết thúc phải sau ngày bắt đầu!", "error");
+        return;
+      }
+
+      // Disable button và show loading
+      const bookingBtn = document.getElementById("bookingBtn");
+      const loadingMessage = document.getElementById("loadingMessage");
+
+      bookingBtn.disabled = true;
+      loadingMessage.style.display = "block";
+
+      // Tạo object data để gửi
+      const orderData = {
+        customerId: parseInt(customerId),
+        storageId: parseInt(storageId),
+        startDate: startDate,
+        endDate: endDate,
+        orderDate: new Date().toISOString().split('T')[0], // Ngày hiện tại
+        status: "PENDING"
+      };
+
+      console.log("Sending order data:", orderData);
+
+      // Gửi AJAX request - ĐÃ SỬA URL
+      fetch('/api/SWP/orders', {  // ← THAY ĐỔI TỪ '/SWP/orders' THÀNH '/api/SWP/orders'
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData)
+      })
+              .then(response => {
+                console.log("Response status:", response.status);
+                if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+              })
+              .then(data => {
+                console.log("Success response:", data);
+                showMessage("Booking thành công! Order ID: " + data.id, "success");
+
+                // Reset form
+                document.getElementById("startDate").value = "";
+                document.getElementById("endDate").value = "";
+                calculateTotal();
+              })
+              .catch(error => {
+                console.error("Error:", error);
+                showMessage("Có lỗi xảy ra: " + error.message, "error");
+              })
+              .finally(() => {
+                // Re-enable button và hide loading
+                bookingBtn.disabled = false;
+                loadingMessage.style.display = "none";
+              });
+    }
+
+    function showMessage(message, type) {
+      const messageDiv = document.getElementById("dynamicMessage");
+      messageDiv.className = type;
+      messageDiv.textContent = message;
+
+      // Auto hide after 5 seconds
+      setTimeout(() => {
+        messageDiv.textContent = "";
+        messageDiv.className = "";
+      }, 5000);
+    }
+  </script>
+</div>
 </body>
 </html>

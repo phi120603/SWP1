@@ -13,32 +13,36 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
-
-@RequestMapping("/api/order")
-
+@RequestMapping("/api/SWP") // Thay đổi từ /api/order sang /SWP
 public class OrderController {
 
     @Autowired
     private OrderService orderService;
 
-    @GetMapping("/all-orders")
+    @GetMapping("/orders") // Get all orders
     public List<Order> getAllOrders() {
         return orderService.getAllOrders();
     }
 
-
-    @GetMapping("/findByID/{id}")
-    public Optional<Order> findById(@PathVariable int id) {
-        return orderService.getOrderById(id);
+    @GetMapping("/orders/{id}") // Get order by ID
+    public ResponseEntity<Order> findById(@PathVariable int id) {
+        Optional<Order> order = orderService.getOrderById(id);
+        return order.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/createOrder")
-    public ResponseEntity<Order> createOrder(@RequestBody OrderRequest orderRequest) {
-
-        Order order = orderService.createOrder(orderRequest);
-        return ResponseEntity.ok(order);
+    @PostMapping("/orders") // Create new order
+    public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest) {
+        try {
+            Order order = orderService.createOrder(orderRequest);
+            return ResponseEntity.ok(order);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 }

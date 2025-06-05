@@ -17,7 +17,7 @@ public class StorageTransactionListController {
     @Autowired
     private StorageTransactionService storageTransactionService;
 
-    @GetMapping("/SWP/storage-transactions")
+    @GetMapping("/storage-transactions")
     public String listStorageTransactions(Model model) {
         List<StorageTransaction> transactions = storageTransactionService.getAllStorageTransactions();
         model.addAttribute("transactions", transactions);
