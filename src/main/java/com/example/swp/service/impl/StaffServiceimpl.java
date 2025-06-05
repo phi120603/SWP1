@@ -2,7 +2,7 @@ package com.example.swp.service.impl;
 
 import com.example.swp.dto.StaffRequest;
 import com.example.swp.entity.Staff;
-import com.example.swp.repository.StaffReponsitory;
+import com.example.swp.reponsitory.StaffReponsitory;
 import com.example.swp.service.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
