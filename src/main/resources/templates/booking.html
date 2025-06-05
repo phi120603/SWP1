@@ -85,26 +85,42 @@
     a:hover {
       text-decoration: underline;
     }
+    .error {
+      color: red;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .success-message {
+      color: green;
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+      display: none; /* Hidden by default */
+    }
   </style>
 </head>
 <body>
 <div class="container">
   <h2>Booking</h2>
 
-  <form th:action="@{/SWP/storage/{id}/booking/save(id=${storage.storageid})}" method="post" oninput="calculateTotal()">
+  <div th:if="${error}" class="error" th:text="${error}"></div>
+
+  <form th:action="@{/SWP/storages/{id}/booking/save(id=${storage.storageid})}" method="post" oninput="calculateTotal()" id="bookingForm">
     <input type="hidden" id="pricePerDay" th:value="${storage.pricePerDay}" />
     <label for="startDate">Ngày bắt đầu:</label>
-    <input type="date" id="startDate" name="startDate" required>
+    <input type="date" id="startDate" name="startDate" required th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
 
     <label for="endDate">Ngày kết thúc:</label>
-    <input type="date" id="endDate" name="endDate" required>
+    <input type="date" id="endDate" name="endDate" required th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
 
     <div id="totalAmount" class="total-amount">Tổng tiền: 0 VNĐ</div>
 
-    <input type="submit" value="Xác nhận Booking">
+    <input type="submit" value="Xác nhận Booking" id="submitButton">
+    <div id="successMessage" class="success-message">Xác nhận đặt hàng</div>
   </form>
 
-  <a th:href="@{/SWP/storage/{id}(id=${storage.storageid})}">Quay lại chi tiết</a>
+  <a th:href="@{/SWP/storages/{id}(id=${storage.storageid})}">Quay lại chi tiết</a>
 </div>
 
 <script>
@@ -116,9 +132,9 @@
 
     if (start && end && !isNaN(pricePerDay)) {
       const diffTime = end - start;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      if (diffDays > 0) {
-        totalAmountElement.textContent = "Tổng tiền: " + (diffDays * pricePerDay).toLocaleString('vi-VN') + " VNĐ";
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Include both start and end dates
+      if (diffDays > 1) { // diffDays includes both dates, so > 1 means at least one full day
+        totalAmountElement.textContent = "Tổng tiền: " + ((diffDays - 1) * pricePerDay).toLocaleString('vi-VN') + " VNĐ";
       } else {
         totalAmountElement.textContent = "Ngày kết thúc phải sau ngày bắt đầu.";
       }
@@ -126,6 +142,18 @@
       totalAmountElement.textContent = "Tổng tiền: 0 VNĐ";
     }
   }
+
+  // Simulate success message after form submission
+  document.getElementById('bookingForm').addEventListener('submit', function(event) {
+    // This is a simulation; actual success depends on server redirect
+    setTimeout(function() {
+      const successMessage = document.getElementById('successMessage');
+      successMessage.style.display = 'block'; // Show success message
+      setTimeout(function() {
+        successMessage.style.display = 'none'; // Hide after 2 seconds
+      }, 2000);
+    }, 100); // Delay to simulate server response
+  });
 </script>
 </body>
 </html>
