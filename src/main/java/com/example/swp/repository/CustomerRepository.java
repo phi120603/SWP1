@@ -2,22 +2,9 @@ package com.example.swp.repository;
 
 import com.example.swp.entity.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
 import java.util.Optional;
 
-@Repository
-public interface CustomerRepository extends JpaRepository<Customer, Integer> {
-
-
-    Optional<Customer> findByEmail(String email);
-
-
-    boolean existsByEmail(String email);
-
-
+public interface CustomerRepository extends JpaRepository<Customer, Long> { // Giả sử ID là Long
     Optional<Customer> findByUsername(String username);
-
-
-    boolean existsByUsername(String username);
+    Optional<Customer> findByEmail(String email); // Cần thiết để kiểm tra email tồn tại
 }

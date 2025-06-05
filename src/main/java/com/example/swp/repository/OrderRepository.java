@@ -1,4 +1,4 @@
-package com.example.swp.reponsitory;
+package com.example.swp.repository;
 
 import com.example.swp.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
