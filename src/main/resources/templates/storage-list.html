@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách kho</title>
+    <link rel="stylesheet" th:href="@{/storage-list.css}">
+</head>
+<body>
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <ul>
+        <li><a href="/SWP">Home</a></li>
+        <li><a href="/SWP/storages">List</a></li>
+    </ul>
+</nav>
+
+<!-- Main Content -->
+<div class="container">
+    <h2>Danh sách kho</h2>
+
+    <div class="storage-grid">
+        <div class="storage-card" th:each="storage : ${storages}">
+            <div class="storage-name" th:text="${storage.storagename}">Tên kho</div>
+
+            <div th:class="${storage.status} ? 'storage-status status-available' : 'storage-status status-rented'"
+                 th:text="${storage.status} ? 'Còn trống' : 'Đang thuê'">
+                Trạng thái
+            </div>
+
+            <div class="storage-address" th:text="${storage.city}">Địa chỉ</div>
+
+            <a th:href="@{'/SWP/storages/' + ${storage.storageid}}" class="btn">Chi tiết</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
