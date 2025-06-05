@@ -16,21 +16,21 @@ public class SecurityConfig {
 
     // 1. Định nghĩa Bean cho PasswordEncoder
     // Spring Security yêu cầu một PasswordEncoder để mã hóa và so sánh mật khẩu
-    @Bean
+
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(); // BCrypt là một thuật toán mã hóa mật khẩu mạnh
     }
 
     // 2. Định nghĩa Bean cho AuthenticationManager
     // Đây là bean mà LoginController của bạn cần để thực hiện xác thực
-    @Bean
+
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     // 3. Cấu hình SecurityFilterChain
     // Định nghĩa các quy tắc bảo mật HTTP: trang nào được truy cập, trang đăng nhập, đăng xuất...
-    @Bean
+
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 // Tắt CSRF (Cross-Site Request Forgery) - Thường tắt cho API hoặc nếu bạn tự xử lý token
