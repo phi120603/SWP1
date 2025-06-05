@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập</title>
+    <style>
+        /* Modern Login Form Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #71b7e6, #9b59b6); /* Gradient blue/purple background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .login-container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 15px; /* Rounded corners */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Soft shadow */
+            width: 380px; /* Fixed width for the form */
+            text-align: center;
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        h2 {
+            font-size: 2.2em;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left; /* Align labels to the left */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px; /* Rounded input fields */
+            font-size: 1em;
+            box-sizing: border-box; /* Include padding in width */
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #71b7e6; /* Highlight on focus */
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px 20px;
+            background-color: #71b7e6; /* Blue button color */
+            color: white;
+            border: none;
+            border-radius: 8px; /* Rounded button */
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #5a9ed1; /* Darker blue on hover */
+            transform: translateY(-2px); /* Slight lift effect */
+        }
+
+        .links-container {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between; /* Space out the links */
+            font-size: 0.9em;
+        }
+
+        .links-container a {
+            color: #71b7e6; /* Blue link color */
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .links-container a:hover {
+            text-decoration: underline;
+            color: #5a9ed1;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <h2>Đăng nhập</h2>
+    <form id="loginForm">
+        <div class="input-group">
+            <label for="logUsername">Tên đăng nhập:</label>
+            <input type="text" id="logUsername" placeholder="Nhập tên đăng nhập" required>
+        </div>
+
+        <div class="input-group">
+            <label for="logPassword">Mật khẩu:</label>
+            <input type="password" id="logPassword" placeholder="Nhập mật khẩu" required>
+        </div>
+
+        <button type="submit">Đăng nhập</button>
+    </form>
+    <div id="loginMessage" class="message"></div>
+
+    <div class="links-container">
+        <a href="#">Quên mật khẩu?</a>
+        <a href="register.html">Tạo tài khoản mới</a>
+    </div>
+</div>
+
+<script>
+    const API_BASE_URL = 'http://localhost:8080/api/auth';
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('logUsername').value;
+        const password = document.getElementById('logPassword').value;
+
+        const loginData = {
+            username,
+            password
+        };
+
+        const messageDiv = document.getElementById('loginMessage');
+        try {
+            const response = await fetch(`${API_BASE_URL}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(loginData),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                messageDiv.className = 'message success';
+                messageDiv.textContent = `Đăng nhập thành công! Chào mừng, ${data.username} (${data.role}).`;
+                // window.location.href = '/dashboard.html'; // Tùy chọn: Chuyển hướng sau khi đăng nhập thành công
+            } else {
+                const errorText = await response.text();
+                messageDiv.className = 'message error';
+                messageDiv.textContent = `Đăng nhập thất bại: ${errorText}`;
+            }
+        } catch (error) {
+            console.error('Lỗi khi đăng nhập:', error);
+            messageDiv.className = 'message error';
+            messageDiv.textContent = 'Lỗi kết nối hoặc máy chủ không khả dụng.';
+        }
+    });
+</script>
+</body>
+</html>
