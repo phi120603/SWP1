@@ -197,12 +197,10 @@
 
         const messageDiv = document.getElementById('registerMessage');
         try {
-            const response = await fetch(`${API_BASE_URL}/register`, {
+            const response = await fetch('/register', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(registerData),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, email, fullName, address, phone, idCitizen })
             });
 
             if (response.ok) {

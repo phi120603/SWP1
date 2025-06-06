@@ -130,8 +130,8 @@
     <h2>Đăng nhập</h2>
     <form id="loginForm">
         <div class="input-group">
-            <label for="logUsername">Tên đăng nhập:</label>
-            <input type="text" id="logUsername" placeholder="Nhập tên đăng nhập" required>
+            <label for="logEmail">Email:</label>
+            <input type="text" id="logEmail" name="email" placeholder="Nhập email" required>
         </div>
 
         <div class="input-group">
@@ -165,12 +165,13 @@
 
         const messageDiv = document.getElementById('loginMessage');
         try {
-            const response = await fetch(`${API_BASE_URL}/login`, {
+            const response = await fetch('/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(loginData),
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    email: document.getElementById('logEmail').value,
+                    password: document.getElementById('logPassword').value
+                })
             });
 
             if (response.ok) {
@@ -188,7 +189,9 @@
             messageDiv.className = 'message error';
             messageDiv.textContent = 'Lỗi kết nối hoặc máy chủ không khả dụng.';
         }
+
     });
+
 </script>
 </body>
 </html>

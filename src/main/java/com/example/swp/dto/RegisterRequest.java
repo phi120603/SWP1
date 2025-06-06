@@ -1,9 +1,19 @@
 package com.example.swp.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
 public class RegisterRequest {
     private String username;
     private String email;
     private String password;
+    private String fullName;
+    private String address;
+    private String phone;
+    private String idCitizen;
 
     // Constructors, Getters, Setters
     public RegisterRequest() {}

@@ -6,10 +6,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-//@RequestMapping("/SWP")
+
 public class HomeController {
     @GetMapping("/index")
     public String returnhome (Model model) {
@@ -22,8 +21,5 @@ public class HomeController {
     public String returnmain () {
         return"redirect:index";
     }
-    @GetMapping("/login")
-    public String returnlogin () {
-        return "login";
-    }
+
 }
