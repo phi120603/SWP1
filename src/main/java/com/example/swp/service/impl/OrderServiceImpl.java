@@ -71,7 +71,7 @@ public class OrderServiceImpl implements OrderService { // Sửa tên class
             order.setOrderDate(orderRequest.getOrderDate());
 
             // Tính số ngày thuê
-            long rentalDays = ChronoUnit.DAYS.between(orderRequest.getStartDate(), orderRequest.getEndDate());
+            long rentalDays = ChronoUnit.DAYS.between(orderRequest.getStartDate(), orderRequest.getEndDate()) + 1;
             if (rentalDays <= 0) {
                 rentalDays = 1; // Tối thiểu 1 ngày
             }

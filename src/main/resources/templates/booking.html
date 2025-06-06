@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Booking</title>
-  <link rel="stylesheet" href="/static/booking.css">
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -113,10 +113,10 @@
   </div>
 
   <div th:if="${storage != null}">
-    <!-- Hidden inputs để lưu thông tin -->
-    <input type="hidden" id="storageId" th:value="${storage.storageid}" />
-    <input type="hidden" id="customerId" value="1" /> <!-- Thay bằng customer ID thực tế -->
-    <input type="hidden" id="pricePerDay" th:value="${storage.pricePerDay != null ? storage.pricePerDay : 0}" />
+    <!-- Hidden inputs để lưu thông tin - ĐÃ SỬA -->
+    <input type="hidden" id="storageId" th:value="${storage.storageid ?: ''}" />
+    <input type="hidden" id="customerId" value="1" />
+    <input type="hidden" id="pricePerDay" th:value="${storage.pricePerDay ?: 0}" />
 
     <div class="form-group">
       <label>Ngày bắt đầu:</label>
@@ -148,7 +148,8 @@
     function calculateTotal() {
       const startDate = document.getElementById("startDate");
       const endDate = document.getElementById("endDate");
-      const pricePerDay = parseFloat(document.getElementById("pricePerDay")?.value) || 0;
+      const pricePerDayEl = document.getElementById("pricePerDay");
+      const pricePerDay = pricePerDayEl ? parseFloat(pricePerDayEl.value) || 0 : 0;
       const totalAmountDisplay = document.getElementById("totalAmountDisplay");
 
       if (!startDate.value || !endDate.value) {
@@ -159,7 +160,7 @@
       const start = new Date(startDate.value);
       const end = new Date(endDate.value);
       const diffTime = end - start;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24) + 1);
 
       if (diffDays > 0 && pricePerDay > 0) {
         const total = diffDays * pricePerDay;
@@ -176,74 +177,110 @@
     document.getElementById("endDate")?.addEventListener("change", calculateTotal);
 
     function confirmBooking() {
-      // Validate form
-      const startDate = document.getElementById("startDate").value;
-      const endDate = document.getElementById("endDate").value;
-      const storageId = document.getElementById("storageId").value;
-      const customerId = document.getElementById("customerId").value;
+      try {
+        // Validate form
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+        const storageIdEl = document.getElementById("storageId");
+        const customerIdEl = document.getElementById("customerId");
 
-      if (!startDate || !endDate) {
-        showMessage("Vui lòng chọn ngày bắt đầu và kết thúc!", "error");
-        return;
+        // Kiểm tra các element tồn tại
+        if (!storageIdEl || !customerIdEl) {
+          showMessage("Lỗi: Không tìm thấy thông tin cần thiết!", "error");
+          return;
+        }
+
+        const storageId = storageIdEl.value;
+        const customerId = customerIdEl.value;
+
+        if (!startDate || !endDate) {
+          showMessage("Vui lòng chọn ngày bắt đầu và kết thúc!", "error");
+          return;
+        }
+
+        if (new Date(startDate) >= new Date(endDate)) {
+          showMessage("Ngày kết thúc phải sau ngày bắt đầu!", "error");
+          return;
+        }
+
+        // Validate IDs
+        const parsedStorageId = parseInt(storageId);
+        const parsedCustomerId = parseInt(customerId);
+
+        if (isNaN(parsedStorageId) || isNaN(parsedCustomerId)) {
+          showMessage("Lỗi: ID không hợp lệ!", "error");
+          return;
+        }
+
+        // Disable button và show loading
+        const bookingBtn = document.getElementById("bookingBtn");
+        const loadingMessage = document.getElementById("loadingMessage");
+
+        bookingBtn.disabled = true;
+        loadingMessage.style.display = "block";
+
+        // Tạo object data để gửi - ĐÃ SỬA
+        const orderData = {
+          customerId: parsedCustomerId,
+          storageId: parsedStorageId,
+          startDate: startDate,
+          endDate: endDate,
+          orderDate: new Date().toISOString().split('T')[0],
+          status: "PENDING"
+        };
+
+        console.log("Sending order data:", orderData);
+
+        // Kiểm tra JSON trước khi gửi
+        const jsonString = JSON.stringify(orderData);
+        console.log("JSON string:", jsonString);
+
+        // Gửi AJAX request
+        fetch('/api/SWP/orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonString
+        })
+                .then(response => {
+                  console.log("Response status:", response.status);
+                  console.log("Response headers:", response.headers);
+
+                  // Kiểm tra content type
+                  const contentType = response.headers.get('content-type');
+                  if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Server không trả về JSON');
+                  }
+
+                  if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                  }
+                  return response.json();
+                })
+                .then(data => {
+                  console.log("Success response:", data);
+                  showMessage("Booking thành công! Order ID: " + data.id, "success");
+
+                  // Reset form
+                  document.getElementById("startDate").value = "";
+                  document.getElementById("endDate").value = "";
+                  calculateTotal();
+                })
+                .catch(error => {
+                  console.error("Error:", error);
+                  showMessage("Có lỗi xảy ra: " + error.message, "error");
+                })
+                .finally(() => {
+                  // Re-enable button và hide loading
+                  bookingBtn.disabled = false;
+                  loadingMessage.style.display = "none";
+                });
+
+      } catch (error) {
+        console.error("Unexpected error:", error);
+        showMessage("Lỗi không mong muốn: " + error.message, "error");
       }
-
-      if (new Date(startDate) >= new Date(endDate)) {
-        showMessage("Ngày kết thúc phải sau ngày bắt đầu!", "error");
-        return;
-      }
-
-      // Disable button và show loading
-      const bookingBtn = document.getElementById("bookingBtn");
-      const loadingMessage = document.getElementById("loadingMessage");
-
-      bookingBtn.disabled = true;
-      loadingMessage.style.display = "block";
-
-      // Tạo object data để gửi
-      const orderData = {
-        customerId: parseInt(customerId),
-        storageId: parseInt(storageId),
-        startDate: startDate,
-        endDate: endDate,
-        orderDate: new Date().toISOString().split('T')[0], // Ngày hiện tại
-        status: "PENDING"
-      };
-
-      console.log("Sending order data:", orderData);
-
-      // Gửi AJAX request - ĐÃ SỬA URL
-      fetch('/api/SWP/orders', {  // ← THAY ĐỔI TỪ '/SWP/orders' THÀNH '/api/SWP/orders'
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData)
-      })
-              .then(response => {
-                console.log("Response status:", response.status);
-                if (!response.ok) {
-                  throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-              })
-              .then(data => {
-                console.log("Success response:", data);
-                showMessage("Booking thành công! Order ID: " + data.id, "success");
-
-                // Reset form
-                document.getElementById("startDate").value = "";
-                document.getElementById("endDate").value = "";
-                calculateTotal();
-              })
-              .catch(error => {
-                console.error("Error:", error);
-                showMessage("Có lỗi xảy ra: " + error.message, "error");
-              })
-              .finally(() => {
-                // Re-enable button và hide loading
-                bookingBtn.disabled = false;
-                loadingMessage.style.display = "none";
-              });
     }
 
     function showMessage(message, type) {

@@ -1,5 +1,6 @@
 package com.example.swp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,11 +33,15 @@ public class Storage {
 //    private String imageUrl; // hoặc dùng List<StorageImage> nếu nhiều ảnh
 
     @OneToMany(mappedBy = "storage")
+    @JsonIgnore
     private List<Contact> contacts;
 
+
     @OneToMany(mappedBy = "storage")
+    @JsonIgnore
+
+
+
     private List<StorageTransaction> storageTransactions;
-
-
-}
+    }
 
