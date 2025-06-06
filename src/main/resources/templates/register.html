@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        /* Modern Register Form Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #71b7e6, #9b59b6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .register-container {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 420px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            font-size: 2.2em;
+            color: #333;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.95em;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"] {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus {
+            border-color: #71b7e6;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px 20px;
+            background-color: #71b7e6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 25px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #5a9ed1;
+            transform: translateY(-2px);
+        }
+
+        .links-container {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .links-container a {
+            color: #71b7e6;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .links-container a:hover {
+            text-decoration: underline;
+            color: #5a9ed1;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+<div class="register-container">
+    <h2>Register</h2>
+    <form id="registerForm">
+        <div class="input-group">
+            <label for="regUsername">Username:</label>
+            <input type="text" id="regUsername" placeholder="Enter username" required>
+        </div>
+
+        <div class="input-group">
+            <label for="regPassword">Password:</label>
+            <input type="password" id="regPassword" placeholder="Enter password" required>
+        </div>
+
+        <div class="input-group">
+            <label for="regEmail">Email:</label>
+            <input type="email" id="regEmail" placeholder="Enter email" required>
+        </div>
+
+        <div class="input-group">
+            <label for="regFullName">Full Name:</label>
+            <input type="text" id="regFullName" placeholder="Enter full name">
+        </div>
+
+        <div class="input-group">
+            <label for="regAddress">Address:</label>
+            <input type="text" id="regAddress" placeholder="Enter address">
+        </div>
+
+        <div class="input-group">
+            <label for="regPhone">Phone Number:</label>
+            <input type="text" id="regPhone" placeholder="Enter phone number">
+        </div>
+
+        <div class="input-group">
+            <label for="regIdCitizen">ID Card:</label>
+            <input type="text" id="regIdCitizen" placeholder="Enter ID card number">
+        </div>
+
+        <button type="submit">Register</button>
+    </form>
+    <div id="registerMessage" class="message"></div>
+    <div class="links-container">
+        <a href="login.html">Already have an account? Login</a>
+    </div>
+</div>
+
+<script>
+    const API_BASE_URL = 'http://localhost:8080/api/auth';
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('regUsername').value;
+        const password = document.getElementById('regPassword').value;
+        const email = document.getElementById('regEmail').value;
+        const fullName = document.getElementById('regFullName').value;
+        const address = document.getElementById('regAddress').value;
+        const phone = document.getElementById('regPhone').value;
+        const idCitizen = document.getElementById('regIdCitizen').value;
+
+        const registerData = {
+            username,
+            password,
+            email,
+            fullName,
+            address,
+            phone,
+            idCitizen
+        };
+
+        const messageDiv = document.getElementById('registerMessage');
+        try {
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },body: JSON.stringify({ username, password, email, fullName, address, phone, idCitizen })
+            });
+
+            if (response.ok) {
+                const data = await response.text();
+                messageDiv.className = 'message success';
+                messageDiv.textContent = data;
+            } else {
+                const errorText = await response.text();
+                messageDiv.className = 'message error';
+                messageDiv.textContent = `Registration failed: ${errorText}`;
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            messageDiv.className = 'message error';
+            messageDiv.textContent = 'Connection error or server unavailable.';
+        }
+    });
+</script>
+</body>
+</html>

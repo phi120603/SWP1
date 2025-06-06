@@ -14,7 +14,7 @@ public class Testmail {
     private EmailService emailService;
     @PostMapping("/send_mail")
     public ResponseEntity<String> sendMail(){
-        emailService.sendEmail("thangphan14122003@gmail.com", "ditmeLong ngu", "test");
+        emailService.sendEmail("thangphan14122003@gmail.com", "laoas", "test");
         return ResponseEntity.ok("success");
     }
 }

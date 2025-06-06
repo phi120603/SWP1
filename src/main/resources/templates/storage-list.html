@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách kho</title>
+    <link rel="stylesheet" th:href="@{/storage-list.css}">
+</head>
+<body>
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <ul>
+        <li><a href="/SWP/">Home</a></li>
+        <li><a href="/SWP/storages">List</a></li>
+    </ul>
+</nav>
+
+<!-- Main Content -->
+<div class="container">
+    <h2>Danh sách kho</h2>
+
+    <!-- Search Form -->
+    <div class="search-container">
+        <form method="get" th:action="@{/SWP/storages}" class="search-form">
+            <div class="search-fields">
+                <input type="text" name="storageName" th:value="${param.storageName}"
+                       placeholder="Tìm theo tên kho..." class="search-input">
+
+                <select name="city" class="search-select">
+                    <option value="">Tất cả thành phố</option>
+                    <option th:each="city : ${cities}"
+                            th:value="${city}"
+                            th:text="${city}"
+                            th:selected="${param.city != null and param.city.equals(city)}">
+                    </option>
+                </select>
+
+                <select name="status" class="search-select">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="true" th:selected="${param.status != null and param.status.equals('true')}">Còn trống</option>
+                    <option value="false" th:selected="${param.status != null and param.status.equals('false')}">Đang thuê</option>
+                </select>
+
+                <button type="submit" class="search-btn">Tìm kiếm</button>
+                <a th:href="@{/SWP/storages}" class="reset-btn">Xóa bộ lọc</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Count -->
+    <div class="results-info">
+        <span th:text="'Tìm thấy ' + ${storages.size()} + ' kho'">Tìm thấy 0 kho</span>
+    </div>
+
+    <div class="storage-grid">
+        <div class="storage-card" th:each="storage : ${storages}">
+            <div class="storage-name" th:text="${storage.getStoragename()}">Tên kho</div>
+
+            <div th:class="${storage.isStatus()} ? 'storage-status status-available' : 'storage-status status-rented'"
+                 th:text="${storage.isStatus()} ? 'Còn trống' : 'Đang thuê'">
+                Trạng thái
+            </div>
+
+            <div class="storage-address" th:text="${storage.city}">Địa chỉ</div>
+
+            <a th:href="@{'/SWP/storages/' + ${storage.storageid}}" class="btn">Chi tiết</a>
+        </div>
+    </div>
+
+    <!-- No Results Message -->
+    <div th:if="${storages.isEmpty()}" class="no-results">
+        <p>Không tìm thấy kho nào phù hợp với tiêu chí tìm kiếm.</p>
+    </div>
+</div>
+</body>
+</html>

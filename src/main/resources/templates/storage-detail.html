@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết kho</title>
+    <link rel="stylesheet" th:href="@{/storage-detail.css}">
+</head>
+<body>
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <ul>
+        <li><a href="/SWP">Home</a></li>
+        <li><a href="/SWP/storages">List</a></li>
+    </ul>
+</nav>
+
+<div class="container">
+    <!-- Hiển thị thông báo thành công -->
+    <div th:if="${message}" class="alert alert-success">
+        [[${message}]]
+    </div>
+
+    <!-- Hiển thị thông báo lỗi -->
+    <div th:if="${error}" class="alert alert-error">
+        [[${error}]]
+    </div>
+
+    <div class="detail-container">
+        <!-- Khối ảnh minh họa -->
+        <div class="image-section">
+            <div class="storage-image">
+                <img src="https://via.placeholder.com/500x400/f0f0f0/999999?text=Storage+Image"
+                     alt="Ảnh minh họa kho" class="main-image">
+            </div>
+            <div class="image-gallery">
+                <img src="https://via.placeholder.com/120x80/e0e0e0/777777?text=1" alt="Ảnh 1" class="thumb-image">
+                <img src="https://via.placeholder.com/120x80/e0e0e0/777777?text=2" alt="Ảnh 2" class="thumb-image">
+                <img src="https://via.placeholder.com/120x80/e0e0e0/777777?text=3" alt="Ảnh 3" class="thumb-image">
+                <img src="https://via.placeholder.com/120x80/e0e0e0/777777?text=4" alt="Ảnh 4" class="thumb-image">
+            </div>
+        </div>
+
+        <!-- Khối thông tin kho -->
+        <div class="info-section">
+            <h2 class="storage-title" th:text="${storage.getStoragename()}">Tên kho</h2>
+
+            <div class="status-badge" th:class="${storage.isStatus()} ? 'status-badge available' : 'status-badge rented'">
+                <span th:text="${storage.isStatus()} ? 'Còn trống' : 'Đang thuê'">Trạng thái</span>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>ID:</label>
+                    <span th:text="${storage.getStorageid()}">123</span>
+                </div>
+
+                <div class="info-item">
+                    <label>Địa chỉ:</label>
+                    <span th:text="${storage.getAddress()}">Địa chỉ</span>
+                </div>
+
+                <div class="info-item">
+                    <label>Quận:</label>
+                    <span th:text="${storage.getState()}">Quận</span>
+                </div>
+
+                <div class="info-item">
+                    <label>Thành phố:</label>
+                    <span th:text="${storage.getCity()}">Thành phố</span>
+                </div>
+
+                <div class="info-item">
+                    <label>Diện tích:</label>
+                    <span th:text="${storage.getArea()}">Diện tích</span>
+                </div>
+
+                <div class="info-item price-item">
+                    <label>Giá theo ngày:</label>
+                    <span class="price" th:text="${storage.getPricePerDay()} + ' VND'"></span>
+                </div>
+            </div>
+
+            <div class="description">
+                <label>Mô tả:</label>
+                <p th:text="${storage.getDescription()}">Mô tả chi tiết về kho...</p>
+            </div>
+
+            <div class="action-buttons">
+                <a th:href="@{'/SWP/storages/' + ${storage.getStorageid()} + '/booking'}" class="booking-btn">
+                    Đặt thuê ngay
+                </a>
+                <a href="/SWP/storages" class="back-btn">
+                    Quay lại danh sách
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
