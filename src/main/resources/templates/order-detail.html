@@ -1,102 +1,35 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Chi tiết order</title>
-    <link rel="stylesheet" th:href="@{/order-detail.css}">
-</head>
-<body>
-<!-- Navigation Bar -->
-<nav class="navbar">
-    <ul>
-        <li><a href="/SWP">Home</a></li>
-        <li><a href="/SWP/orders">Orders</a></li>
-    </ul>
-</nav>
 
-<div class="container">
-    <!-- Hiển thị thông báo thành công -->
-    <div th:if="${message}" class="alert alert-success">
+    <div th:if="${message}" style="color: green; font-weight: bold; margin-bottom: 15px;">
         [[${message}]]
     </div>
 
     <!-- Hiển thị thông báo lỗi -->
-    <div th:if="${error}" class="alert alert-error">
+    <div th:if="${error}" style="color: red; font-weight: bold; margin-bottom: 15px;">
         [[${error}]]
     </div>
+    <meta charset="UTF-8">
+    <title>Chi tiết đơn hàng</title>
+</head>
+<body>
+<h2>Chi tiết đơn hàng</h2>
 
-    <div class="detail-container">
-        <!-- Khối icon đơn hàng -->
-        <div class="order-icon-section">
-            <div class="order-icon">
-                <svg viewBox="0 0 24 24">
-                    <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a1 1 0 0 0-1 1v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8a1 1 0 0 0-1-1zM10 6a2 2 0 0 1 4 0v1h-4V6zm8 13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V9h2v1a1 1 0 0 0 2 0V9h4v1a1 1 0 0 0 2 0V9h2v10z"/>
-                </svg>
-            </div>
-            <div class="order-number">
-                Order #<span th:text="${order.getId()}">001</span>
-            </div>
-        </div>
+<p>ID: <span th:text="${order.getId()}"></span></p>
+<p>Ngày đặt: <span th:text="${order.getOrderDate()}"></span></p>
+<p>Ngày sử dụng: <span th:text="${order.getStartDate()}"></span></p>
+<p>Ngày kết thúc: <span th:text="${order.getEndDate()}"></span></p>
+<p>Tổng tiền: <span th:text="${order.getTotalAmount()} + ' VND'"></span></p>
+<p>Trạng thái: <span th:text="${order.getStatus()}"></span></p>
+<p>Khách hàng: <span th:text="${order.customer.fullname}"></span></p>
+<form th:action="@{'/SWP/orders/' + ${order.id} + '/approve'}" method="post" style="display:inline;">
+    <button type="submit" style="background-color: #4CAF50; color: white; padding: 10px;">✔ Approve</button>
+</form>
+<form method="post" th:action="@{/SWP/orders/{id}/reject(id=${order.id})}" style="display: inline;">
+    <button type="submit" style="background-color: #f44336; color: white; padding: 10px;">✖ Reject</button>
+</form>
 
-        <!-- Khối thông tin đơn hàng -->
-        <div class="info-section">
-            <h2 class="order-title">Chi tiết order</h2>
-
-            <div class="status-badge" th:class="'status-badge ' + ${order.getStatus().toLowerCase()}">
-                <span th:text="${order.getStatus()}">Pending</span>
-            </div>
-
-            <div class="info-grid">
-                <div class="info-item">
-                    <label>Order ID:</label>
-                    <span th:text="${order.getId()}">001</span>
-                </div>
-
-                <div class="info-item">
-                    <label>Ngày đặt thuê:</label>
-                    <span th:text="${order.getOrderDate()}">2024-01-15</span>
-                </div>
-
-                <div class="info-item">
-                    <label>Ngày bắt đầu thuê:</label>
-                    <span th:text="${order.getStartDate()}">2024-01-20</span>
-                </div>
-
-                <div class="info-item">
-                    <label>Ngày kết thúc thuê:</label>
-                    <span th:text="${order.getEndDate()}">2024-01-30</span>
-                </div>
-
-                <div class="info-item price-item">
-                    <label>Tổng tiền:</label>
-                    <span class="price" th:text="${order.getTotalAmount()} + ' VND'">500,000 VND</span>
-                </div>
-            </div>
-
-            <div class="customer-info">
-                <label>Thông tin khách hàng:</label>
-                <p th:text="${order.customer.fullname}">Nguyễn Văn A</p>
-            </div>
-
-            <div class="action-buttons">
-                <form th:action="@{'/SWP/orders/' + ${order.id} + '/approve'}" method="post" style="display:inline;">
-                    <button type="submit" class="approve-btn">
-                        ✓ Phê duyệt
-                    </button>
-                </form>
-
-                <form method="post" th:action="@{/SWP/orders/{id}/reject(id=${order.id})}" style="display: inline;">
-                    <button type="submit" class="reject-btn">
-                        ✗ Từ chối
-                    </button>
-                </form>
-
-                <a href="/SWP/dashboard" class="back-btn">
-                    Quay lại danh sách
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
+<a href="/SWP/orders">Quay lại danh sách</a>
 </body>
 </html>
