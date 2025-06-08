@@ -149,6 +149,14 @@
 
     <button id="bookingBtn" onclick="confirmBooking()">Xác nhận đặt hàng</button>
 
+    <div id="orderInfoDisplay" style="display: none; margin-top: 20px; padding: 15px; background-color: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 8px;">
+      <h3>Chi tiết đơn hàng</h3>
+      <p><strong>ID:</strong> <span id="orderIdDisplay"></span></p>
+      <p><strong>Trạng thái:</strong> <span id="orderStatusDisplay"></span></p>
+      <p><strong>Khách hàng:</strong> <span id="orderCustomerDisplay"></span></p>
+    </div>
+
+
     <a th:href="@{/SWP/storages/{id}(id=${storage.storageid})}">Quay lại chi tiết</a>
   </div>
 
@@ -311,6 +319,12 @@
                 .then(data => {
                   console.log("Success response:", data);
                   showMessage("Booking thành công! Order ID: " + data.id, "success");
+                  // Hiển thị chi tiết đơn hàng
+                  document.getElementById("orderIdDisplay").textContent = data.id || "(không có)";
+                  document.getElementById("orderStatusDisplay").textContent = data.status || "(không rõ)";
+                  document.getElementById("orderCustomerDisplay").textContent = data.customer?.fullname || "Không rõ";
+                  document.getElementById("orderInfoDisplay").style.display = "block";
+
 
                   // Reset form
                   document.getElementById("startDate").value = "";
