@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface OrderService {
     List<Order> getAllOrders();
 
+    List<Order> findOrdersByStatus(String status);
+
     Optional<Order> getOrderById(int id);
 
     Order createOrder(OrderRequest orderRequest);

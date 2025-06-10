@@ -63,6 +63,12 @@ public class OrderServiceimpl implements OrderService {
     }
 
     @Override
+    public List<Order> findOrdersByStatus(String status) {
+        return orderRepository.findByStatus(status);
+    }
+
+
+    @Override
     public Order save(Order order) {
         return orderRepository.save(order);
     }
