@@ -2,13 +2,23 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Danh sách giao dịch kho</title>
+    <title>Nhật ký giao dịch kho</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
         table {
             width: 95%;
-            margin: 20px auto;
+            margin: auto;
             border-collapse: collapse;
             background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         th, td {
             padding: 12px;
@@ -16,30 +26,37 @@
             text-align: center;
         }
         th {
-            background-color: #f0f0f0;
+            background-color: #e9ecef;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
         }
         .type-label {
             font-weight: bold;
-            padding: 4px 8px;
-            border-radius: 4px;
-            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 5px;
             text-transform: uppercase;
+            display: inline-block;
         }
         .type-label.RENT { color: #0d6efd; }
         .type-label.RETURN { color: #198754; }
         .type-label.COMPLETED { color: #20c997; }
         .type-label.FAILED { color: #dc3545; }
         .btn {
-            background: #0d6efd;
+            background-color: #0d6efd;
             color: white;
             padding: 5px 10px;
             text-decoration: none;
             border-radius: 4px;
         }
+        .btn:hover {
+            background-color: #0b5ed7;
+        }
     </style>
 </head>
 <body>
-<h2 style="text-align:center;">📦 Nhật ký giao dịch kho</h2>
+
+<h2>📦 Nhật ký giao dịch kho (chỉ đơn hàng đã duyệt)</h2>
 
 <table>
     <thead>
@@ -50,7 +67,7 @@
         <th>Khách hàng</th>
         <th>Email</th>
         <th>Kho</th>
-        <th>Địa chỉ</th>
+        <th>Địa chỉ kho</th>
         <th>Chi tiết</th>
     </tr>
     </thead>
@@ -60,17 +77,20 @@
         <td th:text="${#dates.format(transaction.transactionDate, 'dd/MM/yyyy HH:mm')}">10/06/2025</td>
         <td>
         <span th:text="${transaction.type}"
-              th:class="'type-label ' + ${transaction.type}">RENT</span>
+              th:class="'type-label ' + ${transaction.type}">
+          RENT
+        </span>
         </td>
-        <td th:text="${transaction.customer != null ? transaction.customer.fullname : 'Chưa có'}">Khách</td>
+        <td th:text="${transaction.customer != null ? transaction.customer.fullname : 'Chưa có'}">Tên KH</td>
         <td th:text="${transaction.customer != null ? transaction.customer.email : 'N/A'}">Email</td>
-        <td th:text="${transaction.storage != null ? transaction.storage.storagename : 'Kho'}">Kho A</td>
-        <td th:text="${transaction.storage != null ? transaction.storage.address + ', ' + transaction.storage.city : 'Không rõ'}">Hà Nội</td>
+        <td th:text="${transaction.storage != null ? transaction.storage.storagename : 'N/A'}">Kho</td>
+        <td th:text="${transaction.storage != null ? transaction.storage.address + ', ' + transaction.storage.city : 'N/A'}">Địa chỉ</td>
         <td>
             <a th:href="@{'/SWP/storage-transactions/' + ${transaction.id}}" class="btn">Chi tiết</a>
         </td>
     </tr>
     </tbody>
 </table>
+
 </body>
 </html>

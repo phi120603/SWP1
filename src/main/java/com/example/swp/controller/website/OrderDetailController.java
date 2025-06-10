@@ -1,5 +1,7 @@
 package com.example.swp.controller.website;
 
+import com.example.swp.entity.StorageTransaction;
+import com.example.swp.repository.StorageTransactionRepository;
 import com.example.swp.service.EmailService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Controller
@@ -24,9 +27,13 @@ public class OrderDetailController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private StorageTransactionRepository storageTransactionRepository;
+
+
     @GetMapping("/orders/{id}")
     public String viewOrderDetail(@PathVariable int id, Model model) {
-        Optional<Order> optionalOrder = orderService.getOrderById(id);
+        Optional<Order> optionalOrder = orderService    .getOrderById(id);
         if (optionalOrder.isPresent()) {
             model.addAttribute("order", optionalOrder.get());
         } else {
@@ -41,11 +48,21 @@ public class OrderDetailController {
         Optional<Order> optionalOrder = orderService.getOrderById(id);
         if (optionalOrder.isPresent()) {
             Order order = optionalOrder.get();
-            // Cập nhật trạng thái đơn hàng
+
+            // ✅ Cập nhật trạng thái đơn hàng
             order.setStatus("Approved");
             orderService.save(order);
 
-            // Gửi email xác nhận cho khách hàng
+            // ✅ Tạo StorageTransaction từ đơn hàng đã duyệt
+            StorageTransaction transaction = new StorageTransaction();
+            transaction.setType("RENT");
+            transaction.setTransactionDate(LocalDateTime.now());
+            transaction.setCustomer(order.getCustomer());
+            transaction.setStorage(order.getStorage());
+            storageTransactionRepository.save(transaction);
+
+
+            // ✅ Gửi email xác nhận cho khách hàng
             String customerEmail = order.getCustomer().getEmail();
             String warehouseInfo = order.getStorage().getStoragename();
             double totalAmount = order.getTotalAmount();
@@ -59,7 +76,7 @@ public class OrderDetailController {
 
             emailService.sendEmail(customerEmail, subject, body);
 
-            redirectAttributes.addFlashAttribute("message", "Đã duyệt đơn hàng #" + id + " và gửi email xác nhận.");
+            redirectAttributes.addFlashAttribute("message", "Đã duyệt đơn hàng #" + id + " và tạo giao dịch kho.");
             return "redirect:/SWP/orders/{id}";
         } else {
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy đơn hàng.");
@@ -85,5 +102,11 @@ public class OrderDetailController {
     }
 
 
+    public StorageTransactionRepository getStorageTransactionRepository() {
+        return storageTransactionRepository;
+    }
 
+    public void setStorageTransactionRepository(StorageTransactionRepository storageTransactionRepository) {
+        this.storageTransactionRepository = storageTransactionRepository;
+    }
 }
