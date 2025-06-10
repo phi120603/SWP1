@@ -2,162 +2,75 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Transaction Management</title>
+    <title>Danh sách giao dịch kho</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f9;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        .form-section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
-        .form-section label {
-            display: block;
-            margin: 10px 0 5px;
-            color: #555;
-            font-weight: bold;
-        }
-        .form-section input, .form-section select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        .form-section button {
-            width: 100%;
-            padding: 12px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        .form-section button:hover {
-            background-color: #218838;
-        }
-        .table-section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
         table {
-            width: 100%;
+            width: 95%;
+            margin: 20px auto;
             border-collapse: collapse;
-            margin-top: 10px;
+            background: white;
         }
         th, td {
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ccc;
             text-align: center;
         }
         th {
-            background-color: #e8f0fe;
-            color: #333;
-            font-weight: bold;
+            background-color: #f0f0f0;
         }
-        a {
+        .type-label {
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+        .type-label.RENT { color: #0d6efd; }
+        .type-label.RETURN { color: #198754; }
+        .type-label.COMPLETED { color: #20c997; }
+        .type-label.FAILED { color: #dc3545; }
+        .btn {
+            background: #0d6efd;
+            color: white;
+            padding: 5px 10px;
             text-decoration: none;
-            color: #007BFF;
-            font-weight: bold;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .error {
-            color: red;
-            background-color: #ffe6e6;
-            padding: 10px;
             border-radius: 4px;
-            margin-bottom: 15px;
-        }
-        .success {
-            color: green;
-            background-color: #e6ffe6;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h2>Transaction Management</h2>
+<h2 style="text-align:center;">📦 Nhật ký giao dịch kho</h2>
 
-    <div class="form-section">
-        <h3>Add New Transaction</h3>
-
-        <!-- Display error message if exists -->
-        <div th:if="${error}" class="error" th:text="${error}"></div>
-
-        <!-- Fixed form action to use the web controller -->
-        <form th:action="@{/SWP/createStorageTransaction}" method="post">
-            <label for="type">Type (IMPORT/EXPORT):</label>
-            <select id="type" name="type" required>
-                <option value="IMPORT">IMPORT</option>
-                <option value="EXPORT">EXPORT</option>
-            </select>
-
-            <label for="transactionDate">Transaction Date (YYYY-MM-DD HH:MM):</label>
-            <input type="datetime-local" id="transactionDate" name="transactionDate" required>
-
-            <label for="storageId">Storage ID:</label>
-            <input type="number" id="storageId" name="storageId" required>
-
-            <label for="customerId">Customer ID:</label>
-            <input type="number" id="customerId" name="customerId" required>
-
-            <button type="submit">Add Transaction</button>
-        </form>
-    </div>
-
-    <div class="table-section">
-        <h3>Transaction List</h3>
-        <table>
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Type</th>
-                <th>Transaction Date</th>
-                <th>Storage ID</th>
-                <th>Customer ID</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="transaction : ${transactions}">
-                <td th:text="${transaction.id}"></td>
-                <td th:text="${transaction.type}"></td>
-                <td th:text="${transaction.transactionDate}"></td>
-                <td th:text="${transaction.storage != null ? transaction.storage.storageid : 'N/A'}"></td>
-                <td th:text="${transaction.customer != null ? transaction.customer.id : 'N/A'}"></td>
-                <td>
-                    <a th:href="@{/SWP/storage-transactions/{id}(id=${transaction.id})}">View Details</a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Ngày giao dịch</th>
+        <th>Loại</th>
+        <th>Khách hàng</th>
+        <th>Email</th>
+        <th>Kho</th>
+        <th>Địa chỉ</th>
+        <th>Chi tiết</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="transaction : ${transactions}">
+        <td th:text="${transaction.id}">1</td>
+        <td th:text="${#dates.format(transaction.transactionDate, 'dd/MM/yyyy HH:mm')}">10/06/2025</td>
+        <td>
+        <span th:text="${transaction.type}"
+              th:class="'type-label ' + ${transaction.type}">RENT</span>
+        </td>
+        <td th:text="${transaction.customer != null ? transaction.customer.fullname : 'Chưa có'}">Khách</td>
+        <td th:text="${transaction.customer != null ? transaction.customer.email : 'N/A'}">Email</td>
+        <td th:text="${transaction.storage != null ? transaction.storage.storagename : 'Kho'}">Kho A</td>
+        <td th:text="${transaction.storage != null ? transaction.storage.address + ', ' + transaction.storage.city : 'Không rõ'}">Hà Nội</td>
+        <td>
+            <a th:href="@{'/SWP/storage-transactions/' + ${transaction.id}}" class="btn">Chi tiết</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>
