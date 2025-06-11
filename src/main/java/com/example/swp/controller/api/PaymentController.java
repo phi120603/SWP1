@@ -19,7 +19,7 @@ public class PaymentController {
     public ResponseEntity<?> createPayment(HttpServletRequest request,
                                            @RequestParam long amount) {
         try {
-            String redirectUrl = vnPayService.createPaymentUrl(request, amount);
+            String redirectUrl = vnPayService.createVNPayUrl(request, amount);
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header("Location", redirectUrl)
                     .build();

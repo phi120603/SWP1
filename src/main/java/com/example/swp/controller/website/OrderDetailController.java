@@ -1,6 +1,9 @@
 package com.example.swp.controller.website;
 
 import com.example.swp.service.EmailService;
+import com.example.swp.service.VNPayService;
+import com.example.swp.service.impl.VnPayServiceimpl;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import com.example.swp.entity.Order;
@@ -23,6 +26,10 @@ public class OrderDetailController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    @Qualifier("vnPayServiceimpl")
+    private VNPayService vnPayService;
 
     @GetMapping("/orders/{id}")
     public String viewOrderDetail(@PathVariable int id, Model model) {
@@ -49,15 +56,18 @@ public class OrderDetailController {
             String customerEmail = order.getCustomer().getEmail();
             String warehouseInfo = order.getStorage().getStoragename();
             double totalAmount = order.getTotalAmount();
+            String paymentUrl = "http://localhost:8080/create-payment?orderId=" + order.getId() + "&amount=" + (long) totalAmount;
 
             String subject = "Xác nhận đơn hàng #" + id + " đã được duyệt";
-            String body = "Kính gửi khách hàng,\n\n" +
-                    "Đơn hàng #" + id + " của bạn đã được duyệt thành công.\n" +
-                    "Kho xuất hàng: " + warehouseInfo + "\n" +
-                    "Tổng số tiền phải thanh toán: " + totalAmount + " VND\n\n" +
-                    "Cảm ơn bạn đã mua hàng!";
+            String emailBody = "Kính gửi quý khách," +
+                    "Đơn hàng #" + order.getId() + " của bạn đã được duyệt." +
+                    "Tổng tiền:" + (int) totalAmount + " VND" +
+                    "Vui lòng thanh toán qua link dưới đây:" +
+                    "\"" + paymentUrl + "\">Thanh toán ngay" +
+                    "Xin cảm ơn!";
 
-            emailService.sendEmail(customerEmail, subject, body);
+
+            emailService.sendEmail(customerEmail, subject, emailBody);
 
             redirectAttributes.addFlashAttribute("message", "Đã duyệt đơn hàng #" + id + " và gửi email xác nhận.");
             return "redirect:/SWP/orders/{id}";
@@ -66,6 +76,51 @@ public class OrderDetailController {
             return "redirect:/SWP/orders";
         }
     }
+
+//    @PostMapping("/orders/{id}/approve")
+//    public String approveOrder(@PathVariable int id, RedirectAttributes redirectAttributes) {
+//        Optional<Order> optionalOrder = orderService.getOrderById(id);
+//        if (optionalOrder.isPresent()) {
+//            Order order = optionalOrder.get();
+//
+//            // Cập nhật trạng thái đơn hàng
+//            order.setStatus("Approved");
+//            orderService.save(order);
+//
+//            // Lấy thông tin khách hàng
+//            String customerEmail = order.getCustomer().getEmail();
+//            String warehouseInfo = order.getStorage().getStoragename();
+//            double totalAmount = order.getTotalAmount();
+
+//            // Tạo URL thanh toán (giả lập VNPay hoặc link thanh toán thật nếu bạn có tích hợp)
+//            String paymentUrl = vnPayService.createVnpayUrl(
+//                    String.valueOf(order.getId()),
+//                    (long) order.getTotalAmount()*100, // VNPay yêu cầu số tiền là integer (đơn vị là đồng)
+//                    "http://localhost:8080/payment-return"
+//            );
+//
+//            // Tiêu đề và nội dung email
+//            String subject = "Xác nhận đơn hàng #" + id + " đã được duyệt";
+//            String body = "<p>Kính gửi khách hàng,</p>" +
+//                    "<p>Đơn hàng #" + id + " của bạn đã được duyệt thành công.</p>" +
+//                    "<p>Kho xuất hàng: <strong>" + warehouseInfo + "</strong></p>" +
+//                    "<p>Tổng số tiền phải thanh toán: <strong>" + totalAmount + " VND</strong></p>" +
+//                    "<p>Vui lòng quét mã QR dưới đây để thanh toán:</p>" +
+//                    "<img src='cid:qr-code'>" +
+//                    "<p>Cảm ơn bạn đã mua hàng!</p>";
+//
+//            // Gửi email với QR code
+//            emailService.sendEmailWithQR(customerEmail, subject, body, paymentUrl);
+//
+//            redirectAttributes.addFlashAttribute("message", "Đã duyệt đơn hàng #" + id + " và gửi email xác nhận.");
+//            return "redirect:/SWP/orders/{id}";
+//        } else {
+//            redirectAttributes.addFlashAttribute("error", "Không tìm thấy đơn hàng.");
+//            return "redirect:/SWP/orders";
+//        }
+//    }
+
+
 
 
     @PostMapping("/orders/{id}/reject")

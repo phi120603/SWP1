@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.List;
 
@@ -32,8 +33,9 @@ public class Storage {
 //    private String imageUrl; // hoặc dùng List<StorageImage> nếu nhiều ảnh
 
     @OneToMany(mappedBy = "storage")
+    @JsonIgnore
     private List<Contact> contacts;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "storage")
     private List<StorageTransaction> storageTransactions;
 
