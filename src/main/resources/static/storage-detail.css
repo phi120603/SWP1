@@ -75,39 +75,44 @@ body {
     overflow: hidden;
 }
 
-/* Order Icon Section */
-.order-icon-section {
+/* Image Section */
+.image-section {
     padding: 30px;
     background: #fafafa;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
 }
 
-.order-icon {
-    width: 200px;
-    height: 200px;
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.storage-image {
     margin-bottom: 20px;
-    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
 }
 
-.order-icon svg {
+.main-image {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.image-gallery {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.thumb-image {
     width: 80px;
-    height: 80px;
-    fill: white;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 2px solid transparent;
 }
 
-.order-number {
-    font-size: 24px;
-    font-weight: 700;
-    color: #2c3e50;
-    text-align: center;
+.thumb-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border-color: #007bff;
 }
 
 /* Info Section */
@@ -115,7 +120,7 @@ body {
     padding: 30px;
 }
 
-.order-title {
+.storage-title {
     font-size: 28px;
     color: #2c3e50;
     margin-bottom: 15px;
@@ -131,24 +136,14 @@ body {
     margin-bottom: 25px;
 }
 
-.status-badge.pending {
-    background-color: #fff3cd;
-    color: #856404;
-}
-
-.status-badge.approved {
+.status-badge.available {
     background-color: #d4edda;
     color: #155724;
 }
 
-.status-badge.rejected {
+.status-badge.rented {
     background-color: #f8d7da;
     color: #721c24;
-}
-
-.status-badge.completed {
-    background-color: #d1ecf1;
-    color: #0c5460;
 }
 
 /* Info Grid */
@@ -188,8 +183,8 @@ body {
     color: #e74c3c !important;
 }
 
-/* Customer Info */
-.customer-info {
+/* Description */
+.description {
     margin-bottom: 30px;
     padding: 20px;
     background: #f8f9fa;
@@ -197,7 +192,7 @@ body {
     border-left: 4px solid #007bff;
 }
 
-.customer-info label {
+.description label {
     font-weight: 600;
     color: #495057;
     font-size: 14px;
@@ -207,10 +202,10 @@ body {
     margin-bottom: 10px;
 }
 
-.customer-info p {
-    color: #2c3e50;
-    font-size: 16px;
-    font-weight: 500;
+.description p {
+    color: #6c757d;
+    font-size: 15px;
+    line-height: 1.7;
 }
 
 /* Action Buttons */
@@ -220,8 +215,8 @@ body {
     flex-wrap: wrap;
 }
 
-.approve-btn {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+.booking-btn {
+    background: linear-gradient(135deg, #CC5500 0%, #FF6A00 100%);
     color: white;
     padding: 15px 30px;
     border: none;
@@ -234,36 +229,13 @@ body {
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    box-shadow: 0 4px 15px rgba(204, 85, 0, 0.3);
 }
 
-.approve-btn:hover {
-    background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+.booking-btn:hover {
+    background: linear-gradient(135deg, #AA4400 0%, #E55A00 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-}
-
-.reject-btn {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-    color: white;
-    padding: 15px 30px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-}
-
-.reject-btn:hover {
-    background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+    box-shadow: 0 6px 20px rgba(204, 85, 0, 0.4);
 }
 
 .back-btn {
@@ -293,7 +265,7 @@ body {
         gap: 0;
     }
 
-    .order-icon-section,
+    .image-section,
     .info-section {
         padding: 20px;
     }
@@ -307,24 +279,21 @@ body {
         flex-direction: column;
     }
 
-    .approve-btn,
-    .reject-btn,
+    .booking-btn,
     .back-btn {
         width: 100%;
         text-align: center;
     }
 
-    .order-title {
+    .storage-title {
         font-size: 24px;
     }
 
-    .order-icon {
-        width: 150px;
-        height: 150px;
+    .main-image {
+        height: 250px;
     }
 
-    .order-icon svg {
-        width: 60px;
-        height: 60px;
+    .image-gallery {
+        flex-wrap: wrap;
     }
 }

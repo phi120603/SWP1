@@ -1,56 +1,63 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-<title>Danh sách đơn hàng</title>
-<style>
-    table {
-        width: 90%;
-        border-collapse: collapse;
-        margin: 20px auto;
-    }
-    th, td {
-        padding: 10px;
-        border: 1px solid #ccc;
-        text-align: center;
-    }
-    h2 {
-        text-align: center;
-        margin-top: 20px;
-    }
-</style>
+    <title>Danh sách đơn hàng</title>
+    <link rel="stylesheet" th:href="@{/order-list.css}">
 </head>
-<body>
-<h2>Danh sách đơn hàng</h2>
+<body class="bg-gray-100">
+<nav class="navbar">
+    <ul>
+        <li><a href="/SWP">Home</a></li>
+        <li><a href="/SWP/orders">Orders</a></li>
+    </ul>
+</nav>
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">Danh sách đơn hàng</h1>
 
+    <!-- Filter bên trái -->
+    <form action="/SWP/orders" method="get" class="filter-form">
+        <label for="status">Lọc theo trạng thái:</label>
+        <select id="status" name="status" onchange="this.form.submit()">
+            <option value="ALL" th:selected="${selectedStatus == 'ALL'}">Tất cả</option>
+            <option value="PENDING" th:selected="${selectedStatus == 'Pending'}">PENDING</option>
+            <option value="APPROVED" th:selected="${selectedStatus == 'Approved'}">APPROVED</option>
+            <option value="REJECTED" th:selected="${selectedStatus == 'Rejected'}">REJECTED</option>
+            <option value="PAID" th:selected="${selectedStatus == 'Paid'}">PAID</option>
+        </select>
+    </form>
+    <!-- Tìm kiếm bên phải -->
+    <form action="/SWP/orders" method="get" class="search-form">
+        <label for="orderId">Tìm kiếm theo ID:</label>
+        <input type="number" id="orderId" name="orderId" placeholder="Nhập mã đơn..." required>
+        <button type="submit">Tìm</button>
+    </form>
 
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Ngày đặt</th>
-        <th>Tổng tiền</th>
-        <th>Trang thai</th>
-        <th>Khách hàng</th>
-        <th>Thao tac</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="order : ${orders}">
-        <td th:text="${order.getId()}"></td>
-        <td th:text="${order.getOrderDate()}"></td>
-        <td th:text="${order.getTotalAmount()} + ' VND'"></td>
-        <td th:text="${order.getStatus()}"></td>
-        <td th:text="${order.customer != null ? order.customer.fullname : 'N/A'}"></td>
-        <td>
-            <a th:href="@{'/SWP/orders/' + ${order.id}}" class="btn btn-view">Chi tiết</a>
-        </td>
-
-
-
-    </tr>
-    </tbody>
-</table>
-
+    <!-- Bảng danh sách đơn hàng -->
+    <table class="w-full border-collapse border bg-white">
+        <thead>
+        <tr class="bg-gray-200">
+            <th class="border p-2">Mã đơn hàng</th>
+            <th class="border p-2">Ngày đặt</th>
+            <th class="border p-2">Tổng tiền</th>
+            <th class="border p-2">Trạng thái</th>
+            <th class="border p-2">Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order : ${orders}">
+            <td class="border p-2" th:text="${order.getId()}"></td>
+            <td class="border p-2" th:text="${order.getOrderDate()}"></td>
+            <td class="border p-2" th:text="${order.getTotalAmount()}"></td>
+            <td class="border p-2">
+    <span th:text="${order.getStatus()}"
+          th:class="'status-badge ' + ${order.getStatus()?.toLowerCase()}"></span>
+            </td>
+            <td class="border p-2">
+                <a th:href="@{/SWP/orders/{id}(id=${order.getId()})}" class="text-blue-500">Xem chi tiết</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
 </body>
 </html>
