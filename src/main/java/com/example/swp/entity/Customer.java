@@ -50,6 +50,10 @@ public class Customer implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("CUSTOMER"));
     }
+    public Customer(Integer id) {
+        this.id = id;
+    }
+
 
     @Override
     public String getPassword() {

@@ -103,6 +103,7 @@
 <body>
 <div class="container">
     <h2>Transaction Management</h2>
+    <div th:if="${isAdmin}">
 
     <div class="form-section">
         <h3>Add New Transaction</h3>
@@ -129,6 +130,7 @@
 
             <button type="submit">Add Transaction</button>
         </form>
+    </div>
     </div>
 
     <div class="table-section">

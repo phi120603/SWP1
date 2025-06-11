@@ -31,6 +31,10 @@ public class Storage {
     private boolean status; // true: còn trống, false: đang bị thuê
 
 //    private String imageUrl; // hoặc dùng List<StorageImage> nếu nhiều ảnh
+public Storage(Integer id) {
+    this.storageid = id;
+}
+
 
     @OneToMany(mappedBy = "storage")
     @JsonIgnore
