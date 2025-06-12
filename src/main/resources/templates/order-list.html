@@ -3,56 +3,64 @@
 <head>
     <title>Danh sách đơn hàng</title>
     <link rel="stylesheet" th:href="@{/order-list.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body class="bg-gray-100">
+<body>
+<!-- Navbar đồng bộ home-page -->
 <nav class="navbar">
-    <ul>
-        <li><a href="/SWP">Home</a></li>
-        <li><a href="/SWP/orders">Orders</a></li>
-    </ul>
+    <div class="nav-container">
+        <div class="logo">QVL Storage</div>
+        <ul class="nav-links">
+            <li><a href="/SWP">Home</a></li>
+            <li><a href="/SWP/orders">Orders</a></li>
+        </ul>
+    </div>
 </nav>
-<div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">Danh sách đơn hàng</h1>
 
-    <!-- Filter bên trái -->
-    <form action="/SWP/orders" method="get" class="filter-form">
-        <label for="status">Lọc theo trạng thái:</label>
-        <select id="status" name="status" onchange="this.form.submit()">
-            <option value="ALL" th:selected="${selectedStatus == 'ALL'}">Tất cả</option>
-            <option value="PENDING" th:selected="${selectedStatus == 'Pending'}">PENDING</option>
-            <option value="APPROVED" th:selected="${selectedStatus == 'Approved'}">APPROVED</option>
-            <option value="REJECTED" th:selected="${selectedStatus == 'Rejected'}">REJECTED</option>
-            <option value="PAID" th:selected="${selectedStatus == 'Paid'}">PAID</option>
-        </select>
-    </form>
-    <!-- Tìm kiếm bên phải -->
-    <form action="/SWP/orders" method="get" class="search-form">
-        <label for="orderId">Tìm kiếm theo ID:</label>
-        <input type="number" id="orderId" name="orderId" placeholder="Nhập mã đơn..." required>
-        <button type="submit">Tìm</button>
-    </form>
+<!-- Container -->
+<div class="container">
+    <h1>Danh sách đơn hàng</h1>
+    <div class="form-row-spacebetween">
+        <!-- Filter bên trái -->
+        <form action="/SWP/orders" method="get" class="filter-form">
+            <label for="status">Lọc theo trạng thái:</label>
+            <select id="status" name="status" onchange="this.form.submit()">
+                <option value="ALL" th:selected="${selectedStatus == 'ALL'}">Tất cả</option>
+                <option value="PENDING" th:selected="${selectedStatus == 'Pending'}">PENDING</option>
+                <option value="APPROVED" th:selected="${selectedStatus == 'Approved'}">APPROVED</option>
+                <option value="REJECTED" th:selected="${selectedStatus == 'Rejected'}">REJECTED</option>
+                <option value="PAID" th:selected="${selectedStatus == 'Paid'}">PAID</option>
+            </select>
+        </form>
+        <!-- Tìm kiếm bên phải -->
+        <form action="/SWP/orders" method="get" class="search-form">
+            <label for="orderId">Tìm kiếm theo ID:</label>
+            <input type="number" id="orderId" name="orderId" placeholder="Nhập mã đơn..." required>
+            <button type="submit" class="btn btn-dark">Tìm</button>
+        </form>
+    </div>
 
     <!-- Bảng danh sách đơn hàng -->
-    <table class="w-full border-collapse border bg-white">
+    <table>
         <thead>
-        <tr class="bg-gray-200">
-            <th class="border p-2">Mã đơn hàng</th>
-            <th class="border p-2">Ngày đặt</th>
-            <th class="border p-2">Tổng tiền</th>
-            <th class="border p-2">Trạng thái</th>
-            <th class="border p-2">Hành động</th>
+        <tr>
+            <th>Mã đơn hàng</th>
+            <th>Ngày đặt</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="order : ${orders}">
-            <td class="border p-2" th:text="${order.getId()}"></td>
-            <td class="border p-2" th:text="${order.getOrderDate()}"></td>
-            <td class="border p-2" th:text="${order.getTotalAmount()}"></td>
-            <td class="border p-2">
-    <span th:text="${order.getStatus()}"
-          th:class="'status-badge ' + ${order.getStatus()?.toLowerCase()}"></span>
+            <td th:text="${order.getId()}"></td>
+            <td th:text="${order.getOrderDate()}"></td>
+            <td th:text="${order.getTotalAmount()}"></td>
+            <td>
+                    <span th:text="${order.getStatus()}"
+                          th:class="'status-badge ' + ${order.getStatus()?.toLowerCase()}"></span>
             </td>
-            <td class="border p-2">
+            <td>
                 <a th:href="@{/SWP/orders/{id}(id=${order.getId()})}" class="text-blue-500">Xem chi tiết</a>
             </td>
         </tr>
