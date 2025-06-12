@@ -108,10 +108,10 @@
     <div class="form-section">
         <h3>Add New Transaction</h3>
 
-        <!-- Display error message if exists -->
+
         <div th:if="${error}" class="error" th:text="${error}"></div>
 
-        <!-- Fixed form action to use the web controller -->
+
         <form th:action="@{/SWP/createStorageTransaction}" method="post">
             <label for="type">Type (IMPORT/EXPORT):</label>
             <select id="type" name="type" required>

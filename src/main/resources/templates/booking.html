@@ -110,6 +110,10 @@
 <body>
 <div class="container">
   <h1>Booking</h1>
+  <!-- Hiển thị thông tin ID -->
+
+
+
 
   <div th:if="${error}" class="error" th:text="${error}"></div>
   <div id="dynamicMessage"></div>
@@ -132,7 +136,8 @@
 
     <div class="form-group">
       <label>Ngày kết thúc:</label>
-      <input type="date" id="endDate" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required>
+      <input type="date" id="endDate" th:min=
+              "${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required>
       <div class="calculation-loading" id="calculationLoading">Đang tính toán...</div>
     </div>
 
