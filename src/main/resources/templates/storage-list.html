@@ -57,12 +57,9 @@
 
             <div th:class="${storage.isStatus()} ? 'storage-status status-available' : 'storage-status status-rented'"
                  th:text="${storage.isStatus()} ? 'Còn trống' : 'Đang thuê'">
-    <div class="storage-grid">
-        <div class="storage-card" th:each="storage : ${storages}">
-            <div class="storage-name" th:text="${storage.storagename}">Tên kho</div>
 
-            <div th:class="${storage.status} ? 'storage-status status-available' : 'storage-status status-rented'"
-                 th:text="${storage.status} ? 'Còn trống' : 'Đang thuê'">
+
+
                 Trạng thái
             </div>
 
