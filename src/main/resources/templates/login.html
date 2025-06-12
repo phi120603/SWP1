@@ -110,7 +110,7 @@
             });
 
             if (response.ok) {
-                window.location.href = '/index'; // chuyển hướng sau khi đăng nhập thành công
+                window.location.href = '/home-page'; // chuyển hướng sau khi đăng nhập thành công
             } else {
                 const errorMsg = await response.text();
                 document.getElementById('error').textContent = errorMsg;

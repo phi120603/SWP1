@@ -11,16 +11,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 //@RequestMapping("/SWP")
 public class HomeController {
-    @GetMapping("/index")
+    @GetMapping("/home-page")
     public String returnhome (Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         model.addAttribute("username", username);
-        return"index";
+        return"home-page";
     }
     @GetMapping("/")
     public String returnmain () {
-        return"redirect:index";
+        return"redirect:home-page";
     }
 
 }
