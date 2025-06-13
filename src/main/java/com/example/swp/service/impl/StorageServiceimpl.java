@@ -50,5 +50,10 @@ public class StorageServiceimpl implements StorageService {
         return storageReponsitory.save(storage);
     }
 
+    @Override
+    public void save(Storage storage) {
+        storageReponsitory.save(storage);
+    }
+
 
 }

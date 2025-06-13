@@ -21,7 +21,7 @@ public class StaffDashboardController {
     public String showDashboard(Model model) {
         // Load all orders to display in the table
         model.addAttribute("orders", orderRepository.findAll());
-        return "StaffDashboard"; // Maps to StaffDashboard.html
+        return "staffdashboard"; // Maps to StaffDashboard.html
     }
 
     @GetMapping("/dashboard/find")
@@ -34,7 +34,7 @@ public class StaffDashboardController {
             // If not found, show error and reload dashboard
             model.addAttribute("error", "ID không hợp lệ");
             model.addAttribute("orders", orderRepository.findAll());
-            return "StaffDashboard";
+            return "staffdashboard"; // Maps to StaffDashboard.html
         }
     }
 }

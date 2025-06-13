@@ -1,5 +1,6 @@
 package com.example.swp.controller.website;
 
+import com.example.swp.entity.Order;
 import com.example.swp.entity.Storage;
 import com.example.swp.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/SWP")
 public class StorageListController {
+
     @Autowired
     private StorageService storageService;
 

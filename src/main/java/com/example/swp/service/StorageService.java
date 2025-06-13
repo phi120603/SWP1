@@ -15,4 +15,6 @@ public interface StorageService {
      Optional<Storage> findByID(int id);
 
      Storage updateStorage(StorageRequest storageRequest, Storage storage);
+
+    void save(Storage storage);
 }

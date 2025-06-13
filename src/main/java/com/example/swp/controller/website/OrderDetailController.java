@@ -1,5 +1,7 @@
 package com.example.swp.controller.website;
 
+import com.example.swp.entity.StorageTransaction;
+import com.example.swp.repository.StorageTransactionRepository;
 import com.example.swp.service.EmailService;
 import com.example.swp.service.VNPayService;
 import com.example.swp.service.impl.VnPayServiceimpl;
@@ -15,11 +17,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Controller
 @RequestMapping("/SWP")
 public class OrderDetailController {
+
+    @Autowired
+    private StorageTransactionRepository storageTransactionRepository;
 
     @Autowired
     private OrderService orderService;
@@ -51,6 +57,15 @@ public class OrderDetailController {
             // Cập nhật trạng thái đơn hàng
             order.setStatus("Approved");
             orderService.save(order);
+
+            StorageTransaction transaction = new StorageTransaction();
+            transaction.setCustomer(order.getCustomer());
+            transaction.setStorage(order.getStorage());
+            transaction.setType("RENT"); // hoặc “EXPORT” tùy loại
+            transaction.setTransactionDate(LocalDateTime.now());
+
+            storageTransactionRepository.save(transaction);
+
 
             // Gửi email xác nhận cho khách hàng
             String customerEmail = order.getCustomer().getEmail();
