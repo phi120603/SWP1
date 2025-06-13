@@ -2,10 +2,7 @@ package com.example.swp.service.impl;
 
 import com.example.swp.config.VNPayConfig;
 import com.example.swp.service.VNPayService;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.xml.bind.DatatypeConverter;
 import lombok.RequiredArgsConstructor;
