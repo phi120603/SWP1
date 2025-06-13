@@ -41,9 +41,8 @@ public class StorageTransactionListController {
             StorageTransaction transaction = new StorageTransaction();
             transaction.setType(type);
             transaction.setTransactionDate(LocalDateTime.parse(transactionDate));
-            transaction.setStorage(new Storage(storageId));   // hoặc gọi từ service nếu bạn có
-            transaction.setCustomer(new Customer(customerId)); // tương tự
-
+            transaction.setStorage(new Storage(storageId));
+            transaction.setCustomer(new Customer(customerId));
             storageTransactionService.save(transaction);
 
             redirectAttributes.addFlashAttribute("message", "Tạo giao dịch thành công.");
