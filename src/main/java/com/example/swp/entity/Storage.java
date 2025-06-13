@@ -27,6 +27,7 @@ public class Storage {
     private double area;
     private double pricePerDay;
     private String description;
+    private String imUrl;
 
     private boolean status; // true: còn trống, false: đang bị thuê
 

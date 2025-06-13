@@ -9,7 +9,7 @@
 <!-- Navigation Bar -->
 <nav class="navbar">
     <ul>
-        <li><a href="/SWP/">Home</a></li>
+        <li><a href="/home-page">Home</a></li>
         <li><a href="/SWP/storages">List</a></li>
     </ul>
 </nav>
@@ -51,12 +51,7 @@
         <span th:text="'Tìm thấy ' + ${storages.size()} + ' kho'">Tìm thấy 0 kho</span>
     </div>
 
-    <div class="storage-grid">
-        <div class="storage-card" th:each="storage : ${storages}">
-            <div class="storage-name" th:text="${storage.getStoragename()}">Tên kho</div>
-
-            <div th:class="${storage.isStatus()} ? 'storage-status status-available' : 'storage-status status-rented'"
-                 th:text="${storage.isStatus()} ? 'Còn trống' : 'Đang thuê'">
+    <!-- Storage Cards -->
     <div class="storage-grid">
         <div class="storage-card" th:each="storage : ${storages}">
             <div class="storage-name" th:text="${storage.storagename}">Tên kho</div>

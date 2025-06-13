@@ -52,7 +52,7 @@ public class StorageServiceimpl implements StorageService {
 
     @Override
     public void save(Storage storage) {
-
+        storageReponsitory.save(storage);
     }
 
 
