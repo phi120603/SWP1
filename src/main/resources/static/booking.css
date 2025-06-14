@@ -77,6 +77,10 @@ input[type="date"] {
     background-color: #f9fbfc;
     transition: border-color 0.3s ease;
 }
+button[type="submit"]:hover {
+    background: linear-gradient(90deg, #1565c0 0%, #64b5f6 100%);
+    transform: translateY(-2px) scale(1.03);
+}
 
 input[type="date"]:focus {
     outline: none;
@@ -105,15 +109,7 @@ button, a.button {
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-button.confirm, a.confirm {
-    background-color: #3498db;
-    color: #fff;
-}
 
-button.confirm:hover, a.confirm:hover {
-    background-color: #2980b9;
-    transform: translateY(-2px);
-}
 
 a.back {
     background-color: #ecf0f1;
