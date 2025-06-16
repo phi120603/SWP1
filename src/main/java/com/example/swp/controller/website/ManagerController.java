@@ -1,8 +1,12 @@
 package com.example.swp.controller.website;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import com.example.swp.config.CloudinaryConfig;
 import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Storage;
+import com.example.swp.service.CloudinaryService;
 import com.example.swp.service.CustomerService;
 import com.example.swp.service.StorageService;
 import com.example.swp.service.impl.CustomerServiceImpl;
@@ -12,9 +16,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/SWP")
@@ -24,6 +30,10 @@ public class ManagerController {
     StorageService storageService;
     @Autowired
     CustomerService customerService;
+    @Autowired
+    Cloudinary cloudinary;
+    @Autowired
+    CloudinaryService cloudinaryService;
 
     //    @GetMapping("/manager-dashboard")
 //    public String showDashboard(Model model) {
@@ -46,6 +56,12 @@ public class ManagerController {
         return "admin";
     }
 
+    @GetMapping("/customer-list")
+    public String showUserList(Model model) {
+        List<Customer> customers = customerService.getAll();
+        model.addAttribute("customers", customers);
+        return "customer-list"; // Trang HTML hiển thị danh sách người dùng
+    }
 
     @GetMapping("/addstorage")
     public String showAddStorageForm(Model model) {
@@ -54,11 +70,35 @@ public class ManagerController {
     }
 
     @PostMapping("/addstorage")
-    public String addStorage(@ModelAttribute("storage") Storage storage, RedirectAttributes redirectAttributes) {
-        storageService.save(storage); // hoặc createStorage nếu bạn có method đó
-        redirectAttributes.addFlashAttribute("message", "Thêm kho thành công!");
-        return "redirect:storages"; // hoặc redirect sang trang danh sách nếu cần
+    public String addStorage(@ModelAttribute StorageRequest storageRequest,
+                             @RequestParam("image") MultipartFile file,
+                             RedirectAttributes redirectAttributes) {
+        try {
+            // Upload ảnh
+            if (file != null && !file.isEmpty()) {
+                String imageUrl = cloudinaryService.uploadImage(file);
+                storageRequest.setImUrl(imageUrl);
+            }
+
+            // Gọi service lưu vào DB
+            storageService.createStorage(storageRequest);
+            redirectAttributes.addFlashAttribute("message", "Thêm kho thành công!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("message", "Lỗi khi thêm kho.");
+        }
+        return "redirect:/SWP/storages"; // Điều hướng sau khi thêm
     }
 
 
+    @PostMapping("/storages/{id}/delete")
+    public String deleteStorage(@PathVariable int id, RedirectAttributes redirectAttributes) {
+        storageService.deleteStorageById(id);
+        redirectAttributes.addFlashAttribute("message", "Đã xoá kho thành công!");
+        return "redirect:/SWP/manager-dashboard"; // hoặc "/SWP/storages" nếu bạn có
+    }
 }
+
+
+
+

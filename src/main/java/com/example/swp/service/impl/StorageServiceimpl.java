@@ -31,8 +31,15 @@ public class StorageServiceimpl implements StorageService {
         storage.setPricePerDay(storageRequest.getPricePerDay());
         storage.setDescription(storageRequest.getDescription());
         storage.setStatus(storageRequest.isStatus());
+
+        // Set ảnh nếu có
+        if (storageRequest.getImUrl() != null && !storageRequest.getImUrl().isEmpty()) {
+            storage.setImUrl(storageRequest.getImUrl());
+        }
+
         return storageReponsitory.save(storage);
     }
+
 
     @Override
     public Optional<Storage> findByID(int id) {
@@ -53,6 +60,11 @@ public class StorageServiceimpl implements StorageService {
     @Override
     public void save(Storage storage) {
         storageReponsitory.save(storage);
+    }
+
+    @Override
+    public void deleteStorageById(int id) {
+        storageReponsitory.deleteById(id);
     }
 
 
