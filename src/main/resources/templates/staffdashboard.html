@@ -4,23 +4,29 @@
     <meta charset="UTF-8">
     <title>Staff Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/staff-dashboard.css}">
+    <style>
+        .status-pending { color: orange; font-weight: bold; }
+        .status-approved { color: green; font-weight: bold; }
+        .status-rejected { color: red; font-weight: bold; }
+    </style>
 </head>
 <body>
 <!-- Navigation Bar -->
 <nav class="navbar">
     <ul>
-        <li><a href="/SWP/home-page">Home</a></li>
-        <li><a href="/SWP/dashboard">Dashboard</a></li>
+        <li><a href="/staff/home">Home</a></li>
+        <li><a href="/staff/dashboard">Dashboard</a></li>
     </ul>
 </nav>
 
 <!-- Main Content -->
 <div class="container">
     <h2>Staff Dashboard</h2>
+    <p>Xin chào, <span th:text="${#authentication.name}">Staff</span></p>
 
     <!-- Form to find order by ID -->
     <div class="form-container">
-        <form th:action="@{/SWP/dashboard/find}" method="get">
+        <form th:action="@{/staff/dashboard/find}" method="get">
             <label for="orderId">Tìm đơn hàng theo ID:</label>
             <input type="number" id="orderId" name="orderId" required>
             <button type="submit">Tìm</button>
@@ -45,15 +51,16 @@
         </thead>
         <tbody>
         <tr th:each="order : ${orders}">
-            <td th:text="${order.getId()}"></td>
-            <td th:text="${order.getOrderDate()}"></td>
-            <td th:text="${order.getTotalAmount()} + ' VND'"></td>
+            <td th:text="${order.id}"></td>
+            <td th:text="${order.orderDate}"></td>
+            <td th:text="${order.totalAmount + ' VND'}"></td>
             <td>
-                <span th:class="'status-' + ${#strings.toLowerCase(order.getStatus())}" th:text="${order.getStatus()}"></span>
+                <span th:class="'status-' + ${#strings.toLowerCase(order.status)}"
+                      th:text="${order.status}"></span>
             </td>
             <td th:text="${order.customer != null ? order.customer.fullname : 'N/A'}"></td>
             <td>
-                <a th:href="@{'/SWP/orders/' + ${order.id}}" class="btn">Chi tiết</a>
+                <a th:href="@{'/staff/orders/' + ${order.id}}" class="btn">Chi tiết</a>
             </td>
         </tr>
         </tbody>

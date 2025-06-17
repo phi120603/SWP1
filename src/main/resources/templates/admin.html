@@ -697,7 +697,7 @@
             </a>
         </li>
         <li class="menu-item">
-            <a href="addstorage">
+            <a href="/manager/addstorage">
                 <i class="fas fa-hdd"></i>
                 <span>Add Storage</span>
             </a>
@@ -721,7 +721,7 @@
             </a>
         </li>
         <li class="menu-item">
-            <a href="customer-list">
+            <a href="/manager/customer-list">
                 <i class="fas fa-users"></i>
                 <span>Users List</span>
             </a>
@@ -903,7 +903,7 @@
                 <h3>Storage Units Overview</h3>
                 <div class="card-actions">
                     <button class="btn-primary">
-                        <a href="/SWP/addstorage" style="color: white; text-decoration: none;">
+                        <a href="/manager/addstorage" style="color: white; text-decoration: none;">
                         <i class="fas fa-plus"></i>
                         Add Unit
                         </a>
@@ -964,7 +964,7 @@
                                 </button>
 
                                 <!-- Nút xoá -->
-                                <form th:action="@{'/SWP/storages/' + ${storage.getStorageid()} + '/delete'}" method="post" onsubmit="return confirm('Bạn có chắc muốn xoá kho này không?');">
+                                <form th:action="@{'/manager/storages/' + ${storage.getStorageid()} + '/delete'}" method="post" onsubmit="return confirm('Bạn có chắc muốn xoá kho này không?');">
                                     <input type="hidden" name="_method" value="delete"/>
                                     <button type="submit" class="btn-icon danger" title="Delete">
                                         <i class="fas fa-trash"></i>

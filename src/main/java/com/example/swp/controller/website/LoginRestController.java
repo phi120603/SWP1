@@ -1,6 +1,6 @@
 package com.example.swp.controller.website;
+
 import com.example.swp.dto.LoginRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,11 +15,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class LoginRestController {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+
+    public LoginRestController(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
+
     @GetMapping("/login")
-    public String returnlogin () {
-        return "login"; // Spring tìm file view tên là "login"
+    public String returnlogin() {
+        return "login";
     }
 
     @PostMapping("/login")
@@ -32,7 +36,6 @@ public class LoginRestController {
                     )
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
             return ResponseEntity.ok().body("Đăng nhập thành công");
 
         } catch (BadCredentialsException e) {

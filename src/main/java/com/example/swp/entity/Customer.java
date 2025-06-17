@@ -18,17 +18,20 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-
 public class Customer implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String fullname;
     private String address;
     private String phone;
     private String email;
+
     @Enumerated(EnumType.STRING)
     private RoleName roleName;
+
     private String id_citizen;
     private String password;
 
@@ -46,14 +49,17 @@ public class Customer implements UserDetails {
 
     @OneToMany
     private List<WishList> wishLists;
+
+    //  Phân quyền động dựa trên roleName
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("CUSTOMER"));
+        // Spring yêu cầu ROLE_ prefix nếu dùng hasRole(...)
+        return List.of(new SimpleGrantedAuthority("ROLE_" + roleName.name().toUpperCase()));
     }
+
     public Customer(Integer id) {
         this.id = id;
     }
-
 
     @Override
     public String getPassword() {
