@@ -1,0 +1,82 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 40px;
+}
+
+.storage-detail-container {
+    display: flex;
+    gap: 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.left-panel {
+    flex: 1;
+}
+
+.storage-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.right-panel {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.storage-name {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.status-badge {
+    font-weight: bold;
+    color: green;
+}
+
+.button-group {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-edit {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-edit:hover {
+    background-color: #2980b9;
+}
+
+.btn-back {
+    background-color: #bdc3c7;
+    color: white;
+}
+
+.btn-back:hover {
+    background-color: #95a5a6;
+}
