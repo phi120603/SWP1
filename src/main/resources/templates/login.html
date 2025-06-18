@@ -79,47 +79,47 @@
 </style>
 <body>
 <div class="login-container">
-<h2>Login</h2>
-<form id="loginForm">
-    <input type="email" id="email" name="email" placeholder="Email" required><br>
-    <input type="password" id="password" name="password" placeholder="Password" required><br>
-    <button type="submit">Login</button>
-    <div class="links-container">
-        <a href="#">Quên mật khẩu?</a>
-        <a href="register.html">Tạo tài khoản mới</a>
-    </div>
-</form>
+    <h2>Login</h2>
+    <form action="/login" method="post" id="loginForm">
+        <input type="text" name="username" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+        <!-- Hiện thông báo lỗi khi login fail -->
+        <div id="error" th:if="${param.error}" class="error-message">Sai tài khoản hoặc mật khẩu!</div>
+    </form>
 </div>
 
-<p id="error" style="color: red;"></p>
 
-<script>
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
 
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+<!--<script>-->
+<!--    document.getElementById('loginForm').addEventListener('submit', async function(e) {-->
+<!--        e.preventDefault();-->
+<!--        const email = document.getElementById('email').value;-->
+<!--        const password = document.getElementById('password').value;-->
+<!--        try {-->
+<!--            const response = await fetch('/api/login', {-->
+<!--                method: 'POST',-->
+<!--                headers: { 'Content-Type': 'application/json' },-->
+<!--                credentials: 'include', // <== RẤT QUAN TRỌNG-->
+<!--                body: JSON.stringify({ email, password })-->
+<!--            });-->
+<!--            const data = await response.json();-->
+<!--            if (response.ok) {-->
+<!--                switch (data.role) {-->
+<!--                    case 'MANAGER': window.location.href = '/manager/dashboard'; break;-->
+<!--                    case 'STAFF': window.location.href = '/staff/dashboard'; break;-->
+<!--                    case 'CUSTOMER': window.location.href = '/customer/home'; break;-->
+<!--                    default: document.getElementById('error').textContent = 'Không xác định được quyền truy cập!';-->
+<!--                }-->
+<!--            } else {-->
+<!--                document.getElementById('error').textContent = data.message || 'Đăng nhập thất bại!';-->
+<!--            }-->
+<!--        } catch (err) {-->
+<!--            document.getElementById('error').textContent = 'Lỗi kết nối đến máy chủ.';-->
+<!--        }-->
+<!--    });-->
+<!--</script>-->
 
-        try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            });
 
-            if (response.ok) {
-                window.location.href = '/home-page'; // chuyển hướng sau khi đăng nhập thành công
-            } else {
-                const errorMsg = await response.text();
-                document.getElementById('error').textContent = errorMsg;
-            }
-
-        } catch (err) {
-            document.getElementById('error').textContent = 'Lỗi kết nối đến máy chủ.';
-        }
-    });
-</script>
 </body>
 </html>

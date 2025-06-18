@@ -1,7 +1,5 @@
 package com.example.swp.security;
 
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.config.Customizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,6 +9,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,16 +37,27 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/login").permitAll()    // Cho phép POST đến /api/login
-                        .requestMatchers("/login.html", "/register.html", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/api/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
+                        .requestMatchers("/login", "/login.html", "/register.html", "/css/**", "/js/**", "/images/**", "/static/**").permitAll()
+                        .requestMatchers("/customer/**").hasRole("CUSTOMER")
+                        .requestMatchers("/manager/**").hasRole("MANAGER")
+                        .requestMatchers("/staff/**").hasRole("STAFF")
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                // THÊM VÀO ĐÂY
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/customer/home", true)
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll()
                 );
         return http.build();
     }
+
 
     @Bean
     public AuthenticationProvider daoAuthenticationProvider() {
@@ -70,7 +80,7 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:8088"));
+        config.setAllowedOrigins(Arrays.asList("http://localhost:8080"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         config.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
 

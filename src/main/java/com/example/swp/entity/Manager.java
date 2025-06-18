@@ -33,8 +33,13 @@ import java.util.List;
         private List<Order> orders;
         @Override
         public Collection<? extends GrantedAuthority> getAuthorities() {
-            return List.of(new SimpleGrantedAuthority("MANAGER"));
+            if (roleName == null) {
+                System.err.println("roleName is null for Manager: " + this.getUsername());
+                return List.of();
+            }
+            return List.of(new SimpleGrantedAuthority("ROLE_" + roleName.name().toUpperCase()));
         }
+
 
         @Override
         public String getPassword() {

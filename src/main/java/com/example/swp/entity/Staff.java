@@ -40,8 +40,13 @@ public class Staff implements UserDetails {
     private List<Feedback> feedbacks;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("STAFF"));
+        if (roleName == null) {
+            System.err.println("roleName is null for Staff: " + this.getUsername());
+            return List.of(); // Không quyền nào, tránh lỗi 500 nếu DB chưa chuẩn
+        }
+        return List.of(new SimpleGrantedAuthority("ROLE_" + roleName.name().toUpperCase()));
     }
+
 
     @Override
     public String getPassword() {

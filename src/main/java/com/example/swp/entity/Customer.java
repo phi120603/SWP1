@@ -35,59 +35,34 @@ public class Customer implements UserDetails {
     private String id_citizen;
     private String password;
 
-    @OneToMany(mappedBy = "customer")
-    private List<Contact> contacts;
-
-    @OneToMany(mappedBy = "customer")
-    private List<Feedback> feedbacks;
-
-    @OneToMany
-    private List<StorageTransaction> storageTransactions;
-
-    @OneToMany
-    private List<Payment> payments;
-
-    @OneToMany
-    private List<WishList> wishLists;
-
-    //  Phân quyền động dựa trên roleName
+    // Các quan hệ khác...
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Spring yêu cầu ROLE_ prefix nếu dùng hasRole(...)
-        return List.of(new SimpleGrantedAuthority("ROLE_" + roleName.name().toUpperCase()));
+        if (roleName == null) {
+            System.err.println("roleName is null for user: " + this.getUsername());
+            return List.of();
+        }
+        return List.of(new SimpleGrantedAuthority("ROLE_" + roleName.name()));
     }
-
     public Customer(Integer id) {
         this.id = id;
     }
 
     @Override
-    public String getPassword() {
-        return this.password;
-    }
+    public String getPassword() { return this.password; }
 
     @Override
-    public String getUsername() {
-        return this.email;
-    }
+    public String getUsername() { return this.email; }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+    public boolean isAccountNonExpired() { return true; }
 
     @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+    public boolean isAccountNonLocked() { return true; }
 
     @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+    public boolean isCredentialsNonExpired() { return true; }
 
     @Override
-    public boolean isEnabled() {
-        return true;
-    }
+    public boolean isEnabled() { return true; }
 }
