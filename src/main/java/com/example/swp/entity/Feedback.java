@@ -19,6 +19,15 @@ public class Feedback {
     private int rating;
 
     @ManyToOne
+    @JoinColumn(name = "storage_id")
+    private Storage storage;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
+
+
+    @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
 

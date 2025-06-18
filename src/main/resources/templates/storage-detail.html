@@ -20,6 +20,7 @@
         [[${message}]]
     </div>
 
+
     <!-- Hiển thị thông báo lỗi -->
     <div th:if="${error}" class="alert alert-error">
         [[${error}]]
@@ -89,6 +90,10 @@
                 <a th:href="@{'/SWP/storages/' + ${storage.getStorageid()} + '/booking'}" class="booking-btn">
                     Đặt thuê ngay
                 </a>
+                <a th:href="@{'/SWP/create/' + ${storage.getStorageid()}}" class="feedback-btn">
+                    Đánh giá kho
+                </a>
+
                 <a href="/SWP/storages" class="back-btn">
                     Quay lại danh sách
                 </a>

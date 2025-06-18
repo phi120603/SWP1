@@ -1,9 +1,12 @@
 package com.example.swp.controller.website;
 
+import com.example.swp.entity.Customer;
+import com.example.swp.entity.Feedback;
 import com.example.swp.entity.Order;
 import com.example.swp.entity.Storage;
 import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -25,15 +28,29 @@ public class StorageDetailController {
     private OrderService orderService;
 
     @GetMapping("/storages/{id}")
-    public String viewStorageDetail(@PathVariable int id, Model model) {
+    public String viewStorageDetail(@PathVariable int id, Model model, HttpSession session ) {
         Optional<Storage> optionalStorage = storageService.findByID(id);
         if (optionalStorage.isPresent()) {
             model.addAttribute("storage", optionalStorage.get());
         } else {
             return "redirect:/SWP/storages";
         }
+        Storage storage = optionalStorage.get();
+
+        // Khai báo biến customer bên ngoài if
+        Customer customer = null;
+        Object obj = session.getAttribute("loggedInCustomer");
+        if (obj != null && obj instanceof Customer) {
+            customer = (Customer) obj;
+        }
+
+        model.addAttribute("storage", storage);
+        model.addAttribute("customer", customer);
+        model.addAttribute("feedback", new Feedback());
+
         return "storage-detail";
     }
+
 
     // Hiển thị form booking
     @GetMapping("/storages/{id}/booking")

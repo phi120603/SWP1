@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đánh giá kho</title>
+    <link rel="stylesheet" th:href="@{/css/feedback.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<div class="container">
+    <div class="feedback-card">
+        <div class="card-header">
+            <h1><i class="fas fa-star"></i> Đánh giá kho</h1>
+            <p class="storage-info">
+                <i class="fas fa-warehouse"></i>
+                <span th:text="${storage.name}">Tên kho</span>
+            </p>
+        </div>
+
+        <!-- Hiển thị thông báo lỗi -->
+        <div th:if="${error}" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- Hiển thị thông báo thành công -->
+        <div th:if="${message}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${message}"></span>
+        </div>
+
+        <form th:action="@{/SWP/feedback/submit}" method="post" th:object="${feedback}" class="feedback-form">
+            <input type="hidden" name="storageId" th:value="${storage.storageid}">
+            <input type="hidden" th:field="*{id}">
+
+            <!-- Rating Section -->
+            <div class="form-group">
+                <label for="rating" class="form-label">
+                    <i class="fas fa-star"></i>
+                    Đánh giá của bạn
+                </label>
+                <div class="rating-container">
+                    <div class="star-rating">
+                        <input type="radio" id="star5" name="rating" value="5" th:field="*{rating}">
+                        <label for="star5" class="star"><i class="fas fa-star"></i></label>
+
+                        <input type="radio" id="star4" name="rating" value="4" th:field="*{rating}">
+                        <label for="star4" class="star"><i class="fas fa-star"></i></label>
+
+                        <input type="radio" id="star3" name="rating" value="3" th:field="*{rating}">
+                        <label for="star3" class="star"><i class="fas fa-star"></i></label>
+
+                        <input type="radio" id="star2" name="rating" value="2" th:field="*{rating}">
+                        <label for="star2" class="star"><i class="fas fa-star"></i></label>
+
+                        <input type="radio" id="star1" name="rating" value="1" th:field="*{rating}">
+                        <label for="star1" class="star"><i class="fas fa-star"></i></label>
+                    </div>
+                    <div class="rating-text">
+                        <span id="rating-display">Chọn số sao</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Section -->
+            <div class="form-group">
+                <label for="content" class="form-label">
+                    <i class="fas fa-comment"></i>
+                    Nội dung đánh giá
+                </label>
+                <textarea
+                        id="content"
+                        name="content"
+                        th:field="*{content}"
+                        placeholder="Chia sẻ trải nghiệm của bạn về kho này... (tối thiểu 10 ký tự, tối đa 500 ký tự)"
+                        maxlength="500"
+                        rows="5">
+                    </textarea>
+                <div class="char-counter">
+                    <span id="char-count">0</span>/500 ký tự
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i>
+                    <span th:text="${feedback.id > 0} ? 'Cập nhật đánh giá' : 'Gửi đánh giá'">Gửi đánh giá</span>
+                </button>
+                <a th:href="@{/SWP/storages/{id}(id=${storage.storageid})}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Quay lại
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Rating stars functionality
+    const stars = document.querySelectorAll('.star-rating input[type="radio"]');
+    const ratingDisplay = document.getElementById('rating-display');
+    const ratingTexts = {
+        1: 'Rất tệ',
+        2: 'Tệ',
+        3: 'Bình thường',
+        4: 'Tốt',
+        5: 'Rất tốt'
+    };
+
+    stars.forEach(star => {
+        star.addEventListener('change', function() {
+            const rating = this.value;
+            ratingDisplay.textContent = `${rating} sao - ${ratingTexts[rating]}`;
+
+            // Update visual feedback
+            updateStarDisplay(rating);
+        });
+    });
+
+    function updateStarDisplay(rating) {
+        const starLabels = document.querySelectorAll('.star');
+        starLabels.forEach((label, index) => {
+            if (index >= (5 - rating)) {
+                label.classList.add('selected');
+            } else {
+                label.classList.remove('selected');
+            }
+        });
+    }
+
+    // Character counter
+    const textarea = document.getElementById('content');
+    const charCount = document.getElementById('char-count');
+
+    textarea.addEventListener('input', function() {
+        const count = this.value.length;
+        charCount.textContent = count;
+
+        if (count > 500) {
+            charCount.style.color = '#e74c3c';
+        } else if (count < 10) {
+            charCount.style.color = '#f39c12';
+        } else {
+            charCount.style.color = '#27ae60';
+        }
+    });
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Update character count
+        const initialCount = textarea.value.length;
+        charCount.textContent = initialCount;
+
+        // Update star display if rating is already selected
+        const selectedRating = document.querySelector('.star-rating input[type="radio"]:checked');
+        if (selectedRating) {
+            const rating = selectedRating.value;
+            ratingDisplay.textContent = `${rating} sao - ${ratingTexts[rating]}`;
+            updateStarDisplay(rating);
+        }
+    });
+</script>
+</body>
+</html>

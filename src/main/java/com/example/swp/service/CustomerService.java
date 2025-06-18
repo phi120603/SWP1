@@ -8,4 +8,5 @@ import java.util.List;
 public interface CustomerService {
     List<Customer> getAll();
     public Customer getCustomer(int id);
+
 }

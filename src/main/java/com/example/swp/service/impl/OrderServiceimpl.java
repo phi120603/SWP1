@@ -7,7 +7,7 @@ import com.example.swp.entity.Order;
 import com.example.swp.entity.Storage;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.OrderRepository;
-import com.example.swp.repository.StorageReponsitory;
+import com.example.swp.repository.StorageRepository;
 import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class OrderServiceimpl implements OrderService {
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
-    private StorageReponsitory storageReponsitory;
+    private StorageRepository storageRepository;
     @Autowired
     private StorageRequest storageRequest;
     @Autowired
@@ -45,7 +45,7 @@ public class OrderServiceimpl implements OrderService {
     public Order createOrder(OrderRequest orderRequest) {
         Customer customer =  customerRepository.findById(orderRequest.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("ko co customer " +orderRequest.getCustomerId()));
-        Storage storage = storageReponsitory.findById(orderRequest.getStorageId())
+        Storage storage = storageRepository.findById(orderRequest.getStorageId())
                 .orElseThrow(() -> new RuntimeException("ko co storage " +orderRequest.getStorageId()));
         Order order = new Order();
         order.setStartDate(orderRequest.getStartDate());
