@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chi tiết khách hàng</title>
+    <link rel="stylesheet" th:href="@{/customer-list.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div class="main-content">
+    <div class="container">
+
+        <a href="/SWP/customers" class="btn btn-secondary" style="margin-bottom:2rem;">&#8592; Quay lại danh sách</a>
+
+        <!-- Thông tin khách hàng -->
+        <div class="card" style="margin-bottom: 2rem; padding: 2rem;">
+            <h1 style="margin-bottom: 0.5rem" th:text="${customer.fullname}">Tên khách hàng</h1>
+            <div class="customer-info">
+                <p><b>Email:</b> <span th:text="${customer.email}"></span></p>
+                <p><b>Số điện thoại:</b> <span th:text="${customer.phone}"></span></p>
+                <p><b>Địa chỉ:</b> <span th:text="${customer.address}"></span></p>
+                <p><b>Vai trò:</b>
+                    <span th:text="${customer.roleName}" class="role-badge"
+                          th:classappend="${customer.roleName == 'VIP' ? 'vip' : (customer.roleName == 'BLOCKED' ? 'blocked' : '')}">
+                    </span>
+                </p>
+                <p><b>ID công dân:</b> <span th:text="${customer.id_citizen}"></span></p>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 2rem;">
+            <a th:href="@{/SWP/customers/edit/{id}(id=${customer.id})}" class="btn btn-primary">Sửa khách hàng</a>
+            <form th:action="@{/SWP/customers/delete/{id}(id=${customer.id})}" method="post" style="display:inline;"
+                  onsubmit="return confirm('Bạn có chắc muốn xóa khách hàng này không?');">
+                <button type="submit" class="btn btn-danger">Xóa khách hàng</button>
+            </form>
+        </div>
+
+        <!-- Lịch sử đơn hàng -->
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-header">
+                <h3>Lịch sử đặt hàng</h3>
+            </div>
+            <div class="table-container">
+                <table class="customer-table">
+                    <thead>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td th:text="${order.id}"></td>
+                        <td th:text="${order.orderDate}"></td>
+                        <td th:text="${order.totalAmount}"></td>
+                        <td th:text="${order.status}"></td>
+                        <td>
+                            <a th:href="@{/SWP/orders/{id}(id=${order.id})}" class="btn btn-secondary" style="padding: 4px 14px; font-size:0.97rem;">
+                                Xem chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(orders)}">
+                        <td colspan="4" style="text-align: center;">Chưa có đơn hàng nào</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Lịch sử feedback -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Lịch sử phản hồi</h3>
+            </div>
+            <div class="table-container">
+                <table class="customer-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nội dung</th>
+                        <th>Ngày gửi</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="fb : ${feedbacks}">
+                        <td th:text="${fb.id}"></td>
+                        <td th:text="${fb.content}"></td>
+                        <td th:text="${fb.createdDate}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(feedbacks)}">
+                        <td colspan="3" style="text-align: center;">Chưa có feedback nào</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

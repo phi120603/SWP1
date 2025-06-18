@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-
 @Component
 public class StorageServiceimpl implements StorageService {
     @Autowired
@@ -31,6 +30,12 @@ public class StorageServiceimpl implements StorageService {
         storage.setPricePerDay(storageRequest.getPricePerDay());
         storage.setDescription(storageRequest.getDescription());
         storage.setStatus(storageRequest.isStatus());
+
+        // Set áº£nh náº¿u cÃ³
+        if (storageRequest.getImUrl() != null && !storageRequest.getImUrl().isEmpty()) {
+            storage.setImUrl(storageRequest.getImUrl());
+        }
+
         return storageReponsitory.save(storage);
     }
 
@@ -48,6 +53,16 @@ public class StorageServiceimpl implements StorageService {
         storage.setState(storageRequest.getState());
         storage.setStatus(storageRequest.isStatus());
         return storageReponsitory.save(storage);
+    }
+
+    @Override
+    public void save(Storage storage) {
+        storageReponsitory.save(storage);
+    }
+
+    @Override
+    public void deleteStorageById(int id) {
+        storageReponsitory.deleteById(id);
     }
 
 

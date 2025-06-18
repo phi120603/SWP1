@@ -20,5 +20,6 @@ public class StorageRequest {
     private double area;
     private double pricePerDay;
     private String description;
+    private String imUrl; // URL cá»§a áº£nh Ä‘áº¡i diá»‡n kho chá»©a
     private boolean status;
 }

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Cập nhật thông tin khách hàng</title>
+    <link rel="stylesheet" th:href="@{/customer-list.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div class="container">
+    <h1>Cập nhật thông tin khách hàng</h1>
+    <form th:action="@{/SWP/customers/edit/{id}(id=${customer.id})}" th:object="${customer}" method="post" class="form" style="max-width:500px">
+        <label>Họ tên:
+            <input type="text" th:field="*{fullname}" required class="search-input">
+        </label><br>
+        <label>Địa chỉ:
+            <input type="text" th:field="*{address}" class="search-input">
+        </label><br>
+        <label>Email:
+            <input type="email" th:field="*{email}" required class="search-input">
+        </label><br>
+        <label>Số điện thoại:
+            <input type="text" th:field="*{phone}" class="search-input">
+        </label><br>
+        <label>Vai trò:
+            <select th:field="*{roleName}" class="filter-select">
+                <option th:each="role : ${roles}" th:value="${role}" th:text="${role}"
+                        th:selected="${role} == ${customer.roleName}"></option>
+            </select>
+        </label><br>
+        <label>ID công dân:
+            <input type="text" th:field="*{id_citizen}" class="search-input">
+        </label><br>
+        <label>Mật khẩu (để trống nếu không đổi):
+            <input type="password" th:field="*{password}" class="search-input">
+        </label><br><br>
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        <a href="/SWP/customers" class="btn btn-secondary">Hủy</a>
+    </form>
+</div>
+</body>
+</html>

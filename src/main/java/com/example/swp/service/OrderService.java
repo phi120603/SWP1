@@ -1,5 +1,6 @@
 package com.example.swp.service;
 
+import com.example.swp.entity.Customer;
 import com.example.swp.dto.OrderRequest;
 import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Order;
@@ -17,6 +18,8 @@ public interface OrderService {
     Optional<Order> getOrderById(int id);
 
     Order createOrder(OrderRequest orderRequest);
+
+    List<Order> findOrdersByCustomer(Customer customer);
 
     Order save(Order order);
 }

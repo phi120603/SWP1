@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.List;
 
@@ -26,14 +27,20 @@ public class Storage {
     private double area;
     private double pricePerDay;
     private String description;
+    private String imUrl;
 
-    private boolean status; // true: còn trống, false: đang bị thuê
+    private boolean status; // true: cÃ²n trá»‘ng, false: Ä‘ang bá»‹ thuÃª
 
-//    private String imageUrl; // hoặc dùng List<StorageImage> nếu nhiều ảnh
+    //    private String imageUrl; // hoáº·c dÃ¹ng List<StorageImage> náº¿u nhiá»u áº£nh
+    public Storage(Integer id) {
+        this.storageid = id;
+    }
+
 
     @OneToMany(mappedBy = "storage")
+    @JsonIgnore
     private List<Contact> contacts;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "storage")
     private List<StorageTransaction> storageTransactions;
 
