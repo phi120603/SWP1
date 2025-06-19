@@ -29,7 +29,7 @@ public class VnPayServiceimpl implements VNPayService {
     private final String vnp_HashSecret = "U6QYGRTSYARF6YEHBNLKAXKNADGIUSVN";
     private final String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
 
-    public String createVNPayUrl(HttpServletRequest req, long amount) throws UnsupportedEncodingException {
+    public String createVNPayUrl(HttpServletRequest req, long amount, int orderId) throws UnsupportedEncodingException {
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String orderType = "other";
@@ -43,8 +43,8 @@ public class VnPayServiceimpl implements VNPayService {
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
         vnp_Params.put("vnp_Amount", String.valueOf(amount * 100));
         vnp_Params.put("vnp_CurrCode", "VND");
-        vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-        vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
+        vnp_Params.put("vnp_TxnRef", String.valueOf(orderId));
+        vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + orderId);
         vnp_Params.put("vnp_OrderType", orderType);
         vnp_Params.put("vnp_Locale", "vn");
         vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());

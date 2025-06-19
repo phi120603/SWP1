@@ -5,11 +5,15 @@ import com.cloudinary.utils.ObjectUtils;
 import com.example.swp.config.CloudinaryConfig;
 import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Customer;
+import com.example.swp.entity.Staff;
 import com.example.swp.entity.Storage;
+import com.example.swp.repository.OrderRepository;
 import com.example.swp.service.CloudinaryService;
 import com.example.swp.service.CustomerService;
+import com.example.swp.service.StaffService;
 import com.example.swp.service.StorageService;
 import com.example.swp.service.impl.CustomerServiceImpl;
+import com.example.swp.service.impl.StaffServiceimpl;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,13 +31,22 @@ import java.util.Map;
 public class ManagerController {
 
     @Autowired
+    OrderRepository orderRepository;
+
+    @Autowired
     StorageService storageService;
+
     @Autowired
     CustomerService customerService;
+
     @Autowired
     Cloudinary cloudinary;
+
     @Autowired
     CloudinaryService cloudinaryService;
+
+    @Autowired
+    private StaffService staffService;
 
     //    @GetMapping("/manager-dashboard")
 //    public String showDashboard(Model model) {
@@ -48,13 +61,23 @@ public class ManagerController {
         List<Customer> customers = customerService.getAll();
         int totalUser = customers.size();
 
+        List<Staff> staff = staffService.getAllStaff();
+        int totalStaff = staff.size();
+
+        double totalRevenue = orderRepository.calculateTotalRevenue();
+
+
         model.addAttribute("storages", storages);
         model.addAttribute("totalStorages", totalStorages);
         model.addAttribute("customers", customers);
         model.addAttribute("totalUser", totalUser);
+        model.addAttribute("staff", staff);
+        model.addAttribute("totalStaff", totalStaff);
+        model.addAttribute("totalRevenue", totalRevenue);
 
         return "admin";
     }
+
 
     @GetMapping("/customer-list")
     public String showUserList(Model model) {

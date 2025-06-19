@@ -8,6 +8,7 @@ import com.example.swp.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +16,8 @@ import java.util.Optional;
 public class StorageServiceimpl implements StorageService {
     @Autowired
     private StorageReponsitory storageReponsitory;
+    private List<Storage> storageList = new ArrayList<>();
+    private Storage storage;
     @Override
     public List<Storage> getAll() {
         return storageReponsitory.findAll();
@@ -64,7 +67,10 @@ public class StorageServiceimpl implements StorageService {
 
     @Override
     public void deleteStorageById(int id) {
+//        storageReponsitory.resetAutoIncrement();
         storageReponsitory.deleteById(id);
+
+
     }
 
 

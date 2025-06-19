@@ -20,14 +20,24 @@ public class StorageListController {
     @Autowired
     private StorageService storageService;
 
+    private int resset(){
+        List<Storage> allStorages = storageService.getAll();
+        int index = 1;
+        for( Storage storage : allStorages) {
+            allStorages.add(new Storage(index));
+        }
+        return index;
+
+    }
     @GetMapping("/storages")
     public String listStorage(
             @RequestParam(required = false) String storageName,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String status,
             Model model) {
-
         List<Storage> allStorages = storageService.getAll();
+//        resset();
+
         System.out.println("All storages from database: " + allStorages.size());
 
         // Filter storages based on search criteria

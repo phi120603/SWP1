@@ -10,6 +10,7 @@ import com.example.swp.repository.OrderRepository;
 import com.example.swp.repository.StorageReponsitory;
 import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -77,5 +78,11 @@ public class OrderServiceimpl implements OrderService {
 
 
     }
+
+    @Transactional
+    public void markOrderAsPaid(int orderId) {
+        orderRepository.updateOrderStatusToPaid(orderId);
+    }
+
 
 }
