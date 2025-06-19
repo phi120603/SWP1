@@ -25,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/SWP")
@@ -111,6 +112,27 @@ public class ManagerController {
             redirectAttributes.addFlashAttribute("message", "Lỗi khi thêm kho.");
         }
         return "redirect:/SWP/storages"; // Điều hướng sau khi thêm
+    }
+    @GetMapping("/manager-dashboard/storages/{id}")
+    public String viewStorageDetail(@PathVariable int id, Model model) {
+        Optional<Storage> optionalStorage = storageService.findByID(id);
+        if (optionalStorage.isPresent()) {
+            model.addAttribute("storage", optionalStorage.get());
+        } else {
+            return "redirect:/SWP/manager-dashboard";
+        }
+        return "manager-storagedetail";
+    }
+
+    @GetMapping("/storages/{id}/edit")
+    public String showEditForm(@PathVariable("id") int id, Model model) {
+        Optional<Storage> optionalStorage = storageService.findByID(id);
+        if (optionalStorage.isPresent()) {
+            model.addAttribute("storage", optionalStorage.get());
+        } else {
+            return "redirect:/SWP/manager-dashboard";
+        }
+        return "manager-storage-edit"; // HTML trang sửa
     }
 
 
