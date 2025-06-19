@@ -22,4 +22,8 @@ public class WishList {
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
+
+    @ManyToOne
+    @JoinColumn(name = "storage_id")
+    private Storage storage;
 }

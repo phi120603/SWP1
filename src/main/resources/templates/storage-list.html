@@ -4,6 +4,238 @@
     <meta charset="UTF-8">
     <title>Danh sách kho</title>
     <link rel="stylesheet" th:href="@{/css/storage-list.css}">
+    <style>
+        /* Additional styles for wishlist functionality */
+        .navbar {
+            position: relative;
+        }
+
+        .cart-icon {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .cart-icon:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            min-width: 20px;
+        }
+
+        .storage-card {
+            position: relative;
+        }
+
+        .card-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            gap: 10px;
+        }
+
+        .btn-wishlist {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-wishlist:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .btn-wishlist.in-wishlist {
+            background-color: #dc3545;
+        }
+
+        .btn-wishlist.in-wishlist:hover {
+            background-color: #c82333;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            background: #dc3545;
+        }
+
+        /* Basic styles for demo */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .navbar {
+            background-color: #333;
+            padding: 1rem 0;
+        }
+
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar li {
+            margin: 0 2rem;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: #555;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .search-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .search-input, .search-select {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .search-btn, .reset-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .search-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .reset-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .storage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .storage-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .storage-name {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .storage-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+            display: inline-block;
+        }
+
+        .status-available {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-rented {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+        }
+    </style>
 </head>
 <body>
 <!-- Navigation Bar -->
@@ -11,7 +243,13 @@
     <ul>
         <li><a href="/SWP/home-page">Home</a></li>
         <li><a href="/SWP/storages">List</a></li>
+        <li><a href="/SWP/wishlist">Wishlist</a></li>
     </ul>
+    <!-- Cart Icon - FIX: Add proper error handling -->
+    <button class="cart-icon" onclick="goToWishlist()" title="Xem wishlist">
+        🛒
+        <span class="cart-count" id="cartCount">0</span>
+    </button>
 </nav>
 
 <!-- Main Content -->
@@ -21,28 +259,26 @@
     <!-- Search Form -->
     <div class="search-container">
         <form method="get" th:action="@{/SWP/storages}" class="search-form">
-            <div class="search-fields">
-                <input type="text" name="storageName" th:value="${param.storageName}"
-                       placeholder="Tìm theo tên kho..." class="search-input">
+            <input type="text" name="storageName" th:value="${param.storageName}"
+                   placeholder="Tìm theo tên kho..." class="search-input">
 
-                <select name="city" class="search-select">
-                    <option value="">Tất cả thành phố</option>
-                    <option th:each="city : ${cities}"
-                            th:value="${city}"
-                            th:text="${city}"
-                            th:selected="${param.city != null and param.city.equals(city)}">
-                    </option>
-                </select>
+            <select name="city" class="search-select">
+                <option value="">Tất cả thành phố</option>
+                <option th:each="city : ${cities}"
+                        th:value="${city}"
+                        th:text="${city}"
+                        th:selected="${param.city != null and param.city.equals(city)}">
+                </option>
+            </select>
 
-                <select name="status" class="search-select">
-                    <option value="">Tất cả trạng thái</option>
-                    <option value="true" th:selected="${param.status != null and param.status.equals('true')}">Còn trống</option>
-                    <option value="false" th:selected="${param.status != null and param.status.equals('false')}">Đang thuê</option>
-                </select>
+            <select name="status" class="search-select">
+                <option value="">Tất cả trạng thái</option>
+                <option value="true" th:selected="${param.status != null and param.status.equals('true')}">Còn trống</option>
+                <option value="false" th:selected="${param.status != null and param.status.equals('false')}">Đang thuê</option>
+            </select>
 
-                <button type="submit" class="search-btn">Tìm kiếm</button>
-                <a th:href="@{/SWP/storages}" class="reset-btn">Xóa bộ lọc</a>
-            </div>
+            <button type="submit" class="search-btn">Tìm kiếm</button>
+            <a th:href="@{/SWP/storages}" class="reset-btn">Xóa bộ lọc</a>
         </form>
     </div>
 
@@ -57,15 +293,19 @@
 
             <div th:class="${storage.isStatus()} ? 'storage-status status-available' : 'storage-status status-rented'"
                  th:text="${storage.isStatus()} ? 'Còn trống' : 'Đang thuê'">
-
-
-
                 Trạng thái
             </div>
 
             <div class="storage-address" th:text="${storage.city}">Địa chỉ</div>
 
-            <a th:href="@{'/SWP/storages/' + ${storage.storageid}}" class="btn">Chi tiết</a>
+            <div class="card-actions">
+                <a th:href="@{'/SWP/storages/' + ${storage.storageid}}" class="btn">Chi tiết</a>
+                <button class="btn-wishlist"
+                        th:attr="data-storage-id=${storage.storageid}"
+                        onclick="toggleWishlist(this)">
+                    + Thêm vào giỏ
+                </button>
+            </div>
         </div>
     </div>
 
@@ -74,5 +314,128 @@
         <p>Không tìm thấy kho nào phù hợp với tiêu chí tìm kiếm.</p>
     </div>
 </div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+<script>
+    // Wishlist management
+    let wishlistItems = new Set();
+
+    // Load wishlist from server on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadWishlist();
+    });
+
+    async function loadWishlist() {
+        try {
+            const response = await fetch('/api/wishlist/my');
+            if (response.ok) {
+                const wishlist = await response.json();
+                wishlistItems.clear();
+                wishlist.forEach(item => {
+                    if (item.storage && item.storage.storageid) {
+                        wishlistItems.add(item.storage.storageid);
+                    }
+                });
+                updateWishlistUI();
+                updateCartCount();
+            } else if (response.status === 401) {
+                // User not logged in, that's ok
+                console.log('User not logged in');
+                updateCartCount(); // Still update UI even if not logged in
+            }
+        } catch (error) {
+            console.log('Error loading wishlist:', error);
+            updateCartCount(); // Still update UI on error
+        }
+    }
+
+    async function toggleWishlist(button) {
+        const storageId = parseInt(button.getAttribute('data-storage-id'));
+        const isInWishlist = wishlistItems.has(storageId);
+
+        try {
+            const url = isInWishlist ? '/api/wishlist/remove' : '/api/wishlist/add';
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(storageId)
+            });
+
+            if (response.ok) {
+                if (isInWishlist) {
+                    wishlistItems.delete(storageId);
+                    showToast('Đã xóa khỏi wishlist!', 'success');
+                } else {
+                    wishlistItems.add(storageId);
+                    showToast('Đã thêm vào wishlist!', 'success');
+                }
+                updateWishlistUI();
+                updateCartCount();
+            } else {
+                const errorText = await response.text();
+                showToast(errorText || 'Có lỗi xảy ra!', 'error');
+            }
+        } catch (error) {
+            showToast('Có lỗi xảy ra!', 'error');
+            console.error('Error:', error);
+        }
+    }
+
+    function updateWishlistUI() {
+        document.querySelectorAll('.btn-wishlist').forEach(button => {
+            const storageId = parseInt(button.getAttribute('data-storage-id'));
+            if (wishlistItems.has(storageId)) {
+                button.classList.add('in-wishlist');
+                button.textContent = '✓ Đã thêm';
+            } else {
+                button.classList.remove('in-wishlist');
+                button.textContent = '+ Thêm vào giỏ';
+            }
+        });
+    }
+
+    function updateCartCount() {
+        const count = wishlistItems.size;
+        const cartCountElement = document.getElementById('cartCount');
+
+        if (cartCountElement) {
+            cartCountElement.textContent = count;
+
+            // Hide count if 0
+            if (count === 0) {
+                cartCountElement.style.display = 'none';
+            } else {
+                cartCountElement.style.display = 'flex';
+            }
+        }
+    }
+
+    // FIX: Add error handling for wishlist navigation
+    function goToWishlist() {
+        try {
+            window.location.href = '/SWP/wishlist';
+        } catch (error) {
+            console.error('Error navigating to wishlist:', error);
+            showToast('Có lỗi khi chuyển trang!', 'error');
+        }
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        if (toast) {
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    }
+</script>
 </body>
 </html>
