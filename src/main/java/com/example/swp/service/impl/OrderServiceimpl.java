@@ -67,6 +67,14 @@ public class OrderServiceimpl implements OrderService {
         return orderRepository.save(order);
     }
 
+    @Override
+    public void updateStatus(int orderId, String status) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order không tồn tại: " + orderId));
+        order.setStatus(status);
+        orderRepository.save(order);
+    }
+
     //Hàm tính total amount
     public BigDecimal calculateTotalAmount(LocalDate startDate, LocalDate endDate, BigDecimal pricePerDay) {
         long days = ChronoUnit.DAYS.between(startDate, endDate);
