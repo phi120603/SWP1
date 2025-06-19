@@ -42,7 +42,7 @@ public class Customer implements UserDetails {
             System.err.println("roleName is null for user: " + this.getUsername());
             return List.of();
         }
-        return List.of(new SimpleGrantedAuthority("ROLE_" + roleName.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + roleName.name().toUpperCase()));
     }
     public Customer(Integer id) {
         this.id = id;

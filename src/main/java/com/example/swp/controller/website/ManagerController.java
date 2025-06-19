@@ -82,4 +82,25 @@ public class ManagerController {
         redirectAttributes.addFlashAttribute("message", "Đã xoá kho thành công!");
         return "redirect:/manager/dashboard";
     }
+    @GetMapping("/admin")
+    public String showAdminPage(Model model) {
+        // Bạn có thể tái sử dụng dữ liệu dashboard nếu muốn
+        List<Storage> storages = storageService.getAll();
+        int totalStorages = storages.size();
+
+        List<Customer> customers = customerService.getAll();
+        int totalUser = customers.size();
+
+        // Nếu có biến totalFeedback thì bổ sung dữ liệu cho nó ở đây, ví dụ:
+        int totalFeedback = 0; // Hoặc lấy từ feedbackService nếu có
+
+        model.addAttribute("storages", storages);
+        model.addAttribute("totalStorages", totalStorages);
+        model.addAttribute("customers", customers);
+        model.addAttribute("totalUser", totalUser);
+        model.addAttribute("totalFeedback", totalFeedback); // Nếu dùng
+
+        return "admin"; // Nếu file nằm ở templates/admin.html
+    }
+
 }

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Thông báo của tôi</title>
+    <style>
+        .notification { padding: 10px; border-bottom: 1px solid #ccc; }
+        .notification.unread { background: #f2f6ff; }
+        .badge { color: white; background: red; border-radius: 50%; padding: 2px 7px; }
+    </style>
+</head>
+<body>
+<h2>Thông báo của bạn
+    <span th:if="${unreadCount > 0}" class="badge" th:text="${unreadCount}"></span>
+</h2>
+<form th:action="@{/notifications/read-all}" method="post">
+    <button type="submit">Đánh dấu tất cả đã đọc</button>
+</form>
+<div th:each="noti : ${notifications}">
+    <div class="notification" th:classappend="${noti.read ? '' : 'unread'}">
+        <span th:text="${#dates.format(noti.createdAt, 'dd/MM/yyyy HH:mm')}"></span> -
+        <span th:text="${noti.message}"></span>
+        <form th:if="${!noti.read}" th:action="@{/notifications/read/{id}(id=${noti.id})}" method="post" style="display:inline">
+            <button type="submit">Đánh dấu đã đọc</button>
+        </form>
+    </div>
+</div>
+<a th:href="@{/home-page}">Quay lại trang chủ</a>
+</body>
+</html>

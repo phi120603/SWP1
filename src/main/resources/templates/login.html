@@ -3,89 +3,168 @@
 <head>
     <title>Login Page</title>
     <meta charset="UTF-8">
+    <!-- Thêm Font Awesome để có icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(120deg, #7f53ac 0%, #647dee 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .login-container {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,.1);
+            width: 400px;
+            max-width: 90vw;
+            padding: 40px 38px 32px 38px;
+            margin: 50px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .login-container h2 {
+            font-size: 2rem;
+            margin-bottom: 32px;
+            font-weight: bold;
+            color: #222;
+            letter-spacing: 1px;
+        }
+        .input-group {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            background: #f6f6f6;
+            border-radius: 25px;
+            margin-bottom: 20px;
+            padding: 0 16px;
+            border: 1px solid #e1e1e1;
+            position: relative;
+        }
+        .input-group i {
+            color: #b5b5b5;
+            font-size: 1.1rem;
+        }
+        .input-group input {
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 12px 12px 12px 10px;
+            font-size: 1rem;
+            flex: 1;
+        }
+        .forgot {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+            color: #a2a2a2;
+            text-decoration: none;
+        }
+        .forgot:hover {
+            text-decoration: underline;
+            color: #647dee;
+        }
+        .login-btn {
+            width: 100%;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(90deg, #7f53ac, #647dee);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 13px 0;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .login-btn:hover {
+            background: linear-gradient(90deg, #647dee, #7f53ac);
+        }
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.96rem;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .or-text {
+            color: #aaa;
+            font-size: 0.98rem;
+            text-align: center;
+            margin: 12px 0 7px 0;
+        }
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 6px;
+        }
+        .social-login a {
+            width: 36px;
+            height: 36px;
+            background: #f6f6f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #647dee;
+            font-size: 1.2rem;
+            transition: background 0.2s, color 0.2s;
+            border: 1px solid #e3e3e3;
+        }
+        .social-login a:hover {
+            background: #647dee;
+            color: #fff;
+        }
+        .signup-link {
+            color: #647dee;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            margin-top: 8px;
+        }
+        .signup-link:hover {
+            text-decoration: underline;
+            color: #7f53ac;
+        }
+        @media (max-width: 600px) {
+            .login-container {
+                padding: 22px 7vw;
+            }
+        }
+    </style>
 </head>
 
-<style>
-    body {
-        font-family: 'Segoe UI', Arial, sans-serif;
-        background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-    }
-
-    h2 {
-        margin-top: 60px;
-        color: #2d3a4b;
-        letter-spacing: 1px;
-    }
-
-    form#loginForm {
-        background: #fff;
-        padding: 36px 28px;
-        border-radius: 12px;
-        box-shadow: 0 4px 24px rgba(44, 62, 80, 0.10);
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-        min-width: 340px;
-        border: 2px solid #a7c7e7;
-    }
-
-    input[type="email"],
-    input[type="password"] {
-        padding: 12px;
-        border: 1.5px solid #a7c7e7;
-        border-radius: 6px;
-        font-size: 16px;
-        background: #f7fbff;
-        transition: border 0.2s;
-    }
-
-    input[type="email"]:focus,
-    input[type="password"]:focus {
-        border: 1.5px solid #1976d2;
-        outline: none;
-    }
-
-    button[type="submit"] {
-        background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
-        color: #fff;
-        border: none;
-        padding: 12px 0;
-        border-radius: 6px;
-        font-size: 17px;
-        font-weight: 600;
-        cursor: pointer;
-        box-shadow: 0 2px 8px rgba(25, 118, 210, 0.10);
-        transition: background 0.2s, transform 0.1s;
-    }
-
-    button[type="submit"]:hover {
-        background: linear-gradient(90deg, #1565c0 0%, #64b5f6 100%);
-        transform: translateY(-2px) scale(1.03);
-    }
-
-    #error {
-        margin-top: 8px;
-        min-height: 20px;
-        font-size: 15px;
-        color: #d32f2f;
-        text-align: center;
-    }
-</style>
-<body>
 <div class="login-container">
     <h2>Login</h2>
     <form action="/login" method="post" id="loginForm">
-        <input type="text" name="username" placeholder="Email" required />
-        <input type="password" name="password" placeholder="Password" required />
-        <button type="submit">Login</button>
+        <div class="input-group">
+            <i class="fa fa-user"></i>
+            <input type="text" name="username" placeholder="Type your username" required />
+        </div>
+        <div class="input-group">
+            <i class="fa fa-lock"></i>
+            <input type="password" name="password" placeholder="Type your password" required />
+            <a href="#" class="forgot">Forgot password?</a>
+        </div>
+        <button type="submit" class="login-btn">LOGIN</button>
         <!-- Hiện thông báo lỗi khi login fail -->
         <div id="error" th:if="${param.error}" class="error-message">Sai tài khoản hoặc mật khẩu!</div>
+
+        <div class="or-text">Or Sign Up Using</div>
+        <div class="social-login">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-google"></i></a>
+        </div>
+        <div class="or-text" style="margin-top:24px;">Or Sign Up Using</div>
+        <a href="#" class="signup-link">SIGN UP</a>
     </form>
 </div>
 

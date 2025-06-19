@@ -47,8 +47,11 @@ public class WebSecurityConfig {
                 // THÊM VÀO ĐÂY
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/customer/home", true)
+                        // .defaultSuccessUrl(...)  // xóa hoặc comment dòng này
+                        .successHandler(new CustomLoginSuccessHandler()) // Thêm dòng này!
                         .permitAll()
+                
+
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")

@@ -1,0 +1,57 @@
+package com.example.swp.service.impl;
+
+import com.example.swp.dto.IssueRequest;
+import com.example.swp.entity.Customer;
+import com.example.swp.entity.Issue;
+import com.example.swp.entity.Staff;
+import com.example.swp.repository.CustomerRepository;
+import com.example.swp.repository.IssueRepository;
+import com.example.swp.repository.StaffReponsitory;
+import com.example.swp.service.IssueService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class IssueServiceImpl implements IssueService {
+
+    @Autowired
+    private IssueRepository issueRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private StaffReponsitory staffRepository;
+
+    @Override
+    public List<Issue> getAllIssues() {
+        return issueRepository.findAll();
+    }
+
+    @Override
+    public Optional<Issue> getIssueById(int id) {
+        return issueRepository.findById(id);
+    }
+
+    @Override
+    public Issue createIssue(IssueRequest issueRequest) {
+        Customer customer = customerRepository.findById(issueRequest.getCustomerId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với id " + issueRequest.getCustomerId()));
+        Staff staff = staffRepository.findById(issueRequest.getAssignedStaffId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy staff với id " + issueRequest.getAssignedStaffId()));
+
+        Issue issue = new Issue();
+        issue.setSubject(issueRequest.getSubject());
+        issue.setDescription(issueRequest.getDescription());
+        issue.setCustomer(customer);
+        issue.setAssignedStaff(staff);
+        issue.setCreatedDate(new Date());
+        issue.setResolved(false);
+
+        return issueRepository.save(issue);
+    }
+}

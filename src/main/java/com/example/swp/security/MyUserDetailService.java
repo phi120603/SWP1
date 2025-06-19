@@ -25,6 +25,18 @@ public class MyUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println(">> [DEBUG] Đăng nhập với username (email): '" + username + "'");
+        if (customerRepository.findByEmail(username).isPresent()) {
+            System.out.println(">> [DEBUG] Tìm thấy user ở bảng customer!");
+        }
+        if (staffRepository.findByEmail(username).isPresent()) {
+            System.out.println(">> [DEBUG] Tìm thấy user ở bảng staff!");
+        }
+        if (managerRepository.findByEmail(username).isPresent()) {
+            System.out.println(">> [DEBUG] Tìm thấy user ở bảng manager!");
+        }
+        // đoạn return giữ nguyên
+
         return customerRepository.findByEmail(username)
                 .map(user -> (UserDetails) user)
                 .or(() -> staffRepository.findByEmail(username).map(user -> (UserDetails) user))
