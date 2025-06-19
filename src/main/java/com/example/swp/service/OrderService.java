@@ -22,4 +22,8 @@ public interface OrderService {
     List<Order> findOrdersByCustomer(Customer customer);
 
     Order save(Order order);
+
+    double getTotalRevenueAll(); // Tổng tiền các đơn trừ REJECTED
+    double getRevenuePaid();     // Tiền khách đã trả (PAID)
+    double getRevenueApproved(); // Tiền khách còn nợ (APPROVED)
 }

@@ -85,8 +85,34 @@ public class OrderServiceimpl implements OrderService {
             throw new IllegalArgumentException("Ngày kết thúc phải sau ngày bắt đầu");
         }
         return pricePerDay.multiply(BigDecimal.valueOf(days));
-
-
     }
+
+    @Override
+    public double getTotalRevenueAll() {
+        return orderRepository.findAll()
+                .stream()
+                .filter(order -> !"REJECTED".equalsIgnoreCase(order.getStatus()))
+                .mapToDouble(Order::getTotalAmount)
+                .sum();
+    }
+
+    @Override
+    public double getRevenuePaid() {
+        return orderRepository.findAll()
+                .stream()
+                .filter(order -> "PAID".equalsIgnoreCase(order.getStatus()))
+                .mapToDouble(Order::getTotalAmount)
+                .sum();
+    }
+
+    @Override
+    public double getRevenueApproved() {
+        return orderRepository.findAll()
+                .stream()
+                .filter(order -> "APPROVED".equalsIgnoreCase(order.getStatus()))
+                .mapToDouble(Order::getTotalAmount)
+                .sum();
+    }
+
 
 }
