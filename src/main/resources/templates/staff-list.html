@@ -51,15 +51,16 @@
             </thead>
             <tbody>
             <tr th:each="staff : ${staffs}">
-                <td th:text="${staff.getId()}"></td>
-                <td th:text="${staff.getFullname()}">
-                    <div th:text="${staff.getEmail()}"></div>
-                </td>
-                <td th:text="${staff.getPhone()}"></td>
-                <td th:text="${staff.getRoleName()}"></td>
-                <td th:text="${staff.getId_citizen()}"></td>
+                <td th:text="${staff.staffid}"></td>
                 <td>
-                    <div class="actions">
+                    <div class="staff-name" th:text="${staff.fullname}"></div>
+                    <div class="staff-email" th:text="${staff.email}"></div>
+                </td>
+                <td th:text="${staff.phone}"></td>
+                <td th:text="${staff.roleName}"></td>
+                <td th:text="${staff.idCitizenCard}"></td>
+                <td>
+                <div class="actions">
                         <button class="btn btn-primary">Edit</button>
                         <button class="btn btn-secondary">
                             <a href="#">View</a>
