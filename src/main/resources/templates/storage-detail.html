@@ -23,6 +23,15 @@
 </nav>
 
 <div class="container">
+    <!-- Hiển thị thông báo thành công -->
+    <div th:if="${message}" class="alert alert-success">
+        [[${message}]]
+    </div>
+
+    <!-- Hiển thị thông báo lỗi -->
+    <div th:if="${error}" class="alert alert-error">
+        [[${error}]]
+    </div>
 
     <div class="detail-container">
         <!-- Image Gallery Section -->

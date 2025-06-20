@@ -17,6 +17,4 @@ public interface OrderService {
     Order createOrder(OrderRequest orderRequest);
 
     Order save(Order order);
-
-    void updateStatus(int orderId, String status);
 }
