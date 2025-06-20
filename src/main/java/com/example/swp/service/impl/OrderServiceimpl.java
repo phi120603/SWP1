@@ -10,6 +10,7 @@ import com.example.swp.repository.OrderRepository;
 import com.example.swp.repository.StorageReponsitory;
 import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -78,14 +79,7 @@ public class OrderServiceimpl implements OrderService {
         return orderRepository.save(order);
     }
 
-    //Hàm tính total amount
-    public BigDecimal calculateTotalAmount(LocalDate startDate, LocalDate endDate, BigDecimal pricePerDay) {
-        long days = ChronoUnit.DAYS.between(startDate, endDate);
-        if (days <= 0) {
-            throw new IllegalArgumentException("Ngày kết thúc phải sau ngày bắt đầu");
-        }
-        return pricePerDay.multiply(BigDecimal.valueOf(days));
-    }
+
 
     @Override
     public double getTotalRevenueAll() {
@@ -112,6 +106,22 @@ public class OrderServiceimpl implements OrderService {
                 .filter(order -> "APPROVED".equalsIgnoreCase(order.getStatus()))
                 .mapToDouble(Order::getTotalAmount)
                 .sum();
+    }
+
+    //Hàm tính total amount
+    public BigDecimal calculateTotalAmount(LocalDate startDate, LocalDate endDate, BigDecimal pricePerDay) {
+        long days = ChronoUnit.DAYS.between(startDate, endDate);
+        if (days <= 0) {
+            throw new IllegalArgumentException("Ngày kết thúc phải sau ngày bắt đầu");
+        }
+        return pricePerDay.multiply(BigDecimal.valueOf(days));
+
+
+    }
+
+    @Transactional
+    public void markOrderAsPaid(int orderId) {
+        orderRepository.updateOrderStatusToPaid(orderId);
     }
 
 
