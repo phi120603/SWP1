@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo Issue</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: #fff;
+            border-radius: 10px;
+            max-width: 440px;
+            width: 100%;
+            padding: 32px 24px 18px 24px;
+            box-shadow: 0 2px 14px rgba(45,55,115,.07), 0 1.5px 7px rgba(55,55,80,.06);
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 22px;
+            color: #2458be;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 7px;
+            color: #555;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #d6dbef;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+        button {
+            width: 100%;
+            padding: 13px 0;
+            background-color: #2458be;
+            color: #fff;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        button:hover, button:active {
+            background: #194184;
+        }
+        button:disabled {
+            background: #9fa9c1;
+            cursor: not-allowed;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            color: #2458be;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .error, .success {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 13px;
+        }
+        .error { color: #d32f2f; }
+        .success { color: #388e3c; }
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 18px;
+            text-decoration: none;
+            color: #2458be;
+            font-weight: bold;
+        }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Tạo Issue mới</h1>
+
+    <div th:if="${error}" class="error" th:text="${error}"></div>
+    <div th:if="${success}" class="success" th:text="${success}"></div>
+
+    <form th:action="@{/SWP/issues/create}" method="post" th:object="${issueRequest}">
+        <div class="form-group">
+            <label>Chủ đề</label>
+            <input type="text" th:field="*{subject}" required maxlength="150" placeholder="Nhập chủ đề issue">
+        </div>
+        <div class="form-group">
+            <label>Mô tả chi tiết</label>
+            <textarea th:field="*{description}" required maxlength="1000" placeholder="Nhập mô tả chi tiết vấn đề"></textarea>
+        </div>
+        <div class="form-group">
+            <label>Khách hàng</label>
+            <select th:field="*{customerId}">
+                <option th:each="cus : ${customers}"
+                        th:value="${cus.id}"
+                        th:text="${cus.fullname}"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Staff phụ trách</label>
+            <select th:field="*{assignedStaffId}">
+                <option th:each="staff : ${staffs}"
+                        th:value="${staff.staffid}"
+                        th:text="${staff.fullname}">
+                </option>
+            </select>
+        </div>
+        <button type="submit">Tạo Issue</button>
+        <a th:href="@{/SWP/issues}">Quay lại danh sách Issue</a>
+    </form>
+</div>
+</body>
+</html>
