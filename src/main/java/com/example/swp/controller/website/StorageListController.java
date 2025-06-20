@@ -1,6 +1,5 @@
 package com.example.swp.controller.website;
 
-import com.example.swp.entity.Order;
 import com.example.swp.entity.Storage;
 import com.example.swp.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,28 +15,17 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/SWP")
 public class StorageListController {
-
     @Autowired
     private StorageService storageService;
 
-    private int resset(){
-        List<Storage> allStorages = storageService.getAll();
-        int index = 1;
-        for( Storage storage : allStorages) {
-            allStorages.add(new Storage(index));
-        }
-        return index;
-
-    }
     @GetMapping("/storages")
     public String listStorage(
             @RequestParam(required = false) String storageName,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String status,
             Model model) {
-        List<Storage> allStorages = storageService.getAll();
-//        resset();
 
+        List<Storage> allStorages = storageService.getAll();
         System.out.println("All storages from database: " + allStorages.size());
 
         // Filter storages based on search criteria
