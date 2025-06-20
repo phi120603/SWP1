@@ -5,9 +5,11 @@ import com.cloudinary.utils.ObjectUtils;
 import com.example.swp.config.CloudinaryConfig;
 import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Customer;
+import com.example.swp.entity.Staff;
 import com.example.swp.entity.Storage;
 import com.example.swp.service.CloudinaryService;
 import com.example.swp.service.CustomerService;
+import com.example.swp.service.StaffService;
 import com.example.swp.service.StorageService;
 import com.example.swp.service.impl.CustomerServiceImpl;
 import org.apache.catalina.User;
@@ -35,6 +37,9 @@ public class ManagerController {
     Cloudinary cloudinary;
     @Autowired
     CloudinaryService cloudinaryService;
+    @Autowired
+    StaffService staffService;
+
 
     //    @GetMapping("/manager-dashboard")
 //    public String showDashboard(Model model) {
@@ -49,10 +54,15 @@ public class ManagerController {
         List<Customer> customers = customerService.getAll();
         int totalUser = customers.size();
 
+        List<Staff> staffs = staffService.getAllStaff();
+        int totalStaff = staffs.size();
+
         model.addAttribute("storages", storages);
         model.addAttribute("totalStorages", totalStorages);
         model.addAttribute("customers", customers);
         model.addAttribute("totalUser", totalUser);
+        model.addAttribute("staffs", staffs);
+        model.addAttribute("totalStaff", totalStaff);
 
         return "admin";
     }
@@ -90,6 +100,7 @@ public class ManagerController {
         }
         return "redirect:/SWP/storages"; // Điều hướng sau khi thêm
     }
+
     @GetMapping("/manager-dashboard/storages/{id}")
     public String viewStorageDetail(@PathVariable int id, Model model) {
         Optional<Storage> optionalStorage = storageService.findByID(id);
@@ -101,7 +112,7 @@ public class ManagerController {
         return "manager-storagedetail";
     }
 
-    @GetMapping("/storages/{id}/edit")
+    @GetMapping("/manager-dashboard/storages/{id}/edit")
     public String showEditForm(@PathVariable("id") int id, Model model) {
         Optional<Storage> optionalStorage = storageService.findByID(id);
         if (optionalStorage.isPresent()) {
@@ -110,6 +121,31 @@ public class ManagerController {
             return "redirect:/SWP/manager-dashboard";
         }
         return "manager-storage-edit"; // HTML trang sửa
+    }
+//edit storage
+    @PutMapping("/manager-dashboard/storages/{id}")
+    public String updateStorage(@PathVariable int id,
+                                RedirectAttributes redirectAttributes,
+                                @ModelAttribute StorageRequest storageRequest) {
+        Optional<Storage> optional = storageService.findByID(id);
+        if (optional.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy kho!");
+            return "redirect:/SWP/manager-dashboard";
+        }
+
+        storageService.updateStorage(storageRequest, optional.get());
+        redirectAttributes.addFlashAttribute("message", "Cập nhật thành công!");
+
+        // ✅ Sau khi cập nhật xong → quay về dashboard
+        return "redirect:/SWP/manager-dashboard";
+    }
+
+    //danh sách staff
+    @GetMapping("/staff-list")
+    public String showStaffList(Model model) {
+        List<Staff> staffs = staffService.getAllStaff();
+        model.addAttribute("staffs", staffs);
+        return "staff-list"; // Trang HTML hiển thị danh sách staff
     }
 
 

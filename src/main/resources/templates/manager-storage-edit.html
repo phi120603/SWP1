@@ -1,10 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Chỉnh sửa chi tiết kho</title>
+    <link rel="stylesheet" th:href="@{/css/manager-storage-edit.css}">
 </head>
 <body>
+<div class="edit-container">
+    <!-- Left: Ảnh mô tả -->
+    <div class="left-panel">
+        <h3>Ảnh mô tả</h3>
+        <img th:src="${storage.imUrl}" class="preview-image" alt="Preview">
+        <input type="file" name="imageFile" accept="image/*">
+    </div>
 
+    <!-- Right: Form chỉnh sửa -->
+    <form th:action="@{'/storages/' + ${storage.storageid} + '/edit'}" method="post" class="right-panel">
+        <h2>Chỉnh sửa kho</h2>
+        <label>Tên kho:</label>
+        <input type="text" name="storagename" th:value="${storage.storagename}" required>
+
+        <label>Trạng thái:</label>
+        <select name="status">
+            <option th:value="true" th:selected="${storage.status} == true">Còn trống</option>
+            <option th:value="false" th:selected="${storage.status} == false">Đang thuê</option>
+        </select>
+
+        <label>Địa chỉ:</label>
+        <input type="text" name="address" th:value="${storage.address}" required>
+        <input type="text" name="state" th:value="${storage.state}" placeholder="Tỉnh/Thành">
+        <input type="text" name="city" th:value="${storage.city}" placeholder="Thành phố">
+
+        <label>Diện tích:</label>
+        <input type="number" name="area" th:value="${storage.area}" required>
+
+        <label>Giá thuê theo ngày:</label>
+        <input type="number" name="pricePerDay" th:value="${storage.pricePerDay}" required>
+
+        <label>Mô tả chi tiết:</label>
+        <textarea name="description" rows="4" th:text="${storage.description}"></textarea>
+
+        <div class="button-group">
+            <form th:action="@{'/SWP/manager-dashboard'}" method="post">
+                <button type="submit" class="btn btn-update">Update</button>
+            </form>
+            <a th:href="@{'/SWP/manager-dashboard'}" class="btn btn-back">
+                <i class="fas fa-arrow-left"></i> Cancel</a>
+        </div>
+    </form>
+</div>
 </body>
 </html>

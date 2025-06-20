@@ -1,6 +1,7 @@
 package com.example.swp.service.impl;
 
 import com.example.swp.dto.StaffRequest;
+import com.example.swp.entity.Customer;
 import com.example.swp.entity.Staff;
 import com.example.swp.repository.StaffReponsitory;
 import com.example.swp.service.StaffService;
@@ -31,7 +32,10 @@ private StaffReponsitory staffReponsitory;
         return staffReponsitory.save(staff);
     }
 
-
+    @Override
+    public Staff getStaff(int id) {
+        return null;
+    }
 
 
 }
