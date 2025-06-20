@@ -1,5 +1,6 @@
 package com.example.swp.service;
 
+import com.example.swp.entity.Customer;
 import com.example.swp.dto.OrderRequest;
 import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Order;
@@ -12,9 +13,13 @@ import java.util.Optional;
 public interface OrderService {
     List<Order> getAllOrders();
 
+    List<Order> findOrdersByStatus(String status);
+
     Optional<Order> getOrderById(int id);
 
     Order createOrder(OrderRequest orderRequest);
+
+    List<Order> findOrdersByCustomer(Customer customer);
 
     Order save(Order order);
 }

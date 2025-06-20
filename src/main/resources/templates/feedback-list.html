@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Danh sách feedback</title>
+    <link rel="stylesheet" th:href="@{/order-list.css}">
+</head>
+<body class="bg-gray-100">
+<nav class="navbar">
+    <ul>
+        <li><a href="/SWP">Home</a></li>
+        <li><a href="/SWP/orders">Orders</a></li>
+        <li><a href="/SWP/feedbacks">Feedbacks</a></li>
+    </ul>
+</nav>
+<div class="container">
+    <h1>Danh sách Feedback</h1>
+
+    <!-- Nếu muốn, có thể thêm form filter tìm kiếm ở đây -->
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nội dung</th>
+            <th>Rating</th>
+            <th>Khách hàng</th>
+            <th>Nhân viên xử lý</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(feedbacks)}">
+            <td colspan="5" class="empty-row">Không có feedback nào!</td>
+        </tr>
+        <tr th:each="fb : ${feedbacks}">
+            <td th:text="${fb.id}"></td>
+            <td th:text="${fb.content}"></td>
+            <td>
+                <span th:text="${fb.rating}"></span>
+                <span th:if="${fb.rating > 0}" style="color:#FFC107;">&#9733;</span>
+            </td>
+            <td th:text="${fb.customer != null ? fb.customer.fullname : 'Ẩn'}"></td>
+            <td th:text="${fb.staff != null ? fb.staff.fullname : 'Chưa xử lý'}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
