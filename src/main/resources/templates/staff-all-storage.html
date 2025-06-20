@@ -16,6 +16,7 @@
             <span>Staff Dashboard</span>
         </div>
     </div>
+
     <ul class="sidebar-menu">
         <li class="menu-item" id="dashboard-menu">
             <a href="/SWP/staff/staff-dashboard">
@@ -42,13 +43,13 @@
             </a>
         </li>
         <li class="menu-item">
-            <a href="#inventory">
+            <a href="/SWP/feedbacks">
                 <i class="fas fa-boxes"></i>
                 <span>Feedback</span>
             </a>
         </li>
         <li class="menu-item">
-            <a href="#reports">
+            <a href="/SWP/issues/report">
                 <i class="fas fa-file-alt"></i>
                 <span>Reports</span>
             </a>
@@ -57,12 +58,6 @@
             <a href="customer-list">
                 <i class="fas fa-users"></i>
                 <span>Users List</span>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="#settings">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
             </a>
         </li>
     </ul>
@@ -123,35 +118,36 @@
         <!-- Filter Section -->
         <div class="filter-section">
             <div class="filter-group">
-                <label for="statusFilter">Status:</label>
+                <label for="statusFilter">Trạng thái:</label>
                 <select id="statusFilter" class="filter-select">
-                    <option value="">All Status</option>
-                    <option value="available">Available</option>
-                    <option value="occupied">Occupied</option>
-                    <option value="maintenance">Maintenance</option>
+                    <option value="available">Còn trống</option>
+                    <option value="occupied">Đã thuê</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label for="areaFilter">Area:</label>
+                <label for="areaFilter">Diện tích:</label>
                 <select id="areaFilter" class="filter-select">
-                    <option value="">All Areas</option>
-                    <option value="small">Small (< 50m²)</option>
-                    <option value="medium">Medium (50-100m²)</option>
-                    <option value="large">Large (> 100m²)</option>
+                    <option value="">Diện tích</option>
+                    <option value="small">Nhỏ (< 200m²)</option>
+                    <option value="medium">Medium (200-800m²)</option>
+                    <option value="large">Large (> 800m²)</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label for="priceFilter">Price Range:</label>
+                <label for="priceFilter">Giá cả:</label>
                 <select id="priceFilter" class="filter-select">
-                    <option value="">All Prices</option>
-                    <option value="low">Under $50</option>
-                    <option value="medium">$50 - $100</option>
-                    <option value="high">Over $100</option>
+                    <option value="">Theo giá</option>
+                    <option value="low">Dưới 150.000</option>
+                    <option value="medium">150.000 - 300.000</option>
+                    <option value="high">Hơn 300.000</option>
                 </select>
             </div>
+            <button class="btn-primary" type="button" onclick="applyFilters()">
+                <i class="fas fa-filter"></i> Lọc
+            </button>
             <button class="btn-secondary" onclick="clearFilters()">
                 <i class="fas fa-times"></i>
-                Clear Filters
+                Xóa Filters
             </button>
         </div>
 
@@ -248,29 +244,49 @@
         rows.forEach(row => {
             let show = true;
 
-            // Status filter
-            if (statusFilter) {
-                const statusBadge = row.querySelector('.status-badge');
-                const status = statusBadge.textContent.toLowerCase();
+            // Status
+            const statusBadge = row.querySelector('.status-badge');
+            const status = statusBadge ? statusBadge.textContent.toLowerCase() : '';
+
+            // Area (lấy số, loại bỏ ký tự m² hoặc dấu cách)
+            const areaCell = row.children[3].textContent.replace(/[^0-9.]/g, '');
+            const area = parseFloat(areaCell);
+
+            // Price (chỉ lấy số)
+            const priceCell = row.children[4].textContent.replace(/[^0-9.]/g, '');
+            const price = parseFloat(priceCell);
+
+            // Filter Status (cả maintenance nếu có)
+            if (statusFilter && show) {
                 if (statusFilter === 'available' && !status.includes('available')) show = false;
                 if (statusFilter === 'occupied' && !status.includes('occupied')) show = false;
-                if (statusFilter === 'maintenance' && !status.includes('maintenance')) show = false;
+            }
+
+            // Filter Area (bạn chỉnh lại ngưỡng cho đúng yêu cầu, ví dụ nhỏ hơn 200 hay nhỏ hơn 50)
+            if (areaFilter && show) {
+                if (areaFilter === 'small' && !(area < 200)) show = false;
+                if (areaFilter === 'medium' && !(area >= 200 && area <= 800)) show = false;
+                if (areaFilter === 'large' && !(area > 800)) show = false;
+            }
+
+            // Filter Price
+            if (priceFilter && show) {
+                if (priceFilter === 'low' && !(price < 150000)) show = false;
+                if (priceFilter === 'medium' && !(price >= 150000 && price <= 300000)) show = false;
+                if (priceFilter === 'high' && !(price > 300000)) show = false;
             }
 
             row.style.display = show ? '' : 'none';
         });
+        showPage(1);
     }
-
-    // Add event listeners to filters
-    document.getElementById('statusFilter').addEventListener('change', applyFilters);
-    document.getElementById('areaFilter').addEventListener('change', applyFilters);
-    document.getElementById('priceFilter').addEventListener('change', applyFilters);
 
     function clearFilters() {
         document.getElementById('statusFilter').value = '';
         document.getElementById('areaFilter').value = '';
         document.getElementById('priceFilter').value = '';
         applyFilters();
+        showPage(1);
     }
 
     function editStorage(storageId) {
@@ -295,7 +311,69 @@
         } else if (pathname.includes("order") ) {
             document.getElementById('orderlist-menu').classList.add('active');
         }
+        showPage(1);
     };
+
+    const rowsPerPage = 10;
+    let currentPage = 1;
+
+    function showPage(page) {
+        const rows = document.querySelectorAll('.data-table tbody tr');
+        const totalRows = Array.from(rows).filter(row => row.style.display !== 'none').length;
+        const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+        currentPage = page;
+
+        let shown = 0;
+        let skipped = 0;
+        rows.forEach(row => {
+            if (row.style.display === 'none') {
+                row.dataset.pagiHide = '1';
+                return;
+            }
+            if (skipped < (page - 1) * rowsPerPage) {
+                row.style.display = 'none';
+                row.dataset.pagiHide = '1';
+                skipped++;
+            } else if (shown < rowsPerPage) {
+                row.style.display = '';
+                row.dataset.pagiHide = '';
+                shown++;
+            } else {
+                row.style.display = 'none';
+                row.dataset.pagiHide = '1';
+            }
+        });
+        renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+        const pagination = document.querySelector('.pagination');
+        if (!pagination) return;
+        pagination.innerHTML = '';
+
+        const prevBtn = document.createElement('button');
+        prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.onclick = () => showPage(currentPage - 1);
+        pagination.appendChild(prevBtn);
+
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            if (i === currentPage) btn.classList.add('active');
+            btn.onclick = () => showPage(i);
+            pagination.appendChild(btn);
+        }
+
+        const nextBtn = document.createElement('button');
+        nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.onclick = () => showPage(currentPage + 1);
+        pagination.appendChild(nextBtn);
+    }
 </script>
 </body>
 </html>

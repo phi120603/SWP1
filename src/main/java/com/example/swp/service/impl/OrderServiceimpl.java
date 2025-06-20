@@ -40,6 +40,11 @@ public class OrderServiceimpl implements OrderService {
     @Override
     public Optional<Order> getOrderById(int id) {return orderRepository.findById(id);}
 
+    @Override
+    public List<Order> findOrdersByCustomer(Customer customer) {
+        return orderRepository.findByCustomer(customer);
+    }
+
 
     @Override
     public Order createOrder(OrderRequest orderRequest) {
@@ -63,16 +68,14 @@ public class OrderServiceimpl implements OrderService {
     }
 
     @Override
-    public Order save(Order order) {
-        return orderRepository.save(order);
+    public List<Order> findOrdersByStatus(String status) {
+        return orderRepository.findByStatus(status);
     }
 
+
     @Override
-    public void updateStatus(int orderId, String status) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order không tồn tại: " + orderId));
-        order.setStatus(status);
-        orderRepository.save(order);
+    public Order save(Order order) {
+        return orderRepository.save(order);
     }
 
     //Hàm tính total amount
