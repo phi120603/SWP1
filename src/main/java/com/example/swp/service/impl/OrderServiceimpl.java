@@ -10,7 +10,6 @@ import com.example.swp.repository.OrderRepository;
 import com.example.swp.repository.StorageReponsitory;
 import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageService;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +40,11 @@ public class OrderServiceimpl implements OrderService {
     @Override
     public Optional<Order> getOrderById(int id) {return orderRepository.findById(id);}
 
+    @Override
+    public List<Order> findOrdersByCustomer(Customer customer) {
+        return orderRepository.findByCustomer(customer);
+    }
+
 
     @Override
     public Order createOrder(OrderRequest orderRequest) {
@@ -64,6 +68,12 @@ public class OrderServiceimpl implements OrderService {
     }
 
     @Override
+    public List<Order> findOrdersByStatus(String status) {
+        return orderRepository.findByStatus(status);
+    }
+
+
+    @Override
     public Order save(Order order) {
         return orderRepository.save(order);
     }
@@ -75,13 +85,33 @@ public class OrderServiceimpl implements OrderService {
             throw new IllegalArgumentException("Ngày kết thúc phải sau ngày bắt đầu");
         }
         return pricePerDay.multiply(BigDecimal.valueOf(days));
-
-
     }
 
-    @Transactional
-    public void markOrderAsPaid(int orderId) {
-        orderRepository.updateOrderStatusToPaid(orderId);
+    @Override
+    public double getTotalRevenueAll() {
+        return orderRepository.findAll()
+                .stream()
+                .filter(order -> !"REJECTED".equalsIgnoreCase(order.getStatus()))
+                .mapToDouble(Order::getTotalAmount)
+                .sum();
+    }
+
+    @Override
+    public double getRevenuePaid() {
+        return orderRepository.findAll()
+                .stream()
+                .filter(order -> "PAID".equalsIgnoreCase(order.getStatus()))
+                .mapToDouble(Order::getTotalAmount)
+                .sum();
+    }
+
+    @Override
+    public double getRevenueApproved() {
+        return orderRepository.findAll()
+                .stream()
+                .filter(order -> "APPROVED".equalsIgnoreCase(order.getStatus()))
+                .mapToDouble(Order::getTotalAmount)
+                .sum();
     }
 
 

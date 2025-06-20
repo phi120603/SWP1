@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storage Detail</title>
+    <link rel="stylesheet" href="/staff-storage-detail.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+</head>
+<body>
+<main>
+    <div class="detail-card">
+        <div class="detail-header">
+            <img th:src="${storage.imUrl}" alt="Ảnh kho">
+            <div class="info">
+                <h2 th:text="${storage.storagename}">Tên Kho</h2>
+                <div><span class="detail-label">Storage ID:</span> <span th:text="${storage.storageid}"></span></div>
+                <div><span class="detail-label">Tình trạng:</span>
+                    <span th:text="${storage.status} ? 'Còn trống' : 'Đang thuê'"
+                          th:class="${storage.status} ? 'status-badge active' : 'status-badge warning'"></span>
+                </div>
+            </div>
+        </div>
+        <form id="editForm" th:action="@{'/SWP/storages/' + ${storage.storageid} + '/edit'}" th:object="${storage}" method="post" style="display: none;">
+            <div class="detail-field">
+                <label class="detail-label">ID</label>
+                <input class="field-edit" type="text" th:field="*{storageid}" readonly>
+            </div>
+            <div class="detail-field">
+                <label class="detail-label">Tên Kho</label>
+                <input class="field-edit" type="text" th:field="*{storagename}">
+            </div>
+            <div class="detail-field">
+                <label class="detail-label">Địa chỉ</label>
+                <input class="field-edit" type="text" th:field="*{address}">
+            </div>
+            <div class="detail-field">
+                <label class="detail-label">Mô tả</label>
+                <textarea class="field-edit" rows="3" th:field="*{description}"></textarea>
+            </div>
+            <div class="detail-actions">
+                <button type="submit" class="btn btn-save"><i class="fas fa-save"></i> Lưu</button>
+                <button type="button" class="btn btn-cancel" onclick="toggleEdit(false)"><i class="fas fa-times"></i> Hủy</button>
+            </div>
+        </form>
+        <div id="viewSection">
+            <div class="detail-field">
+                <span class="detail-label">Địa chỉ:</span>
+                <span class="detail-value" th:text="${storage.address}"></span>
+            </div>
+            <div class="detail-field">
+                <span class="detail-label">Mô tả:</span>
+                <span class="detail-value" th:text="${storage.description}"></span>
+            </div>
+            <div class="detail-actions">
+                <button type="button" class="btn btn-edit" onclick="toggleEdit(true)">
+                    <i class="fas fa-edit"></i> Chỉnh sửa
+                </button>
+                <form th:action="@{'/SWP/storages/' + ${storage.storageid} + '/delete'}" method="post"
+                      onsubmit="return confirm('Bạn có chắc muốn xoá kho này không?');" style="display:inline;">
+                    <button type="submit" class="btn btn-delete"><i class="fas fa-trash"></i> Xoá kho</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    function toggleEdit(isEdit) {
+        document.getElementById('editForm').style.display = isEdit ? 'block' : 'none';
+        document.getElementById('viewSection').style.display = isEdit ? 'none' : 'block';
+    }
+</script>
+</body>
+</html>

@@ -1,682 +1,50 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Khách Hàng - StorageManager</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Reset và Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8fafc;
-            color: #334155;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 280px;
-            height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            z-index: 1000;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .sidebar-header {
-            padding: 24px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.025em;
-        }
-
-        .logo i {
-            margin-right: 12px;
-            font-size: 1.8rem;
-            color: #fbbf24;
-        }
-
-        .sidebar-menu {
-            flex: 1;
-            list-style: none;
-            padding: 24px 0;
-        }
-
-        .menu-item {
-            margin-bottom: 4px;
-        }
-
-        .menu-item a {
-            display: flex;
-            align-items: center;
-            padding: 14px 20px;
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-left: 3px solid transparent;
-            font-weight: 500;
-        }
-
-        .menu-item a:hover,
-        .menu-item.active a {
-            background-color: rgba(255, 255, 255, 0.15);
-            color: white;
-            border-left-color: #fbbf24;
-            transform: translateX(4px);
-        }
-
-        .menu-item i {
-            margin-right: 14px;
-            width: 20px;
-            text-align: center;
-            font-size: 1.1rem;
-        }
-
-        .sidebar-footer {
-            padding: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-        }
-
-        .user-avatar {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 12px;
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .user-details {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .user-name {
-            font-weight: 600;
-            font-size: 0.95rem;
-            margin-bottom: 2px;
-        }
-
-        .user-role {
-            font-size: 0.8rem;
-            opacity: 0.8;
-            color: #fbbf24;
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-left: 280px;
-            min-height: 100vh;
-            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Header */
-        .header {
-            background: white;
-            padding: 0 32px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-        }
-
-        .sidebar-toggle {
-            background: none;
-            border: none;
-            font-size: 1.3rem;
-            margin-right: 24px;
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            color: #64748b;
-            display: none;
-        }
-
-        .sidebar-toggle:hover {
-            background-color: #f1f5f9;
-            color: #334155;
-        }
-
-        .header h1 {
-            font-size: 1.875rem;
-            font-weight: 700;
-            color: #1e293b;
-            letter-spacing: -0.025em;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .search-box {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 16px;
-            color: #94a3b8;
-            font-size: 1rem;
-        }
-
-        .search-box input {
-            padding: 12px 16px 12px 44px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            width: 320px;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            background: #f8fafc;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .notification-btn {
-            position: relative;
-            background: none;
-            border: none;
-            font-size: 1.3rem;
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            color: #64748b;
-        }
-
-        .notification-btn:hover {
-            background-color: #f1f5f9;
-            color: #334155;
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            border: 2px solid white;
-        }
-
-        .user-avatar-small {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            cursor: pointer;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 1rem;
-            transition: transform 0.3s ease;
-        }
-
-        .user-avatar-small:hover {
-            transform: scale(1.05);
-        }
-
-        /* Dashboard Content */
-        .dashboard-content {
-            padding: 32px;
-        }
-
-        .page-header {
-            margin-bottom: 32px;
-        }
-
-        .page-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 8px;
-            letter-spacing: -0.025em;
-        }
-
-        .page-subtitle {
-            color: #64748b;
-            font-size: 1.125rem;
-            font-weight: 400;
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 28px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            display: flex;
-            align-items: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid #f1f5f9;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-        }
-
-        .stat-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 20px;
-            font-size: 1.5rem;
-            color: white;
-        }
-
-        .stat-icon.total {
-            background: linear-gradient(135deg, #10b981, #059669);
-        }
-
-        .stat-icon.active {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-        }
-
-        .stat-icon.new {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-        }
-
-        .stat-info h3 {
-            font-size: 0.875rem;
-            color: #64748b;
-            margin-bottom: 8px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .stat-number {
-            font-size: 2.25rem;
-            font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 4px;
-            letter-spacing: -0.025em;
-        }
-
-        /* Search Container */
-        .search-container {
-            margin-bottom: 24px;
-        }
-
-        .search-input {
-            width: 100%;
-            max-width: 400px;
-            padding: 14px 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        /* Table Container */
-        .table-container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-            border: 1px solid #f1f5f9;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: #f8fafc;
-            padding: 20px;
-            text-align: left;
-            font-weight: 600;
-            color: #475569;
-            border-bottom: 2px solid #e2e8f0;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        td {
-            padding: 20px;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.95rem;
-        }
-
-        tr:hover {
-            background-color: #f8fafc;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        .customer-name {
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 4px;
-        }
-
-        .customer-email {
-            color: #64748b;
-            font-size: 0.875rem;
-        }
-
-        .role-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.025em;
-        }
-
-        .role-badge.customer {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-
-        .role-badge.premium {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-
-        .role-badge.vip {
-            background-color: #f3e8ff;
-            color: #7c2d12;
-        }
-
-        .actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background-color: #f1f5f9;
-            color: #475569;
-            border: 1px solid #e2e8f0;
-        }
-
-        .btn-secondary:hover {
-            background-color: #e2e8f0;
-            transform: translateY(-1px);
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 16px;
-            margin-top: 32px;
-            padding: 24px;
-        }
-
-        .page-info {
-            color: #64748b;
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .search-box input {
-                width: 240px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .sidebar-toggle {
-                display: block;
-            }
-
-            .header {
-                padding: 0 16px;
-            }
-
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            .dashboard-content {
-                padding: 16px;
-            }
-
-            .page-title {
-                font-size: 2rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-
-            .search-box {
-                display: none;
-            }
-
-            .stat-card {
-                padding: 20px;
-            }
-
-            .stat-number {
-                font-size: 1.875rem;
-            }
-
-            .table-container {
-                overflow-x: auto;
-            }
-
-            table {
-                min-width: 700px;
-            }
-
-            th, td {
-                padding: 12px;
-                font-size: 0.875rem;
-            }
-
-            .actions {
-                flex-direction: column;
-                gap: 4px;
-            }
-
-            .btn {
-                font-size: 0.8rem;
-                padding: 6px 12px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.25rem;
-            }
-
-            .page-title {
-                font-size: 1.75rem;
-            }
-
-            .stat-card {
-                padding: 16px;
-            }
-
-            .stat-number {
-                font-size: 1.5rem;
-            }
-
-            .pagination {
-                flex-direction: column;
-                gap: 12px;
-            }
-        }
-
-        /* Animation cho sidebar toggle */
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .sidebar.open {
-            animation: slideIn 0.3s ease-out;
-        }
-
-        /* Overlay cho mobile */
-        .sidebar-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: none;
-        }
-
-        .sidebar-overlay.show {
-            display: block;
-        }
-    </style>
+    <title>Customer List - QVL Storage</title>
+    <link rel="stylesheet" th:href="@{/customer-list.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-<!-- Sidebar Overlay cho Mobile -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
 <!-- Sidebar -->
-<nav class="sidebar" id="sidebar">
+<nav class="sidebar">
     <div class="sidebar-header">
         <div class="logo">
             <i class="fas fa-database"></i>
-            <span>StorageManager</span>
+            <span>QVL Storage</span>
         </div>
     </div>
-
     <ul class="sidebar-menu">
-        <li class="menu-item">
-            <a href="#dashboard">
+        <li class="menu-item" id="dashboard-menu">
+            <a href="/SWP">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+        </li>
+        <li class="menu-item" id="dashboard-menu">
+            <a href="/SWP/staff/staff-dashboard">
                 <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
             </a>
         </li>
-        <li class="menu-item">
+        <li class="menu-item" id="addstorage-menu">
             <a href="addstorage">
                 <i class="fas fa-hdd"></i>
                 <span>Add Storage</span>
+            </a>
+        </li>
+        <li class="menu-item" id="storagelist-menu">
+            <a href="/SWP/staff/staff-all-storage">
+                <i class="fas fa-warehouse"></i>
+                <span>Storage List</span>
+            </a>
+        </li>
+        <li class="menu-item" id="orderlist-menu">
+            <a href="/SWP/orders">
+                <i class="fas fa-chart-bar"></i>
+                <span>Order List</span>
             </a>
         </li>
         <li class="menu-item">
@@ -686,21 +54,15 @@
             </a>
         </li>
         <li class="menu-item">
-            <a href="#analytics">
-                <i class="fas fa-chart-bar"></i>
-                <span>Analytics</span>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="orders">
+            <a href="#reports">
                 <i class="fas fa-file-alt"></i>
-                <span>Orders Reports</span>
+                <span>Reports</span>
             </a>
         </li>
-        <li class="menu-item active">
-            <a href="customer-list">
+        <li class="menu-item active" id="customers-menu">
+            <a href="/SWP/customers">
                 <i class="fas fa-users"></i>
-                <span>Users List</span>
+                <span>Customer List</span>
             </a>
         </li>
         <li class="menu-item">
@@ -717,7 +79,7 @@
                 <i class="fas fa-user"></i>
             </div>
             <div class="user-details">
-                <span class="user-name">John Manager</span>
+                <span class="user-name">Admin User</span>
                 <span class="user-role">Administrator</span>
             </div>
         </div>
@@ -725,207 +87,203 @@
 </nav>
 
 <!-- Main Content -->
-<div class="main-content">
+<main class="main-content">
     <!-- Header -->
     <header class="header">
         <div class="header-left">
-            <button class="sidebar-toggle" id="sidebarToggle">
+            <button class="sidebar-toggle">
                 <i class="fas fa-bars"></i>
             </button>
-            <h1>Quản Lý Khách Hàng</h1>
+            <h1>Customer Management</h1>
         </div>
 
         <div class="header-right">
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Tìm kiếm...">
+                <input type="text" placeholder="Search customers..." id="searchInput">
             </div>
-
-            <button class="notification-btn">
-                <i class="fas fa-bell"></i>
-                <span class="notification-badge">3</span>
-            </button>
-
-            <div class="user-avatar-small">JM</div>
         </div>
     </header>
 
-    <!-- Dashboard Content -->
-    <main class="dashboard-content">
+    <!-- Page Content -->
+    <div class="page-content">
         <!-- Page Header -->
         <div class="page-header">
-            <h2 class="page-title">Quản Lý Khách Hàng</h2>
-            <p class="page-subtitle">Quản lý và xem tất cả khách hàng của bạn tại một nơi</p>
-        </div>
-
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon total">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>Tổng Khách Hàng</h3>
-                    <div class="stat-number">1,247</div>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon active">
-                    <i class="fas fa-user-check"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>Khách Hàng Hoạt Động</h3>
-                    <div class="stat-number">892</div>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon new">
-                    <i class="fas fa-user-plus"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>Mới Tháng Này</h3>
-                    <div class="stat-number">45</div>
-                </div>
+            <h2 class="page-title">Customer Database</h2>
+            <div class="page-actions">
+                <button class="btn-secondary btn-back">
+                    <a href="/SWP" style="color: inherit; text-decoration: none;">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Home
+                    </a>
+                </button>
+                <button class="btn-primary">
+                    <a href="/SWP/customers/create" style="color: white; text-decoration: none;">
+                        <i class="fas fa-plus"></i>
+                        Add New Customer
+                    </a>
+                </button>
             </div>
         </div>
 
-        <!-- Search -->
-        <div class="search-container">
-            <input
-                    type="text"
-                    class="search-input"
-                    placeholder="Tìm kiếm khách hàng theo tên hoặc email..."
-                    id="searchInput"
-            >
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <form action="/SWP/customers" method="get" class="filter-form">
+                <div class="filter-group">
+                    <label for="role">Role:</label>
+                    <select id="role" name="role" class="filter-select" onchange="this.form.submit()">
+                        <option value="ALL" th:selected="${selectedRole == 'ALL'}">All Roles</option>
+                        <option value="CUSTOMER" th:selected="${selectedRole == 'CUSTOMER'}">Customer</option>
+                        <option value="VIP" th:selected="${selectedRole == 'VIP'}">VIP</option>
+                        <option value="BLOCKED" th:selected="${selectedRole == 'BLOCKED'}">Blocked</option>
+                    </select>
+                </div>
+            </form>
+
+<!--            <form action="/SWP/customers" method="get" class="search-form">-->
+<!--                <div class="filter-group">-->
+<!--                    <label for="name">Search by Name:</label>-->
+<!--                    <input type="text" id="name" name="name" placeholder="Enter customer name..." class="filter-select">-->
+<!--                    <button type="submit" class="btn-secondary">-->
+<!--                        <i class="fas fa-search"></i>-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--            </form>-->
+
+            <form action="/SWP/customers" method="get" class="search-form">
+                <div class="filter-group">
+                    <label for="customerId">Search by ID:</label>
+                    <input type="number" id="customerId" name="customerId" placeholder="Enter customer ID..." class="filter-select">
+                    <button type="submit" class="btn-secondary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <button class="btn-secondary" onclick="clearFilters()">
+                <i class="fas fa-times"></i>
+                Clear Filters
+            </button>
         </div>
 
         <!-- Customer Table -->
-        <div class="table-container">
-            <table id="customerTable">
-                <thead>
-                <tr>
-                    <th>ID Khách Hàng</th>
-                    <th>Tên Khách Hàng</th>
-                    <th>Số Điện Thoại</th>
-                    <th>Vai Trò</th>
-                    <th>CMND/CCCD</th>
-                    <th>Thao Tác</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="customer : ${customers}">
-                    <td th:text="${customer.getId()}"></td>
-                    <td th:text="${customer.getFullname()}">
-                        <div class="customer-email" th:text="${customer.getEmail()}"></div>
-                    </td>
-                    <td th:text="${customer.getPhone()}"></td>
-                    <td th:text="${customer.getRoleName()}"></td>
-                    <td th:text="${customer.getId_citizen()}"></td>
-                    <td>
-                        <div class="actions">
-                            <button class="btn btn-primary">
-                                <i class="fas fa-edit"></i> Sửa
-                            </button>
-                            <button class="btn btn-secondary">
-                                <i class="fas fa-eye"></i> Xem
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+        <div class="card">
+            <div class="card-header">
+                <h3>All Customers (<span id="totalCount" th:text="${#lists.size(customers)}">0</span>)</h3>
+                <div class="card-actions">
+                    <button class="btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Export
+                    </button>
+                    <button class="btn-secondary">
+                        <i class="fas fa-print"></i>
+                        Print
+                    </button>
+                </div>
+            </div>
 
-        <!-- Pagination -->
-        <div class="pagination">
-            <button class="btn btn-secondary" id="prevBtn">
-                <i class="fas fa-chevron-left"></i> Trước
-            </button>
-            <span class="page-info">Trang 1 của 12</span>
-            <button class="btn btn-secondary" id="nextBtn">
-                Tiếp <i class="fas fa-chevron-right"></i>
-            </button>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Customer ID</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="customer : ${customers}">
+                        <td>
+                            <span class="customer-id" th:text="'#' + ${customer.id}"></span>
+                        </td>
+                        <td>
+                            <span class="customer-name" th:text="${customer.fullname}"></span>
+                        </td>
+                        <td>
+                            <span class="customer-email" th:text="${customer.email}"></span>
+                        </td>
+                        <td>
+                            <span class="description-cell" th:text="${customer.address}" th:title="${customer.address}"></span>
+                        </td>
+                        <td th:text="${customer.phone}"></td>
+                        <td>
+                                    <span class="status-badge"
+                                          th:classappend="${customer.roleName == 'VIP' ? ' vip' : (customer.roleName == 'BLOCKED' ? ' blocked' : ' customer')}"
+                                          th:text="${customer.roleName}">
+                                    </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a th:href="@{/SWP/customers/{id}(id=${customer.id})}"
+                                   class="btn-icon" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a th:href="@{/SWP/customers/edit/{id}(id=${customer.id})}"
+                                   class="btn-icon" title="Edit Customer">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form th:action="@{/SWP/customers/delete/{id}(id=${customer.id})}"
+                                      method="post"
+                                      style="display: inline;"
+                                      onsubmit="return confirm('Are you sure you want to delete this customer?');">
+                                    <button type="submit" class="btn-icon danger" title="Delete Customer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button><i class="fas fa-chevron-left"></i></button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button><i class="fas fa-chevron-right"></i></button>
+            </div>
         </div>
-    </main>
-</div>
+    </div>
+</main>
 
 <script>
-    // Sidebar toggle functionality
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('sidebar');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-    sidebarToggle.addEventListener('click', function() {
-        sidebar.classList.toggle('open');
-        sidebarOverlay.classList.toggle('show');
-    });
-
-    sidebarOverlay.addEventListener('click', function() {
-        sidebar.classList.remove('open');
-        sidebarOverlay.classList.remove('show');
-    });
-
     // Search functionality
     document.getElementById('searchInput').addEventListener('input', function(e) {
         const searchTerm = e.target.value.toLowerCase();
-        const tableRows = document.querySelectorAll('#customerTable tbody tr');
+        const rows = document.querySelectorAll('.data-table tbody tr');
 
-        tableRows.forEach(row => {
-            const customerName = row.querySelector('.customer-name').textContent.toLowerCase();
-            const customerEmail = row.querySelector('.customer-email').textContent.toLowerCase();
-            const phone = row.cells[2].textContent.toLowerCase();
-
-            if (customerName.includes(searchTerm) ||
-                customerEmail.includes(searchTerm) ||
-                phone.includes(searchTerm)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
         });
     });
 
-    // Button click handlers
-    document.querySelectorAll('.btn-primary').forEach(button => {
-        button.addEventListener('click', function() {
-            if (this.textContent.includes('Sửa')) {
-                alert('Chức năng chỉnh sửa sẽ được triển khai tại đây');
-            }
-        });
+    function clearFilters() {
+        document.getElementById('role').value = 'ALL';
+        document.getElementById('name').value = '';
+        document.getElementById('customerId').value = '';
+        // Optionally submit the form to clear server-side filters
+        document.querySelector('.filter-form').submit();
+    }
+
+    // Sidebar toggle for mobile
+    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('open');
     });
 
-    document.querySelectorAll('.btn-secondary').forEach(button => {
-        button.addEventListener('click', function() {
-            if (this.textContent.includes('Xem')) {
-                alert('Chức năng xem chi tiết khách hàng sẽ được triển khai tại đây');
-            } else if (this.textContent.includes('Trước') || this.textContent.includes('Tiếp')) {
-                alert('Chức năng phân trang sẽ được triển khai tại đây');
-            }
-        });
-    });
-
-    // Responsive menu handling
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 768) {
-            sidebar.classList.remove('open');
-            sidebarOverlay.classList.remove('show');
+    window.onload = function() {
+        var pathname = window.location.pathname;
+        if (pathname.includes("customers")) {
+            document.getElementById('customers-menu').classList.add('active');
         }
-    });
-
-    // Add smooth scrolling for better UX
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth'
-                });
-            }
-        });
-    });
+    };
 </script>
 </body>
 </html>
