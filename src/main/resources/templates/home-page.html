@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home</title>
+  <title>Home - QVL Storage</title>
   <link rel="stylesheet" href="/css/home-page.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
       margin: 0;
@@ -849,7 +850,38 @@
         padding: 60px 0;
       }
     }
+    .notification-bell {
+      position: relative;
+      display: inline-block;
+      margin-left: 18px;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .notification-bell:hover {
+      color: #ffd600;
+    }
+    .notification-badge {
+      position: absolute;
+      top: -7px;
+      right: -10px;
+      background: #e84118;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 2px 7px;
+      border-radius: 50%;
+      border: 2px solid white;
+      min-width: 18px;
+      text-align: center;
+      line-height: 1.1;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      z-index: 2;
+      pointer-events: none;
+    }
   </style>
+
 </head>
 <body>
 <!-- Navigation -->
@@ -857,10 +889,17 @@
   <div class="nav-container">
     <div class="logo">QVL Storage</div>
     <ul class="nav-links">
-      <li><a href="../templates/home-page.html">Home</a></li>
+      <li><a th:href="@{/home-page}">Home</a></li>
       <li><a th:href="@{/SWP/issues/create}">Tạo Issue</a></li>
-      <li><a href="/SWP/storages">List</a></li>
-      <li><a href="/customer/support">Hỗ trợ</a></li>
+      <li><a th:href="@{/SWP/storages}">List</a></li>
+      <li><a th:href="@{/customer/support}">Hỗ trợ</a></li>
+      <li>
+        <!-- Notification Bell -->
+        <a th:href="@{/notifications}" class="notification-bell" title="Thông báo">
+          <i class="fa fa-bell"></i>
+          <span class="notification-badge" th:if="${unreadCount > 0}" th:text="${unreadCount}"></span>
+        </a>
+      </li>
     </ul>
   </div>
 </nav>

@@ -6,10 +6,10 @@ import com.example.swp.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-
 public class NotificationService {
 
     @Autowired
@@ -20,7 +20,7 @@ public class NotificationService {
     }
 
     public long countUnreadNotifications(Customer customer) {
-        return notificationRepository.countByCustomerAndReadIsFalse(customer);
+        return notificationRepository.countByCustomerAndIsReadFalse(customer); // Đổi tên hàm!
     }
 
     public void markAsRead(Long id) {
@@ -44,11 +44,10 @@ public class NotificationService {
     public void createNotification(String message, Customer customer) {
         Notification noti = Notification.builder()
                 .message(message)
+                .isRead(false)
                 .customer(customer)
-                .read(false)
-                .createdAt(java.time.LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
                 .build();
-        notificationRepository.save(noti);
+        notificationRepository.save(noti); // Bổ sung dòng này!
     }
-
 }

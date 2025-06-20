@@ -40,8 +40,10 @@ public class StorageTransactionServiceImpl implements StorageTransactionService 
     public StorageTransaction createStorageTransaction(StorageTransactionRequest transactionRequest) {
         Customer customer = customerRepository.findById(transactionRequest.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found with id: " + transactionRequest.getCustomerId()));
+
         Storage storage = storageRepository.findById(transactionRequest.getStorageId())
                 .orElseThrow(() -> new RuntimeException("Storage not found with id: " + transactionRequest.getStorageId()));
+
 
         StorageTransaction transaction = new StorageTransaction();
         transaction.setType(transactionRequest.getType());

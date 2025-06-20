@@ -1,11 +1,11 @@
 package com.example.swp.service;
 
 import com.example.swp.entity.Customer;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
-@Service
+import java.util.Optional;
+
 public interface CustomerService {
     List<Customer> getAll();
-    public Customer getCustomer(int id);
+    Customer getCustomer(int id);
+    Optional<Customer> findByEmail(String email); // Chuẩn!
 }

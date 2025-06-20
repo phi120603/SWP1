@@ -4,12 +4,12 @@ import com.example.swp.entity.Customer;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Service
 public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
@@ -21,11 +21,11 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Customer getCustomer(int id) {
-        return null;
+        return customerRepository.findById(id).orElse(null);
     }
 
-//    @Override
-//    Optional<Customer> getCustomer(int id) {
-//        return customerRepository.findById(id);
-//    }
+    @Override
+    public Optional<Customer> findByEmail(String email) {
+        return customerRepository.findByEmail(email);
+    }
 }

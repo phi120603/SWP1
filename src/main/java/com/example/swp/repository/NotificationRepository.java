@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     List<Notification> findByCustomerOrderByCreatedAtDesc(Customer customer);
-    Long countByCustomerAndReadIsFalse(Customer customer); // Đếm số chưa đọc
+    Long countByCustomerAndIsReadFalse(Customer customer); // Đúng với entity
 }

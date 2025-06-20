@@ -2,28 +2,301 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Thông báo của tôi</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        .notification { padding: 10px; border-bottom: 1px solid #ccc; }
-        .notification.unread { background: #f2f6ff; }
-        .badge { color: white; background: red; border-radius: 50%; padding: 2px 7px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h2 {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .badge {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border-radius: 50%;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            min-width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(231, 76, 60, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .mark-all-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .mark-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .notifications-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .notification {
+            padding: 20px;
+            border-bottom: 1px solid #ecf0f1;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .notification:last-child {
+            border-bottom: none;
+        }
+
+        .notification:hover {
+            background: #f8f9fa;
+        }
+
+        .notification.unread {
+            background: linear-gradient(90deg, #e8f4fd 0%, #f0f8ff 100%);
+            border-left: 4px solid #3498db;
+        }
+
+        .notification.unread:hover {
+            background: linear-gradient(90deg, #ddeef9 0%, #e6f3ff 100%);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-time {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification-time::before {
+            content: "🕒";
+            font-size: 0.8rem;
+        }
+
+        .notification-message {
+            font-size: 1rem;
+            color: #2c3e50;
+            line-height: 1.5;
+        }
+
+        .notification.unread .notification-message {
+            font-weight: 600;
+        }
+
+        .mark-read-btn {
+            background: linear-gradient(45deg, #27ae60, #229954);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            box-shadow: 0 2px 10px rgba(39, 174, 96, 0.3);
+        }
+
+        .mark-read-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            color: #3498db;
+            text-decoration: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-link::before {
+            content: "←";
+            font-size: 1.2rem;
+        }
+
+        .back-link:hover {
+            background: #3498db;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state::before {
+            content: "🔔";
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h2 {
+                font-size: 1.5rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .notification {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .mark-read-btn {
+                align-self: flex-start;
+            }
+        }
+
+        /* Loading animation for buttons */
+        .btn-loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .btn-loading::after {
+            content: "";
+            width: 16px;
+            height: 16px;
+            margin-left: 8px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-<h2>Thông báo của bạn
-    <span th:if="${unreadCount > 0}" class="badge" th:text="${unreadCount}"></span>
-</h2>
-<form th:action="@{/notifications/read-all}" method="post">
-    <button type="submit">Đánh dấu tất cả đã đọc</button>
-</form>
-<div th:each="noti : ${notifications}">
-    <div class="notification" th:classappend="${noti.read ? '' : 'unread'}">
-        <span th:text="${#dates.format(noti.createdAt, 'dd/MM/yyyy HH:mm')}"></span> -
-        <span th:text="${noti.message}"></span>
-        <form th:if="${!noti.read}" th:action="@{/notifications/read/{id}(id=${noti.id})}" method="post" style="display:inline">
-            <button type="submit">Đánh dấu đã đọc</button>
+<div class="container">
+    <div class="header">
+        <h2>
+            Thông báo của bạn
+            <span th:if="${unreadCount > 0}" class="badge" th:text="${unreadCount}"></span>
+        </h2>
+        <form th:action="@{/notifications/read-all}" method="post">
+            <button type="submit" class="mark-all-btn">Đánh dấu tất cả đã đọc</button>
         </form>
     </div>
+
+    <div class="notifications-container">
+        <div th:if="${#lists.isEmpty(notifications)}" class="empty-state">
+            <h3>Không có thông báo nào</h3>
+            <p>Bạn đã xem hết tất cả thông báo!</p>
+        </div>
+
+        <div th:each="noti : ${notifications}">
+            <div class="notification" th:classappend="${noti.read ? '' : 'unread'}">
+                <div class="notification-content">
+                    <div class="notification-time" th:text="${#dates.format(noti.createdAt, 'dd/MM/yyyy HH:mm')}"></div>
+                    <div class="notification-message" th:text="${noti.message}"></div>
+                </div>
+                <form th:if="${!noti.read}" th:action="@{/notifications/read/{id}(id=${noti.id})}" method="post">
+                    <button type="submit" class="mark-read-btn">Đánh dấu đã đọc</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <a th:href="@{/home-page}" class="back-link">Quay lại trang chủ</a>
 </div>
-<a th:href="@{/home-page}">Quay lại trang chủ</a>
+
+<script>
+    // Add loading state to buttons
+    document.querySelectorAll('button[type="submit"]').forEach(button => {
+        button.addEventListener('click', function() {
+            this.classList.add('btn-loading');
+        });
+    });
+
+    // Add smooth scroll behavior
+    document.documentElement.style.scrollBehavior = 'smooth';
+</script>
 </body>
 </html>

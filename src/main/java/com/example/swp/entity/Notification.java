@@ -16,7 +16,8 @@ public class Notification {
 
     private String message;
 
-    private boolean read; // Đánh dấu đã đọc hay chưa
+    @Column(name = "is_read") // Đặt tên cột tránh từ khóa SQL
+    private boolean isRead;   // Đổi tên biến luôn cho chuẩn Java
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

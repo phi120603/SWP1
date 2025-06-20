@@ -4,6 +4,7 @@ import com.example.swp.entity.Customer;
 import com.example.swp.entity.Notification;
 import com.example.swp.service.NotificationService;
 import com.example.swp.service.CustomerService;
+import com.example.swp.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,7 +27,9 @@ public class NotificationController {
     public String getNotifications(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
-        Customer customer = customerService.findByEmail(email);
+
+        // Đúng: gọi qua đối tượng đã autowired, và xử lý Optional
+        Customer customer = customerService.findByEmail(email).orElse(null);
 
         if (customer == null) {
             return "redirect:/login";
@@ -40,6 +43,7 @@ public class NotificationController {
         return "notifications";
     }
 
+
     @PostMapping("/notifications/read/{id}")
     public String markAsRead(@PathVariable("id") Long id) {
         notificationService.markAsRead(id);
@@ -50,7 +54,7 @@ public class NotificationController {
     public String markAllAsRead() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
-        Customer customer = customerService.findByEmail(email);
+        Customer customer = customerService.findByEmail(email).orElse(null);
         if (customer != null) {
             notificationService.markAllAsRead(customer);
         }
