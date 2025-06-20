@@ -40,6 +40,11 @@ public class OrderServiceimpl implements OrderService {
     @Override
     public Optional<Order> getOrderById(int id) {return orderRepository.findById(id);}
 
+    @Override
+    public List<Order> findOrdersByCustomer(Customer customer) {
+        return orderRepository.findByCustomer(customer);
+    }
+
 
     @Override
     public Order createOrder(OrderRequest orderRequest) {
@@ -61,6 +66,12 @@ public class OrderServiceimpl implements OrderService {
         order.setStorage(storage);
         return orderRepository.save(order);
     }
+
+    @Override
+    public List<Order> findOrdersByStatus(String status) {
+        return orderRepository.findByStatus(status);
+    }
+
 
     @Override
     public Order save(Order order) {

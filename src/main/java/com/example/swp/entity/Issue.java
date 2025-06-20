@@ -1,6 +1,7 @@
 package com.example.swp.entity;
 
 
+import com.example.swp.enums.IssueStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +23,9 @@ import java.util.Date;
         private String description;
         private Date createdDate;
         private boolean resolved;
+
+        @Enumerated(EnumType.STRING)
+        private IssueStatus status;
 
         @ManyToOne
         @JoinColumn(name = "customer_id")
