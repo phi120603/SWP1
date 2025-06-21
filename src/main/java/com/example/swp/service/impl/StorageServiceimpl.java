@@ -57,6 +57,15 @@ public class StorageServiceimpl implements StorageService {
         storage.setCity(storageRequest.getCity());
         storage.setState(storageRequest.getState());
         storage.setStatus(storageRequest.isStatus());
+
+        storage.setArea(storageRequest.getArea());
+        storage.setPricePerDay(storageRequest.getPricePerDay());
+        storage.setDescription(storageRequest.getDescription());
+
+        if (storageRequest.getImUrl() != null && !storageRequest.getImUrl().isEmpty()) {
+            storage.setImUrl(storageRequest.getImUrl());
+        }
+
         return storageReponsitory.save(storage);
     }
 

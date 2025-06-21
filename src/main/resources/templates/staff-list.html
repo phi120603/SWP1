@@ -2,9 +2,122 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff List</title>
+    <link rel="stylesheet" th:href="@{/css/staff-list.css}">
 </head>
 <body>
+<div class="container">
+    <header>
+        <h1>Staff Management</h1>
+        <p class="subtitle">Manage and view all your staffs in one place</p>
+    </header>
 
+    <div class="stats">
+        <div class="stat-card">
+            <span th:text="${totalStaff}">0</span>
+            <div class="stat-label">Total Staffs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">892</div>
+            <div class="stat-label">Active Staffs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">45</div>
+            <div class="stat-label">New This Month</div>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <input
+                type="text"
+                class="search-input"
+                placeholder="Search Staffs by name or email..."
+                id="searchInput"
+        >
+    </div>
+
+    <div class="table-container">
+        <table id="StaffTable">
+            <thead>
+            <tr>
+                <th>Staff id</th>
+                <th>Staff Name</th>
+                <th>Phone</th>
+                <th>ROLE</th>
+                <th>ID citizen</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="staff : ${staffs}">
+                <td th:text="${staff.staffid}"></td>
+                <td>
+                    <div class="staff-name" th:text="${staff.fullname}"></div>
+                    <div class="staff-email" th:text="${staff.email}"></div>
+                </td>
+                <td th:text="${staff.phone}"></td>
+                <td th:text="${staff.roleName}"></td>
+                <td th:text="${staff.idCitizenCard}"></td>
+                <td>
+                    <div class="actions">
+                        <a th:href="@{'/SWP/staff-list/edit/' + ${staff.staffid}}" class="btn btn-primary">Edit</a>
+                        <button class="btn btn-secondary">
+                            <a href="#">View</a>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        <a th:if="${currentPage > 1}" th:href="@{/SWP/staff-list(page=${currentPage - 1},size=3)}">Previous</a>
+        <span>Page <span th:text="${currentPage}"></span> of <span th:text="${totalPages}"></span></span>
+        <a th:if="${currentPage < totalPages}" th:href="@{/SWP/staff-list(page=${currentPage + 1},size=3)}">Next</a>
+    </div>
+</div>
+
+<script>
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const tableRows = document.querySelectorAll('#staffTable tbody tr');
+
+        tableRows.forEach(row => {
+            const staffName = row.querySelector('.staff-name').textContent.toLowerCase();
+            const staffEmail = row.querySelector('.staff-email').textContent.toLowerCase();
+            const company = row.cells[1].textContent.toLowerCase();
+
+            if (staffName.includes(searchTerm) ||
+                staffEmail.includes(searchTerm) ||
+                company.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Add click handlers for buttons
+    document.querySelectorAll('.btn-primary').forEach(button => {
+        button.addEventListener('click', function() {
+            if (this.textContent === 'Edit') {
+                alert('Edit functionality would be implemented here');
+            }
+        });
+    });
+
+    document.querySelectorAll('.btn-secondary').forEach(button => {
+        button.addEventListener('click', function() {
+            if (this.textContent === 'View') {
+                alert('View staff details would be implemented here');
+            } else if (this.textContent === 'Previous' || this.textContent === 'Next') {
+                alert('Pagination functionality would be implemented here');
+            }
+        });
+    });
+</script>
 </body>
 </html>
