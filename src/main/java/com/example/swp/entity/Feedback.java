@@ -26,4 +26,8 @@ public class Feedback {
     @JoinColumn(name = "staff_id")
     private Staff staff;
     // employee(staff)
+    @ManyToOne
+    @JoinColumn(name = "storage_id") // hoặc tên cột trong DB
+    private Storage storage;
+
 }
