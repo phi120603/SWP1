@@ -15,7 +15,7 @@
 
     <div class="stats">
         <div class="stat-card">
-            <div class="stat-number">1,247</div>
+            <span th:text="${totalStaff}">0</span>
             <div class="stat-label">Total Staffs</div>
         </div>
         <div class="stat-card">
@@ -60,8 +60,8 @@
                 <td th:text="${staff.roleName}"></td>
                 <td th:text="${staff.idCitizenCard}"></td>
                 <td>
-                <div class="actions">
-                        <button class="btn btn-primary">Edit</button>
+                    <div class="actions">
+                        <a th:href="@{'/SWP/staff-list/edit/' + ${staff.staffid}}" class="btn btn-primary">Edit</a>
                         <button class="btn btn-secondary">
                             <a href="#">View</a>
                         </button>
@@ -72,10 +72,10 @@
         </table>
     </div>
 
-    <div class="pagination">
-        <button class="btn btn-secondary">Previous</button>
-        <span class="page-info">Page 1 of 12</span>
-        <button class="btn btn-secondary">Next</button>
+    <div>
+        <a th:if="${currentPage > 1}" th:href="@{/SWP/staff-list(page=${currentPage - 1},size=3)}">Previous</a>
+        <span>Page <span th:text="${currentPage}"></span> of <span th:text="${totalPages}"></span></span>
+        <a th:if="${currentPage < totalPages}" th:href="@{/SWP/staff-list(page=${currentPage + 1},size=3)}">Next</a>
     </div>
 </div>
 

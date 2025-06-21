@@ -14,6 +14,7 @@ import com.example.swp.service.StorageService;
 import com.example.swp.service.impl.CustomerServiceImpl;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -137,17 +138,80 @@ public class ManagerController {
         redirectAttributes.addFlashAttribute("message", "Cập nhật thành công!");
 
         // ✅ Sau khi cập nhật xong → quay về dashboard
-        return "redirect:/SWP/manager-dashboard";
+        return "manager-storagedetail";
+    }
+
+    @PostMapping("/manager-dashboard/storages/{id}")
+    public String updateStoragePost(@PathVariable int id,
+                                    RedirectAttributes redirectAttributes,
+                                    @ModelAttribute StorageRequest storageRequest,
+                                    Model model) {
+        Optional<Storage> optional = storageService.findByID(id);
+        if (optional.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy kho!");
+            return "redirect:/SWP/manager-dashboard";
+        }
+        Storage updated = storageService.updateStorage(storageRequest, optional.get());
+        model.addAttribute("storage", updated);
+        redirectAttributes.addFlashAttribute("message", "Cập nhật thành công!");
+        return "manager-storagedetail";
     }
 
     //danh sách staff
     @GetMapping("/staff-list")
-    public String showStaffList(Model model) {
-        List<Staff> staffs = staffService.getAllStaff();
-        model.addAttribute("staffs", staffs);
-        return "staff-list"; // Trang HTML hiển thị danh sách staff
+    public String showStaffList(
+            Model model,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "3") int size
+    ) {
+        Page<Staff> staffPage = staffService.getStaffsByPage(page - 1, size);
+
+        int totalStaff = staffService.countAllStaff();
+
+        model.addAttribute("staffPage", staffPage);
+        model.addAttribute("staffs", staffPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", staffPage.getTotalPages());
+        model.addAttribute("totalStaff", totalStaff);
+
+        return "staff-list";
     }
 
+    @GetMapping("/staff-list/edit/{id}")
+    public String showEditStaffForm(@PathVariable int id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Staff> staffOpt = staffService.findById(id);
+        if (staffOpt.isPresent()) {
+            model.addAttribute("staff", staffOpt.get());
+            return "edit-staff";
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Staff not found!");
+            return "redirect:/SWP/staff-list";
+        }
+    }
+
+    @PostMapping("/staff-list/edit/{id}")
+    public String editStaff(
+            @PathVariable int id,
+            @ModelAttribute("staff") Staff staff,
+            RedirectAttributes redirectAttributes
+    ) {
+        Optional<Staff> staffOpt = staffService.findById(id);
+        if (staffOpt.isPresent()) {
+            Staff existingStaff = staffOpt.get();
+            existingStaff.setFullname(staff.getFullname());
+            existingStaff.setEmail(staff.getEmail());
+            existingStaff.setPhone(staff.getPhone());
+            existingStaff.setRoleName(staff.getRoleName());
+            existingStaff.setIdCitizenCard(staff.getIdCitizenCard());
+
+
+            staffService.save(existingStaff);
+            redirectAttributes.addFlashAttribute("message", "Cập nhật staff thành công!");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Staff not found!");
+        }
+        return "redirect:/SWP/staff-list";
+    }
 
     @PostMapping("/storages/{id}/delete")
     public String deleteStorage(@PathVariable int id, RedirectAttributes redirectAttributes) {

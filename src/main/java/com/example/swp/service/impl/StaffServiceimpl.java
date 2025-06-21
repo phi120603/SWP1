@@ -6,9 +6,12 @@ import com.example.swp.entity.Staff;
 import com.example.swp.repository.StaffReponsitory;
 import com.example.swp.service.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class StaffServiceimpl implements StaffService {
@@ -37,5 +40,23 @@ private StaffReponsitory staffReponsitory;
         return null;
     }
 
+    @Override
+    public Page<Staff> getStaffsByPage(int page, int size) {
+        return staffReponsitory.findAll(PageRequest.of(page, size));
+    }
 
+    @Override
+    public int countAllStaff() {
+        return staffReponsitory.countAllStaff();
+    }
+
+    @Override
+    public Optional<Staff> findById(int id) {
+        return staffReponsitory.findById(id);
+    }
+
+    @Override
+    public Staff save(Staff staff) {
+        return staffReponsitory.save(staff);
+    }
 }
