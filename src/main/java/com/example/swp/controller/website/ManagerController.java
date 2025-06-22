@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/SWP")
+@RequestMapping("/admin")
 public class ManagerController {
 
     @Autowired
@@ -54,7 +54,7 @@ public class ManagerController {
 //        model.addAttribute("pageTitle", "Dashboard");
 //        return "admin";
 //    }
-    @GetMapping("/manager-dashboard")
+        @GetMapping("/manager-dashboard")
     public String showDashboard(Model model) {
         List<Storage> storages = storageService.getAll();
         int totalStorages = storages.size();

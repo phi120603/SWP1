@@ -51,23 +51,29 @@ public class WebSecurityConfig {
             throws Exception {
         http
                 .authorizeHttpRequests(authConfig -> {
-                    authConfig.requestMatchers(HttpMethod.GET, "/admin/**").hasAuthority(RoleName.MANAGER.toString());
-                    authConfig.requestMatchers(HttpMethod.GET, "/staff/**").hasAuthority(RoleName.STAFF.toString());
-                    authConfig.requestMatchers(HttpMethod.GET, "/index/**").permitAll();
+                    authConfig.requestMatchers( "/admin/**").hasAuthority(RoleName.MANAGER.toString());
+                    authConfig.requestMatchers( "/staff/**").hasAuthority(RoleName.STAFF.toString());
+                    authConfig.requestMatchers( "/index/**").permitAll();
                     authConfig.anyRequest().permitAll();
                 }).formLogin(form -> form
                         .loginPage("/login") // Trang hiển thị form
                         .loginProcessingUrl("/login") // URL xử lý đăng nhập
-                        .defaultSuccessUrl("/")
+                        .defaultSuccessUrl("/login")
                         .failureUrl("/login?error")
+                        .permitAll() // Cho phép tất cả người dùng truy cập trang đăng nhập
                 )
+
                 .logout(logout -> {
 //                    logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
                     logout.logoutUrl("/logout");
-                    logout.logoutSuccessUrl("/");
 
+                    logout.logoutSuccessUrl("/");
+                    logout.deleteCookies("JSESSIONID");
                     logout.invalidateHttpSession(true);
+                    logout.clearAuthentication(true);
+                    logout.permitAll();
                 })
+
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
@@ -102,7 +108,10 @@ public class WebSecurityConfig {
         authProvider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(authProvider);
     }
-
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
 //    @Bean
 //    public PasswordEncoder passwordEncoder() {
 //        return NoOpPasswordEncoder.getInstance();
