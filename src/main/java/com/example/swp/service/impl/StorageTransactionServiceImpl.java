@@ -5,7 +5,7 @@ import com.example.swp.entity.Customer;
 import com.example.swp.entity.Storage;
 import com.example.swp.entity.StorageTransaction;
 import com.example.swp.repository.CustomerRepository;
-import com.example.swp.repository.StorageReponsitory;
+import com.example.swp.repository.StorageRepository;
 import com.example.swp.repository.StorageTransactionRepository;
 import com.example.swp.service.StorageTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class StorageTransactionServiceImpl implements StorageTransactionService 
     private CustomerRepository customerRepository;
 
     @Autowired
-    private StorageReponsitory storageRepository;
+    private StorageRepository storageRepository;
 
     @Override
     public List<StorageTransaction> getAllStorageTransactions() {

@@ -1,6 +1,8 @@
 package com.example.swp.controller.website;
 
 import com.example.swp.dto.LoginRequest;
+import com.example.swp.entity.Customer;
+import com.example.swp.service.CustomerService;
 import com.example.swp.service.EmailService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,9 @@ public class LoginRestController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private CustomerService customerService;
 
     /**
      * Trả về trang login (HTML).
@@ -71,6 +76,11 @@ public class LoginRestController {
             // Lưu thông tin vào session
             session.setMaxInactiveInterval(600); // 10 phút
             session.setAttribute("email", loginRequest.getEmail());
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof Customer) {
+                session.setAttribute("loggedInCustomer", principal); // dùng được cho wishlist
+            }
+
 
             // Gắn context vào session
             session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());

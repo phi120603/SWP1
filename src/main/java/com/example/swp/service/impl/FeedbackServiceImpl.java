@@ -6,7 +6,7 @@ import com.example.swp.entity.Storage;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.FeedbackRepository;
 import com.example.swp.repository.OrderRepository;
-import com.example.swp.repository.StorageReponsitory;
+import com.example.swp.repository.StorageRepository;
 import com.example.swp.service.FeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     private CustomerRepository customerRepo;
 
     @Autowired
-    private StorageReponsitory storageRepo;
+    private StorageRepository storageRepo;
 
 
     @Override

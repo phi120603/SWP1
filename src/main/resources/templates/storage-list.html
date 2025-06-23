@@ -19,7 +19,12 @@
             <ul class="navbar-nav">
                 <li><a href="/homepage">Trang chủ</a></li>
                 <li><a href="/SWP/storages" class="active">Danh sách</a></li>
+
             </ul>
+            <button class="cart-icon" onclick="goToWishlist()" title="Xem wishlist">
+                🛒
+                <span class="cart-count" id="cartCount">0</span>
+            </button>
         </div>
     </nav>
 
@@ -126,6 +131,11 @@
                             <i data-lucide="eye"></i>
                             Xem chi tiết
                         </a>
+                        <button class="btn-wishlist"
+                                th:attr="data-storage-id=${storage.storageid}"
+                                onclick="toggleWishlist(this)">
+                            + Thêm vào giỏ
+                        </button>
                     </div>
                 </div>
             </div>
@@ -224,6 +234,127 @@
             });
         });
     });
+</script>
+<div id="toast" class="toast"></div>
+
+<script>
+    // Wishlist management
+    let wishlistItems = new Set();
+
+    // Load wishlist from server on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadWishlist();
+    });
+
+    async function loadWishlist() {
+        try {
+            const response = await fetch('/api/wishlist/my');
+            if (response.ok) {
+                const wishlist = await response.json();
+                wishlistItems.clear();
+                wishlist.forEach(item => {
+                    if (item.storage && item.storage.storageid) {
+                        wishlistItems.add(item.storage.storageid);
+                    }
+                });
+                updateWishlistUI();
+                updateCartCount();
+            } else if (response.status === 401) {
+                // User not logged in, that's ok
+                console.log('User not logged in');
+                updateCartCount(); // Still update UI even if not logged in
+            }
+        } catch (error) {
+            console.log('Error loading wishlist:', error);
+            updateCartCount(); // Still update UI on error
+        }
+    }
+
+    async function toggleWishlist(button) {
+        const storageId = parseInt(button.getAttribute('data-storage-id'));
+        const isInWishlist = wishlistItems.has(storageId);
+
+        try {
+            const url = isInWishlist ? '/api/wishlist/remove' : '/api/wishlist/add';
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(storageId)
+            });
+
+            if (response.ok) {
+                if (isInWishlist) {
+                    wishlistItems.delete(storageId);
+                    showToast('Đã xóa khỏi wishlist!', 'success');
+                } else {
+                    wishlistItems.add(storageId);
+                    showToast('Đã thêm vào wishlist!', 'success');
+                }
+                updateWishlistUI();
+                updateCartCount();
+            } else {
+                const errorText = await response.text();
+                showToast(errorText || 'Có lỗi xảy ra!', 'error');
+            }
+        } catch (error) {
+            showToast('Có lỗi xảy ra!', 'error');
+            console.error('Error:', error);
+        }
+    }
+
+    function updateWishlistUI() {
+        document.querySelectorAll('.btn-wishlist').forEach(button => {
+            const storageId = parseInt(button.getAttribute('data-storage-id'));
+            if (wishlistItems.has(storageId)) {
+                button.classList.add('in-wishlist');
+                button.textContent = '✓ Đã thêm';
+            } else {
+                button.classList.remove('in-wishlist');
+                button.textContent = '+ Thêm vào giỏ';
+            }
+        });
+    }
+
+    function updateCartCount() {
+        const count = wishlistItems.size;
+        const cartCountElement = document.getElementById('cartCount');
+
+        if (cartCountElement) {
+            cartCountElement.textContent = count;
+
+            // Hide count if 0
+            if (count === 0) {
+                cartCountElement.style.display = 'none';
+            } else {
+                cartCountElement.style.display = 'flex';
+            }
+        }
+    }
+
+    // FIX: Add error handling for wishlist navigation
+    function goToWishlist() {
+        try {
+            window.location.href = '/SWP/wishlist';
+        } catch (error) {
+            console.error('Error navigating to wishlist:', error);
+            showToast('Có lỗi khi chuyển trang!', 'error');
+        }
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        if (toast) {
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    }
 </script>
 </body>
 </html>

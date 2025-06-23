@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface StorageReponsitory extends JpaRepository<Storage, Integer> {
+public interface StorageRepository extends JpaRepository<Storage, Integer> {
 //    @Modifying
 //    @Transactional
 //    @Query(value = "ALTER TABLE storage AUTO_INCREMENT = 1", nativeQuery = true)
