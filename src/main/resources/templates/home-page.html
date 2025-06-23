@@ -853,17 +853,40 @@
 </head>
 <body>
 <!-- Navigation -->
-<nav class="navbar">
-  <div class="nav-container">
-    <div class="logo">QVL Storage</div>
-    <ul class="nav-links">
-      <li><a href="../templates/home-page.html">Home</a></li>
+<nav class="navbar" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
+  <div class="nav-container" style="display: flex; align-items: center; gap: 30px;">
+    <div class="logo" style="font-weight: bold; font-size: 24px;">QVL Storage</div>
+    <ul class="nav-links" style="display: flex; gap: 20px; list-style: none; margin: 0; padding: 0;">
+      <li><a th:href="@{/}">Home</a></li>
       <li><a th:href="@{/SWP/issues/create}">Tạo Issue</a></li>
-      <li><a href="/SWP/storages">List</a></li>
-      <li><a href="/customer/support">Hỗ trợ</a></li>
+      <li><a th:href="@{/SWP/storages}">List</a></li>
+      <li><a th:href="@{/customer/support}">Hỗ trợ</a></li>
     </ul>
   </div>
+
+  <!-- User Menu bên phải -->
+  <div class="user-menu" style="display: flex; align-items: center; gap: 15px;">
+
+    <!-- Chưa đăng nhập -->
+    <div th:if="${not #authorization.expression('isAuthenticated()')}">
+      <a th:href="@{/api/login}" class="btn btn-primary" style="padding: 8px 12px; background: #007bff; color: white; border-radius: 5px; text-decoration: none;">Đăng nhập</a>
+    </div>
+
+    <!-- Đã đăng nhập -->
+    <div th:if="${#authorization.expression('isAuthenticated()')}" style="display: flex; align-items: center; gap: 10px;">
+      <div class="user-avatar">
+        <i class="fas fa-user"></i>
+      </div>
+      <form th:action="@{/logout}" method="post" style="margin: 0;">
+        <button type="submit" class="logout-link btn" style="background: none; border: none; color: #d0d0d0; cursor: pointer;">
+          <i class="fas fa-sign-out-alt"></i> Đăng xuất
+        </button>
+      </form>
+    </div>
+  </div>
 </nav>
+
+
 
 <!-- Hero Section -->
 <section class="hero" id="home">

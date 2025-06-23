@@ -1,5 +1,6 @@
 package com.example.swp.controller.website;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
 import com.example.swp.entity.Order;
 
@@ -16,7 +17,7 @@ import java.util.Optional;
 @Controller
 
 @RequestMapping("/SWP")
-
+@PreAuthorize("hasAnyAuthority('MANAGER', 'STAFF')")
 public class OrderListController {
 
     @Autowired

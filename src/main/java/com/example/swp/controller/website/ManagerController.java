@@ -17,6 +17,9 @@ import com.example.swp.service.impl.StaffServiceimpl;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -55,7 +58,7 @@ public class ManagerController {
 //        return "admin";
 //    }
         @GetMapping("/manager-dashboard")
-    public String showDashboard(Model model) {
+        public String showDashboard(Model model) {
         List<Storage> storages = storageService.getAll();
         int totalStorages = storages.size();
 
@@ -75,6 +78,13 @@ public class ManagerController {
         model.addAttribute("staff", staff);
         model.addAttribute("totalStaff", totalStaff);
         model.addAttribute("totalRevenue", totalRevenue);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+                UserDetails userDetails = (UserDetails) auth.getPrincipal();
+                model.addAttribute("userName", userDetails.getUsername());
+                model.addAttribute("userRole", auth.getAuthorities().iterator().next().getAuthority());
+            }
 
         return "admin";
     }

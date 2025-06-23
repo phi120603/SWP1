@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -747,11 +748,19 @@
                 <i class="fas fa-user"></i>
             </div>
             <div class="user-details">
-                <span class="user-name">John Manager</span>
-                <span class="user-role">Administrator</span>
+                <span class="user-name" th:text="${userName}">Tên người dùng</span>
+                <span class="user-role" th:text="${userRole}">Vai trò</span>
             </div>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="logout-link btn" style="background: none; border: none; color: #d0d0d0; cursor: pointer;">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </form>
         </div>
+
+
     </div>
+
 </nav>
 
 <!-- Main Content -->
@@ -910,7 +919,7 @@
                 <h3>Storage Units Overview</h3>
                 <div class="card-actions">
                     <button class="btn-primary">
-                        <a href="/SWP/addstorage" style="color: white; text-decoration: none;">
+                        <a href="/admin/addstorage" style="color: white; text-decoration: none;">
                         <i class="fas fa-plus"></i>
                         Add Unit
                         </a>

@@ -1,111 +1,135 @@
 package com.example.swp.controller.website;
+
 import com.example.swp.dto.LoginRequest;
 import com.example.swp.service.EmailService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpSession;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Controller
 @RequestMapping("/api")
 public class LoginRestController {
+
     @Autowired
     private HttpSession session;
+
     @Autowired
     private AuthenticationManager authenticationManager;
+
     @Autowired
     private EmailService emailService;
 
+    /**
+     * Trả về trang login (HTML).
+     */
     @GetMapping("/login")
-    public String returnlogin (Model model) {
-        //lay ra thong tin gnuoi dung trong session
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof String) {
-            // Nếu người dùng đã đăng nhập, chuyển hướng đến trang chủ
-
-            return "redirect:/home-page"; // Chuyển hướng đến trang chủ
+    public String returnLoginPage(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
+            return "redirect:/home-page"; // Đã login → về home
         }
-        //kiem tra thong tin nguoi dung trong session
-        String sessionId = session.getId();
-        model.addAttribute("sessionId", sessionId);
-        return "redirect:/login.html"; // Spring tìm file view tên là "login"
+        model.addAttribute("sessionId", session.getId());
+        return "login"; // Trả về file login.html trong templates
     }
 
+    /**
+     * Xử lý login bằng JSON (AJAX từ JS).
+     */
     @PostMapping("/login")
+    @ResponseBody
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
 
-            // xac thuc người dùng với thông tin đăng nhập
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getEmail(),
                             loginRequest.getPassword()
                     )
             );
-            if(authentication == null || !authentication.isAuthenticated()) {
+
+            if (authentication == null || !authentication.isAuthenticated()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("Xác thực không thành công");
+                        .body("Tài khoản hoặc mật khẩu không chính xác.");
             }
 
-            //luu thong tin ngoi dung vao SecurityContext
+            // Ghi nhận thông tin đăng nhập vào Spring Security Context
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            // timeout cho phiên làm việc
-            session.setMaxInactiveInterval(60);// 1 phut
-            // thiet lap session cho nguoi dung
+            // Lưu thông tin vào session
+            session.setMaxInactiveInterval(600); // 10 phút
             session.setAttribute("email", loginRequest.getEmail());
-            // thiet lap cookie cho nguoi dung
-            if("MANAGER".equals(authentication.getAuthorities().stream()
-                    .findFirst().orElseThrow().getAuthority())) {
-                return ResponseEntity.status(HttpStatus.FOUND)
-                        .header("location", "/admin/manager-dashboard").build();
-            } else if("STAFF".equals(authentication.getAuthorities().stream()
-                    .findFirst().orElseThrow().getAuthority())) {
-                return ResponseEntity.ok().body("Đăng nhập thành công với quyền STAFF");
-            } else if("CUSTOMER".equals(authentication.getAuthorities().stream()
-                    .findFirst().orElseThrow().getAuthority())) {
-                return ResponseEntity.ok().body("Đăng nhập thành công với quyền CUSTOMER");
+
+            // Gắn context vào session
+            session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+
+
+            // Xác định vai trò để redirect
+            String redirectUrl = "/home-page"; // default
+            for (GrantedAuthority authority : authentication.getAuthorities()) {
+
+                String role = authority.getAuthority();
+                switch (role) {
+                    case "MANAGER":
+                        redirectUrl = "/admin/manager-dashboard";
+                        break;
+                    case "STAFF":
+                        redirectUrl = "/staff/dashboard";
+                        break;
+                    case "CUSTOMER":
+                        redirectUrl = "/home-page";
+                        break;
+                }
+                break; // chỉ lấy role đầu tiên
             }
-            return ResponseEntity.ok().body("Đăng nhập thành công");
+
+            Map<String, String> response = new HashMap<>();
+            response.put("redirect", redirectUrl);
+            return ResponseEntity.ok(response);
 
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Email hoặc mật khẩu không chính xác");
+                    .body("Email hoặc mật khẩu không chính xác.");
         } catch (Exception e) {
+            e.printStackTrace(); // in lỗi cho debug
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Đã xảy ra lỗi khi đăng nhập");
+                    .body("Đã xảy ra lỗi khi đăng nhập.");
         }
     }
 
-
+    /**
+     * Logout → xoá session & security context.
+     */
     @GetMapping("/logout")
     public String logout() {
-        // Xóa thông tin xác thực khỏi SecurityContext
         SecurityContextHolder.clearContext();
-        // Xóa session hiện tại
         session.invalidate();
-        // Chuyển hướng về trang đăng nhập
-        return "redirect:/api/login"; // Chuyển hướng đến trang đăng nhập
-    }
-    @GetMapping("/check-session")
-    @ResponseBody
-    public String checkSession() {
-        Object email = session.getAttribute("email");
-        if (email != null) {
-            return "Đang đăng nhập với email: " + email;
-        } else {
-            return "Chưa đăng nhập hoặc session đã hết hạn";
-        }
+        return "redirect:/api/login"; // Chuyển về trang login
     }
 
+    /**
+     * Kiểm tra trạng thái đăng nhập.
+     */
+    @GetMapping("/check-session")
+    @ResponseBody
+    public ResponseEntity<String> checkSession() {
+        Object email = session.getAttribute("email");
+        if (email != null) {
+            return ResponseEntity.ok("Đang đăng nhập với email: " + email);
+        } else {
+            return ResponseEntity.ok("Chưa đăng nhập hoặc session đã hết hạn.");
+        }
+    }
 }
