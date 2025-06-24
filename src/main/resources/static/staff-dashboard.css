@@ -18,7 +18,7 @@ body {
     top: 0;
     width: 260px;
     height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2c3e50;
     color: white;
     z-index: 1000;
     transition: transform 0.3s ease;
@@ -369,6 +369,7 @@ body {
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    margin-bottom: 30px;
 }
 
 .card-header {
@@ -480,24 +481,16 @@ body {
 .data-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
-.data-table th,
-.data-table td {
+.data-table th, .data-table td {
     padding: 15px;
-    text-align: left;
     border-bottom: 1px solid #eee;
-}
-
-.data-table th {
-    background: #f8f9fa;
-    font-weight: 600;
-    color: #333;
-    font-size: 0.9rem;
-}
-
-.data-table td {
-    font-size: 0.9rem;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .progress-bar {
@@ -545,6 +538,7 @@ body {
 .action-buttons {
     display: flex;
     gap: 5px;
+    margin-left: -8px;
 }
 
 .btn-icon {
@@ -598,6 +592,28 @@ body {
 
 .btn-secondary:hover {
     background: #e9ecef;
+}
+.btn-icon.accept {
+    color: #22c55e;
+    border: 1px solid #22c55e;
+    background: #e6f9ee;
+    margin-right: 7px;
+}
+.btn-icon.accept:hover {
+    background: #22c55e;
+    color: #fff;
+}
+.btn-icon.reject {
+    color: #f75555;
+    border: 1px solid #f75555;
+    background: #fff4f3;
+}
+.btn-icon.reject:hover {
+    background: #f75555;
+    color: #fff;
+}
+.btn-icon i {
+    margin-right: 5px;
 }
 
 /* Responsive Design */
