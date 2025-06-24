@@ -1,5 +1,6 @@
 package com.example.swp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,5 +22,11 @@ public class WishList {
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
+    @JsonIgnoreProperties({"wishLists", "contacts", "feedbacks", "storageTransactions", "payments", "authorities"})
     private Customer customer;
+
+    @ManyToOne
+    @JoinColumn(name = "storage_id")
+    @JsonIgnoreProperties({"wishLists", "contacts", "storageTransactions"})
+    private Storage storage;
 }

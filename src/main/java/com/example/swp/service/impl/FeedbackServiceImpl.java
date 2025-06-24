@@ -6,7 +6,7 @@ import com.example.swp.entity.Storage;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.FeedbackRepository;
 import com.example.swp.repository.OrderRepository;
-import com.example.swp.repository.StorageReponsitory;
+import com.example.swp.repository.StorageRepository;
 import com.example.swp.service.FeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     private CustomerRepository customerRepo;
 
     @Autowired
-    private StorageReponsitory storageRepo;
+    private StorageRepository storageRepo;
 
 
     @Override
@@ -52,13 +52,13 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
-    public List<Feedback> findByStaffId(int staffId) {
-        return feedbackRepository.findByStaffStaffid(staffId);
+    public List<Feedback> findByCustomerId(int customerId) {
+        return feedbackRepository.findByCustomerId(customerId);
     }
 
     @Override
-    public List<Feedback> findByCustomerId(int customerId) {
-        return feedbackRepository.findByCustomerId(customerId);
+    public List<Feedback> findByStorageId(int storageId) {
+        return feedbackRepository.findByStorageStorageid(storageId);
     }
 
     @Override

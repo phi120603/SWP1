@@ -23,11 +23,6 @@ public class Feedback {
     private Customer customer;
 
     @ManyToOne
-    @JoinColumn(name = "staff_id")
-    private Staff staff;
-    // employee(staff)
-    @ManyToOne
-    @JoinColumn(name = "storage_id") // hoặc tên cột trong DB
+    @JoinColumn(name = "storage_id")
     private Storage storage;
-
 }

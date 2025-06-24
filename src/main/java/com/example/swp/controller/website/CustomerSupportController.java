@@ -1,7 +1,9 @@
 package com.example.swp.controller.website;
 
 import com.example.swp.entity.Customer;
+import com.example.swp.entity.SupportActivity;
 import com.example.swp.repository.CustomerRepository;
+import com.example.swp.repository.SupportActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -9,6 +11,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -19,10 +23,15 @@ public class CustomerSupportController {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private JavaMailSender mailSender; // Thêm dòng này
+    private JavaMailSender mailSender;
+
+    @Autowired
+    private SupportActivityRepository supportActivityRepository;
 
     @GetMapping
-    public String supportPage() {
+    public String supportPage(Model model) {
+        List<SupportActivity> activities = supportActivityRepository.findTop10ByOrderByActivityTimeDesc();
+        model.addAttribute("activities", activities);
         return "customer-support";
     }
 
@@ -50,9 +59,24 @@ public class CustomerSupportController {
                 .findFirst();
 
         if (customerOpt.isPresent()) {
+            // Ghi nhận lịch sử sử dụng
+            SupportActivity activity = new SupportActivity();
+            activity.setActivityType("Profile Access");
+            activity.setStatus("Resolved");
+            activity.setActivityTime(new Date());
+            activity.setCustomer(customerOpt.get());
+            supportActivityRepository.save(activity);
+
             int customerId = customerOpt.get().getId();
             return "redirect:/SWP/customers/" + customerId;
         } else {
+            // Ghi nhận lịch sử thất bại (nếu muốn)
+            SupportActivity activity = new SupportActivity();
+            activity.setActivityType("Profile Access");
+            activity.setStatus("Failed");
+            activity.setActivityTime(new Date());
+            supportActivityRepository.save(activity);
+
             model.addAttribute("error", "Không tìm thấy khách hàng với thông tin đã nhập!");
             return "profile-access";
         }
@@ -87,11 +111,34 @@ public class CustomerSupportController {
             );
             try {
                 mailSender.send(message);
+                // Ghi nhận lịch sử thành công
+                SupportActivity activity = new SupportActivity();
+                activity.setActivityType("Password Recovery");
+                activity.setStatus("Resolved");
+                activity.setActivityTime(new Date());
+                activity.setCustomer(customer);
+                supportActivityRepository.save(activity);
+
                 model.addAttribute("success", "Mật khẩu đã được gửi tới email: " + maskEmail(customer.getEmail()));
             } catch (Exception ex) {
+                // Ghi nhận lịch sử thất bại
+                SupportActivity activity = new SupportActivity();
+                activity.setActivityType("Password Recovery");
+                activity.setStatus("Failed");
+                activity.setActivityTime(new Date());
+                activity.setCustomer(customer);
+                supportActivityRepository.save(activity);
+
                 model.addAttribute("error", "Gửi email thất bại. Vui lòng thử lại sau!");
             }
         } else {
+            // Ghi nhận lịch sử thất bại
+            SupportActivity activity = new SupportActivity();
+            activity.setActivityType("Password Recovery");
+            activity.setStatus("Failed");
+            activity.setActivityTime(new Date());
+            supportActivityRepository.save(activity);
+
             model.addAttribute("error", "Không tìm thấy khách hàng với thông tin đã nhập!");
         }
         return "forgot-password";

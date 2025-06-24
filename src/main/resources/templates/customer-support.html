@@ -305,86 +305,27 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td>10:30 AM</td>
+                    <tr th:each="a : ${activities}">
+                        <td th:text="${#dates.format(a.activityTime, 'HH:mm dd/MM/yyyy')}"></td>
                         <td>
                             <div class="customer-info">
                                 <div class="customer-avatar-small">
                                     <i class="fas fa-user"></i>
                                 </div>
-                                <span>John Doe</span>
+                                <span th:text="${a.customer != null ? a.customer.fullname : 'Ẩn danh'}"></span>
                             </div>
                         </td>
                         <td>
-                            <span class="issue-badge password">Password Reset</span>
+                            <span class="issue-badge" th:text="${a.activityType}"></span>
                         </td>
                         <td>
-                            <span class="status-badge resolved">Resolved</span>
+                            <span th:class="'status-badge ' + ${a.status.toLowerCase()}" th:text="${a.status}"></span>
                         </td>
-                        <td>Support Agent</td>
+                        <td>-</td>
                         <td>
                             <div class="action-buttons">
                                 <button class="btn-icon" title="View Details">
                                     <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn-icon" title="Contact Customer">
-                                    <i class="fas fa-phone"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>09:45 AM</td>
-                        <td>
-                            <div class="customer-info">
-                                <div class="customer-avatar-small">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <span>Jane Smith</span>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="issue-badge profile">Profile Access</span>
-                        </td>
-                        <td>
-                            <span class="status-badge pending">In Progress</span>
-                        </td>
-                        <td>Support Agent</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-icon" title="View Details">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn-icon" title="Contact Customer">
-                                    <i class="fas fa-phone"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>09:15 AM</td>
-                        <td>
-                            <div class="customer-info">
-                                <div class="customer-avatar-small">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <span>Mike Johnson</span>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="issue-badge general">General Inquiry</span>
-                        </td>
-                        <td>
-                            <span class="status-badge resolved">Resolved</span>
-                        </td>
-                        <td>Support Agent</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-icon" title="View Details">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn-icon" title="Contact Customer">
-                                    <i class="fas fa-phone"></i>
                                 </button>
                             </div>
                         </td>
@@ -460,14 +401,18 @@
     }
 
     // Customer search
-    document.querySelector('.search-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            const searchTerm = this.value;
-            if (searchTerm) {
-                alert(`Searching for customer: ${searchTerm}`);
+    document.querySelector('.tool-input .btn-primary').addEventListener('click', function() {
+        const searchInput = document.querySelector('.tool-input .search-input');
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm) {
+            if (!isNaN(searchTerm)) {
+                window.location.href = `/SWP/customers?customerId=${encodeURIComponent(searchTerm)}`;
+            } else {
+                window.location.href = `/SWP/customers?name=${encodeURIComponent(searchTerm)}`;
             }
         }
     });
+
 
     // Auto-refresh activity every 30 seconds
     setInterval(function() {

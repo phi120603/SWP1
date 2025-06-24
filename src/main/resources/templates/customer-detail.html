@@ -271,6 +271,7 @@
         </div>
 
         <!-- Feedback History Card -->
+        <!-- Feedback History Card -->
         <div class="card">
             <div class="card-header">
                 <h3>
@@ -291,7 +292,7 @@
                     <tr>
                         <th>Feedback ID</th>
                         <th>Content</th>
-                        <th>Date Submitted</th>
+                        <th>Storage</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
@@ -303,7 +304,10 @@
                         <td>
                             <div class="feedback-content" th:text="${fb.content}" th:title="${fb.content}"></div>
                         </td>
-                        <td th:text="${fb.createdDate}"></td>
+                        <td>
+                            <!-- Hiển thị tên storage (nếu muốn id thì dùng fb.storage.storageid) -->
+                            <span th:text="${fb.storage != null ? fb.storage.storagename : 'N/A'}"></span>
+                        </td>
                         <td>
                             <div class="action-buttons">
                                 <button class="btn-icon" title="View Full Feedback">

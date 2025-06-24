@@ -2,8 +2,8 @@ package com.example.swp.service.impl;
 
 import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Storage;
-import com.example.swp.repository.StorageReponsitory;
-import com.example.swp.repository.StorageReponsitory;
+import com.example.swp.repository.StorageRepository;
+import com.example.swp.repository.StorageRepository;
 import com.example.swp.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,12 +15,12 @@ import java.util.Optional;
 @Component
 public class StorageServiceimpl implements StorageService {
     @Autowired
-    private StorageReponsitory storageReponsitory;
+    private StorageRepository storageRepository;
     private List<Storage> storageList = new ArrayList<>();
     private Storage storage;
     @Override
     public List<Storage> getAll() {
-        return storageReponsitory.findAll();
+        return storageRepository.findAll();
     }
 
     @Override
@@ -40,13 +40,13 @@ public class StorageServiceimpl implements StorageService {
             storage.setImUrl(storageRequest.getImUrl());
         }
 
-        return storageReponsitory.save(storage);
+        return storageRepository.save(storage);
     }
 
 
     @Override
     public Optional<Storage> findByID(int id) {
-        return storageReponsitory.findById(id);
+        return storageRepository.findById(id);
     }
 
     @Override
@@ -66,18 +66,18 @@ public class StorageServiceimpl implements StorageService {
             storage.setImUrl(storageRequest.getImUrl());
         }
 
-        return storageReponsitory.save(storage);
+        return storageRepository.save(storage);
     }
 
     @Override
     public void save(Storage storage) {
-        storageReponsitory.save(storage);
+        storageRepository.save(storage);
     }
 
     @Override
     public void deleteStorageById(int id) {
-//        storageReponsitory.resetAutoIncrement();
-        storageReponsitory.deleteById(id);
+//        storageRepository.resetAutoIncrement();
+        storageRepository.deleteById(id);
 
 
     }

@@ -3,7 +3,7 @@ package com.example.swp.controller.api;
 import com.example.swp.dto.OrderRequest;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Storage;
-import com.example.swp.repository.StorageReponsitory;
+import com.example.swp.repository.StorageRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -30,7 +30,7 @@ public class OrderController {
     private OrderService orderService;
 
     @Autowired
-    private StorageReponsitory storageReponsitory;
+    private StorageRepository storageRepository;
 
     @GetMapping("/orders")
     public List<Order> getAllOrders() {
@@ -79,7 +79,7 @@ public class OrderController {
             }
 
             // Get storage info
-            Optional<Storage> storageOpt = storageReponsitory.findById(storageId);
+            Optional<Storage> storageOpt = storageRepository.findById(storageId);
             if (!storageOpt.isPresent()) {
                 return ResponseEntity.badRequest()
                         .body(Map.of("error", "Không tìm thấy kho"));
