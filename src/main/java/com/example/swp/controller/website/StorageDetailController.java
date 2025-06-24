@@ -39,14 +39,22 @@ public class StorageDetailController {
 
     // Hiển thị form booking
     @GetMapping("/storages/{id}/booking")
-    public String showBookingForm(@PathVariable int id, Model model) {
+    public String showBookingForm(@PathVariable int id, HttpSession session, Model model) {
+        Customer customer = (Customer) session.getAttribute("loggedInCustomer");
+        if (customer == null) {
+            return "redirect:/api/login";
+        }
+
         Optional<Storage> optionalStorage = storageService.findByID(id);
         if (optionalStorage.isEmpty()) {
             return "redirect:/SWP/storages";
         }
+
         model.addAttribute("storage", optionalStorage.get());
+        model.addAttribute("customer", customer); // truyền sang booking.html
         return "booking";
     }
+
 
 
 
@@ -56,7 +64,14 @@ public class StorageDetailController {
     public String processBooking(@PathVariable int id,
                                  @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                                  @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                                 HttpSession session,
                                  Model model) {
+
+        Customer customer = (Customer) session.getAttribute("loggedInCustomer");
+        if (customer == null) {
+            return "redirect:/api/login";
+        }
+
         Optional<Storage> optionalStorage = storageService.findByID(id);
         if (optionalStorage.isEmpty()) {
             return "redirect:/SWP/storages";
@@ -74,6 +89,7 @@ public class StorageDetailController {
         double total = days * storage.getPricePerDay();
 
         Order order = new Order();
+        order.setCustomer(customer); // GÁN customer từ session
         order.setStorage(storage);
         order.setStartDate(startDate);
         order.setEndDate(endDate);
@@ -85,4 +101,5 @@ public class StorageDetailController {
 
         return "redirect:/SWP/storages/" + id + "?message=Booking thành công!";
     }
+
 }

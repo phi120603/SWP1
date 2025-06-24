@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 import java.time.LocalDate;
 
@@ -36,18 +38,22 @@ public class Order {
 
         @ManyToOne
         @JoinColumn(name = "customer_id", nullable = true)
+        @JsonIgnore
         private Customer customer;
 
         @ManyToOne
         @JoinColumn(name = "staff_id")
+        @JsonIgnore
         private Staff staff;
 
         @ManyToOne
         @JoinColumn(name = "manager_id")
+        @JsonIgnore
         private Manager manager;
 
         @ManyToOne
         @JoinColumn(name = "storage_id", nullable = true)
+        @JsonIgnore
         private Storage storage;
 
     }
