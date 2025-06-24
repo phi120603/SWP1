@@ -72,6 +72,11 @@ public class OrderServiceimpl implements OrderService {
     public List<Order> findOrdersByStatus(String status) {
         return orderRepository.findByStatus(status);
     }
+    @Override
+    public void deleteById(int id) {
+        orderRepository.deleteById(id);
+    }
+
 
 
     @Override

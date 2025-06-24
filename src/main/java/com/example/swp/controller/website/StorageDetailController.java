@@ -1,9 +1,11 @@
 package com.example.swp.controller.website;
 
+import com.example.swp.entity.Customer;
 import com.example.swp.entity.Order;
 import com.example.swp.entity.Storage;
 import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -45,6 +47,9 @@ public class StorageDetailController {
         model.addAttribute("storage", optionalStorage.get());
         return "booking";
     }
+
+
+
 
     // Xử lý submit booking
     @PostMapping("/storages/{id}/booking/save")
