@@ -32,10 +32,10 @@
     <p th:text="${storage.description}"></p>
 
     <div class="button-group">
-      <a th:href="@{'/SWP/manager-dashboard/storages/' + ${storage.getStorageid()} + '/edit' }" class="btn btn-edit">
+      <a th:href="@{'/admin/manager-dashboard/storages/' + ${storage.getStorageid()} + '/edit' }" class="btn btn-edit">
         <i class="fas fa-edit"></i> Edit
       </a>
-      <a th:href="@{'/SWP/manager-dashboard'}" class="btn btn-back">
+      <a th:href="@{'/admin/manager-dashboard'}" class="btn btn-back">
         <i class="fas fa-arrow-left"></i> Back
       </a>
     </div>

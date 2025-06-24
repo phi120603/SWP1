@@ -3,9 +3,12 @@ package com.example.swp.controller.website;
 import com.cloudinary.Cloudinary;
 import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Customer;
+import com.example.swp.entity.Order;
 import com.example.swp.entity.Storage;
+import com.example.swp.repository.OrderRepository;
 import com.example.swp.service.CloudinaryService;
 import com.example.swp.service.CustomerService;
+import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,7 +23,8 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/SWP/staff")
 public class StaffStorageController {
-
+    @Autowired
+    OrderRepository orderRepository;
     @Autowired
     StorageService storageService;
     @Autowired
@@ -29,7 +33,8 @@ public class StaffStorageController {
     Cloudinary cloudinary;
     @Autowired
     CloudinaryService cloudinaryService;
-
+    @Autowired
+    OrderService orderService;
     @GetMapping("/staff-dashboard")
     public String showDashboard(Model model) {
         List<Storage> storages = storageService.getAll();
@@ -38,12 +43,21 @@ public class StaffStorageController {
         List<Customer> customers = customerService.getAll();
         int totalUser = customers.size();
 
+        List<Order> orders=orderService.getAllOrders();
+        int totalOrders = orders.size();
+
+        double totalRevenue = orderRepository.calculateTotalRevenue();
+
+
         model.addAttribute("storages", storages);
         model.addAttribute("totalStorages", totalStorages);
         model.addAttribute("customers", customers);
         model.addAttribute("totalUser", totalUser);
+        model.addAttribute("orders", orders);
+        model.addAttribute("totalOrders", totalOrders);
+        model.addAttribute("totalRevenue", totalRevenue);
 
-        return "staff-dashboard";
+        return "/staff-dashboard";
     }
 
     @GetMapping("/customer-list")

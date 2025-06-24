@@ -15,7 +15,7 @@
     </div>
 
     <!-- Right: Form chỉnh sửa -->
-    <form th:action="@{'/SWP/manager-dashboard/storages/' + ${storage.storageid}}" method="post" class="right-panel">
+    <form th:action="@{'/admin/manager-dashboard/storages/' + ${storage.storageid}}" method="post" class="right-panel">
         <input type="hidden" name="_method" value="put"/>
         <h2>Chỉnh sửa kho</h2>
         <label>Tên kho:</label>
@@ -43,7 +43,7 @@
 
         <div class="button-group">
             <button type="submit" class="btn btn-update">Save</button>
-            <a th:href="@{'/SWP/manager-dashboard'}" class="btn btn-back">
+            <a th:href="@{'/admin/manager-dashboard'}" class="btn btn-back">
                 <i class="fas fa-arrow-left"></i> Cancel</a>
         </div>
     </form>
