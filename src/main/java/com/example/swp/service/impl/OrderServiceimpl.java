@@ -111,7 +111,7 @@ public class OrderServiceimpl implements OrderService {
     public double getRevenueApproved() {
         return orderRepository.findAll()
                 .stream()
-                .filter(order -> "Apporved".equalsIgnoreCase(order.getStatus()))
+                .filter(order -> "Approved".equalsIgnoreCase(order.getStatus()))
                 .mapToDouble(Order::getTotalAmount)
                 .sum();
     }
