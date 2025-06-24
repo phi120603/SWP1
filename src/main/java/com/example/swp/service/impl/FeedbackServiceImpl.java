@@ -26,13 +26,13 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
-    public List<Feedback> findByStaffId(int staffId) {
-        return feedbackRepository.findByStaffStaffid(staffId);
+    public List<Feedback> findByCustomerId(int customerId) {
+        return feedbackRepository.findByCustomerId(customerId);
     }
 
     @Override
-    public List<Feedback> findByCustomerId(int customerId) {
-        return feedbackRepository.findByCustomerId(customerId);
+    public List<Feedback> findByStorageId(int storageId) {
+        return feedbackRepository.findByStorageStorageid(storageId);
     }
 
     @Override

@@ -7,7 +7,8 @@ import java.util.Optional;
 public interface FeedbackService {
     List<Feedback> getAllFeedbacks();
     Optional<Feedback> getFeedbackById(int id);
-    List<Feedback> findByStaffId(int staffId);        // Optional
-    List<Feedback> findByCustomerId(int customerId);  // Optional
+    List<Feedback> findByCustomerId(int customerId);
+    List<Feedback> findByStorageId(int storageId);   // thêm dòng này
     Feedback save(Feedback feedback);
 }
+

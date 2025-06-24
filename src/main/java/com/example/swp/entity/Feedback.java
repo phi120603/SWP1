@@ -23,7 +23,6 @@ public class Feedback {
     private Customer customer;
 
     @ManyToOne
-    @JoinColumn(name = "staff_id")
-    private Staff staff;
-    // employee(staff)
+    @JoinColumn(name = "storage_id")
+    private Storage storage;
 }

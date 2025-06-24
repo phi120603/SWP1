@@ -18,12 +18,12 @@ public class FeedbackListController {
 
     @GetMapping("/feedbacks")
     public String listFeedbacks(
-            @RequestParam(value = "staffId", required = false) Integer staffId,
+            @RequestParam(value = "storageId", required = false) Integer storageId,
             @RequestParam(value = "customerId", required = false) Integer customerId,
             Model model) {
         List<Feedback> feedbacks;
-        if (staffId != null) {
-            feedbacks = feedbackService.findByStaffId(staffId);
+        if (storageId != null) {
+            feedbacks = feedbackService.findByStorageId(storageId);
         } else if (customerId != null) {
             feedbacks = feedbackService.findByCustomerId(customerId);
         } else {
@@ -32,4 +32,5 @@ public class FeedbackListController {
         model.addAttribute("feedbacks", feedbacks);
         return "feedback-list";
     }
+
 }

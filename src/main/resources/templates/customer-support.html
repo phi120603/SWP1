@@ -401,14 +401,18 @@
     }
 
     // Customer search
-    document.querySelector('.search-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            const searchTerm = this.value;
-            if (searchTerm) {
-                alert(`Searching for customer: ${searchTerm}`);
+    document.querySelector('.tool-input .btn-primary').addEventListener('click', function() {
+        const searchInput = document.querySelector('.tool-input .search-input');
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm) {
+            if (!isNaN(searchTerm)) {
+                window.location.href = `/SWP/customers?customerId=${encodeURIComponent(searchTerm)}`;
+            } else {
+                window.location.href = `/SWP/customers?name=${encodeURIComponent(searchTerm)}`;
             }
         }
     });
+
 
     // Auto-refresh activity every 30 seconds
     setInterval(function() {

@@ -1,48 +1,257 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Danh sách feedback</title>
-    <link rel="stylesheet" th:href="@{/order-list.css}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback List - QVL Storage</title>
+    <link rel="stylesheet" th:href="@{/feedback-list.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100">
-<nav class="navbar">
-    <ul>
-        <li><a href="/SWP">Home</a></li>
-        <li><a href="/SWP/orders">Orders</a></li>
-        <li><a href="/SWP/feedbacks">Feedbacks</a></li>
+<body>
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-database"></i>
+            <span>QVL Storage</span>
+        </div>
+    </div>
+    <ul class="sidebar-menu">
+        <li class="menu-item">
+            <a href="/SWP">
+                <i class="fas fa-home"></i>
+                <span>Trang chủ</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/orders">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Đơn hàng</span>
+            </a>
+        </li>
+        <li class="menu-item active" id="feedback-menu">
+            <a href="/SWP/feedbacks">
+                <i class="fas fa-comments"></i>
+                <span>Phản hồi</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/customers">
+                <i class="fas fa-users"></i>
+                <span>Khách hàng</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/revenue-statistics">
+                <i class="fas fa-chart-line"></i>
+                <span>Thống kê</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="#settings">
+                <i class="fas fa-cog"></i>
+                <span>Cài đặt</span>
+            </a>
+        </li>
     </ul>
+
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details">
+                <span class="user-name">Admin User</span>
+                <span class="user-role">Administrator</span>
+            </div>
+        </div>
+    </div>
 </nav>
-<div class="container">
-    <h1>Danh sách Feedback</h1>
 
-    <!-- Nếu muốn, có thể thêm form filter tìm kiếm ở đây -->
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>Feedback Management</h1>
+        </div>
 
-    <table>
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nội dung</th>
-            <th>Rating</th>
-            <th>Khách hàng</th>
-            <th>Nhân viên xử lý</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:if="${#lists.isEmpty(feedbacks)}">
-            <td colspan="5" class="empty-row">Không có feedback nào!</td>
-        </tr>
-        <tr th:each="fb : ${feedbacks}">
-            <td th:text="${fb.id}"></td>
-            <td th:text="${fb.content}"></td>
-            <td>
-                <span th:text="${fb.rating}"></span>
-                <span th:if="${fb.rating > 0}" style="color:#FFC107;">&#9733;</span>
-            </td>
-            <td th:text="${fb.customer != null ? fb.customer.fullname : 'Ẩn'}"></td>
-            <td th:text="${fb.staff != null ? fb.staff.fullname : 'Chưa xử lý'}"></td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+        <div class="header-right">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Tìm kiếm feedback..." id="searchInput">
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="page-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2 class="page-title">Danh sách Feedback</h2>
+            <div class="page-actions">
+                <button class="btn-secondary btn-back">
+                    <a href="/SWP" style="color: inherit; text-decoration: none;">
+                        <i class="fas fa-arrow-left"></i>
+                        Quay lại
+                    </a>
+                </button>
+                <button class="btn-secondary">
+                    <i class="fas fa-download"></i>
+                    Xuất dữ liệu
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <form action="/SWP/feedbacks" method="get" class="filter-form">
+                <div class="filter-group">
+                    <label for="rating">Đánh giá:</label>
+                    <select id="rating" name="rating" class="filter-select">
+                        <option value="">Tất cả đánh giá</option>
+                        <option value="5">5 sao</option>
+                        <option value="4">4 sao</option>
+                        <option value="3">3 sao</option>
+                        <option value="2">2 sao</option>
+                        <option value="1">1 sao</option>
+                    </select>
+                </div>
+            </form>
+
+            <form action="/SWP/feedbacks" method="get" class="search-form">
+                <div class="filter-group">
+                    <label for="customerId">Tìm theo ID:</label>
+                    <input type="number" id="customerId" name="customerId" placeholder="Nhập ID feedback..." class="filter-select">
+                    <button type="submit" class="btn-secondary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <button class="btn-secondary" onclick="clearFilters()">
+                <i class="fas fa-times"></i>
+                Xóa bộ lọc
+            </button>
+        </div>
+
+        <!-- Feedback Content -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Tất cả Feedback (<span id="totalCount" th:text="${#lists.size(feedbacks)}">0</span>)</h3>
+                <div class="card-actions">
+                    <button class="btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Xuất
+                    </button>
+                    <button class="btn-secondary">
+                        <i class="fas fa-print"></i>
+                        In
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" th:if="${#lists.isEmpty(feedbacks)}">
+                <div class="empty-content">
+                    <i class="fas fa-comment-slash"></i>
+                    <h3>Chưa có feedback nào</h3>
+                    <p>Feedback từ khách hàng sẽ hiển thị ở đây</p>
+                </div>
+            </div>
+
+            <!-- Feedback List -->
+            <div class="feedback-container" th:unless="${#lists.isEmpty(feedbacks)}">
+                <div class="feedback-item" th:each="fb : ${feedbacks}">
+                    <div class="feedback-card">
+                        <div class="feedback-header">
+                            <div class="feedback-id">
+                                <span class="id-badge">#<span th:text="${fb.id}">1</span></span>
+                            </div>
+                            <div class="rating-section">
+                                <div class="stars">
+                                    <i class="fas fa-star" th:each="i : ${#numbers.sequence(1, fb.rating)}"></i>
+                                    <i class="far fa-star" th:each="i : ${#numbers.sequence(fb.rating + 1, 5)}"></i>
+                                </div>
+                                <span class="rating-number" th:text="${fb.rating} + '/5'">5/5</span>
+                            </div>
+                        </div>
+
+                        <div class="feedback-content">
+                            <p class="feedback-text" th:text="${fb.content}">Nội dung feedback...</p>
+                        </div>
+
+                        <div class="feedback-footer">
+                            <div class="feedback-info">
+                                <div class="info-item">
+                                    <i class="fas fa-user"></i>
+                                    <span th:text="${fb.customer != null ? fb.customer.fullname : 'Ẩn danh'}">Khách hàng</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-warehouse"></i>
+                                    <span th:text="${fb.storage != null ? fb.storage.storagename : 'Không xác định'}">Kho</span>
+                                </div>
+                            </div>
+                            <div class="feedback-actions">
+                                <button class="btn-icon" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon" title="Trả lời">
+                                    <i class="fas fa-reply"></i>
+                                </button>
+                                <button class="btn-icon danger" title="Xóa">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" th:unless="${#lists.isEmpty(feedbacks)}">
+                <button><i class="fas fa-chevron-left"></i></button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const feedbackItems = document.querySelectorAll('.feedback-item');
+
+        feedbackItems.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    function clearFilters() {
+        document.getElementById('rating').value = '';
+        document.getElementById('customerId').value = '';
+        document.querySelector('.filter-form').submit();
+    }
+
+    // Sidebar toggle for mobile
+    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('open');
+    });
+
+    window.onload = function() {
+        var pathname = window.location.pathname;
+        if (pathname.includes("feedbacks")) {
+            document.getElementById('feedback-menu').classList.add('active');
+        }
+    };
+</script>
 </body>
 </html>

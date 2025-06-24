@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-
 public class Staff {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,11 +27,7 @@ public class Staff {
     private boolean sex;
     private String idCitizenCard;
 
-
     @OneToMany(mappedBy = "staff")
     private List<Contact> contacts;
-
-    @OneToMany(mappedBy = "staff")
-    private List<Feedback> feedbacks;
 
 }
