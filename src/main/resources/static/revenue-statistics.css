@@ -556,6 +556,13 @@ body {
     gap: 20px;
     padding: 30px;
 }
+
+.bar-fill.canceled {
+    background: #dc3545; /* Đỏ hoặc màu bạn muốn */
+    height: 8px; /* hoặc cùng chiều cao với các bar khác */
+    border-radius: 4px;
+    display: block;
+}
 .action-card {
     display: flex;
     align-items: center;

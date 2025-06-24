@@ -18,7 +18,9 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
@@ -91,7 +93,7 @@ public class OrderServiceimpl implements OrderService {
     public double getTotalRevenueAll() {
         return orderRepository.findAll()
                 .stream()
-                .filter(order -> !"REJECTED".equalsIgnoreCase(order.getStatus()))
+                .filter(order -> !"Rejected".equalsIgnoreCase(order.getStatus()))
                 .mapToDouble(Order::getTotalAmount)
                 .sum();
     }
@@ -100,7 +102,7 @@ public class OrderServiceimpl implements OrderService {
     public double getRevenuePaid() {
         return orderRepository.findAll()
                 .stream()
-                .filter(order -> "PAID".equalsIgnoreCase(order.getStatus()))
+                .filter(order -> "Paid".equalsIgnoreCase(order.getStatus()))
                 .mapToDouble(Order::getTotalAmount)
                 .sum();
     }
@@ -109,9 +111,18 @@ public class OrderServiceimpl implements OrderService {
     public double getRevenueApproved() {
         return orderRepository.findAll()
                 .stream()
-                .filter(order -> "APPROVED".equalsIgnoreCase(order.getStatus()))
+                .filter(order -> "Apporved".equalsIgnoreCase(order.getStatus()))
                 .mapToDouble(Order::getTotalAmount)
                 .sum();
+    }
+
+    // Trong OrderServiceImpl
+    @Override
+    public Map<String, Long> countOrdersByStatus() {
+        List<Order> orders = orderRepository.findAll();
+        return orders.stream().collect(
+                Collectors.groupingBy(Order::getStatus, Collectors.counting())
+        );
     }
 
 

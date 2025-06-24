@@ -243,42 +243,6 @@
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
-
-                <!-- Revenue Ratio Card -->
-                <div class="stat-card revenue-ratio">
-                    <div class="stat-header">
-                        <div class="stat-icon">
-                            <i class="fas fa-percentage"></i>
-                        </div>
-                        <div class="stat-trend positive">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>+5.2%</span>
-                        </div>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-number" id="paymentRatio">0%</div>
-                        <div class="stat-label">Tỉ lệ thanh toán</div>
-                        <div class="stat-description">Tỉ lệ đã thanh toán trên tổng doanh thu</div>
-                    </div>
-                    <div class="stat-footer">
-                        <div class="ratio-chart">
-                            <div class="chart-container">
-                                <div class="chart-segment paid" id="paidSegment"></div>
-                                <div class="chart-segment outstanding" id="outstandingSegment"></div>
-                            </div>
-                            <div class="chart-legend">
-                                <div class="legend-item">
-                                    <div class="legend-color paid"></div>
-                                    <span>Đã thanh toán</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color outstanding"></div>
-                                    <span>Chờ thanh toán</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -312,22 +276,29 @@
                                 <div class="chart-bar">
                                     <div class="bar-label">Đơn đã thanh toán</div>
                                     <div class="bar-container">
-                                        <div class="bar-fill paid" style="width: 70%"></div>
-                                        <span class="bar-value">70%</span>
+                                        <div class="bar-fill paid" th:style="'width:' + ${percentPaid} + '%;'"></div>
+                                        <span class="bar-value" th:text="${#numbers.formatDecimal(percentPaid,1,1)} + '%'">0%</span>
                                     </div>
                                 </div>
                                 <div class="chart-bar">
                                     <div class="bar-label">Đơn được duyệt</div>
                                     <div class="bar-container">
-                                        <div class="bar-fill approved" style="width: 25%"></div>
-                                        <span class="bar-value">25%</span>
+                                        <div class="bar-fill approved" th:style="'width:' + ${percentApproved} + '%;'"></div>
+                                        <span class="bar-value" th:text="${#numbers.formatDecimal(percentApproved,1,1)} + '%'">0%</span>
+                                    </div>
+                                </div>
+                                <div class="chart-bar">
+                                    <div class="bar-label">Đơn bị hủy</div>
+                                    <div class="bar-container">
+                                        <div class="bar-fill canceled" th:style="'width:' + ${percentRejected} + '%;'"></div>
+                                        <span class="bar-value" th:text="${#numbers.formatDecimal(percentRejected,1,1)} + '%'">0%</span>
                                     </div>
                                 </div>
                                 <div class="chart-bar">
                                     <div class="bar-label">Trạng thái khác</div>
                                     <div class="bar-container">
-                                        <div class="bar-fill other" style="width: 5%"></div>
-                                        <span class="bar-value">5%</span>
+                                        <div class="bar-fill other" th:style="'width:' + ${percentOther} + '%;'"></div>
+                                        <span class="bar-value" th:text="${#numbers.formatDecimal(percentOther,1,1)} + '%'">0%</span>
                                     </div>
                                 </div>
                             </div>
@@ -450,22 +421,6 @@
         day: 'numeric'
     });
 
-    // Calculate and display payment ratio
-    function calculatePaymentRatio() {
-        // Get values from Thymeleaf (these would be populated server-side)
-        const totalRevenue = parseFloat(document.querySelector('.total-revenue .stat-number').textContent.replace(/[^\d]/g, '')) || 1;
-        const paidRevenue = parseFloat(document.querySelector('.paid-revenue .stat-number').textContent.replace(/[^\d]/g, '')) || 0;
-
-        const ratio = Math.round((paidRevenue / totalRevenue) * 100);
-        document.getElementById('paymentRatio').textContent = ratio + '%';
-
-        // Update chart segments
-        const paidSegment = document.getElementById('paidSegment');
-        const outstandingSegment = document.getElementById('outstandingSegment');
-
-        paidSegment.style.width = ratio + '%';
-        outstandingSegment.style.width = (100 - ratio) + '%';
-    }
 
     // Animate stat cards on load
     function animateStatCards() {
@@ -497,7 +452,6 @@
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
-        calculatePaymentRatio();
         animateStatCards();
         autoRefresh();
     });

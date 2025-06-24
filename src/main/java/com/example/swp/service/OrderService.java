@@ -8,6 +8,7 @@ import com.example.swp.entity.Storage;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 @Service
 public interface OrderService {
@@ -26,5 +27,7 @@ public interface OrderService {
     double getTotalRevenueAll(); // Tổng tiền các đơn trừ REJECTED
     double getRevenuePaid();     // Tiền khách đã trả (PAID)
     double getRevenueApproved(); // Tiền khách còn nợ (APPROVED)
+
+    Map<String, Long> countOrdersByStatus();
 
 }
