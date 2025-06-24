@@ -7,7 +7,7 @@ import com.example.swp.entity.Order;
 import com.example.swp.entity.Storage;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.OrderRepository;
-import com.example.swp.repository.StorageReponsitory;
+import com.example.swp.repository.StorageRepository;
 import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
