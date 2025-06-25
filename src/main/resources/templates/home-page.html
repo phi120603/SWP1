@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="/css/home-page.css">
   <style>
     * {
@@ -850,87 +849,42 @@
         padding: 60px 0;
       }
     }
-    .profile-menu {
-      position: relative;
-      display: inline-block;
-    }
-
-    .profile-menu > a {
-      display: flex;
-      align-items: center;
-      padding: 0 12px;
-      cursor: pointer;
-    }
-
-    .profile-dropdown {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 44px;
-      background: white;
-      min-width: 210px;
-      box-shadow: 0 8px 32px rgba(44, 62, 80, 0.14);
-      border-radius: 12px;
-      z-index: 999;
-      padding: 12px 0;
-      animation: fadeInDown 0.25s;
-    }
-
-    .profile-dropdown li {
-      list-style: none;
-    }
-
-    .profile-dropdown a {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #2c3e50;
-      text-decoration: none;
-      padding: 10px 22px;
-      font-size: 1rem;
-      transition: background 0.17s;
-    }
-
-    .profile-dropdown a:hover {
-      background: #f0f0f7;
-      color: #8B5CF6;
-    }
-
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-18px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
-
   </style>
 </head>
 <body>
 <!-- Navigation -->
-<nav class="navbar">
-  <div class="nav-container">
-    <div class="logo">QVL Storage</div>
-    <ul class="nav-links">
-      <li><a th:href="@{/home-page}">Home</a></li>
+<nav class="navbar" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
+  <div class="nav-container" style="display: flex; align-items: center; gap: 30px;">
+    <div class="logo" style="font-weight: bold; font-size: 24px;">QVL Storage</div>
+    <ul class="nav-links" style="display: flex; gap: 20px; list-style: none; margin: 0; padding: 0;">
+      <li><a th:href="@{/}">Home</a></li>
       <li><a th:href="@{/SWP/issues/create}">Tạo Issue</a></li>
       <li><a th:href="@{/SWP/storages}">List</a></li>
-      <li>
-        <!-- Đăng xuất nút bên phải -->
-        <span style="font-weight: bold; color: white; margin-left: 10px; letter-spacing: 1px; float: right;">
+      <li><a th:href="@{/customer/support}">Hỗ trợ</a></li>
+      <li><a href="/SWP/customers/my-bookings">Đơn hàng của tôi</a></li>
 
-        </span>
-      </li>
-      <!-- Profile Menu (icon người) -->
-      <li class="profile-menu">
-        <a href="javascript:void(0);" id="profileMenuBtn" title="Tài khoản">
-          <i class="fa fa-user-circle" style="font-size: 1.8rem; color: white;"></i>
-        </a>
-        <ul class="profile-dropdown" id="profileDropdown">
-          <li><a th:href="@{/profile(tab='info')}" href="/profile?tab=info"><i class="fa fa-id-card"></i> Thông tin cá nhân</a></li>
-          <li><a th:href="@{/profile(tab='update')}" href="/profile?tab=update"><i class="fa fa-edit"></i> Cập nhật thông tin</a></li>
-          <li><a th:href="@{/profile(tab='forgot')}" href="/profile?tab=forgot"><i class="fa fa-unlock-alt"></i> Quên mật khẩu</a></li>
-          <li><a th:href="@{/logout}" href="/logout"><i class="fa fa-sign-out-alt"></i> Đăng xuất</a></li>
-        </ul>
-      </li>
     </ul>
+  </div>
+
+  <!-- User Menu bên phải -->
+  <div class="user-menu" style="display: flex; align-items: center; gap: 15px;">
+
+    <!-- Chưa đăng nhập -->
+    <div th:if="${not #authorization.expression('isAuthenticated()')}">
+      <a th:href="@{/api/login}" class="btn btn-primary" style="padding: 8px 12px; background: #007bff; color: white; border-radius: 5px; text-decoration: none;">Đăng nhập</a>
+    </div>
+
+    <!-- Đã đăng nhập -->
+    <div th:if="${#authorization.expression('isAuthenticated()')}" style="display: flex; align-items: center; gap: 10px;">
+      <div class="user-avatar">
+        <i class="fas fa-user"></i>
+      </div>
+      <form th:action="@{/logout}" method="post" style="margin: 0;">
+        <button type="submit" class="logout-link btn" style="background: none; border: none; color: #d0d0d0; cursor: pointer;">
+          <i class="fas fa-sign-out-alt"></i> Đăng xuất
+        </button>
+      </form>
+    </div>
   </div>
 </nav>
 
@@ -1224,22 +1178,5 @@
   // Auto-slide every 5 seconds
   setInterval(nextTestimonial, 5000);
 </script>
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const btn = document.getElementById("profileMenuBtn");
-    const dropdown = document.getElementById("profileDropdown");
-    btn.addEventListener("click", function(e) {
-      e.preventDefault();
-      dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
-    });
-    // Đóng menu khi click ngoài vùng
-    window.addEventListener("click", function(event) {
-      if (!btn.contains(event.target) && !dropdown.contains(event.target)) {
-        dropdown.style.display = "none";
-      }
-    });
-  });
-</script>
-
 </body>
 </html>
