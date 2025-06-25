@@ -30,5 +30,6 @@ public interface OrderService {
 
     Map<String, Long> countOrdersByStatus();
 
+    void deleteById(int id);
     List<Order> getLast5orders();
 }

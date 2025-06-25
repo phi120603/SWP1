@@ -5,11 +5,12 @@ import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Order;
 import com.example.swp.entity.Storage;
-import com.example.swp.repository.OrderRepository;
+import com.example.swp.entity.Feedback; // Thêm dòng này
 import com.example.swp.service.CloudinaryService;
 import com.example.swp.service.CustomerService;
 import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageService;
+import com.example.swp.service.FeedbackService; // Thêm dòng này
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,8 +24,7 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/SWP/staff")
 public class StaffStorageController {
-    @Autowired
-    OrderRepository orderRepository;
+
     @Autowired
     StorageService storageService;
     @Autowired
@@ -35,6 +35,9 @@ public class StaffStorageController {
     CloudinaryService cloudinaryService;
     @Autowired
     OrderService orderService;
+    @Autowired
+    FeedbackService feedbackService; // Thêm dòng này
+
     @GetMapping("/staff-dashboard")
     public String showDashboard(Model model) {
         List<Storage> storages = storageService.getAll();
@@ -43,34 +46,36 @@ public class StaffStorageController {
         List<Customer> customers = customerService.getAll();
         int totalUser = customers.size();
 
-        List<Order> orders=orderService.getAllOrders();
-        int totalOrders = orders.size();
+        List<Order> orders = orderService.getAllOrders();
+        model.addAttribute("orders", orders);
 
-        double totalRevenue = orderRepository.calculateTotalRevenue();
-
+        // LẤY FEEDBACKS Ở ĐÂY
+        List<Feedback> feedbacks = feedbackService.getAllFeedbacks();
+        int totalFeedback = feedbacks.size();
 
         model.addAttribute("storages", storages);
         model.addAttribute("totalStorages", totalStorages);
         model.addAttribute("customers", customers);
         model.addAttribute("totalUser", totalUser);
-        model.addAttribute("orders", orders);
-        model.addAttribute("totalOrders", totalOrders);
-        model.addAttribute("totalRevenue", totalRevenue);
 
-        return "/staff-dashboard";
+        // TRUYỀN FEEDBACKS VÀO VIEW
+        model.addAttribute("feedbacks", feedbacks);
+        model.addAttribute("totalFeedback", totalFeedback);
+
+        return "staff-dashboard";
     }
 
     @GetMapping("/customer-list")
     public String showUserList(Model model) {
         List<Customer> customers = customerService.getAll();
         model.addAttribute("customers", customers);
-        return "customer-list"; // Trang HTML hiển thị danh sách người dùng
+        return "customer-list";
     }
 
     @GetMapping("/addstorage")
     public String showAddStorageForm(Model model) {
         model.addAttribute("storage", new Storage());
-        return "addstorage"; // Trang HTML chứa form
+        return "addstorage";
     }
 
     @GetMapping("/storages/{id}/detail")
@@ -78,39 +83,85 @@ public class StaffStorageController {
         Optional<Storage> optionalStorage = storageService.findByID(id);
         if (optionalStorage.isPresent()) {
             model.addAttribute("storage", optionalStorage.get());
-            return "staff-storage-detail"; // Tên file Thymeleaf
+            return "staff-storage-detail";
         } else {
             redirectAttributes.addFlashAttribute("message", "Kho không tồn tại!");
-            return "redirect:/SWP/staff/staff-dashboard"; // Điều hướng về dashboard nếu không tìm thấy
+            return "redirect:/SWP/staff/staff-dashboard";
         }
+    }
+
+    @GetMapping("/staff-all-storage")
+    public String showAllStorageList(Model model) {
+        List<Storage> storages = storageService.getAll();
+        model.addAttribute("storages", storages);
+        return "staff-all-storage";
     }
 
     @PostMapping("/addstorage")
     public String addStorage(@ModelAttribute StorageRequest storageRequest,
                              @RequestParam("image") MultipartFile file,
+                             @RequestParam("returnUrl") String returnUrl,
                              RedirectAttributes redirectAttributes) {
         try {
-            // Upload ảnh
             if (file != null && !file.isEmpty()) {
                 String imageUrl = cloudinaryService.uploadImage(file);
                 storageRequest.setImUrl(imageUrl);
             }
-
-            // Gọi service lưu vào DB
             storageService.createStorage(storageRequest);
             redirectAttributes.addFlashAttribute("message", "Thêm kho thành công!");
         } catch (Exception e) {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("message", "Lỗi khi thêm kho.");
         }
-        return "redirect:/SWP/storages"; // Điều hướng sau khi thêm
+        return "redirect:" + returnUrl;
     }
 
-
     @PostMapping("/storages/{id}/delete")
-    public String deleteStorage(@PathVariable int id, RedirectAttributes redirectAttributes) {
+    public String deleteStorage(@PathVariable("id") int id,
+                                @RequestParam(value = "returnUrl", required = false) String returnUrl,
+                                RedirectAttributes redirectAttributes) {
         storageService.deleteStorageById(id);
-        redirectAttributes.addFlashAttribute("message", "Đã xoá kho thành công!");
-        return "redirect:/SWP/manager-dashboard"; // hoặc "/SWP/storages" nếu bạn có
+        redirectAttributes.addFlashAttribute("message", "Storage deleted successfully");
+        if (returnUrl == null || returnUrl.isEmpty()) {
+            return "redirect:/SWP/staff/staff-all-storage";
+        }
+        return "redirect:" + returnUrl;
+    }
+
+    @PostMapping("/storages/{id}/edit")
+    public String editStorage(@PathVariable int id,
+                              @ModelAttribute Storage storage,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            Optional<Storage> existingStorageOpt = storageService.findByID(id);
+            if (existingStorageOpt.isPresent()) {
+                Storage existingStorage = existingStorageOpt.get();
+
+                StorageRequest storageRequest = new StorageRequest();
+                storageRequest.setStoragename(storage.getStoragename());
+                storageRequest.setAddress(storage.getAddress());
+                storageRequest.setState(storage.getState());
+                storageRequest.setCity(storage.getCity());
+                storageRequest.setDescription(storage.getDescription());
+
+                storageRequest.setArea(existingStorage.getArea());
+                storageRequest.setPricePerDay(existingStorage.getPricePerDay());
+                storageRequest.setStatus(existingStorage.isStatus());
+                storageRequest.setImUrl(existingStorage.getImUrl());
+
+                storageService.updateStorage(storageRequest, existingStorage);
+
+                redirectAttributes.addFlashAttribute("message", "Cập nhật kho thành công!");
+                redirectAttributes.addFlashAttribute("messageType", "success");
+            } else {
+                redirectAttributes.addFlashAttribute("message", "Không tìm thấy kho để cập nhật!");
+                redirectAttributes.addFlashAttribute("messageType", "error");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("message", "Lỗi khi cập nhật kho: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("messageType", "error");
+        }
+        return "redirect:/SWP/staff/storages/" + id + "/detail";
     }
 }
