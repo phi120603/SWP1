@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Quản lý tài khoản khách hàng</title>
+  <meta charset="UTF-8">
+  <style>
+    .tab-btns { display: flex; gap: 10px; margin-bottom: 20px; }
+    .tab-btns button { padding: 10px 18px; border: none; border-radius: 5px; background: #eee; cursor: pointer; }
+    .tab-btns .active { background: #34495e; color: #fff; }
+    .tab-content { display: none; padding: 20px 0; }
+    .tab-content.active { display: block; }
+    .form-group { margin-bottom: 14px; }
+    label { font-weight: bold; }
+    input[type="text"], input[type="email"] { padding: 6px 10px; width: 280px; border-radius: 4px; border: 1px solid #ccc; }
+    button[type="submit"] { padding: 8px 20px; background: #34495e; color: #fff; border: none; border-radius: 5px; }
+    .success { color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+<h2>Quản lý tài khoản khách hàng</h2>
+<div class="tab-btns">
+  <button id="profileTabBtn" class="active" onclick="showTab('profile')">Xem hồ sơ</button>
+  <button id="updateTabBtn" onclick="showTab('update')">Cập nhật thông tin</button>
+  <button id="forgotTabBtn" onclick="showTab('forgot')">Quên mật khẩu</button>
+</div>
+<!-- Tab 1: Profile -->
+<div id="profileTab" class="tab-content active">
+  <h3>Hồ sơ cá nhân</h3>
+  <div>
+    <p><b>Họ tên:</b> <span th:text="${customer.fullname}"></span></p>
+    <p><b>Email:</b> <span th:text="${customer.email}"></span></p>
+    <p><b>Số điện thoại:</b> <span th:text="${customer.phone}"></span></p>
+    <p><b>Địa chỉ:</b> <span th:text="${customer.address}"></span></p>
+  </div>
+</div>
+<!-- Tab 2: Update -->
+<div id="updateTab" class="tab-content">
+  <h3>Cập nhật thông tin</h3>
+  <form th:action="@{/update-profile}" th:object="${customer}" method="post">
+    <div class="form-group">
+      <label>Họ tên: </label>
+      <input type="text" th:field="*{fullname}" required />
+    </div>
+    <div class="form-group">
+      <label>Email: </label>
+      <input type="email" th:field="*{email}" readonly />
+    </div>
+    <div class="form-group">
+      <label>Số điện thoại: </label>
+      <input type="text" th:field="*{phone}" required />
+    </div>
+    <div class="form-group">
+      <label>Địa chỉ: </label>
+      <input type="text" th:field="*{address}" />
+    </div>
+    <button type="submit">Cập nhật</button>
+    <span th:if="${success}" th:text="${success}" class="success"></span>
+  </form>
+</div>
+<!-- Tab 3: Forgot password -->
+<div id="forgotTab" class="tab-content">
+  <h3>Quên mật khẩu</h3>
+  <form th:action="@{/forgot-password}" method="post">
+    <div class="form-group">
+      <label>Email: </label>
+      <input type="email" name="email" required />
+    </div>
+    <button type="submit">Gửi lại mật khẩu</button>
+    <span th:if="${message}" th:text="${message}" class="success"></span>
+    <span th:if="${error}" th:text="${error}" class="error"></span>
+  </form>
+</div>
+<script>
+  function showTab(tab) {
+    document.getElementById('profileTab').classList.remove('active');
+    document.getElementById('updateTab').classList.remove('active');
+    document.getElementById('forgotTab').classList.remove('active');
+    document.getElementById(tab + 'Tab').classList.add('active');
+    document.getElementById('profileTabBtn').classList.remove('active');
+    document.getElementById('updateTabBtn').classList.remove('active');
+    document.getElementById('forgotTabBtn').classList.remove('active');
+    document.getElementById(tab + 'TabBtn').classList.add('active');
+  }
+</script>
+</body>
+</html>
