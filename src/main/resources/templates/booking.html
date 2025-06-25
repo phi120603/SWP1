@@ -58,7 +58,8 @@
         <div th:if="${storage != null}">
           <!-- Hidden inputs -->
           <input type="hidden" id="storageId" th:value="${storage.storageid ?: ''}" />
-          <input type="hidden" id="customerId" value="1" />
+          <input type="hidden" id="customerId" th:value="${customer.id}" />
+
           <input type="hidden" id="pricePerDay" th:value="${storage.pricePerDay ?: 0}" />
 
           <!-- Storage Info -->

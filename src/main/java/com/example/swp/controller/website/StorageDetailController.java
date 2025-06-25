@@ -96,7 +96,7 @@ public class StorageDetailController {
         order.setOrderDate(LocalDate.now());
         order.setTotalAmount(total);
         order.setStatus("PENDING");
-
+        order.setCustomer(customer);
         orderService.save(order);
 
         return "redirect:/SWP/storages/" + id + "?message=Booking thành công!";
