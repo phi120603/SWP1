@@ -262,6 +262,12 @@ body {
     margin-bottom: 30px;
 }
 
+/* Làm cho thẻ card chiếm toàn bộ chiều ngang grid */
+.full-width-card {
+    grid-column: 1 / -1;
+}
+
+
 /* Cards */
 .card {
     background: white;

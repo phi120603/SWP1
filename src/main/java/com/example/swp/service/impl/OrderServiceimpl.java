@@ -142,5 +142,10 @@ public class OrderServiceimpl implements OrderService {
         );
     }
 
+    @Override
+    public List<Order> getLast5orders() {
+        return orderRepository.findTop5ByOrderByOrderDateDesc();
+    }
+
 
 }

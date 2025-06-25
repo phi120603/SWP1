@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,9 +8,13 @@
     <link rel="stylesheet" th:href="@{/css/manager.css}">
 </head>
 <body>
+
+<!-- Sidebar / Taskbar -->
 <div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
+
 <!-- Main Content -->
 <main class="main-content">
+
     <!-- Header -->
     <header class="header">
         <div class="header-left">
@@ -20,20 +23,20 @@
             </button>
             <h1>Storage Dashboard</h1>
         </div>
-
         <div class="header-right">
             <div class="search-box">
                 <i class="fas fa-search"></i>
                 <input type="text" placeholder="Search storage units, items...">
-            </div>
             </div>
         </div>
     </header>
 
     <!-- Dashboard Content -->
     <div class="dashboard-content">
+
         <!-- Stats Cards -->
         <div class="stats-grid">
+
             <div class="stat-card">
                 <div class="stat-icon storage">
                     <i class="fas fa-warehouse"></i>
@@ -70,21 +73,22 @@
                 </div>
                 <div class="stat-info">
                     <h3>Monthly Revenue</h3>
-                    <p th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'"></p>
+                    <p th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'">0 VND</p>
                 </div>
             </div>
+
         </div>
 
         <!-- Charts and Tables Section -->
         <div class="content-grid">
+
             <!-- Storage Utilization Chart -->
             <div class="card chart-card">
                 <div class="card-header">
-                    <h3>Storage Utilization</h3>
+                    <h3>Doanh thu theo tháng</h3>
                     <div class="card-actions">
                         <button class="btn-secondary">
-                            <i class="fas fa-download"></i>
-                            Export
+                            <i class="fas fa-download"></i> Export
                         </button>
                     </div>
                 </div>
@@ -99,65 +103,34 @@
             <div class="card activity-card">
                 <div class="card-header">
                     <h3>Notification</h3>
-                    <a href="#" class="view-all">View All</a>
+                    <a th:href="@{/SWP/orders}" class="view-all">View All</a>
                 </div>
                 <div class="activity-list">
-                    <div class="activity-item">
-                        <div class="activity-icon added">
-                            <i class="fas fa-plus"></i>
+                    <th:block th:each="order : ${latestOrders}">
+                        <div class="activity-item">
+                            <div class="activity-icon added">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <div class="activity-details">
+                                <p th:text="'Order #' + ${order.getId()}"></p>
+                                <p><strong th:text="${order.getStatus()}">Order description</strong></p>
+                                <span class="activity-time" th:text="${#temporals.format(order.getOrderDate(), 'HH:mm dd/MM/yyyy')}">01/01/2025</span>
+                            </div>
                         </div>
-                        <div class="activity-details">
-                            <p><strong>New item added</strong> to Unit A-205</p>
-                            <span class="activity-time">2 minutes ago</span>
-                        </div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon moved">
-                            <i class="fas fa-exchange-alt"></i>
-                        </div>
-                        <div class="activity-details">
-                            <p><strong>Items transferred</strong> from Unit B-101 to C-304</p>
-                            <span class="activity-time">15 minutes ago</span>
-                        </div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon alert">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="activity-details">
-                            <p><strong>Low capacity alert</strong> for Unit D-450</p>
-                            <span class="activity-time">1 hour ago</span>
-                        </div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon removed">
-                            <i class="fas fa-minus"></i>
-                        </div>
-                        <div class="activity-details">
-                            <p><strong>Items removed</strong> from Unit A-102</p>
-                            <span class="activity-time">3 hours ago</span>
-                        </div>
-                    </div>
+                    </th:block>
                 </div>
             </div>
-        </div>
 
-        <!-- Storage Units Table -->
-        <div class="card table-card">
-            <div class="card-header">
-                <h3>Storage Units Overview</h3>
-                <div class="card-actions">
-                    <button class="btn-primary">
-                        <a href="/admin/addstorage" style="color: white; text-decoration: none;">
-                        <i class="fas fa-plus"></i>
-                        Add Unit
-                        </a>
-                    </button>
-
-                        <!-- Filter dropdown -->
+            <!-- Storage Units Table -->
+            <div class="card table-card full-width-card">
+                <div class="card-header">
+                    <h3>Storage Units Overview</h3>
+                    <div class="card-actions">
+                        <button class="btn-primary">
+                            <a href="/admin/addstorage" style="color: white; text-decoration: none;">
+                                <i class="fas fa-plus"></i> Add Unit
+                            </a>
+                        </button>
                         <select class="btn btn-secondary" style="padding: 8px 12px; border-radius: 5px;">
                             <option value="" disabled selected>Filter By</option>
                             <option value="all">Lọc theo tên</option>
@@ -165,68 +138,71 @@
                             <option value="price">Lọc theo giá</option>
                             <option value="status">Lọc theo tình trạng</option>
                             <option value="city">Lọc theo thành phố</option>
-                            <!-- thêm các option khác nếu cần -->
                         </select>
                     </div>
-
                 </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Storage ID</th>
+                            <th>Ảnh Minh Họa</th>
+                            <th>Tên Kho</th>
+                            <th>Diện Tích</th>
+                            <th>Giá thuê theo ngày</th>
+                            <th>Mô Tả</th>
+                            <th>Tình Trạng Kho</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="storage : ${storages}">
+                            <td th:text="${storage.storageid}">1</td>
+                            <td>
+                                <img th:src="${storage.imUrl}" alt="Ảnh kho"
+                                     style="width: 100px; height: auto; object-fit: cover;">
+                            </td>
+                            <td th:text="${storage.storagename}">Tên Kho</td>
+                            <td th:text="${storage.area}">0 m2</td>
+                            <td th:text="${storage.pricePerDay}">0</td>
+                            <td th:text="${storage.description}">Mô tả</td>
+                            <td>
+                                <span th:class="${storage.status} ? 'status-badge active' : 'status-badge warning'"
+                                      th:text="${storage.status} ? 'Còn trống' : 'Đang thuê'"></span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a th:href="@{'/admin/manager-dashboard/storages/' + ${storage.storageid}}"
+                                       class="btn-icon" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a th:href="@{'/admin/manager-dashboard/storages/' + ${storage.storageid} + '/edit'}"
+                                       class="btn-icon" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form th:action="@{'/admin/storages/' + ${storage.storageid} + '/delete'}"
+                                          method="post"
+                                          onsubmit="return confirm('Bạn có chắc muốn xoá kho này không?');">
+                                        <input type="hidden" name="_method" value="delete"/>
+                                        <button type="submit" class="btn-icon danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
 
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                    <tr>
-                        <th>Storage ID</th>
-                        <th>Ảnh Minh Họa</th>
-                        <th>Tên Kho</th>
-                        <th>Diện Tích</th>
-                        <th>Giá thuê theo ngày</th>
-                        <th>Mô Tả</th>
-                        <th>Tình Trạng Kho</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="storage : ${storages}">
-                        <td th:text="${storage.getStorageid()}"></td>
-                        <td>
-                            <img th:src="${storage.getImUrl()}" alt="Ảnh kho" style="width: 100px; height: auto; object-fit: cover;">
-                        </td>
-                        <td th:text="${storage.getStoragename()}"></td>
-                        <td th:text="${storage.getArea()}"></td>
-                        <td th:text="${storage.getPricePerDay()}"></td>
-                        <td th:text="${storage.getDescription()}"></td>
-                        <td>
-                            <span th:class="${storage.isStatus()} ? 'status-badge active' : 'status-badge warning'"
-                                  th:text="${storage.isStatus()} ? 'Còn trống' : 'Đang thuê'"></span>
-                        </td>
-                        <td>
-                            <div class="action-buttons">
-                                <!-- Nút xem -->
-                                <a th:href="@{'/admin/manager-dashboard/storages/' + ${storage.getStorageid()}}" class="btn-icon" title="View Details">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-
-
-                                <!-- Nút chỉnh sửa -->
-                                <a th:href="@{'/admin/manager-dashboard/storages/' + ${storage.getStorageid()} + '/edit'}" class="btn-icon" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-
-                                <!-- Nút xoá -->
-                                <form th:action="@{'/admin/storages/' + ${storage.getStorageid()} + '/delete'}" method="post" onsubmit="return confirm('Bạn có chắc muốn xoá kho này không?');">
-                                    <input type="hidden" name="_method" value="delete"/>
-                                    <button type="submit" class="btn-icon danger" title="Delete">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
         </div>
+
+    </div>
+
 </main>
+
 </body>
 </html>

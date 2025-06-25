@@ -20,6 +20,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = 'PAID'")
     Double calculateTotalRevenue();
+
+    List<Order> findTop5ByOrderByOrderDateDesc();
 }
 
 

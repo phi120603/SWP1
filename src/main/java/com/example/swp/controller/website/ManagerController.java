@@ -70,6 +70,9 @@ public class ManagerController {
         List<Staff> staff = staffService.getAllStaff();
         int totalStaff = staff.size();
 
+        List<Order> latestOrders = orderService.getLast5orders();
+
+
         double totalRevenue = orderRepository.calculateTotalRevenue();
 
 
@@ -79,6 +82,7 @@ public class ManagerController {
         model.addAttribute("totalUser", totalUser);
         model.addAttribute("staff", staff);
         model.addAttribute("totalStaff", totalStaff);
+        model.addAttribute("latestOrders", latestOrders);
         model.addAttribute("totalRevenue", totalRevenue);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

@@ -38,9 +38,7 @@ public class LoginRestController {
     @Autowired
     private CustomerService customerService;
 
-    /**
-     * Trả về trang login (HTML).
-     */
+
     @GetMapping("/login")
     public String returnLoginPage(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -48,12 +46,10 @@ public class LoginRestController {
             return "redirect:/home-page"; // Đã login → về home
         }
         model.addAttribute("sessionId", session.getId());
-        return "login"; // Trả về file login.html trong templates
+        return "login";
     }
 
-    /**
-     * Xử lý login bằng JSON (AJAX từ JS).
-     */
+
     @PostMapping("/login")
     @ResponseBody
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
@@ -119,9 +115,7 @@ public class LoginRestController {
         }
     }
 
-    /**
-     * Logout → xoá session & security context.
-     */
+
     @GetMapping("/logout")
     public String logout() {
         SecurityContextHolder.clearContext();
@@ -129,9 +123,7 @@ public class LoginRestController {
         return "redirect:/api/login"; // Chuyển về trang login
     }
 
-    /**
-     * Kiểm tra trạng thái đăng nhập.
-     */
+
     @GetMapping("/check-session")
     @ResponseBody
     public ResponseEntity<String> checkSession() {

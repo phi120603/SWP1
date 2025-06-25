@@ -30,4 +30,5 @@ public interface OrderService {
 
     Map<String, Long> countOrdersByStatus();
 
+    List<Order> getLast5orders();
 }
