@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Customer - QVL Storage</title>
+    <title>Thêm khách hàng mới - QVL Storage</title>
     <link rel="stylesheet" th:href="@{/customer-create.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -20,55 +20,55 @@
         <li class="menu-item">
             <a href="/SWP">
                 <i class="fas fa-home"></i>
-                <span>Home</span>
+                <span>Trang chủ</span>
             </a>
         </li>
         <li class="menu-item">
             <a href="/SWP/staff/staff-dashboard">
                 <i class="fas fa-tachometer-alt"></i>
-                <span>Dashboard</span>
+                <span>Bảng điều khiển</span>
             </a>
         </li>
         <li class="menu-item">
             <a href="addstorage">
                 <i class="fas fa-hdd"></i>
-                <span>Add Storage</span>
+                <span>Thêm kho</span>
             </a>
         </li>
         <li class="menu-item">
             <a href="/SWP/staff/staff-all-storage">
                 <i class="fas fa-warehouse"></i>
-                <span>Storage List</span>
+                <span>Danh sách kho</span>
             </a>
         </li>
         <li class="menu-item">
             <a href="/SWP/orders">
                 <i class="fas fa-chart-bar"></i>
-                <span>Order List</span>
+                <span>Danh sách đơn hàng</span>
             </a>
         </li>
         <li class="menu-item">
             <a href="#inventory">
                 <i class="fas fa-boxes"></i>
-                <span>Feedback</span>
+                <span>Phản hồi</span>
             </a>
         </li>
         <li class="menu-item">
             <a href="#reports">
                 <i class="fas fa-file-alt"></i>
-                <span>Reports</span>
+                <span>Báo cáo</span>
             </a>
         </li>
         <li class="menu-item active">
             <a href="/SWP/customers">
                 <i class="fas fa-users"></i>
-                <span>Customer List</span>
+                <span>Danh sách khách hàng</span>
             </a>
         </li>
         <li class="menu-item">
             <a href="#settings">
                 <i class="fas fa-cog"></i>
-                <span>Settings</span>
+                <span>Cài đặt</span>
             </a>
         </li>
     </ul>
@@ -80,7 +80,7 @@
             </div>
             <div class="user-details">
                 <span class="user-name">Admin User</span>
-                <span class="user-role">Administrator</span>
+                <span class="user-role">Quản trị viên</span>
             </div>
         </div>
     </div>
@@ -94,14 +94,14 @@
             <button class="sidebar-toggle">
                 <i class="fas fa-bars"></i>
             </button>
-            <h1>Create New Customer</h1>
+            <h1>Thêm khách hàng mới</h1>
         </div>
 
         <div class="header-right">
             <div class="breadcrumb">
-                <a href="/SWP/customers">Customers</a>
+                <a href="/SWP/customers">Khách hàng</a>
                 <i class="fas fa-chevron-right"></i>
-                <span>Create New</span>
+                <span>Thêm mới</span>
             </div>
         </div>
     </header>
@@ -115,9 +115,9 @@
                     <i class="fas fa-user-plus"></i>
                 </div>
                 <div class="customer-title">
-                    <h2 class="page-title">Add New Customer</h2>
+                    <h2 class="page-title">Thêm khách hàng mới</h2>
                     <p class="customer-subtitle">
-                        <span>Create a new customer account with complete information</span>
+                        <span>Tạo tài khoản khách hàng mới với đầy đủ thông tin</span>
                     </p>
                 </div>
             </div>
@@ -125,12 +125,12 @@
                 <button class="btn-secondary btn-back">
                     <a href="/SWP/customers" style="color: inherit; text-decoration: none;">
                         <i class="fas fa-arrow-left"></i>
-                        Back to List
+                        Quay lại danh sách
                     </a>
                 </button>
                 <button class="btn-secondary" onclick="clearForm()">
                     <i class="fas fa-eraser"></i>
-                    Clear Form
+                    Xóa dữ liệu
                 </button>
             </div>
         </div>
@@ -140,17 +140,18 @@
             <div class="card-header">
                 <h3>
                     <i class="fas fa-user-plus"></i>
-                    Customer Registration Form
+                    Mẫu đăng ký khách hàng
                 </h3>
                 <div class="form-progress">
                     <div class="progress-bar">
                         <div class="progress-fill" id="progressFill"></div>
                     </div>
-                    <span class="progress-text" id="progressText">0% Complete</span>
+                    <span class="progress-text" id="progressText">0% Hoàn thành</span>
                 </div>
             </div>
 
             <div class="card-content">
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
                 <form th:action="@{/SWP/customers/create}"
                       th:object="${customer}"
                       method="post"
@@ -162,63 +163,64 @@
                         <div class="section-header">
                             <h4>
                                 <i class="fas fa-user"></i>
-                                Personal Information
+                                Thông tin cá nhân
                             </h4>
-                            <div class="section-badge">Required</div>
+                            <div class="section-badge">Bắt buộc</div>
                         </div>
 
                         <div class="form-grid">
                             <div class="form-group">
+
                                 <label for="fullname" class="form-label">
                                     <i class="fas fa-user"></i>
-                                    Full Name *
+                                    Họ và tên *
                                 </label>
                                 <input type="text"
                                        id="fullname"
                                        th:field="*{fullname}"
                                        required
                                        class="form-input"
-                                       placeholder="Enter customer's full name">
+                                       placeholder="Nhập họ và tên khách hàng">
                                 <div class="form-error" id="fullname-error"></div>
                             </div>
 
                             <div class="form-group">
                                 <label for="email" class="form-label">
                                     <i class="fas fa-envelope"></i>
-                                    Email Address *
+                                    Địa chỉ Email *
                                 </label>
                                 <input type="email"
                                        id="email"
                                        th:field="*{email}"
                                        required
                                        class="form-input"
-                                       placeholder="customer@example.com">
+                                       placeholder="khachhang@domain.com">
                                 <div class="form-error" id="email-error"></div>
                             </div>
 
                             <div class="form-group">
                                 <label for="phone" class="form-label">
                                     <i class="fas fa-phone"></i>
-                                    Phone Number
+                                    Số điện thoại
                                 </label>
                                 <input type="tel"
                                        id="phone"
                                        th:field="*{phone}"
                                        class="form-input"
-                                       placeholder="+1 (555) 123-4567">
+                                       placeholder="VD: 0123456789">
                                 <div class="form-error" id="phone-error"></div>
                             </div>
 
                             <div class="form-group">
                                 <label for="id_citizen" class="form-label">
                                     <i class="fas fa-id-card"></i>
-                                    Citizen ID
+                                    CCCD/CMND
                                 </label>
                                 <input type="text"
                                        id="id_citizen"
                                        th:field="*{id_citizen}"
                                        class="form-input"
-                                       placeholder="Enter citizen identification number">
+                                       placeholder="Nhập số CCCD/CMND">
                                 <div class="form-error" id="id_citizen-error"></div>
                             </div>
                         </div>
@@ -229,24 +231,23 @@
                         <div class="section-header">
                             <h4>
                                 <i class="fas fa-map-marker-alt"></i>
-                                Address Information
+                                Thông tin địa chỉ
                             </h4>
-                            <div class="section-badge optional">Optional</div>
                         </div>
 
                         <div class="form-group full-width">
                             <label for="address" class="form-label">
                                 <i class="fas fa-home"></i>
-                                Complete Address
+                                Địa chỉ đầy đủ
                             </label>
                             <textarea id="address"
                                       th:field="*{address}"
                                       class="form-textarea"
                                       rows="3"
-                                      placeholder="Enter street address, city, state, postal code"></textarea>
+                                      placeholder="Nhập địa chỉ đường, thành phố, tỉnh/thành, mã bưu điện"></textarea>
                             <div class="form-help">
                                 <i class="fas fa-info-circle"></i>
-                                Include street address, city, state, and postal code for accurate delivery
+                                Vui lòng nhập đầy đủ địa chỉ để giao hàng chính xác
                             </div>
                             <div class="form-error" id="address-error"></div>
                         </div>
@@ -257,19 +258,19 @@
                         <div class="section-header">
                             <h4>
                                 <i class="fas fa-cog"></i>
-                                Account Settings
+                                Cài đặt tài khoản
                             </h4>
-                            <div class="section-badge">Required</div>
+                            <div class="section-badge">Bắt buộc</div>
                         </div>
 
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="roleName" class="form-label">
                                     <i class="fas fa-crown"></i>
-                                    Customer Role *
+                                    Vai trò khách hàng *
                                 </label>
                                 <select id="roleName" th:field="*{roleName}" class="form-select" required>
-                                    <option value="">Select Customer Role</option>
+                                    <option value="">Chọn vai trò khách hàng</option>
                                     <option th:each="role : ${roles}"
                                             th:value="${role}"
                                             th:text="${role}">
@@ -277,7 +278,7 @@
                                 </select>
                                 <div class="form-help">
                                     <i class="fas fa-info-circle"></i>
-                                    CUSTOMER: Standard access, VIP: Premium features, BLOCKED: Restricted access
+                                    CUSTOMER: Khách hàng thường, VIP: Quyền cao cấp, BLOCKED: Đã bị khóa
                                 </div>
                                 <div class="form-error" id="roleName-error"></div>
                             </div>
@@ -285,7 +286,7 @@
                             <div class="form-group">
                                 <label for="password" class="form-label">
                                     <i class="fas fa-lock"></i>
-                                    Password *
+                                    Mật khẩu *
                                 </label>
                                 <div class="password-input-group">
                                     <input type="password"
@@ -293,7 +294,7 @@
                                            th:field="*{password}"
                                            required
                                            class="form-input"
-                                           placeholder="Create a secure password">
+                                           placeholder="Tạo mật khẩu bảo mật">
                                     <button type="button" class="password-toggle" onclick="togglePassword()">
                                         <i class="fas fa-eye" id="passwordToggleIcon"></i>
                                     </button>
@@ -302,7 +303,7 @@
                                     <div class="strength-bar">
                                         <div class="strength-fill" id="strengthFill"></div>
                                     </div>
-                                    <span class="strength-text" id="strengthText">Password strength</span>
+                                    <span class="strength-text" id="strengthText">Độ mạnh mật khẩu</span>
                                 </div>
                                 <div class="form-error" id="password-error"></div>
                             </div>
@@ -313,15 +314,15 @@
                     <div class="form-actions">
                         <button type="submit" class="btn-primary" id="submitBtn">
                             <i class="fas fa-user-plus"></i>
-                            Create Customer
+                            Tạo khách hàng
                         </button>
                         <button type="button" class="btn-secondary" onclick="previewCustomer()">
                             <i class="fas fa-eye"></i>
-                            Preview
+                            Xem trước
                         </button>
                         <a href="/SWP/customers" class="btn-cancel">
                             <i class="fas fa-times"></i>
-                            Cancel
+                            Hủy
                         </a>
                     </div>
                 </form>
@@ -333,7 +334,7 @@
             <div class="card-header">
                 <h3>
                     <i class="fas fa-lightbulb"></i>
-                    Quick Tips
+                    Mẹo nhanh
                 </h3>
             </div>
             <div class="card-content">
@@ -343,8 +344,8 @@
                             <i class="fas fa-check-circle"></i>
                         </div>
                         <div class="tip-content">
-                            <h5>Required Fields</h5>
-                            <p>Full name, email, role, and password are mandatory for account creation.</p>
+                            <h5>Trường bắt buộc</h5>
+                            <p>Họ tên, email, vai trò và mật khẩu là bắt buộc để tạo tài khoản.</p>
                         </div>
                     </div>
                     <div class="tip-item">
@@ -352,8 +353,8 @@
                             <i class="fas fa-shield-alt"></i>
                         </div>
                         <div class="tip-content">
-                            <h5>Password Security</h5>
-                            <p>Use a strong password with at least 8 characters, including letters and numbers.</p>
+                            <h5>Bảo mật mật khẩu</h5>
+                            <p>Sử dụng mật khẩu mạnh có ít nhất 8 ký tự, bao gồm cả chữ và số.</p>
                         </div>
                     </div>
                     <div class="tip-item">
@@ -361,8 +362,8 @@
                             <i class="fas fa-envelope"></i>
                         </div>
                         <div class="tip-content">
-                            <h5>Email Verification</h5>
-                            <p>Ensure the email address is valid as it will be used for account notifications.</p>
+                            <h5>Xác thực email</h5>
+                            <p>Đảm bảo email hợp lệ để nhận thông báo tài khoản.</p>
                         </div>
                     </div>
                     <div class="tip-item">
@@ -370,8 +371,8 @@
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="tip-content">
-                            <h5>Customer Roles</h5>
-                            <p>Choose the appropriate role based on the customer's service level requirements.</p>
+                            <h5>Vai trò khách hàng</h5>
+                            <p>Chọn vai trò phù hợp với nhu cầu sử dụng dịch vụ của khách hàng.</p>
                         </div>
                     </div>
                 </div>
@@ -384,15 +385,15 @@
 <div class="modal" id="previewModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Customer Preview</h3>
+            <h3>Xem trước khách hàng</h3>
             <button class="modal-close" onclick="closePreview()">&times;</button>
         </div>
         <div class="modal-body" id="previewContent">
             <!-- Preview content will be populated by JavaScript -->
         </div>
         <div class="modal-footer">
-            <button class="btn-secondary" onclick="closePreview()">Close</button>
-            <button class="btn-primary" onclick="submitFromPreview()">Create Customer</button>
+            <button class="btn-secondary" onclick="closePreview()">Đóng</button>
+            <button class="btn-primary" onclick="submitFromPreview()">Tạo khách hàng</button>
         </div>
     </div>
 </div>
@@ -416,7 +417,7 @@
         const progressText = document.getElementById('progressText');
 
         progressFill.style.width = progress + '%';
-        progressText.textContent = Math.round(progress) + '% Complete';
+        progressText.textContent = Math.round(progress) + '% Hoàn thành';
 
         if (progress < 50) {
             progressFill.className = 'progress-fill low';
@@ -439,12 +440,12 @@
         const strengthFill = document.getElementById('strengthFill');
         const strengthText = document.getElementById('strengthText');
 
-        const strengthLevels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+        const strengthLevels = ['Rất yếu', 'Yếu', 'Trung bình', 'Tốt', 'Mạnh'];
         const strengthColors = ['#dc3545', '#fd7e14', '#ffc107', '#28a745', '#20c997'];
 
         strengthFill.style.width = (strength * 20) + '%';
         strengthFill.style.backgroundColor = strengthColors[strength - 1] || '#dc3545';
-        strengthText.textContent = strengthLevels[strength - 1] || 'Very Weak';
+        strengthText.textContent = strengthLevels[strength - 1] || 'Rất yếu';
     }
 
     // Password toggle
@@ -471,7 +472,7 @@
             const error = document.getElementById(field + '-error');
 
             if (!input.value.trim()) {
-                error.textContent = 'This field is required';
+                error.textContent = 'Trường này là bắt buộc';
                 input.classList.add('error');
                 isValid = false;
             } else {
@@ -486,7 +487,7 @@
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (email.value && !emailRegex.test(email.value)) {
-            emailError.textContent = 'Please enter a valid email address';
+            emailError.textContent = 'Vui lòng nhập email hợp lệ';
             email.classList.add('error');
             isValid = false;
         }
@@ -496,11 +497,11 @@
 
     // Clear form
     function clearForm() {
-        if (confirm('Are you sure you want to clear all form data?')) {
+        if (confirm('Bạn có chắc chắn muốn xóa toàn bộ dữ liệu biểu mẫu không?')) {
             document.getElementById('customerForm').reset();
             updateProgress();
             document.getElementById('strengthFill').style.width = '0%';
-            document.getElementById('strengthText').textContent = 'Password strength';
+            document.getElementById('strengthText').textContent = 'Độ mạnh mật khẩu';
         }
     }
 
@@ -512,22 +513,22 @@
         previewContent.innerHTML = `
                 <div class="preview-grid">
                     <div class="preview-item">
-                        <strong>Full Name:</strong> ${formData.get('fullname') || 'Not provided'}
+                        <strong>Họ và tên:</strong> ${formData.get('fullname') || 'Chưa nhập'}
                     </div>
                     <div class="preview-item">
-                        <strong>Email:</strong> ${formData.get('email') || 'Not provided'}
+                        <strong>Email:</strong> ${formData.get('email') || 'Chưa nhập'}
                     </div>
                     <div class="preview-item">
-                        <strong>Phone:</strong> ${formData.get('phone') || 'Not provided'}
+                        <strong>Số điện thoại:</strong> ${formData.get('phone') || 'Chưa nhập'}
                     </div>
                     <div class="preview-item">
-                        <strong>Address:</strong> ${formData.get('address') || 'Not provided'}
+                        <strong>Địa chỉ:</strong> ${formData.get('address') || 'Chưa nhập'}
                     </div>
                     <div class="preview-item">
-                        <strong>Citizen ID:</strong> ${formData.get('id_citizen') || 'Not provided'}
+                        <strong>CCCD/CMND:</strong> ${formData.get('id_citizen') || 'Chưa nhập'}
                     </div>
                     <div class="preview-item">
-                        <strong>Role:</strong> ${formData.get('roleName') || 'Not selected'}
+                        <strong>Vai trò:</strong> ${formData.get('roleName') || 'Chưa chọn'}
                     </div>
                 </div>
             `;
@@ -564,7 +565,7 @@
             input.addEventListener('blur', function() {
                 const error = document.getElementById(this.id + '-error');
                 if (this.hasAttribute('required') && !this.value.trim()) {
-                    error.textContent = 'This field is required';
+                    error.textContent = 'Trường này là bắt buộc';
                     this.classList.add('error');
                 } else {
                     error.textContent = '';
