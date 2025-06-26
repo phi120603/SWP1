@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Danh sách kho trống</title>
+  <link rel="stylesheet" href="/css/booking-styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f6fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .card-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+      color: #2c3e50;
+    }
+
+    .card .info {
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    .card .price {
+      font-weight: bold;
+      color: #27ae60;
+      margin-bottom: 15px;
+    }
+
+    .card .btn {
+      display: inline-block;
+      background-color: #667eea;
+      color: white;
+      padding: 10px 16px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+
+    .card .btn:hover {
+      background-color: #5a6fd8;
+    }
+
+    .error {
+      text-align: center;
+      color: red;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2 style="text-align:center; margin-bottom: 30px">Kho còn trống phù hợp</h2>
+
+  <div th:if="${#lists.isEmpty(storages)}">
+    <div class="error">Không có kho phù hợp trong khoảng thời gian này.</div>
+    <div style="text-align:center;">
+      <a th:href="@{/SWP/booking/search}" class="btn">Tìm lại</a>
+    </div>
+  </div>
+
+  <div th:if="${not #lists.isEmpty(storages)}" class="card-list">
+    <div class="card" th:each="storage : ${storages}">
+      <h3 th:text="${storage.storagename}">Tên kho</h3>
+      <div class="info">
+        <i class="fas fa-map-marker-alt"></i>
+        <span th:text="${storage.address}">Địa chỉ</span>
+      </div>
+      <div class="price" th:text="${#numbers.formatDecimal(storage.pricePerDay, 0, 'COMMA', 0, 'POINT')} + ' VNĐ/ngày'">
+        0 VNĐ/ngày
+      </div>
+      <a th:href="@{/SWP/booking/{storageId}/booking(storageId=${storage.storageid}, startDate=${startDate}, endDate=${endDate})}"
+         class="btn">Đặt kho</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

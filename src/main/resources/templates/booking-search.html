@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tìm kiếm kho trống</title>
+    <link rel="stylesheet" href="/css/booking-styles.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="navbar-brand">
+            <a href="/home-page">
+                <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
+                     alt="QVL Storage Logo" class="navbar-logo">
+            </a>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="/home-page">Trang chủ</a></li>
+            <li><a href="/SWP/storages">Danh sách</a></li>
+            <li><a href="/SWP/customers/my-bookings">Đơn hàng của tôi</a></li>
+            <li><a href="/SWP/booking/search" class="active">Đặt kho</a></li>
+        </ul>
+        <div class="nav-user">
+            <span class="user-icon">👤</span>
+            <span th:if="${customer != null}" th:text="${customer.fullname}"></span>
+        </div>
+    </div>
+</nav>
+<div class="main-content">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Đặt kho</h1>
+            <div class="customer-info" th:if="${customer != null}">
+                <div class="customer-subtitle">
+                    <span class="customer-name" th:text="${customer.fullname}"></span>
+                    <span class="customer-id">ID: <span th:text="${customer.id}"></span></span>
+                </div>
+            </div>
+        </div>
+        <div class="booking-card">
+            <div class="card-header">
+                <h3>Tìm kiếm kho còn trống</h3>
+            </div>
+            <div class="card-content">
+                <div th:if="${error}" class="message error" th:text="${error}"></div>
+
+                <!-- ⚠️ Cập nhật action sang /search/result -->
+                <form th:action="@{/SWP/booking/search/result}" method="get" th:object="${order}">
+
+                <div class="form-section">
+                        <div class="form-group">
+                            <label for="startDate">Ngày bắt đầu:</label>
+                            <input type="date" id="startDate" name="startDate"
+                                   class="form-input"
+                                   th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">Ngày kết thúc:</label>
+                            <input type="date" id="endDate" name="endDate"
+                                   class="form-input"
+                                   th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                                   required>
+                        </div>
+                    </div>
+                    <div class="action-section">
+                        <button type="submit" class="btn btn-primary">Tìm kho</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

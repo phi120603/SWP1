@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đặt kho - QVL STORAGE</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+<!-- Header -->
+<header class="bg-blue-600 text-white p-4">
+  <div class="container mx-auto flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <span class="text-2xl">📦</span>
+      <h1 class="text-xl font-bold">QVL STORAGE</h1>
+    </div>
+    <nav class="space-x-4">
+      <a href="/home-page" class="hover:underline">Trang chủ</a>
+      <a href="/SWP/booking/search" class="hover:underline">Đặt kho</a>
+      <a href="/SWP/storages" class="hover:underline">Danh sách</a>
+      <a href="/SWP/orders" class="hover:underline">Đơn hàng của tôi</a>
+    </nav>
+    <div class="flex items-center space-x-2">
+      <span>👤</span>
+      <span th:text="${customer != null ? customer.fullname : 'Khách'}"></span>
+    </div>
+  </div>
+</header>
+
+<!-- Main content -->
+<main class="container mx-auto mt-8 p-4">
+  <h2 class="text-2xl font-bold mb-6 text-center">Đặt kho</h2>
+
+  <div class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto">
+    <form th:action="@{/SWP/booking/{storageId}/booking/save(storageId=${storage.storageid})}" method="post">
+
+      <!-- Hidden fields for startDate, endDate, and storageId -->
+      <input type="hidden" name="startDate" th:value="${startDate != null ? #temporals.format(startDate, 'yyyy-MM-dd') : ''}">
+      <input type="hidden" name="endDate" th:value="${endDate != null ? #temporals.format(endDate, 'yyyy-MM-dd') : ''}">
+
+      <!-- Storage Information -->
+      <div class="mb-4">
+        <h3 class="text-lg font-semibold">Thông tin kho</h3>
+        <p><strong>Tên kho:</strong> <span th:text="${storage.storagename}"></span></p>
+        <p><strong>Địa chỉ:</strong> <span th:text="${storage.address}"></span></p>
+        <p><strong>Giá/ngày:</strong> <span th:text="${#numbers.formatInteger(storage.pricePerDay, '0')} + ' VNĐ'"></span></p>
+        <p><strong>Ngày bắt đầu:</strong> <span th:text="${startDate != null ? #temporals.format(startDate, 'dd/MM/yyyy') : ''}"></span></p>
+        <p><strong>Ngày kết thúc:</strong> <span th:text="${endDate != null ? #temporals.format(endDate, 'dd/MM/yyyy') : ''}"></span></p>
+        <p><strong>Tổng số ngày:</strong> <span th:with="days=${T(java.time.temporal.ChronoUnit).DAYS.between(startDate, endDate)}" th:text="${days > 0 ? days : 1}"></span></p>
+        <p><strong>Tổng chi phí:</strong> <span th:with="total=${(T(java.time.temporal.ChronoUnit).DAYS.between(startDate, endDate) > 0 ? T(java.time.temporal.ChronoUnit).DAYS.between(startDate, endDate) : 1) * storage.pricePerDay}" th:text="${#numbers.formatInteger(total, '0')} + ' VNĐ'"></span></p>
+      </div>
+
+      <!-- Customer Information -->
+      <div class="mb-4">
+        <h3 class="text-lg font-semibold">Thông tin khách hàng</h3>
+        <div class="grid grid-cols-1 gap-4">
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700">Họ và tên</label>
+            <input type="text" id="name" name="name" th:value="${customer != null ? customer.fullname : ''}" required class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Nhập họ và tên">
+          </div>
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" id="email" name="email" th:value="${customer != null ? customer.email : ''}" required class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Nhập email">
+          </div>
+          <div>
+            <label for="phone" class="block text-sm font-medium text-gray-700">Số điện thoại</label>
+            <input type="tel" id="phone" name="phone" th:value="${customer != null ? customer.phone : ''}" required class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Nhập số điện thoại">
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="text-center">
+        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition">Xác nhận đặt kho</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-800 text-white text-center p-4 mt-8">
+  <p>© 2025 QVL STORAGE. All rights reserved.</p>
+</footer>
+</body>
+</html>

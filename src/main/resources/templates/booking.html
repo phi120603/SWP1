@@ -2,325 +2,103 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Booking</title>
+  <title>Đặt kho</title>
   <link rel="stylesheet" href="/css/booking-styles.css">
 </head>
 <body>
+
 <!-- Navigation Bar -->
 <nav class="navbar">
   <div class="nav-container">
-    <div class="nav-logo">
-      <div class="logo-icon">📦</div>
-      <span class="logo-text">QVI STORAGE</span>
-    </div>
-    <ul class="nav-menu">
-      <li><a href="/SWP/home-page">Trang chủ</a></li>
-      <li><a href="/SWP/storages">Danh sách</a></li>
-      <li><a href="/SWP/customers/my-bookings">Đơn hàng của tôi</a></li>
+    <div class="logo">QVL Storage</div>
+    <ul class="nav-links">
+      <li><a th:href="@{/}">Home</a></li>
+      <li><a th:href="@{/SWP/booking/search}">Đặt kho</a></li>
+      <li><a th:href="@{/SWP/storages}">Danh sách</a></li>
+      <li><a th:href="@{/SWP/customers/my-bookings}">Đơn hàng của tôi</a></li>
     </ul>
-    <div class="nav-user">
-      <span class="user-icon">👤</span>
-
-    </div>
   </div>
 </nav>
 
-<!-- Main Content -->
 <div class="main-content">
   <div class="container">
-    <!-- Page Header -->
     <div class="page-header">
-      <h1 class="page-title">Đặt kho</h1>
-      <div class="customer-info">
-        <div class="customer-subtitle">
-          <span class="customer-name" th:text="${customer.fullname}">Tên khách</span>
-          <span class="customer-id">ID: <span th:text="${customer.id}">0</span></span>
-        </div>
-      </div>
+      <h1 class="page-title">Xác nhận đặt kho</h1>
     </div>
 
-    <!-- Booking Form Card -->
     <div class="booking-card">
-      <div class="card-header">
-        <h3><i class="fas fa-calendar-plus"></i> Thông tin đặt kho</h3>
-      </div>
-
       <div class="card-content">
-        <!-- Error/Success Messages -->
+
         <div th:if="${error}" class="message error" th:text="${error}"></div>
-        <div id="dynamicMessage" class="message"></div>
 
         <div th:if="${storage == null}">
-          <div class="message error">Không tìm thấy thông tin kho!</div>
+          <div class="message error">Không tìm thấy kho.</div>
           <a th:href="@{/SWP/storages}" class="btn btn-secondary">Quay lại danh sách</a>
         </div>
 
         <div th:if="${storage != null}">
-          <!-- Hidden inputs -->
-          <input type="hidden" id="storageId" th:value="${storage.storageid ?: ''}" />
-          <input type="hidden" id="customerId" th:value="${customer.id}" />
-
-          <input type="hidden" id="pricePerDay" th:value="${storage.pricePerDay ?: 0}" />
-
-          <!-- Storage Info -->
+          <!-- Thông tin kho -->
           <div class="info-section">
             <div class="info-item">
               <label>Kho:</label>
-              <span class="info-value" th:text="${storage.storagename}">Tên kho</span>
+              <span th:text="${storage.storagename}">Tên kho</span>
             </div>
             <div class="info-item">
               <label>Giá mỗi ngày:</label>
-              <span class="info-value price" th:text="${storage.pricePerDay != null ? storage.pricePerDay + ' VNĐ' : 'Chưa có giá'}">0 VNĐ</span>
+              <span th:text="${storage.pricePerDay} + ' VNĐ'">0 VNĐ</span>
+            </div>
+            <div class="info-item">
+              <label>Ngày thuê:</label>
+              <span th:text="${startDate}">Từ</span> - <span th:text="${endDate}">Đến</span>
             </div>
           </div>
 
-          <!-- Date Selection -->
-          <div class="form-section">
-            <div class="form-group">
-              <label for="startDate">Ngày bắt đầu:</label>
-              <input type="date" id="startDate" class="form-input" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required>
+          <!-- Form đặt kho -->
+          <form th:action="@{'/SWP/booking/' + ${storage.storageid} + '/booking/save'}" method="post" class="booking-form">
+
+            <!-- Hidden -->
+            <input type="hidden" name="startDate" th:value="${startDate}" />
+            <input type="hidden" name="endDate" th:value="${endDate}" />
+
+            <!-- Nếu khách chưa đăng nhập, hiển thị input -->
+            <div th:if="${customer == null}">
+              <div class="form-group">
+                <label>Họ tên:</label>
+                <input type="text" name="name" required />
+              </div>
+              <div class="form-group">
+                <label>Email:</label>
+                <input type="email" name="email" required />
+              </div>
+              <div class="form-group">
+                <label>SĐT:</label>
+                <input type="text" name="phone" required />
+              </div>
             </div>
 
-            <div class="form-group">
-              <label for="endDate">Ngày kết thúc:</label>
-              <input type="date" id="endDate" class="form-input" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required>
-              <div class="calculation-loading" id="calculationLoading">Đang tính toán...</div>
+            <!-- Nếu đã đăng nhập, truyền ẩn -->
+            <div th:if="${customer != null}">
+              <input type="hidden" name="name" th:value="${customer.fullname}" />
+              <input type="hidden" name="email" th:value="${customer.email}" />
+              <input type="hidden" name="phone" th:value="${customer.phone}" />
             </div>
-          </div>
 
-          <!-- Total Amount -->
-          <div class="total-section">
-            <div class="total-amount" id="totalAmountDisplay">
-              Tổng tiền: 0 VNĐ
+            <div class="total-amount">
+              Tổng tiền (ước tính):
+              <span th:text="${#temporals.daysBetween(startDate, endDate)} * ${storage.pricePerDay} + ' VNĐ'">0 VNĐ</span>
             </div>
-          </div>
 
-          <!-- Action Buttons -->
-          <div class="action-section">
-            <div class="loading" id="loadingMessage">Đang xử lý...</div>
-            <button id="bookingBtn" class="btn btn-primary" onclick="confirmBooking()">
-              <i class="fas fa-check"></i> Xác nhận đặt hàng
-            </button>
-            <a th:href="@{/SWP/storages/{id}(id=${storage.storageid})}" class="btn btn-secondary">
-              <i class="fas fa-arrow-left"></i> Quay lại chi tiết
-            </a>
-          </div>
+            <!-- Submit -->
+            <div class="action-section">
+              <button type="submit" class="btn btn-primary">Xác nhận đặt kho</button>
+              <a th:href="@{/SWP/storages/{id}(id=${storage.storageid})}" class="btn btn-secondary">Quay lại</a>
+            </div>
+          </form>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Toast Notification -->
-<div id="toast" class="toast"></div>
-
-<script>
-  // Debounce function để tránh gọi API quá nhiều
-  function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  }
-
-  // Hàm tính toán tổng tiền thông qua API
-  async function calculateTotal() {
-    const startDate = document.getElementById("startDate").value;
-    const endDate = document.getElementById("endDate").value;
-    const storageIdEl = document.getElementById("storageId");
-    const totalAmountDisplay = document.getElementById("totalAmountDisplay");
-    const calculationLoading = document.getElementById("calculationLoading");
-
-    // Reset display
-    totalAmountDisplay.textContent = "Tổng tiền: 0 VNĐ";
-
-    if (!startDate || !endDate || !storageIdEl) {
-      return;
-    }
-
-    const storageId = parseInt(storageIdEl.value);
-    if (isNaN(storageId)) {
-      return;
-    }
-
-    try {
-      // Show loading
-      calculationLoading.style.display = "block";
-
-      const response = await fetch('/api/SWP/calculate-total', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          startDate: startDate,
-          endDate: endDate,
-          storageId: storageId
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Success - display result
-        const formattedAmount = data.totalAmount.toLocaleString('vi-VN');
-        totalAmountDisplay.textContent = `Tổng tiền: ${formattedAmount} VNĐ (${data.days} ngày)`;
-        totalAmountDisplay.className = "total-amount success";
-      } else {
-        // Error from server
-        totalAmountDisplay.textContent = data.error || "Lỗi khi tính toán";
-        totalAmountDisplay.className = "total-amount error";
-      }
-
-    } catch (error) {
-      console.error("Error calculating total:", error);
-      totalAmountDisplay.textContent = "Lỗi khi tính toán";
-      totalAmountDisplay.className = "total-amount error";
-    } finally {
-      // Hide loading
-      calculationLoading.style.display = "none";
-    }
-  }
-
-  // Debounced version để tránh gọi API quá nhiều
-  const debouncedCalculateTotal = debounce(calculateTotal, 500);
-
-  // Gắn sự kiện onchange cho các trường ngày
-  document.getElementById("startDate")?.addEventListener("change", debouncedCalculateTotal);
-  document.getElementById("endDate")?.addEventListener("change", debouncedCalculateTotal);
-
-  function confirmBooking() {
-    try {
-      // Validate form
-      const startDate = document.getElementById("startDate").value;
-      const endDate = document.getElementById("endDate").value;
-      const storageIdEl = document.getElementById("storageId");
-      const customerIdEl = document.getElementById("customerId");
-
-      // Kiểm tra các element tồn tại
-      if (!storageIdEl || !customerIdEl) {
-        showMessage("Lỗi: Không tìm thấy thông tin cần thiết!", "error");
-        return;
-      }
-
-      const storageId = storageIdEl.value;
-      const customerId = customerIdEl.value;
-
-      if (!startDate || !endDate) {
-        showMessage("Vui lòng chọn ngày bắt đầu và kết thúc!", "error");
-        return;
-      }
-
-      if (new Date(startDate) >= new Date(endDate)) {
-        showMessage("Ngày kết thúc phải sau ngày bắt đầu!", "error");
-        return;
-      }
-
-      // Validate IDs
-      const parsedStorageId = parseInt(storageId);
-      const parsedCustomerId = parseInt(customerId);
-
-      if (isNaN(parsedStorageId) || isNaN(parsedCustomerId)) {
-        showMessage("Lỗi: ID không hợp lệ!", "error");
-        return;
-      }
-
-      // Disable button và show loading
-      const bookingBtn = document.getElementById("bookingBtn");
-      const loadingMessage = document.getElementById("loadingMessage");
-
-      bookingBtn.disabled = true;
-      loadingMessage.style.display = "block";
-
-      // Tạo object data để gửi
-      const orderData = {
-        customerId: parsedCustomerId,
-        storageId: parsedStorageId,
-        startDate: startDate,
-        endDate: endDate,
-        orderDate: new Date().toISOString().split('T')[0],
-        status: "PENDING"
-      };
-
-      console.log("Sending order data:", orderData);
-
-      // Gửi AJAX request
-      fetch('/api/SWP/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData)
-      })
-              .then(response => {
-                console.log("Response status:", response.status);
-
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                  throw new Error('Server không trả về JSON');
-                }
-
-                if (!response.ok) {
-                  throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-              })
-              .then(data => {
-                console.log("Success response:", data);
-                showMessage("Booking thành công! Order ID: " + data.id, "success");
-                showToast("Đặt kho thành công!", "success");
-
-                // Reset form
-                document.getElementById("startDate").value = "";
-                document.getElementById("endDate").value = "";
-                document.getElementById("totalAmountDisplay").textContent = "Tổng tiền: 0 VNĐ";
-              })
-              .catch(error => {
-                console.error("Error:", error);
-                showMessage("Có lỗi xảy ra: " + error.message, "error");
-                showToast("Có lỗi xảy ra khi đặt kho!", "error");
-              })
-              .finally(() => {
-                // Re-enable button và hide loading
-                bookingBtn.disabled = false;
-                loadingMessage.style.display = "none";
-              });
-
-    } catch (error) {
-      console.error("Unexpected error:", error);
-      showMessage("Lỗi không mong muốn: " + error.message, "error");
-    }
-  }
-
-  function showMessage(message, type) {
-    const messageDiv = document.getElementById("dynamicMessage");
-    messageDiv.className = "message " + type;
-    messageDiv.textContent = message;
-
-    // Auto hide after 5 seconds
-    setTimeout(() => {
-      messageDiv.textContent = "";
-      messageDiv.className = "message";
-    }, 5000);
-  }
-
-  function showToast(message, type = 'success') {
-    const toast = document.getElementById('toast');
-    if (toast) {
-      toast.textContent = message;
-      toast.className = 'toast ' + type;
-      toast.classList.add('show');
-
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3000);
-    }
-  }
-</script>
 </body>
 </html>

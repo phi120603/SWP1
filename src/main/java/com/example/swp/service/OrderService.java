@@ -27,5 +27,10 @@ public interface OrderService {
     double getRevenuePaid();     // Tiền khách đã trả (PAID)
     double getRevenueApproved(); // Tiền khách còn nợ (APPROVED)
     void deleteById(int id);
+    boolean isStorageAvailable(int storageId, java.time.LocalDate startDate, java.time.LocalDate endDate);
+
+    // (tuỳ chọn, nhưng giúp code controller gọn hơn)
+    Order createBookingOrder(Storage storage, Customer customer, java.time.LocalDate startDate, java.time.LocalDate endDate, double total);
+
 
 }

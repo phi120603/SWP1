@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đặt kho thành công - QVL STORAGE</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-green-50 font-sans">
+<!-- Header -->
+<header class="bg-green-600 text-white p-4">
+    <div class="container mx-auto flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <span class="text-2xl">✅</span>
+            <h1 class="text-xl font-bold">QVL STORAGE</h1>
+        </div>
+        <nav class="space-x-4">
+            <a href="/SWP/home" class="hover:underline">Trang chủ</a>
+            <a href="/SWP/storages" class="hover:underline">Danh sách</a>
+            <a href="/SWP/customers/my-bookings" class="hover:underline">Đơn hàng của tôi</a>
+        </nav>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="container mx-auto mt-12 p-6 text-center">
+    <div class="bg-white p-8 rounded-lg shadow-md max-w-xl mx-auto">
+        <h2 class="text-2xl font-bold text-green-600 mb-4">Đặt kho thành công!</h2>
+        <p class="text-gray-700 text-lg mb-6">Yêu cầu của bạn đã được gửi và đang chờ xác nhận từ quản trị viên.</p>
+
+        <div class="text-left text-gray-800 space-y-2">
+            <p><strong>Mã đơn hàng:</strong> <span th:text="'#' + ${order.id}"></span></p>
+            <p><strong>Tên kho:</strong> <span th:text="${order.storage.storagename}"></span></p>
+            <p><strong>Ngày bắt đầu:</strong> <span th:text="${#temporals.format(order.startDate, 'dd/MM/yyyy')}"></span></p>
+            <p><strong>Ngày kết thúc:</strong> <span th:text="${#temporals.format(order.endDate, 'dd/MM/yyyy')}"></span></p>
+            <p><strong>Tổng tiền:</strong>
+                <span th:text="${#numbers.formatInteger(order.totalAmount, '0')} + ' VNĐ'"></span>
+            </p>
+            <p><strong>Trạng thái:</strong> <span class="text-yellow-600 font-semibold" th:text="${order.status}"></span></p>
+        </div>
+
+        <div class="mt-6">
+            <a href="/SWP/customers/my-bookings" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition">
+                Xem đơn hàng của tôi
+            </a>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-800 text-white text-center p-4 mt-12">
+    <p>© 2025 QVL STORAGE. All rights reserved.</p>
+</footer>
+</body>
+</html>

@@ -8,6 +8,7 @@ import com.example.swp.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -81,6 +82,14 @@ public class StorageServiceimpl implements StorageService {
 
 
     }
+    // StorageServiceImpl.java
+    @Override
+    public List<Storage> findAvailableStorages(LocalDate startDate, LocalDate endDate) {
+        return storageRepository.findAvailableStorages(startDate, endDate);
+    }
+
+
+
 
 
 }

@@ -128,6 +128,25 @@ public class OrderServiceimpl implements OrderService {
     public void markOrderAsPaid(int orderId) {
         orderRepository.updateOrderStatusToPaid(orderId);
     }
+    @Override
+    public boolean isStorageAvailable(int storageId, LocalDate startDate, LocalDate endDate) {
+        return orderRepository.countOverlapOrders(storageId, startDate, endDate) == 0;
+
+
+    }
+    @Override
+    public Order createBookingOrder(Storage storage, Customer customer, LocalDate startDate, LocalDate endDate, double total) {
+        Order order = new Order();
+        order.setStorage(storage);
+        order.setCustomer(customer);
+        order.setStartDate(startDate);
+        order.setEndDate(endDate);
+        order.setOrderDate(LocalDate.now());
+        order.setTotalAmount(total);
+        order.setStatus("PENDING");
+        return orderRepository.save(order);
+    }
+
 
 
 }
