@@ -9,6 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @Controller
 @RequestMapping("/SWP/customers")
 public class CustomerCRUDController {
@@ -27,11 +29,12 @@ public class CustomerCRUDController {
     // Xử lý tạo mới
     @PostMapping("/create")
     public String createCustomer(@ModelAttribute Customer customer, Model model) {
-        String error = CustomerValidator.validate(customer); // <--- validate dữ liệu
-        if (error != null) {
+        Map<String, String> errors = CustomerValidator.validate(customer);
+        if (!errors.isEmpty()) {
             model.addAttribute("customer", customer);
             model.addAttribute("roles", RoleName.values());
-            model.addAttribute("error", error); // Truyền lỗi về view
+            model.addAttribute("errors", errors);
+            model.addAttribute("error", errors.get("global")); // lỗi toàn cục (nếu có)
             return "customer-create";
         }
         customerService.save(customer);
@@ -61,22 +64,23 @@ public class CustomerCRUDController {
         existing.setEmail(updatedCustomer.getEmail());
         existing.setRoleName(updatedCustomer.getRoleName());
         existing.setId_citizen(updatedCustomer.getId_citizen());
-        // Nếu có nhập password mới thì cập nhật
         if (updatedCustomer.getPassword() != null && !updatedCustomer.getPassword().isEmpty()) {
             existing.setPassword(updatedCustomer.getPassword());
         }
 
-        String error = CustomerValidator.validate(existing); // <--- validate lại sau khi cập nhật
-        if (error != null) {
+        Map<String, String> errors = CustomerValidator.validate(existing);
+        if (!errors.isEmpty()) {
             model.addAttribute("customer", existing);
             model.addAttribute("roles", RoleName.values());
-            model.addAttribute("error", error);
+            model.addAttribute("errors", errors);
+            model.addAttribute("error", errors.get("global"));
             return "customer-edit";
         }
 
         customerService.save(existing);
         return "redirect:/SWP/customers/" + id;
     }
+
 
     // deactive khách hàng
     @PostMapping("/delete/{id}")

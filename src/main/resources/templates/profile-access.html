@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Access - QVL Storage</title>
+    <title>Truy cập hồ sơ - QVL Storage</title>
     <link rel="stylesheet" th:href="@{/profile-access.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -20,61 +20,61 @@
         <li class="menu-item">
             <a href="/SWP">
                 <i class="fas fa-home"></i>
-                <span>Home</span>
+                <span>Trang chủ</span>
             </a>
         </li>
         <li class="menu-item">
             <a href="/SWP/staff/staff-dashboard">
                 <i class="fas fa-tachometer-alt"></i>
-                <span>Dashboard</span>
+                <span>Bảng điều khiển</span>
             </a>
         </li>
         <li class="menu-item">
             <a href="addstorage">
                 <i class="fas fa-hdd"></i>
-                <span>Add Storage</span>
+                <span>Thêm kho</span>
             </a>
         </li>
         <li class="menu-item">
             <a href="/SWP/staff/staff-all-storage">
                 <i class="fas fa-warehouse"></i>
-                <span>Storage List</span>
+                <span>Danh sách kho</span>
             </a>
         </li>
         <li class="menu-item">
             <a href="/SWP/orders">
                 <i class="fas fa-chart-bar"></i>
-                <span>Order List</span>
+                <span>Đơn hàng</span>
             </a>
         </li>
         <li class="menu-item">
             <a href="#inventory">
                 <i class="fas fa-boxes"></i>
-                <span>Feedback</span>
+                <span>Phản hồi</span>
             </a>
         </li>
         <li class="menu-item">
             <a href="#reports">
                 <i class="fas fa-file-alt"></i>
-                <span>Reports</span>
+                <span>Báo cáo</span>
             </a>
         </li>
         <li class="menu-item">
             <a href="/SWP/customers">
                 <i class="fas fa-users"></i>
-                <span>Customer List</span>
+                <span>Danh sách khách hàng</span>
             </a>
         </li>
         <li class="menu-item active">
             <a href="/SWP/support">
                 <i class="fas fa-headset"></i>
-                <span>Customer Support</span>
+                <span>Hỗ trợ khách hàng</span>
             </a>
         </li>
         <li class="menu-item">
             <a href="#settings">
                 <i class="fas fa-cog"></i>
-                <span>Settings</span>
+                <span>Cài đặt</span>
             </a>
         </li>
     </ul>
@@ -85,8 +85,8 @@
                 <i class="fas fa-user"></i>
             </div>
             <div class="user-details">
-                <span class="user-name">Support Agent</span>
-                <span class="user-role">Customer Service</span>
+                <span class="user-name">Nhân viên hỗ trợ</span>
+                <span class="user-role">Chăm sóc khách hàng</span>
             </div>
         </div>
     </div>
@@ -100,14 +100,14 @@
             <button class="sidebar-toggle">
                 <i class="fas fa-bars"></i>
             </button>
-            <h1>Profile Access Management</h1>
+            <h1>Quản lý truy cập hồ sơ</h1>
         </div>
 
         <div class="header-right">
             <div class="breadcrumb">
-                <a href="/SWP/support">Customer Support</a>
+                <a href="/SWP/support">Hỗ trợ khách hàng</a>
                 <i class="fas fa-chevron-right"></i>
-                <span>Profile Access</span>
+                <span>Truy cập hồ sơ</span>
             </div>
         </div>
     </header>
@@ -121,9 +121,9 @@
                     <i class="fas fa-user-circle"></i>
                 </div>
                 <div class="profile-title">
-                    <h2 class="page-title">Customer Profile Access</h2>
+                    <h2 class="page-title">Truy cập hồ sơ khách hàng</h2>
                     <p class="profile-subtitle">
-                        <span>Securely access and manage customer profile information</span>
+                        <span>Truy cập và quản lý thông tin hồ sơ khách hàng an toàn, bảo mật</span>
                     </p>
                 </div>
             </div>
@@ -131,12 +131,12 @@
                 <button class="btn-secondary btn-back">
                     <a href="/SWP/support" style="color: inherit; text-decoration: none;">
                         <i class="fas fa-arrow-left"></i>
-                        Back to Support
+                        Quay lại hỗ trợ
                     </a>
                 </button>
                 <button class="btn-secondary">
                     <i class="fas fa-shield-alt"></i>
-                    Privacy Policy
+                    Chính sách bảo mật
                 </button>
             </div>
         </div>
@@ -146,11 +146,11 @@
             <div class="card-header">
                 <h3>
                     <i class="fas fa-user-check"></i>
-                    Customer Identity Verification
+                    Xác minh danh tính khách hàng
                 </h3>
                 <div class="privacy-badge">
                     <i class="fas fa-lock"></i>
-                    <span>Privacy Protected</span>
+                    <span>Bảo vệ quyền riêng tư</span>
                 </div>
             </div>
 
@@ -161,8 +161,8 @@
                         <i class="fas fa-exclamation-triangle"></i>
                     </div>
                     <div class="alert-content">
-                        <h4>Access Denied</h4>
-                        <p th:text="${error}">Error message</p>
+                        <h4>Từ chối truy cập</h4>
+                        <p th:text="${error}">Có lỗi xảy ra</p>
                     </div>
                 </div>
 
@@ -172,8 +172,8 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="alert-content">
-                        <h4>Access Granted</h4>
-                        <p th:text="${success}">Success message</p>
+                        <h4>Truy cập thành công</h4>
+                        <p th:text="${success}">Thành công</p>
                     </div>
                 </div>
 
@@ -186,15 +186,15 @@
                     <div class="instructions-section">
                         <div class="instruction-header">
                             <i class="fas fa-info-circle"></i>
-                            <h4>Access Instructions</h4>
+                            <h4>Hướng dẫn truy cập</h4>
                         </div>
                         <div class="instruction-content">
-                            <p>To access customer profile information, please verify the customer's identity by providing accurate personal details:</p>
+                            <p>Để truy cập thông tin hồ sơ khách hàng, vui lòng xác minh danh tính khách hàng bằng các thông tin chính xác:</p>
                             <ul class="instruction-list">
-                                <li><i class="fas fa-check"></i> Enter the customer's full legal name</li>
-                                <li><i class="fas fa-check"></i> Provide valid citizen identification number</li>
-                                <li><i class="fas fa-check"></i> Ensure information matches official records</li>
-                                <li><i class="fas fa-check"></i> Follow data protection guidelines</li>
+                                <li><i class="fas fa-check"></i> Nhập họ và tên đầy đủ đúng theo giấy tờ tùy thân</li>
+                                <li><i class="fas fa-check"></i> Cung cấp số CCCD/Hộ chiếu hợp lệ</li>
+                                <li><i class="fas fa-check"></i> Đảm bảo thông tin trùng khớp với dữ liệu chính thức</li>
+                                <li><i class="fas fa-check"></i> Tuân thủ quy định bảo vệ dữ liệu</li>
                             </ul>
                         </div>
                     </div>
@@ -204,7 +204,7 @@
                         <div class="section-header">
                             <h4>
                                 <i class="fas fa-user-shield"></i>
-                                Customer Verification Details
+                                Thông tin xác minh khách hàng
                             </h4>
                         </div>
 
@@ -212,39 +212,43 @@
                             <div class="form-group">
                                 <label for="fullname" class="form-label">
                                     <i class="fas fa-user"></i>
-                                    Full Legal Name *
+                                    Họ và tên đầy đủ *
                                 </label>
                                 <input type="text"
                                        id="fullname"
                                        name="fullname"
                                        required
                                        class="form-input"
-                                       placeholder="Enter customer's complete legal name"
+                                       placeholder="Nhập đầy đủ họ và tên khách hàng"
                                        autocomplete="off">
                                 <div class="form-help">
                                     <i class="fas fa-info-circle"></i>
-                                    Must match the name on official identification documents
+                                    Phải trùng khớp với giấy tờ tùy thân
                                 </div>
-                                <div class="form-error" id="fullname-error"></div>
+                                <div class="form-error" id="fullname-error"
+                                     th:if="${errors != null and errors['fullname'] != null}"
+                                     th:text="${errors['fullname']}"></div>
                             </div>
 
                             <div class="form-group">
                                 <label for="id_citizen" class="form-label">
                                     <i class="fas fa-id-card"></i>
-                                    Citizen ID Number *
+                                    Số CCCD/Hộ chiếu *
                                 </label>
                                 <input type="text"
                                        id="id_citizen"
                                        name="id_citizen"
                                        required
                                        class="form-input"
-                                       placeholder="Enter citizen identification number"
+                                       placeholder="Nhập số CCCD/Hộ chiếu"
                                        autocomplete="off">
                                 <div class="form-help">
                                     <i class="fas fa-info-circle"></i>
-                                    Government-issued identification number
+                                    Số định danh do nhà nước cấp
                                 </div>
-                                <div class="form-error" id="id_citizen-error"></div>
+                                <div class="form-error"
+                                     th:if="${errors != null and errors['id_citizen'] != null}"
+                                     th:text="${errors['id_citizen']}"></div>
                             </div>
                         </div>
                     </div>
@@ -255,8 +259,8 @@
                             <i class="fas fa-user-shield"></i>
                         </div>
                         <div class="notice-content">
-                            <h5>Privacy & Data Protection</h5>
-                            <p>This access is logged for security purposes. Customer data must be handled according to privacy regulations and company policies. Unauthorized access or misuse of customer information is strictly prohibited.</p>
+                            <h5>Bảo mật & Bảo vệ dữ liệu</h5>
+                            <p>Mọi truy cập hồ sơ đều được ghi lại phục vụ an ninh. Dữ liệu khách hàng phải được bảo mật tuyệt đối theo quy định pháp luật và công ty. Mọi truy cập trái phép hoặc lạm dụng thông tin sẽ bị nghiêm cấm và xử lý nghiêm.</p>
                         </div>
                     </div>
 
@@ -264,15 +268,15 @@
                     <div class="form-actions">
                         <button type="submit" class="btn-primary" id="submitBtn">
                             <i class="fas fa-unlock-alt"></i>
-                            Access Profile
+                            Truy cập hồ sơ
                         </button>
                         <button type="button" class="btn-secondary" onclick="clearForm()">
                             <i class="fas fa-eraser"></i>
-                            Clear Form
+                            Xóa trắng
                         </button>
                         <a href="/SWP/support" class="btn-cancel">
                             <i class="fas fa-times"></i>
-                            Cancel
+                            Hủy
                         </a>
                     </div>
                 </form>
@@ -284,7 +288,7 @@
             <div class="card-header">
                 <h3>
                     <i class="fas fa-tools"></i>
-                    Quick Access Tools
+                    Công cụ truy cập nhanh
                 </h3>
             </div>
             <div class="card-content">
@@ -294,10 +298,10 @@
                             <i class="fas fa-search"></i>
                         </div>
                         <div class="tool-content">
-                            <h4>Advanced Search</h4>
-                            <p>Search customers by email, phone, or partial information</p>
+                            <h4>Tìm kiếm nâng cao</h4>
+                            <p>Tìm khách hàng theo email, số điện thoại hoặc thông tin một phần</p>
                             <div class="tool-input">
-                                <input type="text" placeholder="Search by email or phone..." class="search-input">
+                                <input type="text" placeholder="Tìm theo email hoặc số điện thoại..." class="search-input">
                                 <button class="btn-primary tool-button">
                                     <i class="fas fa-search"></i>
                                 </button>
@@ -310,11 +314,11 @@
                             <i class="fas fa-qrcode"></i>
                         </div>
                         <div class="tool-content">
-                            <h4>QR Code Scanner</h4>
-                            <p>Scan customer QR code for quick profile access</p>
+                            <h4>Quét mã QR</h4>
+                            <p>Quét mã QR để truy cập hồ sơ khách hàng nhanh chóng</p>
                             <button class="btn-secondary tool-button" onclick="openQRScanner()">
                                 <i class="fas fa-camera"></i>
-                                Scan QR Code
+                                Quét mã QR
                             </button>
                         </div>
                     </div>
@@ -324,11 +328,11 @@
                             <i class="fas fa-history"></i>
                         </div>
                         <div class="tool-content">
-                            <h4>Recent Accesses</h4>
-                            <p>View recently accessed customer profiles</p>
+                            <h4>Lịch sử truy cập gần đây</h4>
+                            <p>Xem lại các hồ sơ khách hàng vừa truy cập</p>
                             <button class="btn-secondary tool-button" onclick="showRecentAccesses()">
                                 <i class="fas fa-clock"></i>
-                                View History
+                                Xem lịch sử
                             </button>
                         </div>
                     </div>
@@ -338,11 +342,11 @@
                             <i class="fas fa-file-export"></i>
                         </div>
                         <div class="tool-content">
-                            <h4>Bulk Export</h4>
-                            <p>Export customer data for authorized purposes</p>
+                            <h4>Xuất dữ liệu hàng loạt</h4>
+                            <p>Xuất dữ liệu khách hàng cho mục đích được phê duyệt</p>
                             <button class="btn-secondary tool-button" onclick="openBulkExport()">
                                 <i class="fas fa-download"></i>
-                                Export Data
+                                Xuất dữ liệu
                             </button>
                         </div>
                     </div>
@@ -355,7 +359,7 @@
             <div class="card-header">
                 <h3>
                     <i class="fas fa-shield-alt"></i>
-                    Data Access Guidelines
+                    Hướng dẫn truy cập dữ liệu
                 </h3>
             </div>
             <div class="card-content">
@@ -365,8 +369,8 @@
                             <i class="fas fa-user-lock"></i>
                         </div>
                         <div class="guideline-content">
-                            <h5>Identity Verification</h5>
-                            <p>Always verify customer identity through multiple data points before accessing sensitive information.</p>
+                            <h5>Xác minh danh tính</h5>
+                            <p>Luôn xác minh danh tính khách hàng bằng nhiều thông tin trước khi truy cập thông tin nhạy cảm.</p>
                         </div>
                     </div>
                     <div class="guideline-item">
@@ -374,8 +378,8 @@
                             <i class="fas fa-eye"></i>
                         </div>
                         <div class="guideline-content">
-                            <h5>Authorized Access Only</h5>
-                            <p>Access customer data only when necessary for legitimate business purposes and customer support.</p>
+                            <h5>Chỉ truy cập khi được phép</h5>
+                            <p>Chỉ truy cập dữ liệu khách hàng khi thực sự cần thiết cho nghiệp vụ, hỗ trợ khách hàng.</p>
                         </div>
                     </div>
                     <div class="guideline-item">
@@ -383,8 +387,8 @@
                             <i class="fas fa-clipboard-list"></i>
                         </div>
                         <div class="guideline-content">
-                            <h5>Activity Logging</h5>
-                            <p>All profile access activities are automatically logged and monitored for compliance.</p>
+                            <h5>Ghi lại lịch sử hoạt động</h5>
+                            <p>Mọi hoạt động truy cập hồ sơ đều được ghi lại và kiểm soát theo quy định.</p>
                         </div>
                     </div>
                     <div class="guideline-item">
@@ -392,8 +396,8 @@
                             <i class="fas fa-user-secret"></i>
                         </div>
                         <div class="guideline-content">
-                            <h5>Confidentiality</h5>
-                            <p>Maintain strict confidentiality of customer information and follow data protection protocols.</p>
+                            <h5>Bảo mật thông tin</h5>
+                            <p>Bảo mật tuyệt đối mọi thông tin khách hàng, tuân thủ quy trình bảo vệ dữ liệu.</p>
                         </div>
                     </div>
                 </div>
@@ -405,16 +409,16 @@
             <div class="card-header">
                 <h3>
                     <i class="fas fa-clock"></i>
-                    Recent Profile Access Activity
+                    Lịch sử truy cập hồ sơ gần đây
                 </h3>
                 <div class="card-actions">
                     <button class="btn-secondary">
                         <i class="fas fa-refresh"></i>
-                        Refresh
+                        Làm mới
                     </button>
                     <button class="btn-secondary">
                         <i class="fas fa-download"></i>
-                        Export Log
+                        Xuất lịch sử
                     </button>
                 </div>
             </div>
@@ -423,12 +427,12 @@
                 <table class="data-table">
                     <thead>
                     <tr>
-                        <th>Time</th>
-                        <th>Customer</th>
-                        <th>Agent</th>
-                        <th>Access Type</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th>Thời gian</th>
+                        <th>Khách hàng</th>
+                        <th>Nhân viên</th>
+                        <th>Loại truy cập</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -442,19 +446,19 @@
                                 <span>John Doe</span>
                             </div>
                         </td>
-                        <td>Support Agent</td>
+                        <td>Nhân viên hỗ trợ</td>
                         <td>
-                            <span class="access-badge profile">Profile View</span>
+                            <span class="access-badge profile">Xem hồ sơ</span>
                         </td>
                         <td>
-                            <span class="status-badge success">Authorized</span>
+                            <span class="status-badge success">Đã cho phép</span>
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn-icon" title="View Details">
+                                <button class="btn-icon" title="Xem chi tiết">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="btn-icon" title="Access Profile">
+                                <button class="btn-icon" title="Truy cập hồ sơ">
                                     <i class="fas fa-user"></i>
                                 </button>
                             </div>
@@ -470,19 +474,19 @@
                                 <span>Jane Smith</span>
                             </div>
                         </td>
-                        <td>Support Agent</td>
+                        <td>Nhân viên hỗ trợ</td>
                         <td>
-                            <span class="access-badge edit">Profile Edit</span>
+                            <span class="access-badge edit">Chỉnh sửa hồ sơ</span>
                         </td>
                         <td>
-                            <span class="status-badge success">Authorized</span>
+                            <span class="status-badge success">Đã cho phép</span>
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn-icon" title="View Details">
+                                <button class="btn-icon" title="Xem chi tiết">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="btn-icon" title="Access Profile">
+                                <button class="btn-icon" title="Truy cập hồ sơ">
                                     <i class="fas fa-user"></i>
                                 </button>
                             </div>
@@ -498,19 +502,19 @@
                                 <span>Mike Johnson</span>
                             </div>
                         </td>
-                        <td>Support Agent</td>
+                        <td>Nhân viên hỗ trợ</td>
                         <td>
-                            <span class="access-badge search">Search Query</span>
+                            <span class="access-badge search">Tìm kiếm</span>
                         </td>
                         <td>
-                            <span class="status-badge denied">Access Denied</span>
+                            <span class="status-badge denied">Từ chối</span>
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn-icon" title="View Details">
+                                <button class="btn-icon" title="Xem chi tiết">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="btn-icon" title="Retry Access">
+                                <button class="btn-icon" title="Thử lại truy cập">
                                     <i class="fas fa-redo"></i>
                                 </button>
                             </div>
@@ -539,7 +543,7 @@
             const error = document.getElementById(field + '-error');
 
             if (!input.value.trim()) {
-                error.textContent = 'This field is required';
+                error.textContent = 'Trường này là bắt buộc';
                 input.classList.add('error');
                 isValid = false;
             } else {
@@ -553,9 +557,8 @@
 
     // Clear form
     function clearForm() {
-        if (confirm('Are you sure you want to clear all form data?')) {
+        if (confirm('Bạn có chắc chắn muốn xóa trắng tất cả thông tin vừa nhập không?')) {
             document.getElementById('accessForm').reset();
-            // Clear any error states
             document.querySelectorAll('.form-input').forEach(input => {
                 input.classList.remove('error');
             });
@@ -567,15 +570,15 @@
 
     // Tool functions
     function openQRScanner() {
-        alert('QR Code scanner would open here');
+        alert('Chức năng quét mã QR sẽ mở tại đây.');
     }
 
     function showRecentAccesses() {
-        alert('Recent accesses history would be displayed');
+        alert('Lịch sử truy cập gần đây sẽ hiển thị tại đây.');
     }
 
     function openBulkExport() {
-        alert('Bulk export dialog would open here');
+        alert('Hộp thoại xuất dữ liệu hàng loạt sẽ mở tại đây.');
     }
 
     // Real-time validation
@@ -583,7 +586,7 @@
         input.addEventListener('blur', function() {
             const error = document.getElementById(this.id + '-error');
             if (this.hasAttribute('required') && !this.value.trim()) {
-                error.textContent = 'This field is required';
+                error.textContent = 'Trường này là bắt buộc';
                 this.classList.add('error');
             } else {
                 error.textContent = '';
@@ -608,7 +611,7 @@
         } else {
             // Show loading state
             const submitBtn = document.getElementById('submitBtn');
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xác minh...';
             submitBtn.disabled = true;
         }
     });
@@ -618,7 +621,7 @@
         if (e.key === 'Enter') {
             const searchTerm = this.value;
             if (searchTerm) {
-                alert(`Searching for: ${searchTerm}`);
+                alert(`Đang tìm kiếm: ${searchTerm}`);
             }
         }
     });
