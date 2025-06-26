@@ -912,19 +912,25 @@
       <li><a th:href="@{/home-page}">Home</a></li>
       <li><a th:href="@{/SWP/issues/create}">Tạo Issue</a></li>
       <li><a th:href="@{/SWP/storages}">List</a></li>
-      <!-- Đăng xuất nút bên phải -->
-      <span style="font-weight: bold; color: white; margin-left: 10px; letter-spacing: 1px; float: right;">
-    <!-- Có thể để hoặc xóa dòng này nếu không dùng -->
-  </span>
+      <!-- Notification Bell -->
+      <li>
+        <a th:href="@{/notifications}" class="notification-bell" title="Thông báo" style="position:relative;">
+          <i class="fa fa-bell" style="font-size:1.5rem;"></i>
+          <span class="notification-badge"
+                th:if="${unreadCount > 0}"
+                th:text="${unreadCount}"
+                style="position:absolute;top:-8px;right:-8px;background:#e74c3c;color:white;border-radius:50%;padding:2px 7px;font-size:0.9rem;"></span>
+        </a>
+      </li>
       <!-- Profile Menu (icon người) -->
-      <li class="profile-menu">
+      <li class="profile-menu" style="position:relative;">
         <a href="javascript:void(0);" id="profileMenuBtn" title="Tài khoản">
           <i class="fa fa-user-circle" style="font-size: 1.8rem; color: white;"></i>
         </a>
         <ul class="profile-dropdown" id="profileDropdown">
-          <li><a th:href="@{/profile(tab='info')}" href="/profile?tab=info"><i class="fa fa-id-card"></i> Thông tin cá nhân</a></li>
-          <li><a th:href="@{/profile(tab='update')}" href="/profile?tab=update"><i class="fa fa-edit"></i> Cập nhật thông tin</a></li>
-          <li><a th:href="@{/profile(tab='forgot')}" href="/profile?tab=forgot"><i class="fa fa-unlock-alt"></i> Quên mật khẩu</a></li>
+          <li><a th:href="@{/profile(tab='info')}"><i class="fa fa-id-card"></i> Thông tin cá nhân</a></li>
+          <li><a th:href="@{/profile(tab='update')}"><i class="fa fa-edit"></i> Cập nhật thông tin</a></li>
+          <li><a th:href="@{/profile(tab='forgot')}"><i class="fa fa-unlock-alt"></i> Quên mật khẩu</a></li>
           <li>
             <form th:action="@{/logout}" method="post" style="display:inline;">
               <button type="submit" style="background:none;border:none;padding:10px 22px;width:100%;text-align:left;cursor:pointer;">
