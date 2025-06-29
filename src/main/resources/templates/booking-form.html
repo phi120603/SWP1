@@ -1,85 +1,519 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Đặt kho - QVL STORAGE</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #4a6fa5 0%, #3d5a8c 100%);
+      min-height: 100vh;
+      color: #2d3748;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header */
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: #4a6fa5;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .logo-text {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #2d3748;
+    }
+
+    .nav {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: #4a5568;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .nav a:hover, .nav a.active {
+      color: #4a6fa5;
+      background: rgba(74, 111, 165, 0.1);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #4a5568;
+      font-weight: 500;
+    }
+
+    /* Main Content */
+    .main {
+      padding: 2rem 0;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: white;
+    }
+
+    .page-header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .booking-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .form-section {
+      padding: 2rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .form-section:last-child {
+      border-bottom: none;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title i {
+      color: #4a6fa5;
+      font-size: 1.2rem;
+    }
+
+    /* Storage Info Grid */
+    .storage-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .info-card {
+      background: #f8fafc;
+      padding: 1.25rem;
+      border-radius: 8px;
+      border-left: 4px solid #4a6fa5;
+    }
+
+    .info-card.highlight {
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+      color: white;
+      border-left-color: #38a169;
+    }
+
+    .info-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #718096;
+      margin-bottom: 0.5rem;
+    }
+
+    .info-card.highlight .info-label {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .info-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .info-card.highlight .info-value {
+      color: white;
+    }
+
+    /* Customer Form */
+    .customer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #4a6fa5;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.1);
+    }
+
+    /* Submit Section */
+    .submit-section {
+      text-align: center;
+      padding: 2rem;
+      background: #f8fafc;
+    }
+
+    .submit-btn {
+      background: #4a6fa5;
+      color: white;
+      border: none;
+      padding: 1rem 2.5rem;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(74, 111, 165, 0.3);
+    }
+
+    .submit-btn:hover {
+      background: #3d5a8c;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(74, 111, 165, 0.4);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .terms-text {
+      margin-top: 1rem;
+      color: #718096;
+      font-size: 0.9rem;
+    }
+
+    /* Footer */
+    .footer {
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      text-align: center;
+      padding: 2rem 0;
+      margin-top: 3rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .page-header h1 {
+        font-size: 2rem;
+      }
+
+      .form-section {
+        padding: 1.5rem;
+      }
+
+      .storage-info {
+        grid-template-columns: 1fr;
+      }
+
+      .customer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Status Badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #d4edda;
+      color: #155724;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+
+    .status-badge i {
+      font-size: 0.75rem;
+    }
+
+    /* Animation */
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .booking-container {
+      animation: slideInUp 0.6s ease-out;
+    }
+    .alert-success {
+      background-color: #e6fffa;
+      border: 1px solid #38b2ac;
+      color: #285e61;
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body>
 <!-- Header -->
-<header class="bg-blue-600 text-white p-4">
-  <div class="container mx-auto flex justify-between items-center">
-    <div class="flex items-center space-x-2">
-      <span class="text-2xl">📦</span>
-      <h1 class="text-xl font-bold">QVL STORAGE</h1>
-    </div>
-    <nav class="space-x-4">
-      <a href="/home-page" class="hover:underline">Trang chủ</a>
-      <a href="/SWP/booking/search" class="hover:underline">Đặt kho</a>
-      <a href="/SWP/storages" class="hover:underline">Danh sách</a>
-      <a href="/SWP/orders" class="hover:underline">Đơn hàng của tôi</a>
-    </nav>
-    <div class="flex items-center space-x-2">
-      <span>👤</span>
-      <span th:text="${customer != null ? customer.fullname : 'Khách'}"></span>
+<header class="header">
+  <div class="container">
+    <div class="header-content">
+      <div class="logo">
+        <div class="logo-icon">QVL</div>
+        <span class="logo-text">QVL STORAGE</span>
+      </div>
+      <nav class="nav">
+        <a href="/home-page">Trang chủ</a>
+        <a href="/SWP/booking/search" class="active">Đặt kho</a>
+        <a href="/SWP/storages">Danh sách</a>
+        <a href="/SWP/orders">Đơn hàng của tôi</a>
+      </nav>
+      <div class="user-info">
+        <i class="fas fa-user"></i>
+        <span>Khách</span>
+      </div>
     </div>
   </div>
 </header>
 
-<!-- Main content -->
-<main class="container mx-auto mt-8 p-4">
-  <h2 class="text-2xl font-bold mb-6 text-center">Đặt kho</h2>
+<!-- Main Content -->
+<main class="main">
+  <div class="container">
+    <div class="page-header">
+      <h1>Đặt kho</h1>
+      <p>Xác nhận thông tin và hoàn tất việc đặt kho</p>
+    </div>
 
-  <div class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto">
-    <form th:action="@{/SWP/booking/{storageId}/booking/save(storageId=${storage.storageid})}" method="post">
+    <div class="booking-container">
+      <form th:action="@{/SWP/booking/{storageId}/booking/save(storageId=${storage.storageid})}" method="post">
 
-      <!-- Hidden fields for startDate, endDate, and storageId -->
-      <input type="hidden" name="startDate" th:value="${startDate != null ? #temporals.format(startDate, 'yyyy-MM-dd') : ''}">
-      <input type="hidden" name="endDate" th:value="${endDate != null ? #temporals.format(endDate, 'yyyy-MM-dd') : ''}">
+      <!-- Hidden fields -->
+        <input type="hidden" name="startDate" th:value="${startDate}">
+        <input type="hidden" name="endDate" th:value="${endDate}">
 
-      <!-- Storage Information -->
-      <div class="mb-4">
-        <h3 class="text-lg font-semibold">Thông tin kho</h3>
-        <p><strong>Tên kho:</strong> <span th:text="${storage.storagename}"></span></p>
-        <p><strong>Địa chỉ:</strong> <span th:text="${storage.address}"></span></p>
-        <p><strong>Giá/ngày:</strong> <span th:text="${#numbers.formatInteger(storage.pricePerDay, '0')} + ' VNĐ'"></span></p>
-        <p><strong>Ngày bắt đầu:</strong> <span th:text="${startDate != null ? #temporals.format(startDate, 'dd/MM/yyyy') : ''}"></span></p>
-        <p><strong>Ngày kết thúc:</strong> <span th:text="${endDate != null ? #temporals.format(endDate, 'dd/MM/yyyy') : ''}"></span></p>
-        <p><strong>Tổng số ngày:</strong> <span th:with="days=${T(java.time.temporal.ChronoUnit).DAYS.between(startDate, endDate)}" th:text="${days > 0 ? days : 1}"></span></p>
-        <p><strong>Tổng chi phí:</strong> <span th:with="total=${(T(java.time.temporal.ChronoUnit).DAYS.between(startDate, endDate) > 0 ? T(java.time.temporal.ChronoUnit).DAYS.between(startDate, endDate) : 1) * storage.pricePerDay}" th:text="${#numbers.formatInteger(total, '0')} + ' VNĐ'"></span></p>
-      </div>
 
-      <!-- Customer Information -->
-      <div class="mb-4">
-        <h3 class="text-lg font-semibold">Thông tin khách hàng</h3>
-        <div class="grid grid-cols-1 gap-4">
-          <div>
-            <label for="name" class="block text-sm font-medium text-gray-700">Họ và tên</label>
-            <input type="text" id="name" name="name" th:value="${customer != null ? customer.fullname : ''}" required class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Nhập họ và tên">
-          </div>
-          <div>
-            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-            <input type="email" id="email" name="email" th:value="${customer != null ? customer.email : ''}" required class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Nhập email">
-          </div>
-          <div>
-            <label for="phone" class="block text-sm font-medium text-gray-700">Số điện thoại</label>
-            <input type="tel" id="phone" name="phone" th:value="${customer != null ? customer.phone : ''}" required class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Nhập số điện thoại">
+        <!-- Storage Information -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-warehouse"></i>
+            Thông tin kho
+          </h3>
+
+          <div class="storage-info">
+            <div class="info-card">
+              <div class="info-label">TÊN KHO</div>
+              <div class="info-value">Kho A1 - Trung tâm Hà Nội</div>
+              <div class="status-badge">
+                <i class="fas fa-check-circle"></i>
+                CÒN TRỐNG
+              </div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-label">ĐỊA CHỈ</div>
+              <div class="info-value">123 Đường Láng, Đống Đa, Hà Nội</div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-label">GIÁ/NGÀY</div>
+              <div class="info-value">250,000 VNĐ</div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-label">NGÀY BẮT ĐẦU</div>
+              <div class="info-value">28/06/2025</div>
+            </div>
+
+            <div class="info-card">
+              <div class="info-label">NGÀY KẾT THÚC</div>
+              <div class="info-value">05/07/2025</div>
+            </div>
+
+            <div class="info-card highlight">
+              <div class="info-label">TỔNG CHI PHÍ (7 NGÀY)</div>
+              <div class="info-value">1,750,000 VNĐ</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Submit Button -->
-      <div class="text-center">
-        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition">Xác nhận đặt kho</button>
-      </div>
-    </form>
+        <!-- Customer Information -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-user-edit"></i>
+            Thông tin khách hàng
+          </h3>
+
+          <div class="form-group">
+            <label for="name" class="form-label">Họ và tên</label>
+            <input type="text" id="name" name="name" class="form-input"
+                   placeholder="Nhập họ và tên" required maxlength="50">
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" name="email" class="form-input"
+                   placeholder="Nhập email" required>
+          </div>
+
+          <div class="form-group">
+            <label for="phone" class="form-label">Số điện thoại</label>
+            <input type="tel" id="phone" name="phone" class="form-input"
+                   placeholder="Nhập số điện thoại" required>
+          </div>
+        </div>
+
+        <!-- Submit Section -->
+        <div class="submit-section">
+          <button type="submit" class="submit-btn">
+            <i class="fas fa-check-circle"></i>
+            Xác nhận đặt kho
+          </button>
+          <p class="terms-text">
+            Bằng việc nhấn xác nhận, bạn đồng ý với các điều khoản sử dụng dịch vụ
+          </p>
+        </div>
+      </form>
+
+
+    </div>
   </div>
 </main>
 
 <!-- Footer -->
-<footer class="bg-gray-800 text-white text-center p-4 mt-8">
-  <p>© 2025 QVL STORAGE. All rights reserved.</p>
+<footer class="footer">
+  <div class="container">
+    <p>© 2025 QVL STORAGE. All rights reserved.</p>
+  </div>
 </footer>
+
+<script>
+  // Form validation and interactions
+  document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('.form-input');
+
+    inputs.forEach(input => {
+      input.addEventListener('focus', function() {
+        this.style.borderColor = '#4a6fa5';
+      });
+
+      input.addEventListener('blur', function() {
+        if (this.value.trim() !== '') {
+          this.style.borderColor = '#48bb78';
+          this.style.backgroundColor = '#f0fff4';
+        } else {
+          this.style.borderColor = '#e2e8f0';
+          this.style.backgroundColor = '#fafafa';
+        }
+      });
+    });
+
+    // Submit button loading state
+    const submitBtn = document.querySelector('.submit-btn');
+    const form = document.querySelector('form');
+
+    form.addEventListener('submit', function(e) {
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+      submitBtn.disabled = true;
+    });
+  });
+</script>
 </body>
 </html>

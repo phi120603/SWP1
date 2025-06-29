@@ -3,104 +3,177 @@
 <head>
   <meta charset="UTF-8">
   <title>Danh sách kho trống</title>
-  <link rel="stylesheet" href="/css/booking-styles.css">
+  <link rel="stylesheet" href="/css/storage-list.css">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f6fa;
-      margin: 0;
-      padding: 0;
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
-
-    .card-list {
+    .storage-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
     }
 
-    .card {
-      background-color: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
-      transition: transform 0.2s ease;
+    @media (max-width: 1200px) {
+      .storage-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
-    .card:hover {
-      transform: translateY(-4px);
-    }
-
-    .card h3 {
-      margin: 0 0 10px;
-      font-size: 1.2rem;
-      color: #2c3e50;
-    }
-
-    .card .info {
-      margin-bottom: 10px;
-      color: #555;
-    }
-
-    .card .price {
-      font-weight: bold;
-      color: #27ae60;
-      margin-bottom: 15px;
-    }
-
-    .card .btn {
-      display: inline-block;
-      background-color: #667eea;
-      color: white;
-      padding: 10px 16px;
-      text-decoration: none;
-      border-radius: 6px;
-      font-weight: 500;
-      transition: background 0.3s;
-    }
-
-    .card .btn:hover {
-      background-color: #5a6fd8;
-    }
-
-    .error {
-      text-align: center;
-      color: red;
-      font-weight: bold;
-      margin: 20px 0;
+    @media (max-width: 768px) {
+      .storage-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-<div class="container">
-  <h2 style="text-align:center; margin-bottom: 30px">Kho còn trống phù hợp</h2>
+<div class="page-wrapper">
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <div class="navbar-brand">
+        <a href="/homepage">
+          <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
+               alt="QVL Storage Logo" class="navbar-logo">
+        </a>
+      </div>
+      <ul class="navbar-nav">
+        <li><a href="/homepage">Trang chủ</a></li>
+        <li><a href="/SWP/storages" class="active">Danh sách</a></li>
+        <li><a href="/SWP/customers/my-bookings">Đơn hàng của tôi</a></li>
+        <li><a href="/SWP/booking/search" class="active">Đặt kho</a></li>
+      </ul>
+      <button class="cart-icon" onclick="goToWishlist()" title="Xem yêu thích">
+        🛒
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </nav>
 
-  <div th:if="${#lists.isEmpty(storages)}">
-    <div class="error">Không có kho phù hợp trong khoảng thời gian này.</div>
-    <div style="text-align:center;">
-      <a th:href="@{/SWP/booking/search}" class="btn">Tìm lại</a>
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1>Kho trống phù hợp</h1>
+      <p>Chọn kho phù hợp để tiến hành đặt thuê nhanh chóng và tiện lợi</p>
     </div>
   </div>
 
-  <div th:if="${not #lists.isEmpty(storages)}" class="card-list">
-    <div class="card" th:each="storage : ${storages}">
-      <h3 th:text="${storage.storagename}">Tên kho</h3>
-      <div class="info">
-        <i class="fas fa-map-marker-alt"></i>
-        <span th:text="${storage.address}">Địa chỉ</span>
+  <!-- Main Content -->
+  <div class="container">
+    <!-- No Result -->
+    <div th:if="${#lists.isEmpty(storages)}" class="no-results">
+      <div class="no-results-icon">
+        <i data-lucide="search-x"></i>
       </div>
-      <div class="price" th:text="${#numbers.formatDecimal(storage.pricePerDay, 0, 'COMMA', 0, 'POINT')} + ' VNĐ/ngày'">
-        0 VNĐ/ngày
+      <h3>Không có kho phù hợp trong khoảng thời gian này.</h3>
+      <p>Vui lòng điều chỉnh lại khoảng thời gian để tìm kiếm kho trống khác.</p>
+      <a th:href="@{/SWP/booking/search}" class="btn btn-primary" style="margin-top: 1rem;">
+        <i data-lucide="search"></i> Tìm lại
+      </a>
+    </div>
+
+    <!-- List of Available Storages -->
+    <div th:if="${not #lists.isEmpty(storages)}" class="results-section">
+      <div class="results-header">
+        <div class="results-info">
+          <h2>Tìm thấy <span class="count" th:text="${storages.size()}">0</span> kho</h2>
+        </div>
       </div>
-      <a th:href="@{/SWP/booking/{storageId}/booking(storageId=${storage.storageid}, startDate=${startDate}, endDate=${endDate})}"
-         class="btn">Đặt kho</a>
+
+      <div class="storage-grid">
+        <div class="storage-card" th:each="storage : ${storages}">
+          <div class="card-header">
+            <h3 class="storage-name" th:text="${storage.storagename}">Tên kho</h3>
+            <div class="status-badge status-available">Còn trống</div>
+          </div>
+
+          <div class="card-content">
+            <div class="storage-info">
+              <div class="info-item">
+                <i data-lucide="map-pin"></i>
+                <span th:text="${storage.address}">Địa chỉ</span>
+              </div>
+              <div class="info-item">
+                <i data-lucide="tag"></i>
+                <span th:text="${#numbers.formatDecimal(storage.pricePerDay, 0, 'COMMA', 0, 'POINT')} + ' VNĐ/ngày'">0 VNĐ/ngày</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <a th:href="@{/SWP/booking/{storageId}/booking(storageId=${storage.storageid}, startDate=${startDate}, endDate=${endDate})}"
+               class="btn btn-primary btn-full">
+              <i data-lucide="calendar-plus"></i>
+              Đặt kho
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="brand-header">
+            <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
+                 alt="QVL Storage Logo" class="footer-logo">
+            <h2 class="brand-name">QVL Storage</h2>
+          </div>
+          <p class="brand-description">
+            Hệ thống cho thuê kho hàng chuyên nghiệp trên toàn quốc. Chúng tôi cung cấp giải pháp lưu trữ an toàn, tiện lợi và hiệu quả cho mọi nhu cầu kinh doanh.
+          </p>
+        </div>
+
+        <div class="footer-column">
+          <h3>Về chúng tôi</h3>
+          <ul class="footer-links">
+            <li><a href="#">Dịch vụ</a></li>
+            <li><a href="#">Tin tức</a></li>
+            <li><a href="#">Liên hệ</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h3>Hỗ trợ</h3>
+          <ul class="footer-links">
+            <li><a href="#">Trung tâm trợ giúp</a></li>
+            <li><a href="#">Chat trực tuyến</a></li>
+            <li><a href="#">Hotline 24/7</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h3>Sản phẩm</h3>
+          <ul class="footer-links">
+            <li><a href="#">Kho nhỏ</a></li>
+            <li><a href="#">Kho vừa</a></li>
+            <li><a href="#">Kho lớn</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-divider"></div>
+
+      <div class="footer-bottom">
+        <p class="copyright">Bản quyền ©2024. Tất cả quyền được bảo lưu. — QVL Storage System</p>
+        <ul class="footer-bottom-links">
+          <li><a href="#">Điều khoản & Điều kiện</a></li>
+          <li><a href="#">Chính sách bảo mật</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
 </div>
+<script>
+  lucide.createIcons();
+  function goToWishlist() {
+    try {
+      window.location.href = '/SWP/wishlist';
+    } catch (error) {
+      console.error('Error navigating to wishlist:', error);
+    }
+  }
+</script>
 </body>
 </html>

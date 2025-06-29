@@ -104,6 +104,7 @@ public class OrderServiceimpl implements OrderService {
                 .sum();
     }
 
+
     @Override
     public double getRevenueApproved() {
         return orderRepository.findAll()
@@ -112,6 +113,7 @@ public class OrderServiceimpl implements OrderService {
                 .mapToDouble(Order::getTotalAmount)
                 .sum();
     }
+
 
     //Hàm tính total amount
     public BigDecimal calculateTotalAmount(LocalDate startDate, LocalDate endDate, BigDecimal pricePerDay) {

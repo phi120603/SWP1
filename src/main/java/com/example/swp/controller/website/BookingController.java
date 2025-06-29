@@ -50,6 +50,10 @@ public class BookingController {
     public String processBookingSearch(@ModelAttribute("order") Order searchOrder, Model model) {
         LocalDate startDate = searchOrder.getStartDate();
         LocalDate endDate = searchOrder.getEndDate();
+        if (startDate == null || endDate == null || startDate.isAfter(endDate)) {
+            model.addAttribute("error", "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.");
+            return "booking-search";
+        }
 
         List<Storage> storages = storageService.findAvailableStorages(startDate, endDate);
         model.addAttribute("storages", storages);
@@ -64,7 +68,8 @@ public class BookingController {
                                   @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                                   @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
                                   HttpSession session,
-                                  Model model) {
+                                  Model model,
+                                  @ModelAttribute("successMessage") String successMessage ) {
         Optional<Storage> optionalStorage = storageService.findByID(storageId);
         if (optionalStorage.isEmpty()) {
             return "redirect:/SWP/booking/search";
@@ -77,6 +82,10 @@ public class BookingController {
         model.addAttribute("customer", customer); // Nếu đã login, có thể fill form sẵn
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
+        if (successMessage != null && !successMessage.isBlank()) {
+            model.addAttribute("successMessage", successMessage);
+        }
+
         return "booking-form"; // Form nhập thêm info khách nếu muốn
     }
 
@@ -134,16 +143,13 @@ public class BookingController {
         long days = ChronoUnit.DAYS.between(startDate, endDate);
         order.setTotalAmount(days > 0 ? days * storage.getPricePerDay() : storage.getPricePerDay());
 
-        try {
-            orderService.save(order); // Save order to database
-            redirectAttributes.addFlashAttribute("success", "Đặt kho thành công! Đơn hàng của bạn đang chờ xác nhận.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi đặt kho: " + e.getMessage());
-            return "redirect:/SWP/booking/" + storageId + "/booking?startDate=" + startDate + "&endDate=" + endDate;
-        }
+        orderService.save(order);
 
-        // Redirect to homepage (or another page like /SWP/booking/search)
-        return "redirect:/home-page";
+        return "redirect:/SWP/booking/success?orderId=" + order.getId();
+
+
+
+
     }
 
     // 5. Trang xác nhận booking thành công
