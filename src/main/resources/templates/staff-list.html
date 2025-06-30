@@ -3,28 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff List</title>
+    <title>Danh sách nhân viên</title>
     <link rel="stylesheet" th:href="@{/css/staff-list.css}">
 </head>
 <body>
 <div class="container">
     <header>
-        <h1>Staff Management</h1>
-        <p class="subtitle">Manage and view all your staffs in one place</p>
+        <h1>Quản lý nhân viên</h1>
+        <p class="subtitle"></p>
     </header>
 
     <div class="stats">
         <div class="stat-card">
-            <span th:text="${totalStaff}">0</span>
-            <div class="stat-label">Total Staffs</div>
+            <div class="stat-number" th:text="${totalStaff}">0</div>
+            <div class="stat-label">Tổng số nhân viên</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number">892</div>
-            <div class="stat-label">Active Staffs</div>
+            <div class="stat-number">0</div>
+            <div class="stat-label">Đang làm việc</div>
         </div>
         <div class="stat-card">
-            <div class="stat-number">45</div>
-            <div class="stat-label">New This Month</div>
+
         </div>
     </div>
 
@@ -32,7 +31,7 @@
         <input
                 type="text"
                 class="search-input"
-                placeholder="Search Staffs by name or email..."
+                placeholder="Tìm kiếm nhân viên bằng tên hoặc email..."
                 id="searchInput"
         >
     </div>
@@ -41,12 +40,12 @@
         <table id="StaffTable">
             <thead>
             <tr>
-                <th>Staff id</th>
-                <th>Staff Name</th>
-                <th>Phone</th>
-                <th>ROLE</th>
-                <th>ID citizen</th>
-                <th>Actions</th>
+                <th>ID</th>
+                <th>Tên nhân viên</th>
+                <th>SĐT</th>
+                <th>CCCD</th>
+                <th>Trạng thái</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
@@ -57,14 +56,11 @@
                     <div class="staff-email" th:text="${staff.email}"></div>
                 </td>
                 <td th:text="${staff.phone}"></td>
-                <td th:text="${staff.roleName}"></td>
                 <td th:text="${staff.idCitizenCard}"></td>
                 <td>
                     <div class="actions">
-                        <a th:href="@{'/admin/staff-list/edit/' + ${staff.staffid}}" class="btn btn-primary">Edit</a>
-                        <button class="btn btn-secondary">
-                            <a href="#">View</a>
-                        </button>
+                        <a th:href="@{'/admin/staff-list/edit/' + ${staff.staffid}}" class="btn btn-primary">Chỉnh sửa</a>
+
                     </div>
                 </td>
             </tr>
@@ -73,9 +69,9 @@
     </div>
 
     <div>
-        <a th:if="${currentPage > 1}" th:href="@{/SWP/staff-list(page=${currentPage - 1},size=3)}">Previous</a>
+        <a th:if="${currentPage > 1}" th:href="@{/SWP/staff-list(page=${currentPage - 1},size=5)}">Trước</a>
         <span>Page <span th:text="${currentPage}"></span> of <span th:text="${totalPages}"></span></span>
-        <a th:if="${currentPage < totalPages}" th:href="@{/SWP/staff-list(page=${currentPage + 1},size=3)}">Next</a>
+        <a th:if="${currentPage < totalPages}" th:href="@{/SWP/staff-list(page=${currentPage + 1},size=5)}">Tiếp</a>
     </div>
 </div>
 
