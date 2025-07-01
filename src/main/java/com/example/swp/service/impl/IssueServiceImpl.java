@@ -4,6 +4,7 @@ import com.example.swp.dto.IssueRequest;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Issue;
 import com.example.swp.entity.Staff;
+import com.example.swp.enums.IssueStatus;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.IssueRepository;
 import com.example.swp.repository.StaffReponsitory;
@@ -38,6 +39,11 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
+    public List<Issue> getIssuesByCustomerId(int customerId) {
+        return issueRepository.findByCustomerId(customerId);
+    }
+
+    @Override
     public Issue createIssue(IssueRequest issueRequest) {
         Customer customer = customerRepository.findById(issueRequest.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với id " + issueRequest.getCustomerId()));
@@ -52,6 +58,10 @@ public class IssueServiceImpl implements IssueService {
         issue.setCreatedDate(new Date());
         issue.setResolved(false);
 
+        // Thêm dòng này nếu chưa có
+        issue.setStatus(IssueStatus.PENDING);
+
         return issueRepository.save(issue);
     }
+
 }

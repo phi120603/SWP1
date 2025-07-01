@@ -20,12 +20,15 @@ import java.util.Date;
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private int id;
         private String subject;
-        private String description;
+
         private Date createdDate;
         private boolean resolved;
+        @Column(length = 500)
+        private String description;
 
         @Enumerated(EnumType.STRING)
         private IssueStatus status;
+
 
         @ManyToOne
         @JoinColumn(name = "customer_id")

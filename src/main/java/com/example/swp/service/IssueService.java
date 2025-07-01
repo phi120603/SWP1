@@ -10,4 +10,5 @@ public interface IssueService {
     List<Issue> getAllIssues();
     Optional<Issue> getIssueById(int id);
     Issue createIssue(IssueRequest issueRequest);
+    List<Issue> getIssuesByCustomerId(int customerId);
 }
