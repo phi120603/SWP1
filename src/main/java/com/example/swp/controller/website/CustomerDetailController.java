@@ -3,9 +3,11 @@ package com.example.swp.controller.website;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Order;
 import com.example.swp.entity.Feedback;
+import com.example.swp.entity.StorageTransaction;
 import com.example.swp.service.CustomerService;
 import com.example.swp.service.OrderService;
 import com.example.swp.repository.FeedbackRepository;
+import com.example.swp.service.StorageTransactionService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,6 +26,8 @@ public class CustomerDetailController {
     private OrderService orderService;
     @Autowired
     private FeedbackRepository feedbackRepository;
+    @Autowired
+    private StorageTransactionService storageTransactionService;
 
     @GetMapping("/{id}")
     public String customerDetail(@PathVariable int id, Model model) {
@@ -69,6 +73,24 @@ public class CustomerDetailController {
 
         return "redirect:/SWP/customers/my-bookings";
     }
+    @GetMapping("/my-transactions")
+    public String viewMyTransactions(HttpSession session, Model model) {
+        Customer customer = (Customer) session.getAttribute("loggedInCustomer");
+        if (customer == null) {
+            return "redirect:/api/login";
+        }
+
+        // Gọi đúng method trong service
+        List<StorageTransaction> transactions =
+                storageTransactionService.findByCustomerId(customer.getId());
+
+        model.addAttribute("transactions", transactions);
+        model.addAttribute("customer", customer);
+
+        return "my-transactions";
+    }
+
+
 
 
 }

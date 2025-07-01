@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử giao dịch - QVL Storage</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-sans">
+
+<!-- HEADER -->
+<header class="bg-green-600 text-white p-4">
+    <div class="container mx-auto flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <span class="text-2xl">✅</span>
+            <h1 class="text-xl font-bold">QVL STORAGE</h1>
+        </div>
+        <nav class="space-x-4">
+            <a href="/SWP/home" class="hover:underline">Trang chủ</a>
+            <a href="/SWP/customers/my-bookings" class="hover:underline">Đơn hàng của tôi</a>
+            <a href="/SWP/customers/my-transactions" class="hover:underline font-bold">Lịch sử giao dịch</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container mx-auto mt-8">
+    <h2 class="text-2xl font-bold mb-4 text-green-700">Lịch sử giao dịch của <span th:text="${customer.fullname}"></span></h2>
+
+    <table class="min-w-full bg-white border border-gray-300">
+        <thead>
+        <tr class="bg-green-600 text-white">
+            <th class="py-2 px-4 border">Mã GD</th>
+            <th class="py-2 px-4 border">Thời gian</th>
+            <th class="py-2 px-4 border">Loại giao dịch</th>
+            <th class="py-2 px-4 border">Kho</th>
+            <th class="py-2 px-4 border">Số tiền</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="tx : ${transactions}" class="hover:bg-gray-100">
+            <td class="py-2 px-4 border" th:text="'#' + ${tx.id}"></td>
+            <td class="py-2 px-4 border" th:text="${#temporals.format(tx.transactionDate, 'dd/MM/yyyy HH:mm')}"></td>
+            <td class="py-2 px-4 border" th:text="${tx.type}"></td>
+            <td class="py-2 px-4 border" th:text="${tx.storage.storagename}"></td>
+            <td class="py-2 px-4 border text-right" th:text="${tx.amount != null ? #numbers.formatDecimal(tx.amount, 0, 'POINT', 0, 'COMMA') + ' VNĐ' : '-'}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:if="${#lists.isEmpty(transactions)}" class="mt-4 text-gray-500">
+        Không có giao dịch nào.
+    </div>
+</main>
+
+<footer class="bg-gray-800 text-white text-center p-4 mt-12">
+    <p>© 2025 QVL STORAGE. All rights reserved.</p>
+</footer>
+</body>
+</html>
