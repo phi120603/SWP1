@@ -69,43 +69,52 @@ public class BookingController {
                                   @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
                                   HttpSession session,
                                   Model model,
-                                  @ModelAttribute("successMessage") String successMessage ) {
+                                  @ModelAttribute("successMessage") String successMessage) {
+
+        System.out.println("=== SHOW BOOKING FORM DEBUG ===");
+        System.out.println("Storage ID received: " + storageId);
+
         Optional<Storage> optionalStorage = storageService.findByID(storageId);
         if (optionalStorage.isEmpty()) {
+            System.out.println("Storage not found with ID: " + storageId);
             return "redirect:/SWP/booking/search";
         }
 
         Storage storage = optionalStorage.get();
+        System.out.println("Storage found: " + storage.getStoragename());
+        System.out.println("Storage ID: " + storage.getStorageid());
+
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
 
         model.addAttribute("storage", storage);
-        model.addAttribute("customer", customer); // Nếu đã login, có thể fill form sẵn
+        model.addAttribute("customer", customer);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
+
         if (successMessage != null && !successMessage.isBlank()) {
             model.addAttribute("successMessage", successMessage);
         }
 
-        return "booking-form"; // Form nhập thêm info khách nếu muốn
+        return "booking-form";
     }
 
     // 4. Xử lý submit booking, chỉ lúc này mới lưu vào DB!
     @PostMapping("/{storageId}/booking/save")
-    public String processBooking(@PathVariable int storageId,
-                                 @RequestParam("name") String name,
-                                 @RequestParam("email") String email,
-                                 @RequestParam("phone") String phone,
-                                 @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                 @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-                                 HttpSession session,
-                                 RedirectAttributes redirectAttributes) {
-        // Validate input
+    public String processBooking(
+            @PathVariable int storageId,
+            @RequestParam("name") String name,
+            @RequestParam("email") String email,
+            @RequestParam("phone") String phone,
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
         if (name.isBlank() || email.isBlank() || phone.isBlank()) {
             redirectAttributes.addFlashAttribute("error", "Vui lòng điền đầy đủ thông tin.");
             return "redirect:/SWP/booking/" + storageId + "/booking?startDate=" + startDate + "&endDate=" + endDate;
         }
 
-        // Check storage
         Optional<Storage> optionalStorage = storageService.findByID(storageId);
         if (optionalStorage.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy kho.");
@@ -115,7 +124,6 @@ public class BookingController {
         Storage storage = optionalStorage.get();
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
 
-        // Handle guest user
         if (customer == null) {
             Optional<Customer> existingCustomer = customerService.findByEmail(email);
             if (existingCustomer.isPresent()) {
@@ -125,14 +133,13 @@ public class BookingController {
                 customer.setFullname(name);
                 customer.setEmail(email);
                 customer.setPhone(phone);
-                customer.setRoleName(RoleName.customer); // Use enum value instead of String
-                customer.setPassword("default-guest-password"); // Adjust as needed
-                customer.setId_citizen("GUEST-" + UUID.randomUUID().toString()); // Adjust as needed
-                customer = customerService.save(customer); // Persist Customer to avoid TransientObjectException
+                customer.setRoleName(RoleName.customer);
+                customer.setPassword("default-guest-password");
+                customer.setId_citizen("GUEST-" + UUID.randomUUID().toString());
+                customer = customerService.save(customer);
             }
         }
 
-        // Create and save order
         Order order = new Order();
         order.setCustomer(customer);
         order.setStorage(storage);
@@ -143,22 +150,16 @@ public class BookingController {
         long days = ChronoUnit.DAYS.between(startDate, endDate);
         order.setTotalAmount(days > 0 ? days * storage.getPricePerDay() : storage.getPricePerDay());
 
-        orderService.save(order);
+        Order savedOrder = orderService.save(order);
 
-        return "redirect:/SWP/booking/success?orderId=" + order.getId();
+        // ✅ Thêm Flash Attribute thông báo thành công
+        redirectAttributes.addFlashAttribute("successMessage",
+                "Đặt kho thành công! Mã đơn #" + savedOrder.getId());
 
-
-
-
+        // ✅ Redirect sang My Bookings
+        return "redirect:/SWP/customers/my-bookings";
     }
 
-    // 5. Trang xác nhận booking thành công
-    @GetMapping("/success")
-    public String bookingSuccess(@RequestParam("orderId") int orderId, Model model) {
-        Order order = orderService.getOrderById(orderId).orElse(null);
-        model.addAttribute("order", order);
-        return "booking-success";
-    }
 
 
 }
