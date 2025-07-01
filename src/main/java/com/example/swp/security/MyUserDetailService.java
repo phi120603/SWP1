@@ -2,7 +2,7 @@ package com.example.swp.security;
 
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.ManageRepository;
-import com.example.swp.repository.StaffReponsitory;
+import com.example.swp.repository.StaffRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,7 @@ public class MyUserDetailService implements UserDetailsService {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private StaffReponsitory staffRepository;
+    private StaffRepository staffRepository;
 
     @Autowired
     private ManageRepository managerRepository;

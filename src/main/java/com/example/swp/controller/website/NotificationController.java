@@ -31,7 +31,7 @@ public class NotificationController {
         Customer customer = customerService.findByEmail(email);
 
         if (customer == null) {
-            return "redirect:/login";
+            return "redirect:/api/login";
         }
 
         List<Notification> notifications = notificationService.getNotificationsForCustomer(customer);

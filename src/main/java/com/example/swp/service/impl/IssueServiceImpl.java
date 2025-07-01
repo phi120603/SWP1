@@ -7,7 +7,7 @@ import com.example.swp.entity.Staff;
 import com.example.swp.enums.IssueStatus;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.IssueRepository;
-import com.example.swp.repository.StaffReponsitory;
+import com.example.swp.repository.StaffRepository;
 import com.example.swp.service.IssueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class IssueServiceImpl implements IssueService {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private StaffReponsitory staffRepository;
+    private StaffRepository staffRepository;
 
     @Override
     public List<Issue> getAllIssues() {
@@ -39,8 +39,9 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public List<Issue> getIssuesByCustomerId(int customerId) {
-        return issueRepository.findByCustomerId(customerId);
+    public Issue getIssueByIdOrThrow(int id) {
+        return issueRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Issue với id " + id));
     }
 
     @Override
@@ -57,11 +58,33 @@ public class IssueServiceImpl implements IssueService {
         issue.setAssignedStaff(staff);
         issue.setCreatedDate(new Date());
         issue.setResolved(false);
-
-        // Thêm dòng này nếu chưa có
         issue.setStatus(IssueStatus.PENDING);
 
         return issueRepository.save(issue);
     }
 
+    @Override
+    public List<Issue> getIssuesByCustomerId(int customerId) {
+        return issueRepository.findByCustomerId(customerId);
+    }
+
+    @Override
+    public Issue saveIssue(Issue issue) {
+        return issueRepository.save(issue);
+    }
+
+    @Override
+    public void deleteIssueById(int id) {
+        issueRepository.deleteById(id);
+    }
+
+    @Override
+    public long countAll() {
+        return issueRepository.count();
+    }
+
+    @Override
+    public long countByStatus(IssueStatus status) {
+        return issueRepository.countByStatus(status);
+    }
 }

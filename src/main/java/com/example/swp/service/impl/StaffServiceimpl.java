@@ -3,7 +3,7 @@ package com.example.swp.service.impl;
 import com.example.swp.dto.StaffRequest;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Staff;
-import com.example.swp.repository.StaffReponsitory;
+import com.example.swp.repository.StaffRepository;
 import com.example.swp.service.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,10 +16,10 @@ import java.util.Optional;
 @Component
 public class StaffServiceimpl implements StaffService {
 @Autowired
-private StaffReponsitory staffReponsitory;
+private StaffRepository staffRepository;
     @Override
     public List<Staff> getAllStaff() {
-        return staffReponsitory.findAll() ;
+        return staffRepository.findAll() ;
     }
 
     @Override
@@ -32,7 +32,7 @@ private StaffReponsitory staffReponsitory;
         staff.setRoleName(staffRequest.getRoleName());
         staff.setSex(staffRequest.isSex());
         staff.setIdCitizenCard(staffRequest.getIdCitizenCard());
-        return staffReponsitory.save(staff);
+        return staffRepository.save(staff);
     }
 
     @Override
@@ -42,21 +42,21 @@ private StaffReponsitory staffReponsitory;
 
     @Override
     public Page<Staff> getStaffsByPage(int page, int size) {
-        return staffReponsitory.findAll(PageRequest.of(page, size));
+        return staffRepository.findAll(PageRequest.of(page, size));
     }
 
     @Override
     public int countAllStaff() {
-        return staffReponsitory.countAllStaff();
+        return staffRepository.countAllStaff();
     }
 
     @Override
     public Optional<Staff> findById(int id) {
-        return staffReponsitory.findById(id);
+        return staffRepository.findById(id);
     }
 
     @Override
     public Staff save(Staff staff) {
-        return staffReponsitory.save(staff);
+        return staffRepository.save(staff);
     }
 }

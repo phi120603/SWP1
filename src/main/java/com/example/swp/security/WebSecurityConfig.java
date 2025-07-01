@@ -18,9 +18,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+// ... phần đầu giữ nguyên
+
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
-
 public class WebSecurityConfig {
 
     private final UserDetailsService userDetailsService;
@@ -32,7 +36,9 @@ public class WebSecurityConfig {
         this.passwordEncoder = passwordEncoder;
     }
 
-   //Security filter chain
+    // Bean PasswordEncoder cần thiết cho encode/match password
+
+    // Security filter chain ...
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -43,22 +49,22 @@ public class WebSecurityConfig {
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session
-                        .maximumSessions(1) // Giới hạn chỉ 1 session login
+                        .maximumSessions(1)
                 )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                        .logoutSuccessUrl("/")
+                        .logoutSuccessUrl("/api/login") // <-- Đổi thành đường dẫn tới trang login của bạn
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
                 )
+
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable()); // Disable CSRF nếu là API thuần
+                .csrf(csrf -> csrf.disable());
 
         return http.build();
     }
 
-    //Auth provider config
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -67,20 +73,18 @@ public class WebSecurityConfig {
         return provider;
     }
 
-    //Auth manager dùng cho manual login (REST API)
     @Bean
     public AuthenticationManager authenticationManager() {
         return new ProviderManager(daoAuthenticationProvider());
     }
 
-    //CORS configuration
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:8088")); // chỉnh domain nếu cần
+        config.setAllowedOrigins(Arrays.asList("http://localhost:8080"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("*"));
-        config.setAllowCredentials(true); // Để gửi cookie
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
