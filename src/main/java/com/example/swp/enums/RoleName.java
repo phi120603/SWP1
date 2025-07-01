@@ -5,4 +5,7 @@ public enum RoleName {
     delivery,
     STAFF,
     MANAGER,
+    BLOCKED
 }
+
+
