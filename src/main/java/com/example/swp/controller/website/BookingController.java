@@ -159,6 +159,19 @@ public class BookingController {
         // ✅ Redirect sang My Bookings
         return "redirect:/SWP/customers/my-bookings";
     }
+    @GetMapping("/detail")
+    public String bookingDetail(@RequestParam("orderId") int orderId, Model model) {
+        Optional<Order> orderOpt = orderService.getOrderById(orderId);
+        if (orderOpt.isEmpty()) {
+            model.addAttribute("error", "Không tìm thấy đơn hàng #" + orderId);
+            return "error";
+        }
+        Order order = orderOpt.get();
+        model.addAttribute("order", order);
+        return "booking-detail";
+    }
+
+
 
 
 

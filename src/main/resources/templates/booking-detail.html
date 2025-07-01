@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết đơn hàng - QVL STORAGE</title>
+    <link rel="stylesheet" th:href="@{/css/booking-detail.css}">
+
+</head>
+<body class="bg-gray-50 font-sans">
+<header class="bg-green-600 text-white p-4">
+    <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-xl font-bold">Chi tiết đơn hàng</h1>
+        <nav class="space-x-4">
+            <a href="/home-page" class="hover:underline">Trang chủ</a>
+            <a href="/SWP/customers/my-bookings" class="hover:underline">Đơn hàng của tôi</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container mx-auto mt-8 p-6">
+    <div class="bg-white rounded-lg shadow p-6 max-w-2xl mx-auto">
+        <h2 class="text-2xl font-bold mb-4 text-green-700">Thông tin đơn hàng</h2>
+        <div class="space-y-2 text-gray-700">
+            <p><strong>Mã đơn hàng:</strong> <span th:text="'#' + ${order.id}"></span></p>
+            <p><strong>Tên kho:</strong> <span th:text="${order.storage.storagename}"></span></p>
+            <p><strong>Ngày bắt đầu:</strong> <span th:text="${#temporals.format(order.startDate, 'dd/MM/yyyy')}"></span></p>
+            <p><strong>Ngày kết thúc:</strong> <span th:text="${#temporals.format(order.endDate, 'dd/MM/yyyy')}"></span></p>
+            <p><strong>Tổng tiền:</strong> <span th:text="${#numbers.formatInteger(order.totalAmount, '0')}"></span> VNĐ</p>
+            <p><strong>Trạng thái:</strong> <span th:text="${order.status}" class="font-semibold text-yellow-600"></span></p>
+        </div>
+
+        <div class="mt-6 flex gap-4">
+            <a th:href="@{'/create-payment'(orderId=${order.id}, amount=${order.totalAmount})}"
+               class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition">
+                Thanh toán
+            </a>
+
+            <form th:action="@{/SWP/customers/my-bookings/{id}/cancel(id=${order.id})}" method="post" onsubmit="return confirm('Bạn có chắc muốn huỷ đơn hàng này?');">
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition">
+                    Hủy đơn
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-gray-800 text-white text-center p-4 mt-8">
+    <p>© 2025 QVL STORAGE. All rights reserved.</p>
+</footer>
+</body>
+</html>
