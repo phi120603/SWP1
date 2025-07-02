@@ -1,6 +1,8 @@
 package com.example.swp.repository;
 
 import com.example.swp.entity.Order;
+import com.example.swp.entity.Storage;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.swp.entity.Customer;
 import org.springframework.data.jpa.repository.Modifying;
@@ -29,6 +31,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     Order save(Order order); // nếu chưa có (thường đã có do extend JpaRepository)
     Optional<Order> findById(int id);
+
 
 }
 

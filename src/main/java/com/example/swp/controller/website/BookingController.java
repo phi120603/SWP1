@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
-
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
@@ -31,38 +30,53 @@ public class BookingController {
 
     @Autowired
     private OrderService orderService;
+
     @Autowired
     private CustomerService customerService;
 
-    // 1. Hiển thị form tìm kiếm booking (không liên kết storage nào)
+    /**
+     * Hiển thị form tìm kiếm booking
+     */
     @GetMapping("/search")
     public String showBookingSearchForm(Model model, HttpSession session) {
         model.addAttribute("order", new Order());
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
         if (customer != null) {
             model.addAttribute("customer", customer);
-        }// Sử dụng Order cho binding ngày
+        }
         return "booking-search";
     }
 
-    // 2. Xử lý submit form tìm kiếm, hiển thị danh sách kho đáp ứng
+    /**
+     * Xử lý tìm kiếm kho còn trống
+     */
     @GetMapping("/search/result")
-    public String processBookingSearch(@ModelAttribute("order") Order searchOrder, Model model) {
+    public String processBookingSearch(
+            @ModelAttribute("order") Order searchOrder,
+            @RequestParam(value = "minArea", required = false) Double minArea,
+            Model model) {
+
         LocalDate startDate = searchOrder.getStartDate();
         LocalDate endDate = searchOrder.getEndDate();
+
         if (startDate == null || endDate == null || startDate.isAfter(endDate)) {
             model.addAttribute("error", "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.");
             return "booking-search";
         }
 
-        List<Storage> storages = storageService.findAvailableStorages(startDate, endDate);
+        List<Storage> storages = storageService.findAvailableStorages(startDate, endDate, minArea);
+
         model.addAttribute("storages", storages);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
+        model.addAttribute("minArea", minArea);
+
         return "booking-list";
     }
 
-    // 3. Hiển thị form booking khi khách chọn 1 kho từ danh sách
+    /**
+     * Hiển thị form booking khi khách chọn kho
+     */
     @GetMapping("/{storageId}/booking")
     public String showBookingForm(@PathVariable int storageId,
                                   @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -71,20 +85,18 @@ public class BookingController {
                                   Model model,
                                   @ModelAttribute("successMessage") String successMessage) {
 
-        System.out.println("=== SHOW BOOKING FORM DEBUG ===");
-        System.out.println("Storage ID received: " + storageId);
-
         Optional<Storage> optionalStorage = storageService.findByID(storageId);
         if (optionalStorage.isEmpty()) {
-            System.out.println("Storage not found with ID: " + storageId);
             return "redirect:/SWP/booking/search";
         }
 
         Storage storage = optionalStorage.get();
-        System.out.println("Storage found: " + storage.getStoragename());
-        System.out.println("Storage ID: " + storage.getStorageid());
-
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
+
+        // TẠO TOKEN mới mỗi lần mở form
+        String orderToken = UUID.randomUUID().toString();
+        session.setAttribute("orderToken", orderToken);
+        model.addAttribute("orderToken", orderToken);
 
         model.addAttribute("storage", storage);
         model.addAttribute("customer", customer);
@@ -98,17 +110,28 @@ public class BookingController {
         return "booking-form";
     }
 
-    // 4. Xử lý submit booking, chỉ lúc này mới lưu vào DB!
+    /**
+     * Xử lý submit booking
+     */
     @PostMapping("/{storageId}/booking/save")
-    public String processBooking(
-            @PathVariable int storageId,
-            @RequestParam("name") String name,
-            @RequestParam("email") String email,
-            @RequestParam("phone") String phone,
-            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
+    public String processBooking(@PathVariable int storageId,
+                                 @RequestParam("name") String name,
+                                 @RequestParam("email") String email,
+                                 @RequestParam("phone") String phone,
+                                 @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                 @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                                 @RequestParam("orderToken") String orderToken,
+                                 HttpSession session,
+                                 RedirectAttributes redirectAttributes) {
+
+        // KIỂM TRA TOKEN
+        String sessionToken = (String) session.getAttribute("orderToken");
+        if (sessionToken == null || !sessionToken.equals(orderToken)) {
+            redirectAttributes.addFlashAttribute("error", "Form không hợp lệ hoặc đã được submit.");
+            return "redirect:/SWP/booking/search";
+        }
+        // Xoá token ngay sau khi dùng
+        session.removeAttribute("orderToken");
 
         if (name.isBlank() || email.isBlank() || phone.isBlank()) {
             redirectAttributes.addFlashAttribute("error", "Vui lòng điền đầy đủ thông tin.");
@@ -133,7 +156,7 @@ public class BookingController {
                 customer.setFullname(name);
                 customer.setEmail(email);
                 customer.setPhone(phone);
-                customer.setRoleName(RoleName.customer);
+                customer.setRoleName(RoleName.CUSTOMER);
                 customer.setPassword("default-guest-password");
                 customer.setId_citizen("GUEST-" + UUID.randomUUID().toString());
                 customer = customerService.save(customer);
@@ -147,18 +170,21 @@ public class BookingController {
         order.setEndDate(endDate);
         order.setOrderDate(LocalDate.now());
         order.setStatus("PENDING");
+
         long days = ChronoUnit.DAYS.between(startDate, endDate);
         order.setTotalAmount(days > 0 ? days * storage.getPricePerDay() : storage.getPricePerDay());
 
         Order savedOrder = orderService.save(order);
 
-        // ✅ Thêm Flash Attribute thông báo thành công
         redirectAttributes.addFlashAttribute("successMessage",
                 "Đặt kho thành công! Mã đơn #" + savedOrder.getId());
 
-        // ✅ Redirect sang My Bookings
         return "redirect:/SWP/customers/my-bookings";
     }
+
+    /**
+     * Chi tiết đơn hàng
+     */
     @GetMapping("/detail")
     public String bookingDetail(@RequestParam("orderId") int orderId, Model model) {
         Optional<Order> orderOpt = orderService.getOrderById(orderId);
@@ -170,9 +196,4 @@ public class BookingController {
         model.addAttribute("order", order);
         return "booking-detail";
     }
-
-
-
-
-
 }

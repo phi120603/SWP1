@@ -20,5 +20,5 @@ public interface StorageService {
     void save(Storage storage);
 
     void deleteStorageById(int id);
-    List<Storage> findAvailableStorages(LocalDate startDate, LocalDate endDate);
+    List<Storage> findAvailableStorages(LocalDate startDate, LocalDate endDate,Double minArea);
 }

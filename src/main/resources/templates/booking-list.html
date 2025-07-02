@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Danh sách kho trống</title>
+  <!-- Giữ link CSS của bạn -->
   <link rel="stylesheet" href="/css/storage-list.css">
   <style>
     .storage-grid {
@@ -92,6 +93,10 @@
                 <span th:text="${storage.address}">Địa chỉ</span>
               </div>
               <div class="info-item">
+                <i data-lucide="layout"></i>
+                <span th:text="${storage.area} + ' m²'">0 m²</span>
+              </div>
+              <div class="info-item">
                 <i data-lucide="tag"></i>
                 <span th:text="${#numbers.formatDecimal(storage.pricePerDay, 0, 'COMMA', 0, 'POINT')} + ' VNĐ/ngày'">0 VNĐ/ngày</span>
               </div>
@@ -156,7 +161,9 @@
       <div class="footer-divider"></div>
 
       <div class="footer-bottom">
-        <p class="copyright">Bản quyền ©2024. Tất cả quyền được bảo lưu. — QVL Storage System</p>
+        <p class="copyright">
+          Bản quyền ©2024. Tất cả quyền được bảo lưu. — QVL Storage System
+        </p>
         <ul class="footer-bottom-links">
           <li><a href="#">Điều khoản & Điều kiện</a></li>
           <li><a href="#">Chính sách bảo mật</a></li>

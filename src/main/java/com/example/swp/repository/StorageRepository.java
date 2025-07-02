@@ -18,14 +18,25 @@ public interface StorageRepository extends JpaRepository<Storage, Integer> {
 //    @Transactional
 //    @Query(value = "ALTER TABLE storage AUTO_INCREMENT = 1", nativeQuery = true)
 //    void resetAutoIncrement();
-@Query("SELECT s FROM Storage s WHERE s.status = true AND NOT EXISTS (" +
-        "SELECT o FROM Order o WHERE o.storage = s " +
-        "AND o.status IN ('PENDING', 'CONFIRMED', 'ACTIVE') " + // ⚠ Chỉ lọc các trạng thái đang giữ chỗ!
-        "AND (o.startDate <= :endDate AND o.endDate >= :startDate))")
-List<Storage> findAvailableStorages(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
-
+@Query("""
+    SELECT s FROM Storage s
+    WHERE s.status = true
+      AND (:minArea IS NULL OR s.area >= :minArea)
+      AND NOT EXISTS (
+          SELECT o FROM Order o
+          WHERE o.storage = s
+            AND o.status IN ('PENDING', 'CONFIRMED', 'ACTIVE')
+            AND o.startDate <= :endDate
+            AND o.endDate >= :startDate
+      )
+""")
+List<Storage> findAvailableStorages(
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("minArea") Double minArea);
 
     Optional<Storage> findById(int id);
+
 
 
 }

@@ -44,10 +44,8 @@
             <div class="card-content">
                 <div th:if="${error}" class="message error" th:text="${error}"></div>
 
-                <!-- ⚠️ Cập nhật action sang /search/result -->
                 <form th:action="@{/SWP/booking/search/result}" method="get" th:object="${order}">
-
-                <div class="form-section">
+                    <div class="form-section">
                         <div class="form-group">
                             <label for="startDate">Ngày bắt đầu:</label>
                             <input type="date" id="startDate" name="startDate"
@@ -61,6 +59,14 @@
                                    class="form-input"
                                    th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
                                    required>
+                        </div>
+                        <div class="form-group">
+                            <label for="minArea">Diện tích tối thiểu (m²):</label>
+                            <input type="number" id="minArea" name="minArea"
+                                   th:value="${minArea}"
+                                   class="form-input"
+                                   placeholder="Nhập diện tích m²"
+                                   min="0" step="1">
                         </div>
                     </div>
                     <div class="action-section">

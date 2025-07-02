@@ -24,6 +24,7 @@ public class StorageServiceimpl implements StorageService {
         return storageRepository.findAll();
     }
 
+
     @Override
     public Storage createStorage(StorageRequest storageRequest) {
         Storage storage = new Storage();
@@ -82,10 +83,9 @@ public class StorageServiceimpl implements StorageService {
 
 
     }
-    // StorageServiceImpl.java
     @Override
-    public List<Storage> findAvailableStorages(LocalDate startDate, LocalDate endDate) {
-        return storageRepository.findAvailableStorages(startDate, endDate);
+    public List<Storage> findAvailableStorages(LocalDate startDate, LocalDate endDate, Double minArea) {
+        return storageRepository.findAvailableStorages(startDate, endDate, minArea);
     }
 
 
