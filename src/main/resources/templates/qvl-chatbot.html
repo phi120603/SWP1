@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>QVL Chatbot Demo</title>
+</head>
+<body>
+<h2>QVL Chatbot Demo</h2>
+<input type="text" id="messageInput" placeholder="Nhập tin nhắn..." style="width: 300px;">
+<button onclick="sendMessage()">Gửi</button>
+<div id="result" style="margin-top: 20px; font-weight: bold;"></div>
+
+<script>
+    function sendMessage() {
+        const message = document.getElementById('messageInput').value;
+        fetch('http://localhost:8080/api/chatbot/ask', {   // backend Spring Boot
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        })
+            .then(res => res.text())
+            .then(data => {
+                document.getElementById('result').innerText = data;
+            })
+            .catch(err => {
+                document.getElementById('result').innerText = 'Lỗi: ' + err;
+            });
+    }
+</script>
+</body>
+</html>

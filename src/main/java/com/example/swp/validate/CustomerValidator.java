@@ -30,7 +30,7 @@ public class CustomerValidator {
         if (!StringUtils.hasText(customer.getId_citizen()) || customer.getId_citizen().length() != 12)
             errors.put("id_citizen", "Số CCCD phải có 12 số!");
 
-        if (customer.getPassword() == null || customer.getPassword().length() < 6)
+        if (customer.getPassword() == null || customer.getPassword().length() < 8)
             errors.put("password", "Mật khẩu phải có ít nhất 6 ký tự!");
 
         if (customer.getRoleName() == null)
