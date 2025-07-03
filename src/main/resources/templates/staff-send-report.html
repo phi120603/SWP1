@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gửi Báo Cáo Vấn Đề</title>
+    <link rel="stylesheet" th:href="@{/css/staff-dashboard.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .report-form-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(30,40,60,0.06);
+            padding: 32px 24px;
+            max-width: 1000px;
+            margin: 30px auto 0 auto;
+        }
+        .form-title {
+            font-size: 1.45rem;
+            font-weight: 600;
+            margin-bottom: 1.7rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #144fc7;
+        }
+        .form-group {
+            margin-bottom: 1.3rem;
+        }
+        label {
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        textarea, input[type=text] {
+            width: 100%;
+            padding: 9px 14px;
+            border-radius: 8px;
+            border: 1.2px solid #cfd8dc;
+            font-size: 1rem;
+            resize: vertical;
+            transition: border 0.18s;
+        }
+        textarea:focus, input[type=text]:focus {
+            border-color: #2960ff;
+            outline: none;
+        }
+        .issues-table-container {
+            margin-bottom: 1.3rem;
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 10px 8px 2px 8px;
+            box-shadow: 0 1px 5px rgba(40,50,70,0.06);
+            max-height: 270px;
+            overflow-y: auto;
+        }
+        table.issue-select-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table.issue-select-table th,
+        table.issue-select-table td {
+            padding: 9px 8px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.98rem;
+            text-align: left;
+        }
+        table.issue-select-table th {
+            color: #334155;
+            background: #f1f5f9;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 0.55rem 1.3rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.17s;
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+        }
+        .btn-primary:hover { background: #144fc7; }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #222e3a;
+        }
+        .btn-secondary:hover { background: #cbd5e1; }
+        .select-all-row {
+            font-size: 0.99rem;
+            color: #64748b;
+        }
+        .report-hint {
+            font-size: 0.96rem;
+            color: #757575;
+            margin-bottom: 0.3rem;
+        }
+        .error-message {
+            color: #dc2626;
+            font-size: 0.95rem;
+            margin-top: 6px;
+        }
+        @media (max-width: 700px) {
+            .report-form-card { padding: 18px 5vw;}
+        }
+    </style>
+</head>
+<body>
+<div th:replace="taskbar/staff-taskbar :: staffTaskbar"></div>
+<main class="main-content">
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>Send Issue</h1>
+        </div>
+        <div class="header-right">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Tìm kiếm..." id="searchInput">
+            </div>
+        </div>
+    </header>
+    <div class="report-form-card">
+        <div class="form-title">
+            <i class="fa-solid fa-paper-plane"></i> Gửi Báo Cáo Vấn Đề
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" style="background: #d1fae5; color: #065f46; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px;">
+            <span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger" style="background: #fee2e2; color: #991b1b; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px;">
+            <span th:text="${error}"></span>
+        </div>
+
+        <form th:action="@{/SWP/issues/staff-send-report}" method="post" id="sendReportForm">
+            <!-- Chọn issue từ danh sách -->
+            <div class="form-group">
+                <label>Chọn vấn đề khách hàng muốn gửi:</label>
+                <div class="issues-table-container">
+                    <table class="issue-select-table">
+                        <thead>
+                        <tr>
+                            <th style="width:38px"><input type="checkbox" id="checkAllIssues"></th>
+                            <th>ID</th>
+                            <th>Mô tả</th>
+                            <th>Khách hàng</th>
+                            <th>Ngày tạo</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="issue : ${issues}">
+                            <td>
+                                <input type="checkbox" name="issueIds" th:value="${issue.id}">
+                            </td>
+                            <td th:text="${issue.subject}"></td>
+                            <td th:text="${issue.description}"></td>
+                            <td th:text="${issue.customer?.fullname ?: 'Không xác định'}"></td>
+                            <td th:text="${issue.createdDate != null ? #dates.format(issue.createdDate, 'dd/MM/yyyy HH:mm') : ''}"></td>
+                            <td>
+                                <span th:if="${issue.resolved}" class="status-badge active">Đã xử lý</span>
+                                <span th:if="${!issue.resolved}" class="status-badge warning">Chưa xử lý</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(issues)}">
+                            <td colspan="6" class="select-all-row text-center">Không có vấn đề nào của khách hàng cần gửi.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="report-hint">Bạn có thể chọn nhiều vấn đề để gửi lên một lúc, hoặc bỏ qua để chỉ gửi ý kiến riêng.</div>
+            </div>
+            <!-- Nội dung báo cáo tự do -->
+            <div class="form-group">
+                <label for="customReport">Hoặc nhập nội dung vấn đề riêng muốn gửi lên:</label>
+                <textarea name="customReport" id="customReport" rows="4" maxlength="1000"
+                          placeholder="Nhập vấn đề cần báo cáo (tối đa 1000 ký tự)..."
+                          th:text="${customReport}"></textarea>
+                <div id="customReportError" class="error-message" style="display:none;"></div>
+            </div>
+            <div class="report-hint">Có thể chọn cả hai: chọn vấn đề khách + nhập nội dung thêm.</div>
+            <!-- Actions -->
+            <div class="form-actions">
+                <a th:href="@{/SWP/issues}" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Quay lại</a>
+                <button type="submit" class="btn btn-primary"><i class="fa fa-paper-plane"></i> Gửi báo cáo</button>
+            </div>
+        </form>
+    </div>
+</main>
+<script>
+    // Check/uncheck all
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkAll = document.getElementById('checkAllIssues');
+        if (checkAll) {
+            checkAll.addEventListener('change', function () {
+                document.querySelectorAll('input[name="issueIds"]').forEach(c => c.checked = checkAll.checked);
+            });
+        }
+    });
+        document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('sendReportForm');
+        const textarea = document.getElementById('customReport');
+        const errorDiv = document.getElementById('customReportError');
+
+        textarea.addEventListener('input', function() {
+        const value = textarea.value;
+        if (value.length > 1000) {
+        textarea.classList.add('input-error');
+        errorDiv.textContent = "Nội dung không được vượt quá 1000 ký tự.";
+        errorDiv.style.display = 'block';
+    } else {
+        textarea.classList.remove('input-error');
+        errorDiv.textContent = "";
+        errorDiv.style.display = 'none';
+    }
+    });
+
+        form.addEventListener('submit', function(e) {
+        const value = textarea.value;
+        if (value.length > 1000) {
+        textarea.classList.add('input-error');
+        errorDiv.textContent = "Nội dung không được vượt quá 1000 ký tự.";
+        errorDiv.style.display = 'block';
+        e.preventDefault();
+    }
+    });
+    });
+</script>
+</body>
+</html>

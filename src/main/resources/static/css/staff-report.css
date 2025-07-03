@@ -11,6 +11,7 @@ body {
     color: #334155;
     line-height: 1.6;
     overflow-x: hidden;
+    margin-top: -850px;
 }
 
 /* Sidebar Styles */

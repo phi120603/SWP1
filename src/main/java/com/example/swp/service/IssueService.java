@@ -8,6 +8,11 @@ import java.util.Optional;
 
 public interface IssueService {
     List<Issue> getAllIssues();
+
     Optional<Issue> getIssueById(int id);
+
     Issue createIssue(IssueRequest issueRequest);
+
+    void updateAssignedStaffAndStatus(int id, int staffId, Boolean resolved);
+
 }

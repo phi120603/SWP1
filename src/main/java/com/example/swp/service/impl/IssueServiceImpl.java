@@ -54,4 +54,15 @@ public class IssueServiceImpl implements IssueService {
 
         return issueRepository.save(issue);
     }
+
+    @Override
+    public void updateAssignedStaffAndStatus(int id, int staffId, Boolean resolved) {
+        Issue issue = issueRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy issue với id " + id));
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy staff với id " + staffId));
+        issue.setAssignedStaff(staff);
+        issue.setResolved(resolved);
+        issueRepository.save(issue);
+    }
 }
