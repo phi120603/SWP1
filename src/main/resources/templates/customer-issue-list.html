@@ -422,21 +422,21 @@
     </div>
 
     <!-- Stats -->
-    <div class="stat-card" th:classappend="${status == 'PENDING'} ? 'selected' : ''">
+    <div class="stat-card" th:classappend="${status == 'Pending'} ? 'selected' : ''">
         <div class="stat-icon pending">⏱️</div>
         <div class="stat-content">
             <h3 th:text="${pendingCount}">0</h3>
             <p>Chờ xử lý</p>
         </div>
     </div>
-    <div class="stat-card" th:classappend="${status == 'IN_PROGRESS'} ? 'selected' : ''">
+    <div class="stat-card" th:classappend="${status == 'In_Progress'} ? 'selected' : ''">
         <div class="stat-icon progress">🔄</div>
         <div class="stat-content">
             <h3 th:text="${progressCount}">0</h3>
             <p>Đang xử lý</p>
         </div>
     </div>
-    <div class="stat-card" th:classappend="${status == 'RESOLVED'} ? 'selected' : ''">
+    <div class="stat-card" th:classappend="${status == 'Resolved'} ? 'selected' : ''">
         <div class="stat-icon resolved">✅</div>
         <div class="stat-content">
             <h3 th:text="${resolvedCount}">0</h3>
@@ -464,10 +464,10 @@
             </div>
             <select name="status" class="filter-select" th:value="${status}">
                 <option value="">Tất cả trạng thái</option>
-                <option value="PENDING" th:selected="${status == 'PENDING'}">Chờ xử lý</option>
-                <option value="IN_PROGRESS" th:selected="${status == 'IN_PROGRESS'}">Đang xử lý</option>
-                <option value="RESOLVED" th:selected="${status == 'RESOLVED'}">Đã giải quyết</option>
-                <option value="CLOSED" th:selected="${status == 'CLOSED'}">Đã đóng</option>
+                <option value="Pending" th:selected="${status == 'Pending'}">Chờ xử lý</option>
+                <option value="In_Progress" th:selected="${status == 'In_Progress'}">Đang xử lý</option>
+                <option value="Resolved" th:selected="${status == 'Resolved'}">Đã giải quyết</option>
+                <option value="Closed" th:selected="${status == 'Closed'}">Đã đóng</option>
             </select>
             <button type="submit" class="action-btn">
                 🔍 Lọc
@@ -494,10 +494,10 @@
                 <span class="status-badge"
                       th:classappend="${#strings.toLowerCase(issue.status)}">
                         <span th:switch="${issue.status}">
-                            <span th:case="'PENDING'">⏱️ Chờ xử lý</span>
-                            <span th:case="'IN_PROGRESS'">🔄 Đang xử lý</span>
-                            <span th:case="'RESOLVED'">✅ Đã giải quyết</span>
-                            <span th:case="'CLOSED'">❌ Đã đóng</span>
+                            <span th:case="'Pending'">⏱️ Chờ xử lý</span>
+                            <span th:case="'In_Progress'">🔄 Đang xử lý</span>
+                            <span th:case="'Resolved'">✅ Đã giải quyết</span>
+                            <span th:case="'Closed'">❌ Đã đóng</span>
                         </span>
                     </span>
             </div>
@@ -550,7 +550,7 @@
     // Click vào stat-card để lọc nhanh
     document.querySelectorAll('.stat-card').forEach(function(card, idx) {
         card.onclick = function() {
-            let statusArr = ["PENDING", "IN_PROGRESS", "RESOLVED", ""];
+            let statusArr = ["Pending", "In_Progress", "Resolved", ""];
             let status = statusArr[idx];
             let select = document.querySelector('select[name="status"]');
             select.value = status;

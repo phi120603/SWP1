@@ -101,10 +101,10 @@
             <span class="label">Trạng thái:</span>
             <span class="status-badge" th:classappend="${#strings.toLowerCase(issue.status)}">
                 <span th:switch="${issue.status}">
-                    <span th:case="'PENDING'">⏱️ Chờ xử lý</span>
-                    <span th:case="'IN_PROGRESS'">🔄 Đang xử lý</span>
-                    <span th:case="'RESOLVED'">✅ Đã giải quyết</span>
-                    <span th:case="'CLOSED'">❌ Đã đóng</span>
+                    <span th:case="'Pending'">⏱️ Chờ xử lý</span>
+                    <span th:case="'In_Progress'">🔄 Đang xử lý</span>
+                    <span th:case="'Resolved'">✅ Đã giải quyết</span>
+                    <span th:case="'Closed'">❌ Đã đóng</span>
                 </span>
             </span>
         </li>

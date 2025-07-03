@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +23,7 @@
                 <span>Home</span>
             </a>
         </li>
-        <li class="menu-item" id="dashboard-menu">
+        <li class="menu-item" id="staff-dashboard-menu">
             <a href="/SWP/staff/staff-dashboard">
                 <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
@@ -140,15 +140,15 @@
                 </div>
             </form>
 
-<!--            <form action="/SWP/customers" method="get" class="search-form">-->
-<!--                <div class="filter-group">-->
-<!--                    <label for="name">Search by Name:</label>-->
-<!--                    <input type="text" id="name" name="name" placeholder="Enter customer name..." class="filter-select">-->
-<!--                    <button type="submit" class="btn-secondary">-->
-<!--                        <i class="fas fa-search"></i>-->
-<!--                    </button>-->
-<!--                </div>-->
-<!--            </form>-->
+            <!--            <form action="/SWP/customers" method="get" class="search-form">-->
+            <!--                <div class="filter-group">-->
+            <!--                    <label for="name">Search by Name:</label>-->
+            <!--                    <input type="text" id="name" name="name" placeholder="Enter customer name..." class="filter-select">-->
+            <!--                    <button type="submit" class="btn-secondary">-->
+            <!--                        <i class="fas fa-search"></i>-->
+            <!--                    </button>-->
+            <!--                </div>-->
+            <!--            </form>-->
 
             <form action="/SWP/customers" method="get" class="search-form">
                 <div class="filter-group">
@@ -267,7 +267,7 @@
 
     function clearFilters() {
         document.getElementById('role').value = 'ALL';
-        document.getElementById('name').value = '';
+        document.getElementById('name') && (document.getElementById('name').value = ''); // giữ nguyên logic nếu bạn mở lại input name
         document.getElementById('customerId').value = '';
         // Optionally submit the form to clear server-side filters
         document.querySelector('.filter-form').submit();

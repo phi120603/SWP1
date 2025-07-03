@@ -1,9 +1,8 @@
 package com.example.swp.enums;
 
 public enum IssueStatus {
-    PENDING,
-    RESOLVED,
-    IN_PROGRESS,
-    REJECTED,
-    CLOSED
+    Pending,
+    Resolved,
+    In_Progress,
+    Closed
 }

@@ -5,15 +5,20 @@ import com.example.swp.dto.CustomerProfileUpdateRequest;
 import com.example.swp.dto.ForgotPasswordRequest;
 import com.example.swp.entity.Customer;
 import com.example.swp.service.CustomerService;
-import com.example.swp.service.NotificationService; // <-- thêm dòng này!
+import com.example.swp.service.NotificationService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 @Controller
 public class CustomerProfileController {
@@ -25,9 +30,8 @@ public class CustomerProfileController {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private NotificationService notificationService; // <-- thêm dòng này!
+    private NotificationService notificationService;
 
-    // Hiển thị profile, luôn truyền đủ object cho các form!
     @GetMapping("/profile")
     public String profile(Model model, HttpSession session,
                           @RequestParam(value = "tab", required = false, defaultValue = "profile") String tab) {
@@ -54,18 +58,18 @@ public class CustomerProfileController {
         return "customer-profile";
     }
 
-    // Cập nhật thông tin
+    // Cập nhật thông tin + upload avatar
     @PostMapping("/update-profile")
     public String updateProfile(
             @ModelAttribute("customerProfile") @Valid CustomerProfileUpdateRequest form,
             BindingResult bindingResult,
+            @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             Model model,
             HttpSession session
     ) {
         String email = (String) session.getAttribute("email");
         Customer customer = email != null ? customerService.findByEmail(email) : null;
 
-        // Luôn truyền lại attributes cho tất cả các tab!
         model.addAttribute("forgotPasswordRequest", new ForgotPasswordRequest());
         model.addAttribute("changePasswordRequest", new ChangePasswordRequest());
         model.addAttribute("customer", customer);
@@ -76,9 +80,15 @@ public class CustomerProfileController {
             customer.setFullname(form.getFullname());
             customer.setPhone(form.getPhone());
             customer.setAddress(form.getAddress());
-            customerService.save(customer);
 
-            // ------> TẠO THÔNG BÁO Ở ĐÂY!
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                try {
+                    customer.setAvatar(avatarFile.getBytes());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            customerService.save(customer);
             notificationService.createNotification("Bạn vừa cập nhật thông tin cá nhân thành công.", customer);
 
             Customer updated = customerService.findByEmail(email);
@@ -89,6 +99,31 @@ public class CustomerProfileController {
         }
         model.addAttribute("error", "Không xác định được khách hàng.");
         return "customer-profile";
+    }
+
+    // Trả về ảnh đại diện từ database
+    @GetMapping("/profile/avatar/{id}")
+    @ResponseBody
+    public ResponseEntity<byte[]> getAvatar(@PathVariable int id) {
+        Customer customer = customerService.getCustomer(id);
+        if (customer != null && customer.getAvatar() != null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_JPEG); // Hoặc PNG tùy bạn lưu
+            return new ResponseEntity<>(customer.getAvatar(), headers, HttpStatus.OK);
+        } else {
+            // Trả về ảnh mặc định
+            try (InputStream is = getClass().getResourceAsStream("/static/img/default-avatar.png")) {
+                if (is != null) {
+                    byte[] defaultAvatar = is.readAllBytes();
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setContentType(MediaType.IMAGE_PNG);
+                    return new ResponseEntity<>(defaultAvatar, headers, HttpStatus.OK);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Quên mật khẩu
@@ -155,7 +190,6 @@ public class CustomerProfileController {
         customer.setPassword(passwordEncoder.encode(form.getNewPassword()));
         customerService.save(customer);
 
-        // ------> TẠO THÔNG BÁO Ở ĐÂY (tuỳ chọn)
         notificationService.createNotification("Bạn vừa đổi mật khẩu thành công.", customer);
 
         model.addAttribute("success", "Đổi mật khẩu thành công!");

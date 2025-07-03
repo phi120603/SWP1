@@ -58,7 +58,7 @@ public class IssueServiceImpl implements IssueService {
         issue.setAssignedStaff(staff);
         issue.setCreatedDate(new Date());
         issue.setResolved(false);
-        issue.setStatus(IssueStatus.PENDING);
+        issue.setStatus(IssueStatus.Pending);
 
         return issueRepository.save(issue);
     }

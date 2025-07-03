@@ -46,7 +46,6 @@
     .message.success { color: #388e3c; font-weight: bold; margin-bottom: 16px; background: #d1fae5; border: 1px solid #a7f3d0; border-radius: 8px; text-align: center; padding: 10px 0;}
     .message.error { color: #d32f2f; font-weight: bold; margin-bottom: 16px; background: #fee2e2; border: 1px solid #fca5a5; border-radius: 8px; text-align: center; padding: 10px 0;}
     .single-form-group { max-width: 400px;}
-    /* Nút quay lại */
     .back-button {
       position: absolute;
       top: 20px;
@@ -99,6 +98,11 @@
       <h3 class="section-title">Hồ sơ cá nhân</h3>
       <div class="profile-grid">
         <div th:if="${customer != null}">
+          <!-- Avatar -->
+          <div class="profile-item" style="text-align:center; grid-column: 1/-1;">
+            <img th:src="@{/profile/avatar/{id}(id=${customer.id})}" alt="Avatar" style="width:110px;height:110px;object-fit:cover;border-radius:50%;border:2.5px solid #4f46e5;margin-bottom:8px;" />
+            <div class="profile-label" style="margin-top: 10px;">Ảnh đại diện</div>
+          </div>
           <div class="profile-item">
             <div class="profile-label">Họ tên</div>
             <div class="profile-value" th:text="${customer.fullname}"></div>
@@ -127,8 +131,16 @@
     <div id="updateTab" class="tab-content [[${activeTab} == 'update' ? 'active' : '']]">
       <h3 class="section-title">Cập nhật thông tin</h3>
       <div class="form-container">
-        <form th:action="@{/update-profile}" th:object="${customerProfile}" method="post" id="profileForm">
+        <form th:action="@{/update-profile}" th:object="${customerProfile}" method="post" enctype="multipart/form-data" id="profileForm">
           <div class="form-grid">
+            <!-- Avatar input -->
+            <div class="form-group" style="text-align:center;">
+              <div style="margin-bottom:12px;">
+                <img th:src="@{/profile/avatar/{id}(id=${customer.id})}" alt="Avatar" style="width:90px;height:90px;object-fit:cover;border-radius:50%;border:2px solid #d1d5db;" />
+              </div>
+              <label class="form-label" for="avatarFile">Chọn ảnh đại diện</label>
+              <input class="form-input" type="file" id="avatarFile" name="avatarFile" accept="image/*" />
+            </div>
             <div class="form-group">
               <label class="form-label" for="fullname">Họ tên *</label>
               <input class="form-input" type="text" id="fullname" th:field="*{fullname}" maxlength="50" required
@@ -208,7 +220,6 @@
   </div>
 </div>
 <script>
-  // Tab switching logic (giữ tab khi chuyển)
   function showTab(tab) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));

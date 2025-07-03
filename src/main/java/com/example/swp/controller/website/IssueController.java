@@ -113,10 +113,10 @@ public class IssueController {
         List<Issue> issuesAll = issueService.getIssuesByCustomerId(customer.get().getId());
 
         // Đếm từng loại trạng thái
-        long pendingCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.PENDING).count();
-        long progressCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.IN_PROGRESS).count();
-        long resolvedCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.RESOLVED).count();
-        long closedCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.CLOSED).count();
+        long pendingCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.Pending).count();
+        long progressCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.In_Progress).count();
+        long resolvedCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.Resolved).count();
+        long closedCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.Closed).count();
 
         // Lọc danh sách theo trạng thái nếu có status
         List<Issue> issues = issuesAll;
@@ -194,10 +194,10 @@ public class IssueController {
     @GetMapping("/summary")
     public String summary(Model model) {
         long total = issueService.countAll();
-        long choXuLy = issueService.countByStatus(IssueStatus.PENDING);
-        long dangXuLy = issueService.countByStatus(IssueStatus.IN_PROGRESS);
-        long daGiaiQuyet = issueService.countByStatus(IssueStatus.RESOLVED);
-        long daDong = issueService.countByStatus(IssueStatus.CLOSED);
+        long choXuLy = issueService.countByStatus(IssueStatus.Pending);
+        long dangXuLy = issueService.countByStatus(IssueStatus.In_Progress);
+        long daGiaiQuyet = issueService.countByStatus(IssueStatus.Resolved);
+        long daDong = issueService.countByStatus(IssueStatus.Closed);
 
         model.addAttribute("total", total);
         model.addAttribute("choXuLy", choXuLy);
