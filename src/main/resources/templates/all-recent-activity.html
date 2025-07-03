@@ -1,10 +1,271 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Recent Activities - Staff Manager</title>
+    <link rel="stylesheet" th:href="@{/css/staff-dashboard.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .filter-group input[type="text"] {
+            border: 1.5px solid #dbeafe;
+            border-radius: 8px;
+            padding: 0.45rem 1.1rem;
+            font-size: 1rem;
+            transition: border 0.2s, box-shadow 0.2s;
+            background: #f9fafb;
+            color: #222;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .filter-group input[type="text"]:focus {
+            border: 1.5px solid #6366f1;
+            box-shadow: 0 0 0 2px #e0e7ff;
+            background: #fff;
+        }
+        .filter-group label {
+            margin-bottom: 4px;
+            font-weight: 500;
+            color: #334155;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+    </style>
 </head>
 <body>
+<!-- Sidebar -->
+<div th:replace="taskbar/staff-taskbar :: staffTaskbar"></div>
+<main class="main-content">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <h1>Hoạt động gần đây</h1>
+        </div>
+        <div class="header-right">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="activitySearchInput" placeholder="Tìm kiếm hoạt động...">
+            </div>
+        </div>
+    </header>
+    <div class="page-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2 class="page-title">Tất cả hoạt động gần đây</h2>
+            <div class="page-actions">
+                <a href="/SWP/staff/staff-dashboard" class="btn-secondary btn-back" style="text-decoration: none;">
+                    <i class="fas fa-arrow-left"></i>
+                    Quay Lại Dashboard
+                </a>
+            </div>
+        </div>
 
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-group">
+                <label for="actorFilter">Người thực hiện:</label>
+                <input type="text" id="actorFilter" placeholder="Nhập tên người...">
+            </div>
+            <div class="filter-group">
+                <label for="actionFilter">Hành động:</label>
+                <input type="text" id="actionFilter" placeholder="Nhập hành động...">
+            </div>
+            <div class="filter-group">
+                <label for="typeFilter">Loại:</label>
+                <select id="typeFilter" class="filter-select">
+                    <option value="">Tất cả</option>
+                    <option value="Storage">Kho</option>
+                    <option value="Order">Đơn hàng</option>
+                    <option value="Feedback">Feedback</option>
+                    <option value="Customer">Khách hàng</option>
+                </select>
+            </div>
+            <button class="btn-primary" type="button" onclick="applyActivityFilters()">
+                <i class="fas fa-filter"></i> Lọc
+            </button>
+            <button class="btn-secondary" type="button" onclick="clearActivityFilters()">
+                <i class="fas fa-times"></i> Xóa Filters
+            </button>
+        </div>
+
+        <!-- Thông báo flash message -->
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <!-- Activity Table -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Toàn bộ hoạt động (<span id="activityCount" th:text="${#lists.size(recentActivities)}"></span>)</h3>
+            </div>
+            <div class="table-container">
+                <table class="data-table" id="activityTable">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Người thực hiện</th>
+                        <th>Hành động</th>
+                        <th>Đối tượng</th>
+                        <th>Loại</th>
+                        <th>Thời gian</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="act : ${recentActivities}">
+                        <td th:text="${act.id}"></td>
+                        <td th:text="${act.actor}"></td>
+                        <td th:text="${act.action}"></td>
+                        <td th:text="${act.entityName}"></td>
+                        <td th:text="${act.entityType}"></td>
+                        <td th:text="${#temporals.format(act.timestamp, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td>
+                            <form th:action="@{'/SWP/staff/recent-activity/' + ${act.id} + '/delete'}" method="post"
+                                  style="margin:0;" onsubmit="return confirm('Bạn có chắc muốn xóa hoạt động này?');">
+                                <input type="hidden" name="returnUrl" value="/SWP/staff/all-recent-activity"/>
+                                <button type="submit" class="btn-icon danger" title="Delete" style="margin-left: 25px;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(recentActivities)}">
+                        <td colspan="8" class="text-center">Không có hoạt động nào.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination"></div>
+        </div>
+    </div>
+</main>
+
+<script>
+    const COLUMN_COUNT = 8;
+    const rowsPerPage = 15;
+    let currentPage = 1;
+
+    function applyActivityFilters() {
+        const actor = document.getElementById('actorFilter').value.trim().toLowerCase();
+        const action = document.getElementById('actionFilter').value.trim().toLowerCase();
+        const type = document.getElementById('typeFilter').value;
+        const search = document.getElementById('activitySearchInput').value.trim().toLowerCase();
+        const rows = document.querySelectorAll('#activityTable tbody tr');
+        let count = 0;
+
+        rows.forEach(row => {
+            if (row.querySelectorAll('td').length < COLUMN_COUNT) return; // skip empty row
+            const cells = row.querySelectorAll('td');
+            const cellActor = cells[1].textContent.toLowerCase();
+            const cellAction = cells[2].textContent.toLowerCase();
+            const cellType = cells[4].textContent;
+            const fullText = row.textContent.toLowerCase();
+
+            let show = true;
+
+            if (actor && !cellActor.includes(actor)) show = false;
+            if (action && !cellAction.includes(action)) show = false;
+            if (type && cellType !== type) show = false;
+            if (search && !fullText.includes(search)) show = false;
+
+            row.style.display = show ? '' : 'none';
+            if (show) count++;
+        });
+        document.getElementById('activityCount').textContent = count;
+        showActivityPage(1);
+        toggleNoActivityRow(count);
+    }
+
+    function clearActivityFilters() {
+        document.getElementById('actorFilter').value = '';
+        document.getElementById('actionFilter').value = '';
+        document.getElementById('typeFilter').value = '';
+        document.getElementById('activitySearchInput').value = '';
+        applyActivityFilters();
+        showActivityPage(1);
+    }
+
+    document.getElementById('activitySearchInput').addEventListener('input', function () {
+        applyActivityFilters();
+    });
+
+    function toggleNoActivityRow(visibleCount) {
+        const rows = document.querySelectorAll('#activityTable tbody tr');
+        let noRow = null;
+        rows.forEach(row => {
+            if (row.querySelectorAll('td').length < COLUMN_COUNT) noRow = row;
+        });
+        if (noRow) noRow.style.display = visibleCount === 0 ? '' : 'none';
+    }
+
+    function showActivityPage(page) {
+        const rows = document.querySelectorAll('#activityTable tbody tr');
+        const dataRows = Array.from(rows).filter(row => row.querySelectorAll('td').length === COLUMN_COUNT && row.style.display !== 'none');
+        const totalRows = dataRows.length;
+        const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
+
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+        currentPage = page;
+
+        let shown = 0, skipped = 0;
+        rows.forEach(row => {
+            if(row.querySelectorAll('td').length < COLUMN_COUNT) {
+                row.style.display = (totalRows === 0) ? '' : 'none';
+                return;
+            }
+            if (row.style.display === 'none') {
+                row.dataset.pagiHide = '1';
+                return;
+            }
+            if (skipped < (page - 1) * rowsPerPage) {
+                row.style.display = 'none';
+                row.dataset.pagiHide = '1';
+                skipped++;
+            } else if (shown < rowsPerPage) {
+                row.style.display = '';
+                row.dataset.pagiHide = '';
+                shown++;
+            } else {
+                row.style.display = 'none';
+                row.dataset.pagiHide = '1';
+            }
+        });
+        renderActivityPagination(totalPages);
+    }
+
+    function renderActivityPagination(totalPages) {
+        const pagination = document.querySelector('.pagination');
+        if (!pagination) return;
+        pagination.innerHTML = '';
+
+        const prevBtn = document.createElement('button');
+        prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.onclick = () => showActivityPage(currentPage - 1);
+        pagination.appendChild(prevBtn);
+
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            if (i === currentPage) btn.classList.add('active');
+            btn.onclick = () => showActivityPage(i);
+            pagination.appendChild(btn);
+        }
+
+        const nextBtn = document.createElement('button');
+        nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.onclick = () => showActivityPage(currentPage + 1);
+        pagination.appendChild(nextBtn);
+    }
+
+    window.onload = function() {
+        showActivityPage(1);
+    };
+</script>
 </body>
 </html>

@@ -69,8 +69,8 @@ public class StaffDBoardController {
                 new double[]{totalRevenueAll, revenuePaid, revenueApproved});
 
         List<RecentActivity> activities = recentActivityService.getAllActivities();
-        if (activities.size() > 10) {
-            activities = activities.subList(0, 10);
+        if (activities.size() > 6) {
+            activities = activities.subList(0, 6);
         }
         model.addAttribute("recentActivities", activities);
 
@@ -107,6 +107,13 @@ public class StaffDBoardController {
         List<Storage> storages = storageService.getAll();
         model.addAttribute("storages", storages);
         return "staff-all-storage"; // Tên file HTML tương ứng
+    }
+
+    @GetMapping("/all-recent-activity")
+    public String showAllRecentActivity(Model model) {
+        List<RecentActivity> recentActivities = recentActivityService.getAllActivities();
+        model.addAttribute("recentActivities", recentActivities);
+        return "all-recent-activity"; // Tên file Thymeleaf: all-recent-activity.html
     }
 
     @PostMapping("/staff-add-storage")
@@ -183,4 +190,16 @@ public class StaffDBoardController {
         // Redirect về trang detail của storage vừa chỉnh sửa
         return "redirect:/SWP/staff/storages/" + id + "/detail";
     }
+
+    @PostMapping("/recent-activity/{id}/delete")
+    public String deleteRecentActivity(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        try {
+            recentActivityService.deleteById(id);
+            redirectAttributes.addFlashAttribute("success", "Xóa hoạt động thành công.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi xóa hoạt động: " + e.getMessage());
+        }
+        return "redirect:/SWP/staff/all-recent-activity";
+    }
+
 }

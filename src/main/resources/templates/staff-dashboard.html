@@ -109,7 +109,7 @@
         <div class="card activity-card">
             <div class="card-header">
                 <h3>Hoạt động gần đây</h3>
-                <a href="#" class="view-all">View All</a>
+                <a href="/SWP/staff/all-recent-activity" class="view-all">View All</a>
             </div>
             <div class="activity-list">
                 <div class="activity-item" th:each="act : ${recentActivities}">
@@ -139,14 +139,6 @@
                     <i class="fas fa-plus"></i>
                     Thêm Kho
                 </a>
-                <select class="btn btn-secondary" style="padding: 8px 12px; border-radius: 5px;">
-                    <option value="" disabled selected>Lọc theo</option>
-                    <option value="all">Lọc theo tên</option>
-                    <option value="area">Lọc theo diện tích</option>
-                    <option value="price">Lọc theo giá</option>
-                    <option value="status">Lọc theo tình trạng</option>
-                    <option value="city">Lọc theo thành phố</option>
-                </select>
             </div>
         </div>
 
@@ -199,12 +191,6 @@
                 <a href="/SWP/feedbacks" class="btn-secondary" style="margin-left: 10px;">
                     Xem Tất Cả
                 </a>
-                <select class="btn btn-secondary" style="padding: 8px 12px; border-radius: 5px;">
-                    <option value="" disabled selected>Lọc theo</option>
-                    <option value="customer">Lọc theo đánh giá</option>
-                    <option value="storage">Lọc theo khách hàng</option>
-                    <option value="date">Lọc theo kho</option>
-                </select>
             </div>
         </div>
 
@@ -248,13 +234,6 @@
                 <a href="/SWP/orders" class="btn-secondary" style="margin-left: 10px;">
                     Xem Tất Cả
                 </a>
-                <select class="btn btn-secondary" style="padding: 8px 12px; border-radius: 5px;">
-                    <option value="" disabled selected>Lọc theo</option>
-                    <option value="status">Lọc theo trạng thái</option>
-                    <option value="amount">Lọc theo tổng tiền</option>
-                    <option value="date">Lọc theo ngày</option>
-                    <option value="customer">Lọc theo khách hàng</option>
-                </select>
             </div>
         </div>
 
@@ -297,49 +276,6 @@
 </main>
 
 <script>
-    function paginateTable(tableId, paginationId, rowsPerPage) {
-        const table = document.getElementById(tableId);
-        if (!table) return;
-        const tbody = table.querySelector('tbody');
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-        const totalRows = rows.length;
-        const totalPages = Math.ceil(totalRows / rowsPerPage);
-        const paginationDiv = document.getElementById(paginationId);
-
-        function showPage(page) {
-            rows.forEach((row, idx) => {
-                row.style.display = (idx >= (page-1)*rowsPerPage && idx < page*rowsPerPage) ? '' : 'none';
-            });
-            // Update pagination
-            paginationDiv.innerHTML = '';
-            for (let i = 1; i <= totalPages; i++) {
-                const btn = document.createElement('button');
-                btn.textContent = i;
-                btn.className = (i === page) ? 'active' : '';
-                btn.onclick = () => showPage(i);
-                paginationDiv.appendChild(btn);
-            }
-        }
-        showPage(1); // Mặc định trang 1
-    }
-
-    window.onload = function() {
-        // Phân trang bảng Storage: 10 dòng/trang
-        paginateTable('storageTable', 'storagePagination', 10);
-
-        // Menu active logic như cũ của bạn
-        var pathname = window.location.pathname;
-        if (pathname.includes("staff-dashboard")) {
-            document.getElementById('dashboard-menu').classList.add('active');
-        } else if (pathname.includes("storage") && !pathname.includes("addstorage")) {
-            document.getElementById('storagelist-menu').classList.add('active');
-        } else if (pathname.includes("addstorage")) {
-            document.getElementById('addstorage-menu').classList.add('active');
-        } else if (pathname.includes("order") ) {
-            document.getElementById('orderlist-menu').classList.add('active');
-        }
-    };
-
     document.addEventListener('DOMContentLoaded', function () {
         // Giả lập dữ liệu - bạn thay bằng dữ liệu thực từ server
         const labels = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5'];

@@ -7,7 +7,6 @@
     <link rel="stylesheet" th:href="@{/css/staff-dashboard.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Nếu muốn, thêm css nhỏ cho filter bar tại đây */
         .action-bar {
             display: flex;
             justify-content: space-between;
@@ -109,15 +108,15 @@
             <div class="table-container">
                 <table class="data-table">
                     <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Mô tả</th>
-                    <th>Khách hàng</th>
-                    <th>Nhân viên xử lý</th>
-                    <th>Trạng thái</th>
-                    <th>Hành động</th>
-                </tr>
-                </thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Mô tả</th>
+                        <th>Khách hàng</th>
+                        <th>Nhân viên xử lý</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
                     <tbody id="issueTableBody">
                     <tr th:each="issue, iterStat : ${issues}">
                         <td th:text="${issue.subject}"></td>
@@ -136,8 +135,9 @@
                             </div>
                         </td>
                     </tr>
-                    <tr th:if="${#lists.isEmpty(issues)}">
-                        <td colspan="8" class="text-center">Không có issue nào.</td>
+                    <!-- Dòng hiển thị khi không có dữ liệu -->
+                    <tr id="noIssueRow" th:if="${#lists.isEmpty(issues)}">
+                        <td colspan="6" class="text-center">Không có issue nào.</td>
                     </tr>
                     </tbody>
                 </table>
@@ -149,23 +149,16 @@
 </main>
 
 <script>
-    // Search functionality
-    document.getElementById('searchInput').addEventListener('input', function(e) {
-        applyAllFilters();
-    });
-
-    // Filter functionality
-    document.getElementById('statusFilter').addEventListener('change', function(e) {
-        applyAllFilters();
-    });
+    const COLUMN_COUNT = 6;
 
     function applyAllFilters() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
         const status = document.getElementById('statusFilter').value;
         const rows = document.querySelectorAll('.data-table tbody tr');
+        let visibleRows = 0;
 
         rows.forEach(row => {
-            if(row.querySelectorAll('td').length < 7) return; // skip 'Không có issue nào.'
+            if(row.querySelectorAll('td').length < COLUMN_COUNT) return; // skip "Không có issue nào"
             let text = row.textContent.toLowerCase();
             let visible = true;
 
@@ -178,18 +171,34 @@
                 if(status === 'resolved' && !resolvedBadge) visible = false;
                 if(status === 'unresolved' && resolvedBadge) visible = false;
             }
+
             row.style.display = visible ? '' : 'none';
+            if(visible) visibleRows++;
         });
+
+        updateTotalCount(visibleRows);
+        toggleNoIssueRow(visibleRows);
         showPage(1);
     }
 
-    // Pagination (same as cũ)
+    function updateTotalCount(visibleRows) {
+        document.getElementById('totalCount').textContent = visibleRows;
+    }
+
+    function toggleNoIssueRow(visibleRows) {
+        const noIssueRow = document.getElementById('noIssueRow');
+        if(noIssueRow) {
+            noIssueRow.style.display = visibleRows === 0 ? '' : 'none';
+        }
+    }
+
+    // Phân trang
     const rowsPerPage = 10;
     let currentPage = 1;
 
     function showPage(page) {
         const rows = document.querySelectorAll('.data-table tbody tr');
-        const dataRows = Array.from(rows).filter(row => row.querySelectorAll('td').length >= 7 && row.style.display !== 'none');
+        const dataRows = Array.from(rows).filter(row => row.querySelectorAll('td').length === COLUMN_COUNT && row.style.display !== 'none');
         const totalRows = dataRows.length;
         const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
 
@@ -199,7 +208,8 @@
 
         let shown = 0, skipped = 0;
         rows.forEach(row => {
-            if(row.querySelectorAll('td').length < 7) {
+            if(row.querySelectorAll('td').length < COLUMN_COUNT) {
+                // Dòng "Không có issue nào"
                 row.style.display = (totalRows === 0) ? '' : 'none';
                 return;
             }
@@ -248,6 +258,14 @@
         nextBtn.onclick = () => showPage(currentPage + 1);
         pagination.appendChild(nextBtn);
     }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('searchInput').addEventListener('input', applyAllFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyAllFilters);
+        // Phân trang ban đầu
+        showPage(1);
+    });
 </script>
 </body>
 </html>

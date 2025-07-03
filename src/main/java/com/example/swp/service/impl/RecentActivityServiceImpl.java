@@ -23,4 +23,9 @@ public class RecentActivityServiceImpl implements RecentActivityService {
     public RecentActivity save(RecentActivity activity) {
         return recentActivityRepository.save(activity);
     }
+
+    @Override
+    public void deleteById(Integer id) {
+        recentActivityRepository.deleteById(id);
+    }
 }
