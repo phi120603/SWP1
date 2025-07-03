@@ -18,6 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/SWP/booking")
@@ -35,6 +36,8 @@ public class BookingController {
     @GetMapping("/search")
     public String showBookingSearchForm(Model model, HttpSession session) {
         model.addAttribute("order", new Order());
+        model.addAttribute("cities", storageService.findAllCities()); // THÊM DÒNG NÀY
+        model.addAttribute("citySelected", null); // hoặc "" nếu muốn
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
         if (customer != null) {
             model.addAttribute("customer", customer);
@@ -42,31 +45,29 @@ public class BookingController {
         return "booking-search";
     }
 
+
     @GetMapping("/search/result")
     public String processBookingSearch(
-            @ModelAttribute("order") Order searchOrder,
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(value = "minArea", required = false) Double minArea,
             @RequestParam(value = "nameKeyword", required = false) String nameKeyword,
             @RequestParam(value = "minPrice", required = false) Double minPrice,
             @RequestParam(value = "maxPrice", required = false) Double maxPrice,
-            @RequestParam(value = "sortOption", required = false) String sortOption, // NEW
+            @RequestParam(value = "city", required = false) String city,
+            @RequestParam(value = "sortOption", required = false) String sortOption,
             Model model,
             HttpSession session) {
-
-        LocalDate startDate = searchOrder.getStartDate();
-        LocalDate endDate = searchOrder.getEndDate();
 
         if (startDate == null || endDate == null || startDate.isAfter(endDate)) {
             model.addAttribute("error", "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.");
             return "booking-search";
         }
 
-        // Gọi service filter nâng cao
         List<Storage> storages = storageService.findAvailableStorages(
-                startDate, endDate, minArea, minPrice, maxPrice, nameKeyword
+                startDate, endDate, minArea, minPrice, maxPrice, nameKeyword, city
         );
 
-        // Ẩn các kho mà user đã từng đặt trùng
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
         if (customer != null) {
             storages = storages.stream()
@@ -78,10 +79,10 @@ public class BookingController {
                                     endDate
                             ) == 0
                     )
-                    .toList();
+                    .collect(Collectors.toList());
         }
 
-        // === SORT ===
+        // SORT giữ nguyên như cũ
         if (sortOption != null) {
             switch (sortOption) {
                 case "priceAsc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay));
@@ -90,7 +91,6 @@ public class BookingController {
                 case "areaDesc" -> storages.sort(Comparator.comparing(Storage::getArea).reversed());
                 case "nameAsc" -> storages.sort(Comparator.comparing(Storage::getStoragename, String.CASE_INSENSITIVE_ORDER));
                 case "nameDesc" -> storages.sort(Comparator.comparing(Storage::getStoragename, String.CASE_INSENSITIVE_ORDER).reversed());
-                default -> { /* Không sort nếu chọn mặc định */ }
             }
         }
 
@@ -101,10 +101,13 @@ public class BookingController {
         model.addAttribute("nameKeyword", nameKeyword);
         model.addAttribute("minPrice", minPrice);
         model.addAttribute("maxPrice", maxPrice);
-        model.addAttribute("sortOption", sortOption); // Để giữ lại chọn của user
+        model.addAttribute("sortOption", sortOption);
+        model.addAttribute("citySelected", city);
+        model.addAttribute("cities", storageService.findAllCities());
 
         return "booking-list";
     }
+
 
 
     @GetMapping("/{storageId}/booking")

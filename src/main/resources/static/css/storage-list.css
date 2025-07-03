@@ -702,6 +702,39 @@ body {
     }
 }
 
+.btn-back-floating {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    z-index: 1001;
+    background: #f5f5f5;
+    color: #22743e;
+    border: 1px solid #b9e4ce;
+    border-radius: 999px;
+    padding: 8px 18px 8px 14px;
+    box-shadow: 0 2px 12px rgba(40,70,60,0.04);
+    font-weight: 600;
+    font-size: 16px;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+    display: inline-flex;
+    align-items: center;
+}
+.btn-back-floating:hover {
+    background: #e3fbe7;
+    color: #127734;
+    border-color: #127734;
+}
+@media (max-width: 600px) {
+    .btn-back-floating {
+        top: 8px;
+        left: 8px;
+        font-size: 15px;
+        padding: 6px 12px 6px 10px;
+    }
+}
+
+
 @media (max-width: 480px) {
     .hero-content h1 {
         font-size: 2rem;

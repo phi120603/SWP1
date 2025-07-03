@@ -24,6 +24,7 @@ public interface StorageRepository extends JpaRepository<Storage, Integer> {
       AND (:minArea IS NULL OR s.area >= :minArea)
       AND (:minPrice IS NULL OR s.pricePerDay >= :minPrice)
       AND (:maxPrice IS NULL OR s.pricePerDay <= :maxPrice)
+      AND (:city IS NULL OR :city = '' OR s.city = :city)
       AND (:nameKeyword IS NULL OR
            LOWER(s.storagename) LIKE LOWER(CONCAT('%', :nameKeyword, '%'))
         OR LOWER(s.address) LIKE LOWER(CONCAT('%', :nameKeyword, '%')))
@@ -41,10 +42,16 @@ List<Storage> findAvailableStorages(
         @Param("minArea") Double minArea,
         @Param("minPrice") Double minPrice,
         @Param("maxPrice") Double maxPrice,
-        @Param("nameKeyword") String nameKeyword);
+        @Param("nameKeyword") String nameKeyword,
+        @Param("city") String city // vẫn giữ param này!
+);
+
 
 
     Optional<Storage> findById(int id);
+    @Query("SELECT DISTINCT s.city FROM Storage s WHERE s.status = true ORDER BY s.city ASC")
+    List<String> findAllCities();
+
 
 
 

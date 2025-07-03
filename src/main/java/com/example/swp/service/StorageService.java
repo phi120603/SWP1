@@ -26,6 +26,9 @@ public interface StorageService {
             Double minArea,
             Double minPrice,
             Double maxPrice,
-            String nameKeyword);
+            String nameKeyword,
+            String city);
+
+    List<String> findAllCities();
 
 }

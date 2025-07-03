@@ -84,12 +84,19 @@ public class StorageServiceimpl implements StorageService {
 
     }
     @Override
-    public List<Storage> findAvailableStorages(LocalDate startDate, LocalDate endDate,
-                                               Double minArea, Double minPrice,
-                                               Double maxPrice, String nameKeyword) {
+    public List<Storage> findAvailableStorages(
+            LocalDate startDate, LocalDate endDate,
+            Double minArea, Double minPrice,
+            Double maxPrice, String nameKeyword, String city) {
         return storageRepository.findAvailableStorages(
-                startDate, endDate, minArea, minPrice, maxPrice, nameKeyword);
+                startDate, endDate, minArea, minPrice, maxPrice, nameKeyword, city);
     }
+
+    @Override
+    public List<String> findAllCities() {
+        return storageRepository.findAllCities();
+    }
+
 
 
 

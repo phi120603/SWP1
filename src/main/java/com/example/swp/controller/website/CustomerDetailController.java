@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +57,13 @@ public class CustomerDetailController {
         return "my-bookings"; // tạo file my-bookings.html
     }
     @PostMapping("/my-bookings/{id}/cancel")
-    public String cancelBooking(@PathVariable("id") int orderId, HttpSession session) {
+    public String cancelBooking(
+            @PathVariable("id") int orderId,
+            @RequestParam("cancelReason") String cancelReason,
+            @RequestParam(value = "otherReason", required = false) String otherReason,
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
         if (customer == null) {
             return "redirect:/api/login";
@@ -65,14 +72,28 @@ public class CustomerDetailController {
         Optional<Order> optionalOrder = orderService.getOrderById(orderId);
         if (optionalOrder.isPresent()) {
             Order order = optionalOrder.get();
-
-            if (order.getCustomer().getId() == customer.getId() && "PENDING".equals(order.getStatus())) {
-                orderService.deleteById(orderId);
+            if (order.getCustomer().getId() == customer.getId() &&
+                    ("PENDING".equals(order.getStatus()) || "CONFIRMED".equals(order.getStatus()))) {
+                order.setStatus("CANCELLED");
+                // Lưu đúng lý do
+                if ("other".equals(cancelReason) && otherReason != null && !otherReason.isBlank()) {
+                    order.setCancelReason(otherReason);
+                } else {
+                    order.setCancelReason(cancelReason);
+                }
+                orderService.save(order);
+                redirectAttributes.addFlashAttribute("successMessage", "Đã hủy đơn #" + orderId + " thành công!");
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Bạn không thể hủy đơn này.");
             }
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
         }
-
         return "redirect:/SWP/customers/my-bookings";
     }
+
+
+
     @GetMapping("/my-transactions")
     public String viewMyTransactions(HttpSession session, Model model) {
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
