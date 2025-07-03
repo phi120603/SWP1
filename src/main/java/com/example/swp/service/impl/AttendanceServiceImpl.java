@@ -40,4 +40,24 @@ public class AttendanceServiceImpl implements AttendanceService {
     public List<Attendance> getAttendanceByStaff(Staff staff) {
         return attendanceRepository.findByStaff(staff);
     }
+
+    @Override
+    public List<Attendance> getAllAttendance() {
+        return attendanceRepository.findAll();
+    }
+
+    @Override
+    public List<Attendance> getAttendanceByStaffId(Long staffId) {
+        return attendanceRepository.findByStaff_Staffid(staffId);
+    }
+
+    @Override
+    public List<Attendance> getAttendanceByDateRange(LocalDateTime from, LocalDateTime to) {
+        return attendanceRepository.findByCheckInTimeBetween(from, to);
+    }
+
+    @Override
+    public List<Attendance> getAttendanceByStaffIdAndDateRange(Long staffId, LocalDateTime from, LocalDateTime to) {
+        return attendanceRepository.findByStaff_StaffidAndCheckInTimeBetween(staffId, from, to);
+    }
 }

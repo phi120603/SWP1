@@ -2,30 +2,323 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>QVL Chatbot Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QVL Chatbot - QVL Storage</title>
+    <link rel="stylesheet" href="qvl-chatbot.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-<h2>QVL Chatbot Demo</h2>
-<input type="text" id="messageInput" placeholder="Nhập tin nhắn..." style="width: 300px;">
-<button onclick="sendMessage()">Gửi</button>
-<div id="result" style="margin-top: 20px; font-weight: bold;"></div>
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-database"></i>
+            <span>QVL Storage</span>
+        </div>
+    </div>
+    <ul class="sidebar-menu">
+        <li class="menu-item">
+            <a href="/SWP">
+                <i class="fas fa-home"></i>
+                <span>Trang chủ</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/orders">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Đơn hàng</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/feedbacks">
+                <i class="fas fa-comments"></i>
+                <span>Phản hồi</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/customers">
+                <i class="fas fa-users"></i>
+                <span>Khách hàng</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/revenue-statistics">
+                <i class="fas fa-chart-line"></i>
+                <span>Thống kê</span>
+            </a>
+        </li>
+        <li class="menu-item active" id="chatbot-menu">
+            <a href="/SWP/chatbot">
+                <i class="fas fa-robot"></i>
+                <span>AI Chatbot</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="#settings">
+                <i class="fas fa-cog"></i>
+                <span>Cài đặt</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details">
+                <span class="user-name">Admin User</span>
+                <span class="user-role">Administrator</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>AI Chatbot Assistant</h1>
+        </div>
+
+        <div class="header-right">
+            <div class="chat-status">
+                <div class="status-indicator online"></div>
+                <span>Trực tuyến</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="page-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2 class="page-title">QVL Chatbot Demo</h2>
+            <div class="page-actions">
+                <button class="btn-secondary btn-back">
+                    <a href="/SWP" style="color: inherit; text-decoration: none;">
+                        <i class="fas fa-arrow-left"></i>
+                        Quay lại
+                    </a>
+                </button>
+                <button class="btn-secondary" onclick="clearChat()">
+                    <i class="fas fa-trash"></i>
+                    Xóa cuộc trò chuyện
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <div class="chat-card">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="chat-info">
+                        <div class="bot-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="bot-details">
+                            <h3>QVL Assistant</h3>
+                            <p>Trợ lý AI thông minh của QVL Storage</p>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="btn-icon" title="Cài đặt chat">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <button class="btn-icon" title="Thông tin">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div class="chat-messages" id="chat-box">
+                    <div class="welcome-message">
+                        <div class="bot-avatar-small">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <div class="ai-msg">
+                                Xin chào! Tôi là QVL Assistant. Tôi có thể giúp bạn với các câu hỏi về dịch vụ lưu trữ, đơn hàng, và hỗ trợ khách hàng. Bạn cần hỗ trợ gì hôm nay?
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Input -->
+                <div class="chat-input-container">
+                    <div class="chat-input-wrapper">
+                        <input
+                                type="text"
+                                id="messageInput"
+                                placeholder="Nhập tin nhắn của bạn..."
+                                class="chat-input"
+                                onkeypress="handleKeyPress(event)"
+                        >
+                        <button class="send-button" onclick="sendMessage()" id="sendButton">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="input-suggestions">
+                        <button class="suggestion-btn" onclick="sendSuggestion('Làm thế nào để đặt kho?')">
+                            Làm thế nào để đặt kho?
+                        </button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('Giá thuê kho như thế nào?')">
+                            Giá thuê kho như thế nào?
+                        </button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('Kiểm tra đơn hàng')">
+                            Kiểm tra đơn hàng
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
 
 <script>
+    let isTyping = false;
+
+    function appendMessage(role, text) {
+        const chatBox = document.getElementById('chat-box');
+        const messageDiv = document.createElement('div');
+
+        if (role === 'user') {
+            messageDiv.className = 'message-wrapper user-message';
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="user-msg">${text}</div>
+                </div>
+                <div class="user-avatar-small">
+                    <i class="fas fa-user"></i>
+                </div>
+            `;
+        } else {
+            messageDiv.className = 'message-wrapper ai-message';
+            messageDiv.innerHTML = `
+                <div class="bot-avatar-small">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <div class="ai-msg">${text}</div>
+                </div>
+            `;
+        }
+
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const chatBox = document.getElementById('chat-box');
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message-wrapper ai-message typing-indicator';
+        typingDiv.id = 'typing-indicator';
+        typingDiv.innerHTML = `
+            <div class="bot-avatar-small">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content">
+                <div class="ai-msg typing">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        `;
+        chatBox.appendChild(typingDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
     function sendMessage() {
-        const message = document.getElementById('messageInput').value;
-        fetch('http://localhost:8080/api/chatbot/ask', {   // backend Spring Boot
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+        if (!message || isTyping) return;
+
+        appendMessage('user', message);
+        input.value = '';
+        isTyping = true;
+
+        // Show typing indicator
+        showTypingIndicator();
+
+        // Disable send button
+        const sendButton = document.getElementById('sendButton');
+        sendButton.disabled = true;
+        sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        fetch('/api/chatbot/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: message })
         })
             .then(res => res.text())
             .then(data => {
-                document.getElementById('result').innerText = data;
+                hideTypingIndicator();
+                appendMessage('ai', data);
             })
             .catch(err => {
-                document.getElementById('result').innerText = 'Lỗi: ' + err;
+                hideTypingIndicator();
+                appendMessage('ai', 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.');
+                console.error('Error:', err);
+            })
+            .finally(() => {
+                isTyping = false;
+                sendButton.disabled = false;
+                sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
             });
     }
+
+    function sendSuggestion(text) {
+        document.getElementById('messageInput').value = text;
+        sendMessage();
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    function clearChat() {
+        if (confirm('Bạn có chắc chắn muốn xóa toàn bộ cuộc trò chuyện?')) {
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML = `
+                <div class="welcome-message">
+                    <div class="bot-avatar-small">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="ai-msg">
+                            Xin chào! Tôi là QVL Assistant. Tôi có thể giúp bạn với các câu hỏi về dịch vụ lưu trữ, đơn hàng, và hỗ trợ khách hàng. Bạn cần hỗ trợ gì hôm nay?
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Sidebar toggle for mobile
+    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('open');
+    });
+
+    // Auto-focus on input
+    document.getElementById('messageInput').focus();
 </script>
 </body>
 </html>
