@@ -87,4 +87,24 @@ public class IssueServiceImpl implements IssueService {
     public long countByStatus(IssueStatus status) {
         return issueRepository.countByStatus(status);
     }
+    @Override
+    public List<Issue> searchAndFilterIssues(String search, String status) {
+        if ((search == null || search.isBlank()) && (status == null || status.isBlank()))
+            return issueRepository.findAll();
+
+        IssueStatus st = null;
+        if (status != null && !status.isBlank()) {
+            try { st = IssueStatus.valueOf(status); } catch (Exception ignored) {}
+        }
+
+        if (search != null && !search.isBlank() && st != null)
+            return issueRepository.searchByKeywordAndStatus(search, st);
+        if (search != null && !search.isBlank())
+            return issueRepository.searchByKeyword(search);
+        if (st != null)
+            return issueRepository.findByStatus(st);
+
+        return issueRepository.findAll();
+    }
+
 }

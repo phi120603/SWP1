@@ -38,7 +38,35 @@ public class IssueController {
     @Autowired
     private NotificationService notificationService;
 
-    // Tạo mới Issue
+    // ----------- Trang danh sách issue (cho admin/staff, search + filter) -----------
+    @GetMapping
+    public String listAllIssues(
+            Model model,
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "status", required = false) String status
+    ) {
+        List<Issue> issues = issueService.searchAndFilterIssues(search, status);
+
+        long pendingCount = issueService.countByStatus(IssueStatus.Pending);
+        long progressCount = issueService.countByStatus(IssueStatus.In_Progress);
+        long resolvedCount = issueService.countByStatus(IssueStatus.Resolved);
+        long closedCount = issueService.countByStatus(IssueStatus.Closed);
+        long totalCount = issueService.countAll();
+
+        model.addAttribute("issues", issues);
+        model.addAttribute("pendingCount", pendingCount);
+        model.addAttribute("progressCount", progressCount);
+        model.addAttribute("resolvedCount", resolvedCount);
+        model.addAttribute("closedCount", closedCount);
+        model.addAttribute("totalCount", totalCount);
+
+        model.addAttribute("search", search);
+        model.addAttribute("status", status);
+
+        return "customer-issue-list";
+    }
+
+    // ----------- Tạo mới Issue -----------
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("issueRequest", new com.example.swp.dto.IssueRequest());
@@ -64,7 +92,7 @@ public class IssueController {
             model.addAttribute("success", "Tạo Issue thành công!");
             model.addAttribute("issueRequest", new com.example.swp.dto.IssueRequest());
 
-            // Thông báo cho customer
+            // Thông báo cho customer (nếu đang đăng nhập)
             String email = (String) session.getAttribute("email");
             if (email != null) {
                 Optional<Customer> customerOpt = customerRepository.findByEmail(email);
@@ -78,7 +106,7 @@ public class IssueController {
         return "create-issue";
     }
 
-    // Danh sách Issue của customer (có thống kê + lọc)
+    // ----------- Danh sách Issue của customer (lọc theo trạng thái) -----------
     @GetMapping("/my-issues")
     public String viewCustomerIssues(
             Model model,
@@ -94,7 +122,7 @@ public class IssueController {
             model.addAttribute("resolvedCount", 0);
             model.addAttribute("closedCount", 0);
             model.addAttribute("totalCount", 0);
-            model.addAttribute("status", status); // Để giữ trạng thái dropdown nếu có
+            model.addAttribute("status", status);
             return "customer-issue-list";
         }
         Optional<Customer> customer = customerRepository.findByEmail(email);
@@ -112,13 +140,13 @@ public class IssueController {
 
         List<Issue> issuesAll = issueService.getIssuesByCustomerId(customer.get().getId());
 
-        // Đếm từng loại trạng thái
+        // Đếm trạng thái
         long pendingCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.Pending).count();
         long progressCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.In_Progress).count();
         long resolvedCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.Resolved).count();
         long closedCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.Closed).count();
 
-        // Lọc danh sách theo trạng thái nếu có status
+        // Lọc theo trạng thái nếu có
         List<Issue> issues = issuesAll;
         if (status != null && !status.isEmpty()) {
             try {
@@ -127,7 +155,7 @@ public class IssueController {
                         .filter(i -> i.getStatus() == st)
                         .collect(Collectors.toList());
             } catch (Exception e) {
-                // Nếu status truyền lên không đúng enum thì bỏ qua
+                // ignore nếu status không hợp lệ
             }
         }
 
@@ -142,7 +170,7 @@ public class IssueController {
         return "customer-issue-list";
     }
 
-    // Xem chi tiết Issue
+    // ----------- Xem chi tiết Issue -----------
     @GetMapping("/view")
     public String viewIssue(@RequestParam("id") int id, Model model) {
         Optional<Issue> issueOpt = issueService.getIssueById(id);
@@ -154,7 +182,7 @@ public class IssueController {
         return "issue-view";
     }
 
-    // Hiển thị form sửa Issue
+    // ----------- Hiển thị form sửa Issue -----------
     @GetMapping("/edit")
     public String showEditForm(@RequestParam("id") int id, Model model) {
         Optional<Issue> issueOpt = issueService.getIssueById(id);
@@ -168,7 +196,6 @@ public class IssueController {
         return "issue-edit";
     }
 
-    // Xử lý submit form sửa Issue
     @PostMapping("/edit")
     public String editIssue(@ModelAttribute("issue") @Valid Issue issue,
                             BindingResult bindingResult,
@@ -183,14 +210,14 @@ public class IssueController {
         return "redirect:/SWP/issues/my-issues";
     }
 
-    // Xóa Issue
+    // ----------- Xóa Issue -----------
     @PostMapping("/delete")
     public String deleteIssue(@RequestParam("id") int id, Model model) {
         issueService.deleteIssueById(id);
         return "redirect:/SWP/issues/my-issues";
     }
 
-    // Trang tổng hợp cho admin/staff
+    // ----------- Trang tổng hợp Issue -----------
     @GetMapping("/summary")
     public String summary(Model model) {
         long total = issueService.countAll();

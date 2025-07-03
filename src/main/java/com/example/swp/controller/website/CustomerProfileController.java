@@ -32,33 +32,44 @@ public class CustomerProfileController {
     @Autowired
     private NotificationService notificationService;
 
+    /**
+     * Trang profile khách hàng
+     */
     @GetMapping("/profile")
     public String profile(Model model, HttpSession session,
                           @RequestParam(value = "tab", required = false, defaultValue = "profile") String tab) {
         String email = (String) session.getAttribute("email");
+
+        // Nếu chưa đăng nhập, chuyển về trang đăng nhập, hoặc bạn có thể set message lỗi
+        if (email == null) {
+            model.addAttribute("error", "Bạn chưa đăng nhập.");
+            return "redirect:/login";
+        }
+
+        Customer customer = customerService.findByEmail(email);
+
         CustomerProfileUpdateRequest customerProfile = new CustomerProfileUpdateRequest();
         ForgotPasswordRequest forgotPasswordRequest = new ForgotPasswordRequest();
         ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest();
 
-        Customer customer = null;
-        if (email != null) {
-            customer = customerService.findByEmail(email);
-            if (customer != null) {
-                customerProfile.setFullname(customer.getFullname());
-                customerProfile.setPhone(customer.getPhone());
-                customerProfile.setEmail(customer.getEmail());
-                customerProfile.setAddress(customer.getAddress());
-            }
+        if (customer != null) {
+            customerProfile.setFullname(customer.getFullname());
+            customerProfile.setPhone(customer.getPhone());
+            customerProfile.setEmail(customer.getEmail());
+            customerProfile.setAddress(customer.getAddress());
         }
+
         model.addAttribute("customerProfile", customerProfile);
         model.addAttribute("forgotPasswordRequest", forgotPasswordRequest);
         model.addAttribute("changePasswordRequest", changePasswordRequest);
-        model.addAttribute("customer", customer);
+        model.addAttribute("customer", customer); // customer có thể null, nhớ kiểm tra trong template!
         model.addAttribute("activeTab", tab);
         return "customer-profile";
     }
 
-    // Cập nhật thông tin + upload avatar
+    /**
+     * Cập nhật thông tin profile + upload avatar
+     */
     @PostMapping("/update-profile")
     public String updateProfile(
             @ModelAttribute("customerProfile") @Valid CustomerProfileUpdateRequest form,
@@ -68,7 +79,12 @@ public class CustomerProfileController {
             HttpSession session
     ) {
         String email = (String) session.getAttribute("email");
-        Customer customer = email != null ? customerService.findByEmail(email) : null;
+        if (email == null) {
+            model.addAttribute("error", "Bạn chưa đăng nhập.");
+            return "redirect:/login";
+        }
+
+        Customer customer = customerService.findByEmail(email);
 
         model.addAttribute("forgotPasswordRequest", new ForgotPasswordRequest());
         model.addAttribute("changePasswordRequest", new ChangePasswordRequest());
@@ -101,14 +117,16 @@ public class CustomerProfileController {
         return "customer-profile";
     }
 
-    // Trả về ảnh đại diện từ database
+    /**
+     * Trả về ảnh đại diện từ database (dùng cho <img th:src="@{/profile/avatar/{id}(id=${customer.id})}"/>)
+     */
     @GetMapping("/profile/avatar/{id}")
     @ResponseBody
     public ResponseEntity<byte[]> getAvatar(@PathVariable int id) {
         Customer customer = customerService.getCustomer(id);
         if (customer != null && customer.getAvatar() != null) {
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.IMAGE_JPEG); // Hoặc PNG tùy bạn lưu
+            headers.setContentType(MediaType.IMAGE_JPEG); // Hoặc IMAGE_PNG tùy bạn lưu
             return new ResponseEntity<>(customer.getAvatar(), headers, HttpStatus.OK);
         } else {
             // Trả về ảnh mặc định
@@ -126,7 +144,9 @@ public class CustomerProfileController {
         }
     }
 
-    // Quên mật khẩu
+    /**
+     * Xử lý quên mật khẩu
+     */
     @PostMapping("/forgot-password")
     public String forgotPassword(
             @ModelAttribute("forgotPasswordRequest") @Valid ForgotPasswordRequest form,
@@ -151,7 +171,9 @@ public class CustomerProfileController {
         return "customer-profile";
     }
 
-    // Đổi mật khẩu (submit trên tab đổi mật khẩu)
+    /**
+     * Đổi mật khẩu
+     */
     @PostMapping("/change-password")
     public String changePassword(
             @ModelAttribute("changePasswordRequest") @Valid ChangePasswordRequest form,
@@ -164,7 +186,7 @@ public class CustomerProfileController {
         model.addAttribute("forgotPasswordRequest", new ForgotPasswordRequest());
         model.addAttribute("changePasswordRequest", form);
         model.addAttribute("activeTab", "changePassword");
-        Customer customer = email != null ? customerService.findByEmail(email) : null;
+        Customer customer = (email != null) ? customerService.findByEmail(email) : null;
         model.addAttribute("customer", customer);
 
         if (email == null) {
