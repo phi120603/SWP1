@@ -22,6 +22,11 @@ public interface StorageRepository extends JpaRepository<Storage, Integer> {
     SELECT s FROM Storage s
     WHERE s.status = true
       AND (:minArea IS NULL OR s.area >= :minArea)
+      AND (:minPrice IS NULL OR s.pricePerDay >= :minPrice)
+      AND (:maxPrice IS NULL OR s.pricePerDay <= :maxPrice)
+      AND (:nameKeyword IS NULL OR
+           LOWER(s.storagename) LIKE LOWER(CONCAT('%', :nameKeyword, '%'))
+        OR LOWER(s.address) LIKE LOWER(CONCAT('%', :nameKeyword, '%')))
       AND NOT EXISTS (
           SELECT o FROM Order o
           WHERE o.storage = s
@@ -33,7 +38,11 @@ public interface StorageRepository extends JpaRepository<Storage, Integer> {
 List<Storage> findAvailableStorages(
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
-        @Param("minArea") Double minArea);
+        @Param("minArea") Double minArea,
+        @Param("minPrice") Double minPrice,
+        @Param("maxPrice") Double maxPrice,
+        @Param("nameKeyword") String nameKeyword);
+
 
     Optional<Storage> findById(int id);
 

@@ -17,9 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
 @RequestMapping("/SWP/booking")
@@ -34,9 +32,6 @@ public class BookingController {
     @Autowired
     private CustomerService customerService;
 
-    /**
-     * Hiển thị form tìm kiếm booking
-     */
     @GetMapping("/search")
     public String showBookingSearchForm(Model model, HttpSession session) {
         model.addAttribute("order", new Order());
@@ -47,14 +42,16 @@ public class BookingController {
         return "booking-search";
     }
 
-    /**
-     * Xử lý tìm kiếm kho còn trống
-     */
     @GetMapping("/search/result")
     public String processBookingSearch(
             @ModelAttribute("order") Order searchOrder,
             @RequestParam(value = "minArea", required = false) Double minArea,
-            Model model) {
+            @RequestParam(value = "nameKeyword", required = false) String nameKeyword,
+            @RequestParam(value = "minPrice", required = false) Double minPrice,
+            @RequestParam(value = "maxPrice", required = false) Double maxPrice,
+            @RequestParam(value = "sortOption", required = false) String sortOption, // NEW
+            Model model,
+            HttpSession session) {
 
         LocalDate startDate = searchOrder.getStartDate();
         LocalDate endDate = searchOrder.getEndDate();
@@ -64,19 +61,52 @@ public class BookingController {
             return "booking-search";
         }
 
-        List<Storage> storages = storageService.findAvailableStorages(startDate, endDate, minArea);
+        // Gọi service filter nâng cao
+        List<Storage> storages = storageService.findAvailableStorages(
+                startDate, endDate, minArea, minPrice, maxPrice, nameKeyword
+        );
+
+        // Ẩn các kho mà user đã từng đặt trùng
+        Customer customer = (Customer) session.getAttribute("loggedInCustomer");
+        if (customer != null) {
+            storages = storages.stream()
+                    .filter(storage ->
+                            orderService.countOverlapOrdersByCustomer(
+                                    customer.getId(),
+                                    storage.getStorageid(),
+                                    startDate,
+                                    endDate
+                            ) == 0
+                    )
+                    .toList();
+        }
+
+        // === SORT ===
+        if (sortOption != null) {
+            switch (sortOption) {
+                case "priceAsc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay));
+                case "priceDesc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay).reversed());
+                case "areaAsc" -> storages.sort(Comparator.comparing(Storage::getArea));
+                case "areaDesc" -> storages.sort(Comparator.comparing(Storage::getArea).reversed());
+                case "nameAsc" -> storages.sort(Comparator.comparing(Storage::getStoragename, String.CASE_INSENSITIVE_ORDER));
+                case "nameDesc" -> storages.sort(Comparator.comparing(Storage::getStoragename, String.CASE_INSENSITIVE_ORDER).reversed());
+                default -> { /* Không sort nếu chọn mặc định */ }
+            }
+        }
 
         model.addAttribute("storages", storages);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
         model.addAttribute("minArea", minArea);
+        model.addAttribute("nameKeyword", nameKeyword);
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
+        model.addAttribute("sortOption", sortOption); // Để giữ lại chọn của user
 
         return "booking-list";
     }
 
-    /**
-     * Hiển thị form booking khi khách chọn kho
-     */
+
     @GetMapping("/{storageId}/booking")
     public String showBookingForm(@PathVariable int storageId,
                                   @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -93,7 +123,7 @@ public class BookingController {
         Storage storage = optionalStorage.get();
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
 
-        // TẠO TOKEN mới mỗi lần mở form
+        // Sinh token chống submit lại
         String orderToken = UUID.randomUUID().toString();
         session.setAttribute("orderToken", orderToken);
         model.addAttribute("orderToken", orderToken);
@@ -110,9 +140,6 @@ public class BookingController {
         return "booking-form";
     }
 
-    /**
-     * Xử lý submit booking
-     */
     @PostMapping("/{storageId}/booking/save")
     public String processBooking(@PathVariable int storageId,
                                  @RequestParam("name") String name,
@@ -124,13 +151,12 @@ public class BookingController {
                                  HttpSession session,
                                  RedirectAttributes redirectAttributes) {
 
-        // KIỂM TRA TOKEN
+        // Kiểm tra token
         String sessionToken = (String) session.getAttribute("orderToken");
         if (sessionToken == null || !sessionToken.equals(orderToken)) {
             redirectAttributes.addFlashAttribute("error", "Form không hợp lệ hoặc đã được submit.");
             return "redirect:/SWP/booking/search";
         }
-        // Xoá token ngay sau khi dùng
         session.removeAttribute("orderToken");
 
         if (name.isBlank() || email.isBlank() || phone.isBlank()) {
@@ -145,6 +171,14 @@ public class BookingController {
         }
 
         Storage storage = optionalStorage.get();
+
+        // Kiểm tra overlap với các đơn khác
+        boolean available = orderService.isStorageAvailable(storageId, startDate, endDate);
+        if (!available) {
+            redirectAttributes.addFlashAttribute("error", "Kho bạn chọn đã được người khác đặt trong thời gian này.");
+            return "redirect:/SWP/booking/search";
+        }
+
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
 
         if (customer == null) {
@@ -158,11 +192,26 @@ public class BookingController {
                 customer.setPhone(phone);
                 customer.setRoleName(RoleName.CUSTOMER);
                 customer.setPassword("default-guest-password");
-                customer.setId_citizen("GUEST-" + UUID.randomUUID().toString());
+                customer.setId_citizen("GUEST-" + UUID.randomUUID());
                 customer = customerService.save(customer);
             }
         }
 
+        // Kiểm tra trùng đơn của chính user
+        long overlapCount = orderService.countOverlapOrdersByCustomer(
+                customer.getId(),
+                storageId,
+                startDate,
+                endDate
+        );
+
+        if (overlapCount > 0) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Bạn đã từng đặt kho này trong khoảng thời gian này. Vui lòng kiểm tra lại đơn hàng của bạn hoặc chọn thời gian khác.");
+            return "redirect:/SWP/booking/search";
+        }
+
+        // Tạo mới Order
         Order order = new Order();
         order.setCustomer(customer);
         order.setStorage(storage);
@@ -182,9 +231,6 @@ public class BookingController {
         return "redirect:/SWP/customers/my-bookings";
     }
 
-    /**
-     * Chi tiết đơn hàng
-     */
     @GetMapping("/detail")
     public String bookingDetail(@RequestParam("orderId") int orderId, Model model) {
         Optional<Order> orderOpt = orderService.getOrderById(orderId);

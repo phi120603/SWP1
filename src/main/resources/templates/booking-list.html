@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Danh sách kho trống</title>
-  <!-- Giữ link CSS của bạn -->
   <link rel="stylesheet" href="/css/storage-list.css">
   <style>
     .storage-grid {
@@ -59,6 +58,52 @@
 
   <!-- Main Content -->
   <div class="container">
+
+    <!-- Bộ lọc tìm kiếm -->
+    <form th:action="@{/SWP/booking/search/result}" method="get" style="margin-bottom: 2rem;">
+      <input type="hidden" name="startDate" th:value="${startDate}" />
+      <input type="hidden" name="endDate" th:value="${endDate}" />
+
+      <div class="filter-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+        <div>
+          <label for="nameKeyword" style="font-weight: bold;">Địa chỉ / Tên kho</label>
+          <input type="text" id="nameKeyword" name="nameKeyword"
+                 th:value="${nameKeyword}" placeholder="Nhập tên kho hoặc địa chỉ"
+                 class="form-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+        </div>
+
+        <div>
+          <label for="minArea" style="font-weight: bold;">Diện tích tối thiểu (m²)</label>
+          <input type="number" id="minArea" name="minArea"
+                 th:value="${minArea}" placeholder="Ví dụ: 100"
+                 min="0" step="1"
+                 class="form-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+        </div>
+
+        <div>
+          <label for="minPrice" style="font-weight: bold;">Giá từ (VNĐ/ngày)</label>
+          <input type="number" id="minPrice" name="minPrice"
+                 th:value="${minPrice}" placeholder="Ví dụ: 100000"
+                 min="0" step="1000"
+                 class="form-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+        </div>
+
+        <div>
+          <label for="maxPrice" style="font-weight: bold;">Giá đến (VNĐ/ngày)</label>
+          <input type="number" id="maxPrice" name="maxPrice"
+                 th:value="${maxPrice}" placeholder="Ví dụ: 500000"
+                 min="0" step="1000"
+                 class="form-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+        </div>
+      </div>
+
+      <div style="margin-top: 1rem;">
+        <button type="submit" class="btn btn-primary" style="padding: 10px 20px; background-color: #4a6fa5; color: white; border: none; border-radius: 6px; cursor: pointer;">
+          <i data-lucide="filter"></i> Lọc kết quả
+        </button>
+      </div>
+    </form>
+
     <!-- No Result -->
     <div th:if="${#lists.isEmpty(storages)}" class="no-results">
       <div class="no-results-icon">

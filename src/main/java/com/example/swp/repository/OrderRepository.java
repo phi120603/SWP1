@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Integer> {
+
     List<Order> findByStatus(String status);
 
     List<Order> findByCustomer(Customer customer);
@@ -24,15 +25,39 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = 'PAID'")
     Double calculateTotalRevenue();
-    @Query("SELECT COUNT(o) FROM Order o WHERE o.storage.storageid = :storageId " +
-            "AND o.status IN ('PENDING','APPROVED','PAID') " +
-            "AND ((o.startDate <= :endDate AND o.endDate >= :startDate))")
-    long countOverlapOrders(@Param("storageId") int storageId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
-    Order save(Order order); // nếu chưa có (thường đã có do extend JpaRepository)
+    @Query("""
+        SELECT COUNT(o)
+        FROM Order o
+        WHERE o.storage.storageid = :storageId
+          AND o.status IN ('PENDING','APPROVED','PAID')
+          AND o.startDate <= :endDate
+          AND o.endDate >= :startDate
+    """)
+    long countOverlapOrders(
+            @Param("storageId") int storageId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    @Query("""
+        SELECT COUNT(o)
+        FROM Order o
+        WHERE o.customer.id = :customerId
+          AND o.storage.storageid = :storageId
+          AND o.status IN ('PENDING','CONFIRMED','ACTIVE')
+          AND o.startDate <= :endDate
+          AND o.endDate >= :startDate
+    """)
+    long countOverlapOrdersByCustomer(
+            @Param("customerId") int customerId,
+            @Param("storageId") int storageId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
     Optional<Order> findById(int id);
-
-
 }
+
 
 

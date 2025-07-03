@@ -165,7 +165,15 @@ public class OrderServiceimpl implements OrderService {
         return orderRepository.countOverlapOrders(storageId, startDate, endDate) == 0;
 
 
+
+
     }
+
+    @Override
+    public long countOverlapOrdersByCustomer(int customerId, int storageId, LocalDate startDate, LocalDate endDate) {
+        return orderRepository.countOverlapOrdersByCustomer(customerId, storageId, startDate, endDate);
+    }
+
     @Override
     public Order createBookingOrder(Storage storage, Customer customer,
                                     LocalDate startDate, LocalDate endDate, double total) {

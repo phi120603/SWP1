@@ -23,6 +23,8 @@ public interface OrderService {
     Order createOrder(OrderRequest orderRequest);
 
     List<Order> findOrdersByCustomer(Customer customer);
+    long countOverlapOrdersByCustomer(int customerId, int storageId, LocalDate startDate, LocalDate endDate);
+
 
     Order save(Order order);
 
