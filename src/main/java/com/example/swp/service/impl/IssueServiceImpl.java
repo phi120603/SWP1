@@ -4,6 +4,7 @@ import com.example.swp.dto.IssueRequest;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Issue;
 import com.example.swp.entity.Staff;
+import com.example.swp.enums.IssueStatus;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.IssueRepository;
 import com.example.swp.repository.StaffReponsitory;
@@ -25,7 +26,7 @@ public class IssueServiceImpl implements IssueService {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private StaffReponsitory staffRepository;
+    private StaffRepository staffRepository;
 
     @Override
     public List<Issue> getAllIssues() {
@@ -35,6 +36,12 @@ public class IssueServiceImpl implements IssueService {
     @Override
     public Optional<Issue> getIssueById(int id) {
         return issueRepository.findById(id);
+    }
+
+    @Override
+    public Issue getIssueByIdOrThrow(int id) {
+        return issueRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Issue với id " + id));
     }
 
     @Override
@@ -51,6 +58,7 @@ public class IssueServiceImpl implements IssueService {
         issue.setAssignedStaff(staff);
         issue.setCreatedDate(new Date());
         issue.setResolved(false);
+        issue.setStatus(IssueStatus.Pending);
 
         return issueRepository.save(issue);
     }
@@ -70,4 +78,48 @@ public class IssueServiceImpl implements IssueService {
         issue.setResolved(resolved);
         issueRepository.save(issue);
     }
+    @Override
+    public List<Issue> getIssuesByCustomerId(int customerId) {
+        return issueRepository.findByCustomerId(customerId);
+    }
+
+    @Override
+    public Issue saveIssue(Issue issue) {
+        return issueRepository.save(issue);
+    }
+
+    @Override
+    public void deleteIssueById(int id) {
+        issueRepository.deleteById(id);
+    }
+
+    @Override
+    public long countAll() {
+        return issueRepository.count();
+    }
+
+    @Override
+    public long countByStatus(IssueStatus status) {
+        return issueRepository.countByStatus(status);
+    }
+    @Override
+    public List<Issue> searchAndFilterIssues(String search, String status) {
+        if ((search == null || search.isBlank()) && (status == null || status.isBlank()))
+            return issueRepository.findAll();
+
+        IssueStatus st = null;
+        if (status != null && !status.isBlank()) {
+            try { st = IssueStatus.valueOf(status); } catch (Exception ignored) {}
+        }
+
+        if (search != null && !search.isBlank() && st != null)
+            return issueRepository.searchByKeywordAndStatus(search, st);
+        if (search != null && !search.isBlank())
+            return issueRepository.searchByKeyword(search);
+        if (st != null)
+            return issueRepository.findByStatus(st);
+
+        return issueRepository.findAll();
+    }
+
 }

@@ -54,11 +54,6 @@ public class ManagerController {
     @Autowired
     private StaffService staffService;
 
-    //    @GetMapping("/manager-dashboard")
-//    public String showDashboard(Model model) {
-//        model.addAttribute("pageTitle", "Dashboard");
-//        return "admin";
-//    }
     @GetMapping("/manager-dashboard")
     public String showDashboard(Model model) {
         List<Storage> storages = storageService.getAll();
@@ -70,11 +65,9 @@ public class ManagerController {
         List<Staff> staff = staffService.getAllStaff();
         int totalStaff = staff.size();
 
-        List<Order> latestOrders = orderService.getLast5orders();
-
-
-        double totalRevenue = orderRepository.calculateTotalRevenue();
-
+        // Chỗ này sửa lại để không lỗi null khi chưa có doanh thu
+        Double totalRevenueRaw = orderRepository.calculateTotalRevenue();
+        double totalRevenue = (totalRevenueRaw != null) ? totalRevenueRaw : 0.0;
 
         model.addAttribute("storages", storages);
         model.addAttribute("totalStorages", totalStorages);
@@ -82,7 +75,6 @@ public class ManagerController {
         model.addAttribute("totalUser", totalUser);
         model.addAttribute("staff", staff);
         model.addAttribute("totalStaff", totalStaff);
-        model.addAttribute("latestOrders", latestOrders);
         model.addAttribute("totalRevenue", totalRevenue);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -102,13 +94,13 @@ public class ManagerController {
         int totalCustomers = customers.size();
         model.addAttribute("totalCustomers", totalCustomers);
         model.addAttribute("customers", customers);
-        return "manager-customer-list"; // Trang HTML hiển thị danh sách người dùng
+        return "manager-customer-list";
     }
 
     @GetMapping("/addstorage")
     public String showAddStorageForm(Model model) {
         model.addAttribute("storage", new Storage());
-        return "addstorage"; // Trang HTML chứa form
+        return "addstorage";
     }
 
     @PostMapping("/addstorage")
@@ -129,7 +121,7 @@ public class ManagerController {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("message", "Lỗi khi thêm kho.");
         }
-        return "redirect:/SWP/storages"; // Điều hướng sau khi thêm
+        return "redirect:/SWP/storages";
     }
 
     @GetMapping("/manager-dashboard/storages/{id}")
@@ -151,7 +143,7 @@ public class ManagerController {
         } else {
             return "redirect:/admin/manager-dashboard";
         }
-        return "manager-storage-edit"; // HTML trang sửa
+        return "manager-storage-edit";
     }
 
 
@@ -162,7 +154,6 @@ public class ManagerController {
         return "redirect:/admin/manager-dashboard";
     }
 
-    //edit storage
     @PutMapping("/manager-dashboard/storages/{id}")
     public String updateStorage(@PathVariable int id,
                                 RedirectAttributes redirectAttributes,
@@ -172,11 +163,8 @@ public class ManagerController {
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy kho!");
             return "redirect:/admin/manager-dashboard";
         }
-
         storageService.updateStorage(storageRequest, optional.get());
         redirectAttributes.addFlashAttribute("message", "Cập nhật thành công!");
-
-        // ✅ Sau khi cập nhật xong → quay về dashboard
         return "manager-storagedetail";
     }
 
@@ -196,15 +184,13 @@ public class ManagerController {
         return "manager-storagedetail";
     }
 
-    //danh sách staff
     @GetMapping("/staff-list")
     public String showStaffList(
             Model model,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "3") int size
     ) {
         Page<Staff> staffPage = staffService.getStaffsByPage(page - 1, size);
-
         int totalStaff = staffService.countAllStaff();
 
         model.addAttribute("staffPage", staffPage);
@@ -223,7 +209,7 @@ public class ManagerController {
             model.addAttribute("staff", staffOpt.get());
             return "edit-staff";
         } else {
-            redirectAttributes.addFlashAttribute("error", "Không tìm thấy nhân viên!");
+            redirectAttributes.addFlashAttribute("error", "Staff not found!");
             return "redirect:/admin/staff-list";
         }
     }
@@ -251,8 +237,3 @@ public class ManagerController {
         return "redirect:/admin/staff-list";
     }
 }
-
-
-
-
-

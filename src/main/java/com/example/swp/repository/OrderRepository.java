@@ -18,10 +18,9 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     @Query("UPDATE Order o SET o.status = 'PAID' WHERE o.id = :orderId")
     void updateOrderStatusToPaid(@Param("orderId") int orderId);
 
-    @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = 'PAID'")
+    // Sửa chỗ này để luôn trả về 0 nếu không có đơn hàng PAID
+    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.status = 'PAID'")
     Double calculateTotalRevenue();
 
     List<Order> findTop5ByOrderByOrderDateDesc();
 }
-
-

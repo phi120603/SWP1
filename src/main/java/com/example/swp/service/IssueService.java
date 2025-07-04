@@ -11,6 +11,14 @@ public interface IssueService {
     Optional<Issue> getIssueById(int id);
     Issue createIssue(IssueRequest issueRequest);
     List<Issue> getIssuesByCustomerId(int customerId);
+    Issue saveIssue(Issue issue);
+    void deleteIssueById(int id);
+    long countAll();
+    long countByStatus(IssueStatus status);
+
+    // *** THÊM DÒNG NÀY ***
+    List<Issue> searchAndFilterIssues(String search, String status);
+
 
     void updateAssignedStaffAndStatus(int id, int staffId, Boolean resolved);
 

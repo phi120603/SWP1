@@ -106,7 +106,26 @@
             justify-content: center;
             font-size: 24px;
         }
-
+        .stat-card.selected {
+            border: 2.5px solid #667eea;
+            box-shadow: 0 12px 24px rgba(102,126,234,0.15);
+        }
+        .stat-card { cursor: pointer; }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(102, 126, 234, 0.18);
+            color: #374151;
+            border-radius: 50px;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-weight: 600;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+        .back-button:hover { background: #667eea; color: white; }
         .stat-icon.pending { background: #fef3c7; color: #d97706; }
         .stat-icon.progress { background: #dbeafe; color: #2563eb; }
         .stat-icon.resolved { background: #d1fae5; color: #059669; }
@@ -366,9 +385,29 @@
             height: 16px;
             display: inline-block;
         }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(102, 126, 234, 0.18);
+            color: #374151;
+            border-radius: 50px;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-weight: 600;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+        .back-button:hover {
+            background: #667eea;
+            color: white;
+        }
     </style>
 </head>
 <body>
+<!-- Nút quay lại -->
+<a href="javascript:history.back()" class="back-button" title="Quay lại trang trước">← Quay lại</a>
 <div class="container">
     <!-- Header -->
     <div class="header">
@@ -383,38 +422,36 @@
     </div>
 
     <!-- Stats -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon pending">⏱️</div>
-            <div class="stat-content">
-                <h3 th:text="${pendingCount}">5</h3>
-                <p>Chờ xử lý</p>
-            </div>
+    <div class="stat-card" th:classappend="${status == 'Pending'} ? 'selected' : ''">
+        <div class="stat-icon pending">⏱️</div>
+        <div class="stat-content">
+            <h3 th:text="${pendingCount}">0</h3>
+            <p>Chờ xử lý</p>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon progress">🔄</div>
-            <div class="stat-content">
-                <h3 th:text="${progressCount}">3</h3>
-                <p>Đang xử lý</p>
-            </div>
+    </div>
+    <div class="stat-card" th:classappend="${status == 'In_Progress'} ? 'selected' : ''">
+        <div class="stat-icon progress">🔄</div>
+        <div class="stat-content">
+            <h3 th:text="${progressCount}">0</h3>
+            <p>Đang xử lý</p>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon resolved">✅</div>
-            <div class="stat-content">
-                <h3 th:text="${resolvedCount}">12</h3>
-                <p>Đã giải quyết</p>
-            </div>
+    </div>
+    <div class="stat-card" th:classappend="${status == 'Resolved'} ? 'selected' : ''">
+        <div class="stat-icon resolved">✅</div>
+        <div class="stat-content">
+            <h3 th:text="${resolvedCount}">0</h3>
+            <p>Đã giải quyết</p>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon total">📊</div>
-            <div class="stat-content">
-                <h3 th:text="${totalCount}">20</h3>
-                <p>Tổng cộng</p>
-            </div>
+    </div>
+    <div class="stat-card" th:classappend="${status == null or status == ''} ? 'selected' : ''">
+        <div class="stat-icon total">📊</div>
+        <div class="stat-content">
+            <h3 th:text="${totalCount}">0</h3>
+            <p>Tổng cộng</p>
         </div>
     </div>
 
-    <!-- Filters -->
+    <!-- Filters (giữ nguyên, không sửa) -->
     <div class="filters">
         <form th:action="@{/SWP/issues}" method="get" class="filter-row">
             <div class="search-box">
@@ -427,17 +464,16 @@
             </div>
             <select name="status" class="filter-select" th:value="${status}">
                 <option value="">Tất cả trạng thái</option>
-                <option value="PENDING" th:selected="${status == 'PENDING'}">Chờ xử lý</option>
-                <option value="IN_PROGRESS" th:selected="${status == 'IN_PROGRESS'}">Đang xử lý</option>
-                <option value="RESOLVED" th:selected="${status == 'RESOLVED'}">Đã giải quyết</option>
-                <option value="CLOSED" th:selected="${status == 'CLOSED'}">Đã đóng</option>
+                <option value="Pending" th:selected="${status == 'Pending'}">Chờ xử lý</option>
+                <option value="In_Progress" th:selected="${status == 'In_Progress'}">Đang xử lý</option>
+                <option value="Resolved" th:selected="${status == 'Resolved'}">Đã giải quyết</option>
+                <option value="Closed" th:selected="${status == 'Closed'}">Đã đóng</option>
             </select>
             <button type="submit" class="action-btn">
                 🔍 Lọc
             </button>
         </form>
     </div>
-
     <!-- Issues List -->
     <div class="issues-container">
         <div th:if="${#lists.isEmpty(issues)}" class="empty-state">
@@ -458,10 +494,10 @@
                 <span class="status-badge"
                       th:classappend="${#strings.toLowerCase(issue.status)}">
                         <span th:switch="${issue.status}">
-                            <span th:case="'PENDING'">⏱️ Chờ xử lý</span>
-                            <span th:case="'IN_PROGRESS'">🔄 Đang xử lý</span>
-                            <span th:case="'RESOLVED'">✅ Đã giải quyết</span>
-                            <span th:case="'CLOSED'">❌ Đã đóng</span>
+                            <span th:case="'Pending'">⏱️ Chờ xử lý</span>
+                            <span th:case="'In_Progress'">🔄 Đang xử lý</span>
+                            <span th:case="'Resolved'">✅ Đã giải quyết</span>
+                            <span th:case="'Closed'">❌ Đã đóng</span>
                         </span>
                     </span>
             </div>
@@ -486,29 +522,43 @@
             </div>
 
             <div class="issue-actions">
-                <a th:href="@{/SWP/issues/{id}(id=${issue.id})}" class="action-btn">
+                <a th:href="@{/SWP/issues/view(id=${issue.id})}" class="action-btn">
                     👁️ Xem
                 </a>
-                <a th:href="@{/SWP/issues/{id}/edit(id=${issue.id})}" class="action-btn">
+                <a th:href="@{/SWP/issues/edit(id=${issue.id})}" class="action-btn">
                     ✏️ Sửa
                 </a>
-                <a th:href="@{/SWP/issues/{id}/delete(id=${issue.id})}"
-                   class="action-btn delete"
-                   onclick="return confirm('Bạn có chắc chắn muốn xóa issue này?')">
-                    🗑️ Xóa
-                </a>
+                <!-- XÓA dùng POST -->
+                <form th:action="@{/SWP/issues/delete}" method="post" style="display:inline;">
+                    <input type="hidden" name="id" th:value="${issue.id}" />
+                    <button type="submit" class="action-btn delete"
+                            onclick="return confirm('Bạn có chắc chắn muốn xóa issue này?')">
+                        🗑️ Xóa
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // Auto submit form when select changes
+    // Auto submit filter form when select changes
     document.querySelector('select[name="status"]').addEventListener('change', function() {
         this.form.submit();
     });
 
-    // Add loading state to buttons
+    // Click vào stat-card để lọc nhanh
+    document.querySelectorAll('.stat-card').forEach(function(card, idx) {
+        card.onclick = function() {
+            let statusArr = ["Pending", "In_Progress", "Resolved", ""];
+            let status = statusArr[idx];
+            let select = document.querySelector('select[name="status"]');
+            select.value = status;
+            select.form.submit();
+        }
+    });
+
+    // Add loading state to action buttons (trừ delete)
     document.querySelectorAll('.action-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             if (!this.classList.contains('delete')) {
@@ -517,6 +567,7 @@
             }
         });
     });
+
 </script>
 </body>
 </html>

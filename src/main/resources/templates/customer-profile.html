@@ -5,11 +5,7 @@
   <title>Quản lý tài khoản khách hàng</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh; padding: 20px;
-    }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
     .container { max-width: 1000px; margin: 0 auto; }
     .header { text-align: center; margin-bottom: 30px; color: white; }
     .header h1 { font-size: 2.5rem; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);}
@@ -50,10 +46,37 @@
     .message.success { color: #388e3c; font-weight: bold; margin-bottom: 16px; background: #d1fae5; border: 1px solid #a7f3d0; border-radius: 8px; text-align: center; padding: 10px 0;}
     .message.error { color: #d32f2f; font-weight: bold; margin-bottom: 16px; background: #fee2e2; border: 1px solid #fca5a5; border-radius: 8px; text-align: center; padding: 10px 0;}
     .single-form-group { max-width: 400px;}
+    .back-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      padding: 12px 20px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      z-index: 2;
+    }
+    .back-button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateX(-3px);
+      color: white;
+      text-decoration: none;
+    }
     @media (max-width: 768px) { .container { padding: 5px;} .main-card { margin-top: 10px;} .tab-navigation { flex-direction: column;} .tab-btn { padding: 15px;} .tab-content { padding: 20px;} .profile-grid, .form-grid { grid-template-columns: 1fr;} .form-container { padding: 12px;} }
   </style>
 </head>
 <body>
+<a href="javascript:history.back()" class="back-button">← Quay lại</a>
 <div class="container">
   <div class="header">
     <h1>Quản lý tài khoản khách hàng</h1>
@@ -68,12 +91,18 @@
       <button class="tab-btn [[${activeTab} == 'profile' ? 'active' : '']]" type="button" onclick="showTab('profile')">Xem hồ sơ</button>
       <button class="tab-btn [[${activeTab} == 'update' ? 'active' : '']]" type="button" onclick="showTab('update')">Cập nhật thông tin</button>
       <button class="tab-btn [[${activeTab} == 'forgot' ? 'active' : '']]" type="button" onclick="showTab('forgot')">Quên mật khẩu</button>
+      <button class="tab-btn [[${activeTab} == 'changePassword' ? 'active' : '']]" type="button" onclick="showTab('changePassword')">Đổi mật khẩu</button>
     </div>
     <!-- Tab 1: Profile -->
     <div id="profileTab" class="tab-content [[${activeTab} == 'profile' ? 'active' : '']]">
       <h3 class="section-title">Hồ sơ cá nhân</h3>
       <div class="profile-grid">
+        <!-- Nếu có customer -->
         <div th:if="${customer != null}">
+          <div class="profile-item" style="text-align:center; grid-column: 1/-1;">
+            <img th:if="${customer != null}" th:src="@{/profile/avatar/{id}(id=${customer.id})}" alt="Avatar" style="width:110px;height:110px;object-fit:cover;border-radius:50%;border:2.5px solid #4f46e5;margin-bottom:8px;" />
+            <div class="profile-label" style="margin-top: 10px;">Ảnh đại diện</div>
+          </div>
           <div class="profile-item">
             <div class="profile-label">Họ tên</div>
             <div class="profile-value" th:text="${customer.fullname}"></div>
@@ -91,9 +120,11 @@
             <div class="profile-value" th:text="${customer.address}"></div>
           </div>
         </div>
+        <!-- Nếu không có customer -->
         <div th:if="${customer == null}">
-          <div class="profile-item">
-            <div class="profile-label">KHÔNG CÓ DỮ LIỆU KHÁCH HÀNG!</div>
+          <div class="profile-item" style="grid-column: 1/-1;">
+            <div class="profile-label" style="color:#d32f2f;">KHÔNG CÓ DỮ LIỆU KHÁCH HÀNG!</div>
+            <div><a th:href="@{/login}" style="color:#4f46e5;text-decoration:underline;">Đăng nhập lại</a></div>
           </div>
         </div>
       </div>
@@ -101,9 +132,16 @@
     <!-- Tab 2: Update -->
     <div id="updateTab" class="tab-content [[${activeTab} == 'update' ? 'active' : '']]">
       <h3 class="section-title">Cập nhật thông tin</h3>
-      <div class="form-container">
-        <form th:action="@{/update-profile}" th:object="${customerProfile}" method="post" id="profileForm">
+      <div class="form-container" th:if="${customer != null}">
+        <form th:action="@{/update-profile}" th:object="${customerProfile}" method="post" enctype="multipart/form-data" id="profileForm">
           <div class="form-grid">
+            <div class="form-group" style="text-align:center;">
+              <div style="margin-bottom:12px;">
+                <img th:if="${customer != null}" th:src="@{/profile/avatar/{id}(id=${customer.id})}" alt="Avatar" style="width:90px;height:90px;object-fit:cover;border-radius:50%;border:2px solid #d1d5db;" />
+              </div>
+              <label class="form-label" for="avatarFile">Chọn ảnh đại diện</label>
+              <input class="form-input" type="file" id="avatarFile" name="avatarFile" accept="image/*" />
+            </div>
             <div class="form-group">
               <label class="form-label" for="fullname">Họ tên *</label>
               <input class="form-input" type="text" id="fullname" th:field="*{fullname}" maxlength="50" required
@@ -136,6 +174,10 @@
           <div th:if="${error}" th:text="${error}" class="message error"></div>
         </form>
       </div>
+      <!-- Nếu không có customer -->
+      <div class="form-container" th:if="${customer == null}">
+        <div class="form-error" style="text-align:center;color:#d32f2f;">Không xác định được khách hàng. Bạn cần <a th:href="@{/login}">đăng nhập lại</a>!</div>
+      </div>
     </div>
     <!-- Tab 3: Forgot password -->
     <div id="forgotTab" class="tab-content [[${activeTab} == 'forgot' ? 'active' : '']]">
@@ -154,10 +196,38 @@
         </form>
       </div>
     </div>
+    <!-- Tab 4: Change password -->
+    <div id="changePasswordTab" class="tab-content [[${activeTab} == 'changePassword' ? 'active' : '']]">
+      <h3 class="section-title">Đổi mật khẩu</h3>
+      <div class="form-container" th:if="${customer != null}">
+        <form th:action="@{/change-password}" th:object="${changePasswordRequest}" method="post" autocomplete="off">
+          <div class="form-group">
+            <label class="form-label" for="oldPassword">Mật khẩu cũ *</label>
+            <input class="form-input" type="password" id="oldPassword" th:field="*{oldPassword}" required>
+            <div class="form-error" th:if="${#fields.hasErrors('oldPassword')}" th:errors="*{oldPassword}"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="newPassword">Mật khẩu mới *</label>
+            <input class="form-input" type="password" id="newPassword" th:field="*{newPassword}" required>
+            <div class="form-error" th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="confirmPassword">Xác nhận mật khẩu mới *</label>
+            <input class="form-input" type="password" id="confirmPassword" th:field="*{confirmPassword}" required>
+            <div class="form-error" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
+          </div>
+          <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
+          <div class="message success" th:if="${success}" th:text="${success}"></div>
+          <div class="message error" th:if="${error}" th:text="${error}"></div>
+        </form>
+      </div>
+      <div class="form-container" th:if="${customer == null}">
+        <div class="form-error" style="text-align:center;color:#d32f2f;">Bạn cần <a th:href="@{/login}">đăng nhập lại</a> để đổi mật khẩu!</div>
+      </div>
+    </div>
   </div>
 </div>
 <script>
-  // Tab switching logic (giữ tab khi chuyển)
   function showTab(tab) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -165,15 +235,14 @@
     let index = 0;
     if(tab === 'update') index = 1;
     if(tab === 'forgot') index = 2;
+    if(tab === 'changePassword') index = 3;
     document.getElementsByClassName('tab-btn')[index].classList.add('active');
   }
-  // Show số ký tự
   function showCharCount(input, max, countId) {
     const countDiv = document.getElementById(countId);
     const len = input.value.length;
     countDiv.textContent = len + "/" + max;
   }
-  // Validate phone realtime
   function validatePhone(input, errorId) {
     const value = input.value;
     const errorDiv = document.getElementById(errorId);
@@ -186,7 +255,6 @@
       errorDiv.textContent = "";
     }
   }
-  // Khởi tạo đếm ký tự khi load
   document.addEventListener("DOMContentLoaded", function() {
     if(document.getElementById('fullname')) showCharCount(document.getElementById('fullname'), 50, 'fullname-count');
     if(document.getElementById('address')) showCharCount(document.getElementById('address'), 100, 'address-count');

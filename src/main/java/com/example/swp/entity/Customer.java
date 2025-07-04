@@ -25,13 +25,14 @@ public class Customer implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    public int getId() {
-        return this.id;
-    }
 
     @NotBlank(message = "Họ tên không được để trống")
     @Size(max = 50, message = "Họ tên tối đa 50 ký tự")
     private String fullname;
+
+    @Lob
+    @Column(name = "avatar")
+    private byte[] avatar;
 
     @Size(max = 255, message = "Địa chỉ tối đa 255 ký tự")
     private String address;
