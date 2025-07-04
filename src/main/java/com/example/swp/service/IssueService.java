@@ -11,4 +11,7 @@ public interface IssueService {
     Optional<Issue> getIssueById(int id);
     Issue createIssue(IssueRequest issueRequest);
     List<Issue> getIssuesByCustomerId(int customerId);
+
+    void updateAssignedStaffAndStatus(int id, int staffId, Boolean resolved);
+
 }

@@ -13,5 +13,4 @@ public interface StorageRepository extends JpaRepository<Storage, Integer> {
 //    @Transactional
 //    @Query(value = "ALTER TABLE storage AUTO_INCREMENT = 1", nativeQuery = true)
 //    void resetAutoIncrement();
-
 }

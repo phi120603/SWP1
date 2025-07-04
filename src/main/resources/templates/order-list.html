@@ -7,15 +7,24 @@
 </head>
 <body>
 <!-- Navbar đồng bộ home-page -->
-<nav class="navbar">
-    <div class="nav-container">
-        <div class="logo">QVL Storage</div>
-        <ul class="nav-links">
-            <li><a href="/SWP">Home</a></li>
-            <li><a href="/SWP/orders">Orders</a></li>
-        </ul>
-    </div>
-</nav>
+<div th:replace="taskbar/staff-taskbar :: staffTaskbar"></div>
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>Issue Management</h1>
+        </div>
+        <div class="header-right">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Tìm kiếm Issue..." id="searchInput">
+            </div>
+        </div>
+    </header>
 
 <!-- Container -->
 <div class="container">
@@ -67,5 +76,6 @@
         </tbody>
     </table>
 </div>
+</main>
 </body>
 </html>
