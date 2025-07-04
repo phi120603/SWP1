@@ -7,7 +7,7 @@ import com.example.swp.entity.Staff;
 import com.example.swp.enums.IssueStatus;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.IssueRepository;
-import com.example.swp.repository.StaffReponsitory;
+import com.example.swp.repository.StaffRepository;
 import com.example.swp.service.IssueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,10 +63,7 @@ public class IssueServiceImpl implements IssueService {
         return issueRepository.save(issue);
     }
 
-    @Override
-    public List<Issue> getIssuesByCustomerId(int customerId) {
-        return issueRepository.findByCustomerId(customerId);
-    }
+
 
     @Override
     public void updateAssignedStaffAndStatus(int id, int staffId, Boolean resolved) {

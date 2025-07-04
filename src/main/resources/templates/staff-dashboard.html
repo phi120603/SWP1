@@ -48,71 +48,71 @@
             </div>
         </div>
     </header>
-<!-- Dashboard Content -->
-<div class="page-content">
-    <!-- Stats Cards -->
-    <div class="stats-grid">
-        <div class="stat-card" href="/SWP/staff/staff-all-storage">
-            <div class="stat-icon storage">
-                <i class="fas fa-warehouse"></i>
+    <!-- Dashboard Content -->
+    <div class="page-content">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card" href="/SWP/staff/staff-all-storage">
+                <div class="stat-icon storage">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Tổng số kho</h3>
+                    <p class="stat-number" th:text="${totalStorages}">0</p>
+                </div>
             </div>
-            <div class="stat-info">
-                <h3>Tổng số kho</h3>
-                <p class="stat-number" th:text="${totalStorages}">0</p>
+            <div class="stat-card">
+                <div class="stat-icon capacity">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Tổng khách hàng</h3>
+                    <p class="stat-number" th:text="${totalUser}"></p>
+                </div>
             </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon capacity">
-                <i class="fas fa-chart-pie"></i>
+            <div class="stat-card">
+                <div class="stat-icon items">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Tổng Feedback</h3>
+                    <p class="stat-number" th:text="${totalFeedback}"></p>
+                </div>
             </div>
-            <div class="stat-info">
-                <h3>Tổng khách hàng</h3>
-                <p class="stat-number" th:text="${totalUser}"></p>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon items">
-                <i class="fas fa-cube"></i>
-            </div>
-            <div class="stat-info">
-                <h3>Tổng Feedback</h3>
-                <p class="stat-number" th:text="${totalFeedback}"></p>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon revenue">
-                <i class="fas fa-dollar-sign"></i>
-            </div>
-            <div class="stat-info">
-                <h3>Doanh thu tháng</h3>
-                <p class="stat-number"
-                   th:text="${#numbers.formatDecimal(allRevenue, 0, 'COMMA', 2, 'POINT')} + ' VNĐ'">0 VNĐ</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Charts and Tables Section -->
-    <div class="content-grid">
-        <!-- Storage Utilization Chart -->
-        <div class="card chart-card">
-            <div class="card-header">
-                <h3>Biểu đồ doanh thu</h3>
-            </div>
-            <div class="chart-container">
-                <div class="chart-placeholder">
-                    <canvas id="revenueChart"></canvas>
+            <div class="stat-card">
+                <div class="stat-icon revenue">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Doanh thu tháng</h3>
+                    <p class="stat-number"
+                       th:text="${#numbers.formatDecimal(allRevenue, 0, 'COMMA', 2, 'POINT')} + ' VNĐ'">0 VNĐ</p>
                 </div>
             </div>
         </div>
 
-        <!-- Recent Activities -->
-        <div class="card activity-card">
-            <div class="card-header">
-                <h3>Hoạt động gần đây</h3>
-                <a href="/SWP/staff/all-recent-activity" class="view-all">View All</a>
+        <!-- Charts and Tables Section -->
+        <div class="content-grid">
+            <!-- Storage Utilization Chart -->
+            <div class="card chart-card">
+                <div class="card-header">
+                    <h3>Biểu đồ doanh thu</h3>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-placeholder">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="activity-list">
-                <div class="activity-item" th:each="act : ${recentActivities}">
+
+            <!-- Recent Activities -->
+            <div class="card activity-card">
+                <div class="card-header">
+                    <h3>Hoạt động gần đây</h3>
+                    <a href="/SWP/staff/all-recent-activity" class="view-all">View All</a>
+                </div>
+                <div class="activity-list">
+                    <div class="activity-item" th:each="act : ${recentActivities}">
             <span>
                 <strong th:text="${act.actor}"></strong>
                 <span th:text="${act.action}"></span>
@@ -121,158 +121,158 @@
                        th:text="${#temporals.format(act.timestamp, 'dd/MM/yyyy HH:mm')}">
                 </small>
             </span>
+                    </div>
                 </div>
             </div>
+
         </div>
 
-    </div>
-
-    <!-- Storage Units Table -->
-    <div class="card table-card">
-        <div class="card-header">
-            <h3>Tổng quan kho hàng</h3>
-            <div class="card-actions">
-                <a href="/SWP/staff/staff-all-storage" class="btn-secondary" style="margin-left: 10px;">
-                    Xem Tất Cả
-                </a>
-                <a href="/SWP/addstorage" class="btn-primary">
-                    <i class="fas fa-plus"></i>
-                    Thêm Kho
-                </a>
+        <!-- Storage Units Table -->
+        <div class="card table-card">
+            <div class="card-header">
+                <h3>Tổng quan kho hàng</h3>
+                <div class="card-actions">
+                    <a href="/SWP/staff/staff-all-storage" class="btn-secondary" style="margin-left: 10px;">
+                        Xem Tất Cả
+                    </a>
+                    <a href="/SWP/addstorage" class="btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Thêm Kho
+                    </a>
+                </div>
             </div>
-        </div>
 
-        <div class="table-container">
-            <table class="data-table" id="storageTable">
-                <thead>
-                <tr>
-                    <th class="table-small-col">Storage ID</th>
-                    <th class="table-medium-col">Tên Kho</th>
-                    <th class="table-medium-col">Giá thuê theo ngày</th>
-                    <th class="table-medium-col">Tình Trạng Kho</th>
-                    <th class="table-action-col">Hành Động</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="storage, iterStat : ${storages}" th:if="${iterStat.index < 5}">
-                    <td class="table-small-col" th:text="${storage.getStorageid()}"></td>
-                    <td class="table-medium-col" th:text="${storage.getStoragename()}"></td>
-                    <td class="table-medium-col" th:text="${storage.getPricePerDay()}"></td>
-                    <td class="table-medium-col">
+            <div class="table-container">
+                <table class="data-table" id="storageTable">
+                    <thead>
+                    <tr>
+                        <th class="table-small-col">Storage ID</th>
+                        <th class="table-medium-col">Tên Kho</th>
+                        <th class="table-medium-col">Giá thuê theo ngày</th>
+                        <th class="table-medium-col">Tình Trạng Kho</th>
+                        <th class="table-action-col">Hành Động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="storage, iterStat : ${storages}" th:if="${iterStat.index < 5}">
+                        <td class="table-small-col" th:text="${storage.getStorageid()}"></td>
+                        <td class="table-medium-col" th:text="${storage.getStoragename()}"></td>
+                        <td class="table-medium-col" th:text="${storage.getPricePerDay()}"></td>
+                        <td class="table-medium-col">
             <span th:class="${storage.isStatus()} ? 'status-badge active' : 'status-badge warning'"
                   th:text="${storage.isStatus()} ? 'Còn trống' : 'Đang thuê'"></span>
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <!-- Nút xem -->
-                            <a th:href="@{'/SWP/staff/storages/' + ${storage.getStorageid()} + '/detail'}" class="btn-icon" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <!-- Nút xoá -->
-                            <form th:action="@{'/SWP/storages/' + ${storage.getStorageid()} + '/delete'}" method="post" onsubmit="return confirm('Bạn có chắc muốn xoá kho này không?');">
-                                <input type="hidden" name="_method" value="delete"/>
-                                <button type="submit" class="btn-icon danger" title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Feedback Overview Table -->
-    <div class="card table-card">
-        <div class="card-header">
-            <h3>Tổng quan Feedback</h3>
-            <div class="card-actions">
-                <a href="/SWP/feedbacks" class="btn-secondary" style="margin-left: 10px;">
-                    Xem Tất Cả
-                </a>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <!-- Nút xem -->
+                                <a th:href="@{'/SWP/staff/storages/' + ${storage.getStorageid()} + '/detail'}" class="btn-icon" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <!-- Nút xoá -->
+                                <form th:action="@{'/SWP/storages/' + ${storage.getStorageid()} + '/delete'}" method="post" onsubmit="return confirm('Bạn có chắc muốn xoá kho này không?');">
+                                    <input type="hidden" name="_method" value="delete"/>
+                                    <button type="submit" class="btn-icon danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                <tr>
-                    <th class="table-small-col">Feedback ID</th>
-                    <th class="table-medium-col">Nội dung</th>
-                    <th class="table-small-col">Đánh giá</th>
-                    <th class="table-medium-col">Khách hàng</th>
-                    <th class="table-medium-col">Kho</th>
-                    <th class="table-action-col">Hành động</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="fb, iterStat : ${feedbacks}" th:if="${iterStat.index < 5}">
-                    <td class="table-small-col" th:text="${fb.id}"></td>
-                    <td class="table-medium-col" th:text="${fb.content}"></td>
-                    <td class="table-small-col" th:text="${fb.rating}"></td>
-                    <td class="table-medium-col" th:text="${fb.customer != null ? fb.customer.fullname : 'Ẩn'}"></td>
-                    <td class="table-medium-col" th:text="${fb.storage != null ? fb.storage.storagename : 'Ẩn'}"></td>
-                    <td class="table-action-col">
-                        <div class="action-buttons">
-                            <a th:href="@{'/SWP/feedbacks/' + ${fb.id}}" class="btn-icon" title="View Feedback">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+        <!-- Feedback Overview Table -->
+        <div class="card table-card">
+            <div class="card-header">
+                <h3>Tổng quan Feedback</h3>
+                <div class="card-actions">
+                    <a href="/SWP/feedbacks" class="btn-secondary" style="margin-left: 10px;">
+                        Xem Tất Cả
+                    </a>
+                </div>
+            </div>
 
-    <!-- Order Units Table -->
-    <div class="card table-card">
-        <div class="card-header">
-            <h3>Tổng quan đơn hàng</h3>
-            <div class="card-actions">
-                <a href="/SWP/orders" class="btn-secondary" style="margin-left: 10px;">
-                    Xem Tất Cả
-                </a>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th class="table-small-col">Feedback ID</th>
+                        <th class="table-medium-col">Nội dung</th>
+                        <th class="table-small-col">Đánh giá</th>
+                        <th class="table-medium-col">Khách hàng</th>
+                        <th class="table-medium-col">Kho</th>
+                        <th class="table-action-col">Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="fb, iterStat : ${feedbacks}" th:if="${iterStat.index < 5}">
+                        <td class="table-small-col" th:text="${fb.id}"></td>
+                        <td class="table-medium-col" th:text="${fb.content}"></td>
+                        <td class="table-small-col" th:text="${fb.rating}"></td>
+                        <td class="table-medium-col" th:text="${fb.customer != null ? fb.customer.fullname : 'Ẩn'}"></td>
+                        <td class="table-medium-col" th:text="${fb.storage != null ? fb.storage.storagename : 'Ẩn'}"></td>
+                        <td class="table-action-col">
+                            <div class="action-buttons">
+                                <a th:href="@{'/SWP/feedbacks/' + ${fb.id}}" class="btn-icon" title="View Feedback">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                <tr>
-                    <th class="table-small-col">Mã đơn hàng</th>
-                    <th class="table-medium-col">Tổng tiền</th>
-                    <th class="table-medium-col">Trạng thái</th>
-                    <th class="table-action-col">Hành động</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="order, iterStat : ${orders}" th:if="${iterStat.index < 5}">
-                    <td class="table-small-col">
-                        <span class="order-id" th:text="'#' + ${order.id}"></span>
-                    </td>
-                    <td class="table-medium-col">
-                        <span class="total-amount" th:text="'$' + ${#numbers.formatDecimal(order.totalAmount, 0, 2)}"></span>
-                    </td>
-                    <td class="table-medium-col">
+        <!-- Order Units Table -->
+        <div class="card table-card">
+            <div class="card-header">
+                <h3>Tổng quan đơn hàng</h3>
+                <div class="card-actions">
+                    <a href="/SWP/orders" class="btn-secondary" style="margin-left: 10px;">
+                        Xem Tất Cả
+                    </a>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th class="table-small-col">Mã đơn hàng</th>
+                        <th class="table-medium-col">Tổng tiền</th>
+                        <th class="table-medium-col">Trạng thái</th>
+                        <th class="table-action-col">Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="order, iterStat : ${orders}" th:if="${iterStat.index < 5}">
+                        <td class="table-small-col">
+                            <span class="order-id" th:text="'#' + ${order.id}"></span>
+                        </td>
+                        <td class="table-medium-col">
+                            <span class="total-amount" th:text="'$' + ${#numbers.formatDecimal(order.totalAmount, 0, 2)}"></span>
+                        </td>
+                        <td class="table-medium-col">
                     <span th:class="'status-badge ' + ${order.status.toLowerCase()}"
                           th:text="${order.status}">
                     </span>
-                    </td>
-                    <td class="table-action-col">
-                        <div class="action-buttons">
-                            <a th:href="@{/SWP/orders/{id}(id=${order.getId()})}" class="btn-icon" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                        </td>
+                        <td class="table-action-col">
+                            <div class="action-buttons">
+                                <a th:href="@{/SWP/orders/{id}(id=${order.getId()})}" class="btn-icon" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 </main>
 
 <script>

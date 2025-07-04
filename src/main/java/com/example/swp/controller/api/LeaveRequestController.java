@@ -3,7 +3,7 @@ package com.example.swp.controller.api;
 import com.example.swp.dto.ManagerNoteDTO;
 import com.example.swp.entity.LeaveRequest;
 import com.example.swp.entity.Staff;
-import com.example.swp.repository.StaffReponsitory;
+import com.example.swp.repository.StaffRepository;
 import com.example.swp.service.LeaveRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +19,7 @@ public class LeaveRequestController {
     private LeaveRequestService leaveRequestService;
 
     @Autowired
-    private StaffReponsitory staffReponsitory;
+    private StaffRepository staffReponsitory;
 
 //    private Staff getCurrentStaff(Principal principal) {
 //        String email = principal.getName();

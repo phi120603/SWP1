@@ -5,7 +5,7 @@ import com.example.swp.entity.Issue;
 import com.example.swp.enums.IssueStatus;
 import com.example.swp.entity.Staff;
 import com.example.swp.repository.CustomerRepository;
-import com.example.swp.repository.StaffReponsitory;
+import com.example.swp.repository.StaffRepository;
 import com.example.swp.service.IssueService;
 import com.example.swp.service.NotificationService;
 
