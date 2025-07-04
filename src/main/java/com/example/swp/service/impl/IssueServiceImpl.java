@@ -56,6 +56,11 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
+    public List<Issue> getIssuesByCustomerId(int customerId) {
+        return issueRepository.findByCustomerId(customerId);
+    }
+
+    @Override
     public void updateAssignedStaffAndStatus(int id, int staffId, Boolean resolved) {
         Issue issue = issueRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy issue với id " + id));
