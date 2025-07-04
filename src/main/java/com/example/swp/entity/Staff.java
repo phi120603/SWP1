@@ -29,7 +29,7 @@ public class Staff implements UserDetails {
     private String phone;
     @Enumerated(EnumType.STRING)
     private RoleName roleName;
-    private boolean sex;
+    private Boolean sex;
     private String idCitizenCard;
 
 

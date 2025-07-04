@@ -83,11 +83,17 @@ public class CustomerCRUDController {
 
 
     // deactive khách hàng
+    // Bật/tắt trạng thái hoạt động của khách hàng
     @PostMapping("/delete/{id}")
-    public String deactivateCustomer(@PathVariable int id) {
+    public String toggleActiveCustomer(@PathVariable int id) {
         Customer customer = customerService.getCustomer(id);
         if (customer != null) {
-            customer.setRoleName(RoleName.BLOCKED);
+            // Nếu đang BLOCKED thì chuyển sang CUSTOMER (mở khóa)
+            if (customer.getRoleName() == RoleName.BLOCKED) {
+                customer.setRoleName(RoleName.CUSTOMER); // hoặc role mặc định trước khi bị khóa
+            } else {
+                customer.setRoleName(RoleName.BLOCKED); // ngược lại thì khóa
+            }
             customerService.save(customer);
         }
         return "redirect:/SWP/customers";
