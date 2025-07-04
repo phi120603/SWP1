@@ -138,11 +138,13 @@
                         Sửa khách hàng
                     </a>
                 </button>
-                <form th:action="@{/SWP/customers/delete/{id}(id=${customer.id})}" method="post" style="display:inline;"
-                      onsubmit="return confirm('Bạn có chắc chắn muốn xóa khách hàng này không?');">
+                <form th:action="@{/SWP/customers/delete/{id}(id=${customer.id})}"
+                      method="post" style="display:inline;"
+                      th:onsubmit="return confirm(${customer.roleName} == 'BLOCKED' ? 'Bạn có chắc chắn muốn MỞ KHÓA khách hàng này không?' : 'Bạn có chắc chắn muốn NGƯNG HOẠT ĐỘNG khách hàng này không?');">
                     <button type="submit" class="btn-danger">
-                        <i class="fas fa-trash"></i>
-                        Xóa
+                        <i class="fas"
+                           th:classappend="${#strings.toUpperCase(customer.roleName)} == 'BLOCKED' ? ' fa-unlock' : ' fa-lock'"></i>
+                        <span th:text="${#strings.toUpperCase(customer.roleName)} == 'BLOCKED' ? 'Mở khóa' : 'Ngưng hoạt động'"></span>
                     </button>
                 </form>
             </div>

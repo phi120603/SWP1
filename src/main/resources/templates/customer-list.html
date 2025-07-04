@@ -221,9 +221,11 @@
                                 <form th:action="@{/SWP/customers/delete/{id}(id=${customer.id})}"
                                       method="post"
                                       style="display: inline;"
-                                      onsubmit="return confirm('Bạn có chắc chắn muốn xóa khách hàng này?');">
-                                    <button type="submit" class="btn-icon danger" title="Xóa khách hàng">
-                                        <i class="fas fa-trash"></i>
+                                      th:onsubmit="return confirm('Bạn có chắc chắn muốn ' + ((${#strings.toUpperCase(customer.roleName)} == 'BLOCKED') ? 'mở khóa' : 'ngưng hoạt động') + ' khách hàng này?');">
+                                    <button type="submit" class="btn-icon danger"
+                                            th:title="${#strings.toUpperCase(customer.roleName)} == 'BLOCKED' ? 'Mở khóa khách hàng' : 'Ngưng hoạt động khách hàng'">
+                                        <i class="fas"
+                                           th:classappend="${#strings.toUpperCase(customer.roleName)} == 'BLOCKED' ? ' fa-unlock' : ' fa-lock'"></i>
                                     </button>
                                 </form>
                             </div>
