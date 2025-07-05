@@ -37,5 +37,5 @@ public interface OrderService {
     // (tuỳ chọn, nhưng giúp code controller gọn hơn)
     Order createBookingOrder(Storage storage, Customer customer, java.time.LocalDate startDate, java.time.LocalDate endDate, double total);
 
-
-}
+    double getTotalRentedArea(int storageId);
+    double getRemainArea(int storageId);}

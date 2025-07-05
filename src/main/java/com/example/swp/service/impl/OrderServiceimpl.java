@@ -42,6 +42,21 @@ public class OrderServiceimpl implements OrderService {
     public Optional<Order> getOrderById(int id) {return orderRepository.findById(id);}
 
     @Override
+    public double getTotalRentedArea(int storageId) {
+        Double sum = orderRepository.getTotalRentedArea(storageId, LocalDate.now());
+        return sum != null ? sum : 0.0;
+    }
+    // Hàm lấy diện tích còn lại (tại thời điểm hiện tại)
+    @Override
+    public double getRemainArea(int storageId) {
+        Optional<Storage> storageOpt = storageReponsitory.findById(storageId);
+        if (storageOpt.isEmpty()) return 0.0;
+        double totalArea = storageOpt.get().getArea();
+        double rentedArea = getTotalRentedArea(storageId);
+        return Math.max(0, totalArea - rentedArea);
+    }
+
+    @Override
     public List<Order> findOrdersByCustomer(Customer customer) {
         return orderRepository.findByCustomer(customer);
     }
@@ -177,12 +192,10 @@ public class OrderServiceimpl implements OrderService {
     @Override
     public Order createBookingOrder(Storage storage, Customer customer,
                                     LocalDate startDate, LocalDate endDate, double total) {
-
         boolean available = isStorageAvailable(storage.getStorageid(), startDate, endDate);
         if (!available) {
             throw new RuntimeException("Kho đã có người đặt trong khoảng thời gian này!");
         }
-
         Order order = new Order();
         order.setStorage(storage);
         order.setCustomer(customer);
@@ -191,10 +204,11 @@ public class OrderServiceimpl implements OrderService {
         order.setOrderDate(LocalDate.now());
         order.setTotalAmount(total);
         order.setStatus("PENDING");
+        // Cần setRentalArea từ controller truyền vào!
+        // order.setRentalArea(rentalArea);
 
         return orderRepository.save(order);
     }
-
 
 
 

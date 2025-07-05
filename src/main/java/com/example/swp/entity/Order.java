@@ -58,6 +58,10 @@ public class Order {
         @Column(length = 500) // Tùy nhu cầu, có thể dài/ngắn hơn
         private String cancelReason;
 
+        @Column(nullable = false)
+        private double rentalArea; // diện tích khách muốn thuê
+
+
 
 }
 

@@ -55,8 +55,12 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+    @Query("SELECT COALESCE(SUM(o.rentalArea),0) FROM Order o WHERE o.storage.storageid = :storageId AND (o.status = 'CONFIRMED' OR o.status = 'PAID') AND o.endDate >= :now")
+    Double getTotalRentedArea(@Param("storageId") int storageId, @Param("now") LocalDate now);
+
 
     Optional<Order> findById(int id);
+
 }
 
 

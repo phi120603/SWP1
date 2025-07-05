@@ -81,6 +81,11 @@ public class BookingController {
                     )
                     .collect(Collectors.toList());
         }
+        Map<Integer, Double> remainAreas = new HashMap<>();
+        for (Storage s : storages) {
+            double remain = orderService.getRemainArea(s.getStorageid());
+            remainAreas.put(s.getStorageid(), remain);
+        }
 
         // SORT giữ nguyên như cũ
         if (sortOption != null) {
@@ -95,6 +100,7 @@ public class BookingController {
         }
 
         model.addAttribute("storages", storages);
+        model.addAttribute("remainAreas", remainAreas);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
         model.addAttribute("minArea", minArea);
@@ -122,11 +128,14 @@ public class BookingController {
         if (optionalStorage.isEmpty()) {
             return "redirect:/SWP/booking/search";
         }
-
         Storage storage = optionalStorage.get();
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
 
-        // Sinh token chống submit lại
+        // Tính diện tích còn lại để truyền xuống form cho khách nhập
+        double remainArea = orderService.getRemainArea(storageId);
+        model.addAttribute("remainArea", remainArea);
+
+        // Token chống submit lại
         String orderToken = UUID.randomUUID().toString();
         session.setAttribute("orderToken", orderToken);
         model.addAttribute("orderToken", orderToken);
@@ -150,6 +159,7 @@ public class BookingController {
                                  @RequestParam("phone") String phone,
                                  @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                                  @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                                 @RequestParam("rentalArea") double rentalArea,
                                  @RequestParam("orderToken") String orderToken,
                                  HttpSession session,
                                  RedirectAttributes redirectAttributes) {
@@ -172,18 +182,17 @@ public class BookingController {
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy kho.");
             return "redirect:/SWP/booking/search";
         }
-
         Storage storage = optionalStorage.get();
 
-        // Kiểm tra overlap với các đơn khác
-        boolean available = orderService.isStorageAvailable(storageId, startDate, endDate);
-        if (!available) {
-            redirectAttributes.addFlashAttribute("error", "Kho bạn chọn đã được người khác đặt trong thời gian này.");
-            return "redirect:/SWP/booking/search";
+        // Kiểm tra diện tích còn lại
+        double remainArea = orderService.getRemainArea(storageId);
+        if (rentalArea <= 0 || rentalArea > remainArea) {
+            redirectAttributes.addFlashAttribute("error", "Diện tích thuê phải lớn hơn 0 và không vượt quá diện tích còn trống (" + remainArea + " m²).");
+            return "redirect:/SWP/booking/" + storageId + "/booking?startDate=" + startDate + "&endDate=" + endDate;
         }
 
+        // Kiểm tra trùng đơn đặt
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
-
         if (customer == null) {
             Optional<Customer> existingCustomer = customerService.findByEmail(email);
             if (existingCustomer.isPresent()) {
@@ -199,22 +208,23 @@ public class BookingController {
                 customer = customerService.save(customer);
             }
         }
-
-        // Kiểm tra trùng đơn của chính user
         long overlapCount = orderService.countOverlapOrdersByCustomer(
                 customer.getId(),
                 storageId,
                 startDate,
                 endDate
         );
-
         if (overlapCount > 0) {
             redirectAttributes.addFlashAttribute("error",
-                    "Bạn đã từng đặt kho này trong khoảng thời gian này. Vui lòng kiểm tra lại đơn hàng của bạn hoặc chọn thời gian khác.");
+                    "Bạn đã từng đặt kho này trong khoảng thời gian này. Vui lòng kiểm tra lại đơn hàng hoặc chọn thời gian khác.");
             return "redirect:/SWP/booking/search";
         }
 
-        // Tạo mới Order
+        // Tính tiền
+        long days = ChronoUnit.DAYS.between(startDate, endDate);
+        double totalAmount = (days > 0 ? days : 1) * storage.getPricePerDay() * rentalArea / storage.getArea();
+
+        // Tạo mới Order (LƯU rentalArea)
         Order order = new Order();
         order.setCustomer(customer);
         order.setStorage(storage);
@@ -222,9 +232,8 @@ public class BookingController {
         order.setEndDate(endDate);
         order.setOrderDate(LocalDate.now());
         order.setStatus("PENDING");
-
-        long days = ChronoUnit.DAYS.between(startDate, endDate);
-        order.setTotalAmount(days > 0 ? days * storage.getPricePerDay() : storage.getPricePerDay());
+        order.setRentalArea(rentalArea);
+        order.setTotalAmount(totalAmount);
 
         Order savedOrder = orderService.save(order);
 
