@@ -3,6 +3,7 @@ package com.example.swp.service.impl;
 import com.example.swp.entity.LeaveRequest;
 import com.example.swp.entity.Staff;
 import com.example.swp.repository.LeaveRequestRepository;
+import com.example.swp.service.EmailService;
 import com.example.swp.service.LeaveRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,12 +15,35 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     @Autowired
     private LeaveRequestRepository leaveRequestRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     @Override
     public LeaveRequest createRequest(LeaveRequest request) {
-        request.setCreatedAt(java.time.LocalDateTime.now());
-        request.setStatus(LeaveRequest.Status.CHO_DUYET); // Đơn mới luôn là CHO_DUYET
-        return leaveRequestRepository.save(request);
+        LeaveRequest savedRequest = leaveRequestRepository.save(request);
+
+        // Gửi mail cho manager
+        String managerEmail = "hongquanvjp@gmail.com"; // Cứng hoặc lấy từ DB
+        String subject = "Đơn xin nghỉ phép mới từ " + request.getStaff().getFullname();
+        String content = "Nhân viên: " + request.getStaff().getFullname() +
+                "\nTừ ngày: " + request.getFromDate() +
+                "\nĐến ngày: " + request.getToDate() +
+                "\nLoại phép: " + request.getLeaveType() +
+                "\nLý do: " + request.getReason();
+
+        emailService.sendEmail(managerEmail, subject, content);
+
+        return savedRequest;
     }
+
+// Neu muon lay mail Manager dong
+//    @Autowired
+//    private StaffRepository staffRepository;
+//
+//    List<Staff> managers = staffRepository.findByRoleName(RoleName.MANAGER);
+//for (Staff manager : managers) {
+//        emailService.sendEmail(manager.getEmail(), subject, content);
+//    }
 
 
     @Override

@@ -8,20 +8,22 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class EmailServiceImpl implements EmailService {
-        @Autowired
-        private JavaMailSender sendEmail;
+    @Autowired
+    private JavaMailSender mailSender;
 
-        public void sendEmail(String to, String subject, String body) {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("shop@gmail.com"); // Email gửi đi
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(body);
+    @Override
+    public void sendEmail(String to, String subject, String body) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("shop@gmail.com"); // Email gửi đi, hoặc cấu hình trong application.properties
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(body);
 
-            sendEmail.send(message);
-        }
+        mailSender.send(message);
     }
+}
+
 
 

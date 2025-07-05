@@ -75,7 +75,7 @@ public class ChatbotServiceImpl implements ChatbotService {
         }
 
         // Lấy feedback gần đây nhất
-        List<Feedback> feedbacks = feedbackRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+        List<Feedback> feedbacks = feedbackRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
         StringBuilder feedbackInfo = new StringBuilder("Một số phản hồi gần đây:\n");
         int count = 0;
         for (Feedback f : feedbacks) {
@@ -89,7 +89,7 @@ public class ChatbotServiceImpl implements ChatbotService {
 
         // Lấy 3 đơn xin nghỉ phép gần nhất
         List<LeaveRequest> leaveRequests = leaveRequestRepository.findAll(
-                Sort.by(Sort.Direction.DESC, "startDate")
+                Sort.by(Sort.Direction.DESC, "fromDate")
         );
         StringBuilder leaveRequestInfo = new StringBuilder("Đơn xin nghỉ phép gần đây:\n");
         int countLeaveRequest = 0;
