@@ -30,4 +30,9 @@ public class Feedback {
     @JoinColumn(name = "storage_id") // hoặc tên cột trong DB
     private Storage storage;
 
+    @OneToOne(mappedBy = "feedback")
+    private Order order;
+
+
+
 }
