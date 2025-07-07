@@ -46,6 +46,36 @@
             .action-bar { flex-direction: column; align-items: stretch; gap: 1rem;}
             .filter-bar { flex-wrap: wrap;}
         }
+        .action-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: -10px;
+        }
+
+        .action-top {
+            display: flex;
+            justify-content: flex-start;
+            margin-left: -1380px;
+            margin-bottom: -10px;
+        }
+
+        .filter-flex {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .filter-group-container {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-section {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -74,24 +104,39 @@
             </h2>
         </div>
 
-        <!-- Action Bar: Filter + Buttons -->
+        <!-- Action Bar -->
         <div class="action-bar">
-            <div style="display: flex; gap: 0.7rem;">
+            <div class="action-top">
                 <a th:href="@{/SWP/staff-dashboard}" class="btn btn-secondary">
                     <i class="fa-solid fa-arrow-left"></i> Quay lại Dashboard
                 </a>
-                <div class="filter-bar">
-                    <label for="statusFilter"><i class="fa-solid fa-filter"></i> Lọc trạng thái:</label>
-                    <select id="statusFilter" class="btn btn-secondary" style="padding:0.4rem 0.6rem;">
-                        <option value="all">Tất cả</option>
-                        <option value="resolved">Đã xử lý</option>
-                        <option value="unresolved">Chưa xử lý</option>
-                    </select>
-                </div>
             </div>
-            <a th:href="@{/SWP/issues/staff-send-report}" class="btn btn-primary" style="margin-left:auto;">
-                <i class="fa-solid fa-paper-plane"></i> Gửi báo cáo
-            </a>
+
+            <div class="filter-section filter-flex">
+                <div class="filter-group-container">
+                    <div class="filter-group">
+                        <label for="statusFilter"><i class="fa-solid fa-filter"></i> Lọc trạng thái:</label>
+                        <select id="statusFilter" class="filter-select">
+                            <option value="all">Tất cả</option>
+                            <option value="resolved">Đã xử lý</option>
+                            <option value="unresolved">Chưa xử lý</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="sortSelect"><i class="fa-solid fa-filter"></i> Sắp xếp:</label>
+                        <select id="sortSelect" class="filter-select">
+                            <option value="">Mặc định</option>
+                            <option value="customer-asc">Khách hàng A-Z</option>
+                            <option value="customer-desc">Khách hàng Z-A</option>
+                            <option value="staff-asc">Nhân viên A-Z</option>
+                            <option value="staff-desc">Nhân viên Z-A</option>
+                        </select>
+                    </div>
+                </div>
+                <a th:href="@{/SWP/issues/staff-send-report}" class="btn btn-primary">
+                    <i class="fa-solid fa-paper-plane"></i> Gửi báo cáo
+                </a>
+            </div>
         </div>
 
         <!-- Thông báo -->
@@ -102,7 +147,8 @@
         <div class="card">
             <div class="card-header">
                 <h3>
-                    Danh Sách Vấn Đề (<span id="totalCount" th:text="${#lists.size(issues)}"></span>)
+                    Danh Sách Vấn Đề
+                    (<span id="totalCount" th:text="${issues != null ? #lists.size(issues) : 0}"></span>)
                 </h3>
             </div>
             <div class="table-container">
@@ -110,6 +156,7 @@
                     <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Tiêu đề</th>
                         <th>Mô tả</th>
                         <th>Khách hàng</th>
                         <th>Nhân viên xử lý</th>
@@ -119,6 +166,7 @@
                     </thead>
                     <tbody id="issueTableBody">
                     <tr th:each="issue, iterStat : ${issues}">
+                        <td th:text="${issue.id}"></td>
                         <td th:text="${issue.subject}"></td>
                         <td th:text="${issue.description}"></td>
                         <td th:text="${issue.customer?.fullname ?: 'Không xác định'}"></td>
@@ -149,7 +197,7 @@
 </main>
 
 <script>
-    const COLUMN_COUNT = 6;
+    const COLUMN_COUNT = 7;
 
     function applyAllFilters() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -158,22 +206,22 @@
         let visibleRows = 0;
 
         rows.forEach(row => {
-            if(row.querySelectorAll('td').length < COLUMN_COUNT) return; // skip "Không có issue nào"
+            if (row.querySelectorAll('td').length < COLUMN_COUNT) return; // skip "Không có issue nào"
             let text = row.textContent.toLowerCase();
             let visible = true;
 
             // Lọc search
-            if(searchTerm && !text.includes(searchTerm)) visible = false;
+            if (searchTerm && !text.includes(searchTerm)) visible = false;
 
             // Lọc status
-            if(visible && status !== 'all') {
+            if (visible && status !== 'all') {
                 const resolvedBadge = row.querySelector('.status-badge.active');
-                if(status === 'resolved' && !resolvedBadge) visible = false;
-                if(status === 'unresolved' && resolvedBadge) visible = false;
+                if (status === 'resolved' && !resolvedBadge) visible = false;
+                if (status === 'unresolved' && resolvedBadge) visible = false;
             }
 
             row.style.display = visible ? '' : 'none';
-            if(visible) visibleRows++;
+            if (visible) visibleRows++;
         });
 
         updateTotalCount(visibleRows);
@@ -187,7 +235,7 @@
 
     function toggleNoIssueRow(visibleRows) {
         const noIssueRow = document.getElementById('noIssueRow');
-        if(noIssueRow) {
+        if (noIssueRow) {
             noIssueRow.style.display = visibleRows === 0 ? '' : 'none';
         }
     }
@@ -208,7 +256,7 @@
 
         let shown = 0, skipped = 0;
         rows.forEach(row => {
-            if(row.querySelectorAll('td').length < COLUMN_COUNT) {
+            if (row.querySelectorAll('td').length < COLUMN_COUNT) {
                 // Dòng "Không có issue nào"
                 row.style.display = (totalRows === 0) ? '' : 'none';
                 return;
@@ -260,12 +308,55 @@
     }
 
     // Event listeners
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('searchInput').addEventListener('input', applyAllFilters);
         document.getElementById('statusFilter').addEventListener('change', applyAllFilters);
         // Phân trang ban đầu
         showPage(1);
     });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('sortSelect').addEventListener('change', function () {
+            const value = this.value;
+            sortTable(value);
+        });
+    });
+
+    function sortTable(sortValue) {
+        const rows = document.querySelectorAll('.data-table tbody tr');
+        const dataRows = Array.from(rows).filter(row => row.querySelectorAll('td').length === 7);
+
+        if (!sortValue || sortValue === "") {
+            showPage(1);
+            return;
+        }
+
+        const [field, order] = sortValue.split("-");
+
+        dataRows.sort((a, b) => {
+            let aText, bText;
+            switch (field) {
+                case "customer":
+                    aText = a.children[3].textContent.trim().toLowerCase();
+                    bText = b.children[3].textContent.trim().toLowerCase();
+                    break;
+                case "staff":
+                    aText = a.children[4].textContent.trim().toLowerCase();
+                    bText = b.children[4].textContent.trim().toLowerCase();
+                    break;
+                default:
+                    return 0;
+            }
+            const cmp = aText.localeCompare(bText, 'vi', { sensitivity: 'base' });
+            if (cmp < 0) return order === "asc" ? -1 : 1;
+            if (cmp > 0) return order === "asc" ? 1 : -1;
+            return 0;
+        });
+
+        const tbody = document.querySelector('.data-table tbody');
+        dataRows.forEach(row => tbody.appendChild(row));
+        showPage(1);
+    }
 </script>
 </body>
 </html>

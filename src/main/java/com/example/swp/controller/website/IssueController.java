@@ -12,8 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-import java.util.List;
+import java.util.ArrayList;
 
 @Controller
 @RequestMapping("/SWP/issues")
@@ -55,6 +54,9 @@ public class IssueController {
     @GetMapping("/report")
     public String showStaffReport(Model model) {
         List<Issue> issues = issueService.getAllIssues();
+        if (issues == null) {
+            issues = new ArrayList<>();
+        }
         model.addAttribute("issues", issues);
         return "staff-report";
     }
