@@ -60,10 +60,8 @@ public class Order {
 
         @Column(nullable = false)
         private double rentalArea; // diện tích khách muốn thuê
-        // Thêm vào cuối class Order:
-        @OneToOne
-        @JoinColumn(name = "feedback_id")
-        private Feedback feedback;
+
+
 
 
 

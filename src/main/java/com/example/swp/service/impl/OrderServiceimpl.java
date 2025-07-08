@@ -48,13 +48,20 @@ public class OrderServiceimpl implements OrderService {
     }
     // Hàm lấy diện tích còn lại (tại thời điểm hiện tại)
     @Override
-    public double getRemainArea(int storageId) {
+    public double getRemainArea(int storageId, LocalDate startDate, LocalDate endDate) {
         Optional<Storage> storageOpt = storageReponsitory.findById(storageId);
         if (storageOpt.isEmpty()) return 0.0;
         double totalArea = storageOpt.get().getArea();
-        double rentedArea = getTotalRentedArea(storageId);
-        return Math.max(0, totalArea - rentedArea);
+        double maxUsed = 0;
+
+        for (LocalDate d = startDate; !d.isAfter(endDate.minusDays(1)); d = d.plusDays(1)) {
+            // Tính tổng diện tích đã bị đặt cho ngày d (các order trùng ngày d, trạng thái còn hiệu lực)
+            double used = orderRepository.sumRentedAreaForStorageOnDate(storageId, d);
+            if (used > maxUsed) maxUsed = used;
+        }
+        return Math.max(0, totalArea - maxUsed);
     }
+
 
     @Override
     public List<Order> findOrdersByCustomer(Customer customer) {

@@ -40,6 +40,10 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             @Param("endDate") LocalDate endDate
     );
 
+    @Query("SELECT COALESCE(SUM(o.rentalArea), 0.0) FROM Order o WHERE o.storage.storageid = :storageId AND o.status IN ('PENDING','CONFIRMED','ACTIVE') AND :targetDate BETWEEN o.startDate AND o.endDate")
+    Double sumRentedAreaForStorageOnDate(@Param("storageId") int storageId, @Param("targetDate") LocalDate targetDate);
+
+
     @Query("""
         SELECT COUNT(o)
         FROM Order o

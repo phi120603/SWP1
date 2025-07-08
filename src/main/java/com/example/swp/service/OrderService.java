@@ -30,7 +30,9 @@ public interface OrderService {
 
     double getTotalRevenueAll(); // Tổng tiền các đơn trừ REJECTED
     double getRevenuePaid();     // Tiền khách đã trả (PAID)
-    double getRevenueApproved(); // Tiền khách còn nợ (APPROVED)
+    double getRevenueApproved();
+
+    // Tiền khách còn nợ (APPROVED)
     void deleteById(int id);
     boolean isStorageAvailable(int storageId, java.time.LocalDate startDate, java.time.LocalDate endDate);
 
@@ -38,4 +40,5 @@ public interface OrderService {
     Order createBookingOrder(Storage storage, Customer customer, java.time.LocalDate startDate, java.time.LocalDate endDate, double total);
 
     double getTotalRentedArea(int storageId);
-    double getRemainArea(int storageId);}
+    double getRemainArea(int storageId, LocalDate startDate, LocalDate endDate);}
+

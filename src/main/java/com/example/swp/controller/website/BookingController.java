@@ -83,7 +83,7 @@ public class BookingController {
         }
         Map<Integer, Double> remainAreas = new HashMap<>();
         for (Storage s : storages) {
-            double remain = orderService.getRemainArea(s.getStorageid());
+            double remain = orderService.getRemainArea(s.getStorageid(), startDate, endDate);
             remainAreas.put(s.getStorageid(), remain);
         }
 
@@ -132,7 +132,7 @@ public class BookingController {
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
 
         // Tính diện tích còn lại để truyền xuống form cho khách nhập
-        double remainArea = orderService.getRemainArea(storageId);
+        double remainArea = orderService.getRemainArea(storageId, startDate, endDate);
         model.addAttribute("remainArea", remainArea);
 
         // Token chống submit lại
@@ -177,6 +177,24 @@ public class BookingController {
             return "redirect:/SWP/booking/" + storageId + "/booking?startDate=" + startDate + "&endDate=" + endDate;
         }
 
+        // Kiểm tra định dạng tên
+        if (!name.matches("[\\p{L} .'-]{2,50}")) {
+            redirectAttributes.addFlashAttribute("error", "Tên chỉ được chứa chữ, dấu cách và từ 2-50 ký tự.");
+            return "redirect:/SWP/booking/" + storageId + "/booking?startDate=" + startDate + "&endDate=" + endDate;
+        }
+
+        // Kiểm tra định dạng email
+        if (!email.matches("^[\\w-.]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
+            redirectAttributes.addFlashAttribute("error", "Email không đúng định dạng.");
+            return "redirect:/SWP/booking/" + storageId + "/booking?startDate=" + startDate + "&endDate=" + endDate;
+        }
+
+        // Kiểm tra SĐT
+        if (!phone.matches("^0[0-9]{9,10}$")) {
+            redirectAttributes.addFlashAttribute("error", "Số điện thoại phải bắt đầu bằng 0 và có 10-11 chữ số.");
+            return "redirect:/SWP/booking/" + storageId + "/booking?startDate=" + startDate + "&endDate=" + endDate;
+        }
+
         Optional<Storage> optionalStorage = storageService.findByID(storageId);
         if (optionalStorage.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy kho.");
@@ -185,9 +203,10 @@ public class BookingController {
         Storage storage = optionalStorage.get();
 
         // Kiểm tra diện tích còn lại
-        double remainArea = orderService.getRemainArea(storageId);
+        double remainArea = orderService.getRemainArea(storageId, startDate, endDate);
         if (rentalArea <= 0 || rentalArea > remainArea) {
-            redirectAttributes.addFlashAttribute("error", "Diện tích thuê phải lớn hơn 0 và không vượt quá diện tích còn trống (" + remainArea + " m²).");
+            redirectAttributes.addFlashAttribute("error",
+                    "Diện tích thuê phải lớn hơn 0 và không vượt quá diện tích còn trống (" + remainArea + " m²) trong suốt thời gian đặt.");
             return "redirect:/SWP/booking/" + storageId + "/booking?startDate=" + startDate + "&endDate=" + endDate;
         }
 
