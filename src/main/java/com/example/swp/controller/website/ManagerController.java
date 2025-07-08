@@ -121,7 +121,7 @@ public class ManagerController {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("message", "Lỗi khi thêm kho.");
         }
-        return "redirect:/SWP/storages";
+        return "redirect:/admin/manager-dashboard";
     }
 
     @GetMapping("/manager-dashboard/storages/{id}")

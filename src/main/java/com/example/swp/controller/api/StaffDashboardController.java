@@ -22,7 +22,7 @@ public class StaffDashboardController {
     public String showDashboard(Model model) {
         // Load all orders to display in the table
         model.addAttribute("orders", orderRepository.findAll());
-        return "staffdashboard"; // File view: staffdashboard.html
+        return "staff-dashboard"; // File view: staffdashboard.html
     }
 
     // Tìm kiếm đơn theo ID, truy cập: http://localhost:8080/staff/dashboard/find?orderId=...
