@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer List - QVL Storage</title>
-    <link rel="stylesheet" th:href="@{/css/customer-list.css}">
+    <title>Danh sách khách hàng - QVL Storage</title>
+    <link rel="stylesheet" th:href="@{/customer-list.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -13,62 +13,63 @@
     <div class="sidebar-header">
         <div class="logo">
             <i class="fas fa-database"></i>
-            <span>QVL Storage</span>
+            <span>Bảng điều khiển Nhân viên</span>
         </div>
     </div>
+
     <ul class="sidebar-menu">
         <li class="menu-item" id="dashboard-menu">
-            <a href="/SWP">
-                <i class="fas fa-home"></i>
-                <span>Home</span>
-            </a>
-        </li>
-        <li class="menu-item" id="staff-dashboard-menu">
             <a href="/SWP/staff/staff-dashboard">
                 <i class="fas fa-tachometer-alt"></i>
-                <span>Dashboard</span>
+                <span>Trang chủ</span>
             </a>
         </li>
         <li class="menu-item" id="addstorage-menu">
             <a href="addstorage">
                 <i class="fas fa-hdd"></i>
-                <span>Add Storage</span>
+                <span>Thêm kho</span>
             </a>
         </li>
         <li class="menu-item" id="storagelist-menu">
-            <a href="/SWP/staff/staff-all-storage">
+            <a href="/SWP/storages">
                 <i class="fas fa-warehouse"></i>
-                <span>Storage List</span>
+                <span>Danh sách kho</span>
             </a>
         </li>
         <li class="menu-item" id="orderlist-menu">
             <a href="/SWP/orders">
                 <i class="fas fa-chart-bar"></i>
-                <span>Order List</span>
+                <span>Danh sách đơn hàng</span>
             </a>
         </li>
         <li class="menu-item">
-            <a href="#inventory">
+            <a href="/SWP/feedbacks">
                 <i class="fas fa-boxes"></i>
-                <span>Feedback</span>
+                <span>Phản hồi</span>
             </a>
         </li>
         <li class="menu-item">
-            <a href="#reports">
+            <a href="/SWP/issues/report">
                 <i class="fas fa-file-alt"></i>
-                <span>Reports</span>
-            </a>
-        </li>
-        <li class="menu-item active" id="customers-menu">
-            <a href="/SWP/customers">
-                <i class="fas fa-users"></i>
-                <span>Customer List</span>
+                <span>Báo cáo</span>
             </a>
         </li>
         <li class="menu-item">
-            <a href="#settings">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
+            <a href="/SWP/statistics">
+                <i class="fas fa-chart-bar"></i>
+                <span>Thống kê doanh thu</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/support">
+                <i class="fas fa-chart-bar"></i>
+                <span>Hỗ trợ khách hàng</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="customer-list">
+                <i class="fas fa-users"></i>
+                <span>Danh sách người dùng</span>
             </a>
         </li>
     </ul>
@@ -79,8 +80,8 @@
                 <i class="fas fa-user"></i>
             </div>
             <div class="user-details">
-                <span class="user-name">Admin User</span>
-                <span class="user-role">Administrator</span>
+                <span class="user-name">John Nhân viên</span>
+                <span class="user-role">Nhân viên</span>
             </div>
         </div>
     </div>
@@ -94,13 +95,13 @@
             <button class="sidebar-toggle">
                 <i class="fas fa-bars"></i>
             </button>
-            <h1>Customer Management</h1>
+            <h1>Quản lý khách hàng</h1>
         </div>
 
         <div class="header-right">
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search customers..." id="searchInput">
+                <input type="text" placeholder="Tìm kiếm khách hàng..." id="searchInput">
             </div>
         </div>
     </header>
@@ -109,18 +110,18 @@
     <div class="page-content">
         <!-- Page Header -->
         <div class="page-header">
-            <h2 class="page-title">Customer Database</h2>
+            <h2 class="page-title">Cơ sở dữ liệu khách hàng</h2>
             <div class="page-actions">
                 <button class="btn-secondary btn-back">
                     <a href="/SWP" style="color: inherit; text-decoration: none;">
                         <i class="fas fa-arrow-left"></i>
-                        Back to Home
+                        Về trang chủ
                     </a>
                 </button>
                 <button class="btn-primary">
                     <a href="/SWP/customers/create" style="color: white; text-decoration: none;">
                         <i class="fas fa-plus"></i>
-                        Add New Customer
+                        Thêm khách hàng mới
                     </a>
                 </button>
             </div>
@@ -130,54 +131,45 @@
         <div class="filter-section">
             <form action="/SWP/customers" method="get" class="filter-form">
                 <div class="filter-group">
-                    <label for="role">Role:</label>
+                    <label for="role">Vai trò:</label>
                     <select id="role" name="role" class="filter-select" onchange="this.form.submit()">
-                        <option value="ALL" th:selected="${selectedRole == 'ALL'}">All Roles</option>
-                        <option value="CUSTOMER" th:selected="${selectedRole == 'CUSTOMER'}">Customer</option>
+                        <option value="ALL" th:selected="${selectedRole == 'ALL'}">Tất cả</option>
+                        <option value="CUSTOMER" th:selected="${selectedRole == 'CUSTOMER'}">Khách hàng</option>
                         <option value="VIP" th:selected="${selectedRole == 'VIP'}">VIP</option>
-                        <option value="BLOCKED" th:selected="${selectedRole == 'BLOCKED'}">Blocked</option>
+                        <option value="BLOCKED" th:selected="${selectedRole == 'BLOCKED'}">Bị khóa</option>
                     </select>
                 </div>
             </form>
 
-            <!--            <form action="/SWP/customers" method="get" class="search-form">-->
-            <!--                <div class="filter-group">-->
-            <!--                    <label for="name">Search by Name:</label>-->
-            <!--                    <input type="text" id="name" name="name" placeholder="Enter customer name..." class="filter-select">-->
-            <!--                    <button type="submit" class="btn-secondary">-->
-            <!--                        <i class="fas fa-search"></i>-->
-            <!--                    </button>-->
-            <!--                </div>-->
-            <!--            </form>-->
-
             <form action="/SWP/customers" method="get" class="search-form">
                 <div class="filter-group">
-                    <label for="customerId">Search by ID:</label>
-                    <input type="number" id="customerId" name="customerId" placeholder="Enter customer ID..." class="filter-select">
+                    <label for="customerId">Tìm theo ID:</label>
+                    <input type="number" id="customerId" name="customerId" placeholder="Nhập ID khách hàng..." class="filter-select">
                     <button type="submit" class="btn-secondary">
                         <i class="fas fa-search"></i>
+                        Tìm
                     </button>
                 </div>
             </form>
 
             <button class="btn-secondary" onclick="clearFilters()">
                 <i class="fas fa-times"></i>
-                Clear Filters
+                Xóa bộ lọc
             </button>
         </div>
 
         <!-- Customer Table -->
         <div class="card">
             <div class="card-header">
-                <h3>All Customers (<span id="totalCount" th:text="${#lists.size(customers)}">0</span>)</h3>
+                <h3>Tất cả khách hàng (<span id="totalCount" th:text="${#lists.size(customers)}">0</span>)</h3>
                 <div class="card-actions">
                     <button class="btn-secondary">
                         <i class="fas fa-download"></i>
-                        Export
+                        Xuất file
                     </button>
                     <button class="btn-secondary">
                         <i class="fas fa-print"></i>
-                        Print
+                        In danh sách
                     </button>
                 </div>
             </div>
@@ -186,13 +178,13 @@
                 <table class="data-table">
                     <thead>
                     <tr>
-                        <th>Customer ID</th>
-                        <th>Full Name</th>
+                        <th>Mã KH</th>
+                        <th>Họ tên</th>
                         <th>Email</th>
-                        <th>Address</th>
-                        <th>Phone</th>
-                        <th>Role</th>
-                        <th>Actions</th>
+                        <th>Địa chỉ</th>
+                        <th>Số điện thoại</th>
+                        <th>Vai trò</th>
+                        <th>Hành động</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -211,27 +203,29 @@
                         </td>
                         <td th:text="${customer.phone}"></td>
                         <td>
-                                    <span class="status-badge"
-                                          th:classappend="${customer.roleName == 'VIP' ? ' vip' : (customer.roleName == 'BLOCKED' ? ' blocked' : ' customer')}"
-                                          th:text="${customer.roleName}">
-                                    </span>
+                            <span class="status-badge"
+                                  th:classappend="${customer.roleName == 'VIP' ? ' vip' : (customer.roleName == 'BLOCKED' ? ' blocked' : ' customer')}"
+                                  th:text="${customer.roleName}">
+                            </span>
                         </td>
                         <td>
                             <div class="action-buttons">
                                 <a th:href="@{/SWP/customers/{id}(id=${customer.id})}"
-                                   class="btn-icon" title="View Details">
+                                   class="btn-icon" title="Xem chi tiết">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <a th:href="@{/SWP/customers/edit/{id}(id=${customer.id})}"
-                                   class="btn-icon" title="Edit Customer">
+                                   class="btn-icon" title="Chỉnh sửa">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <form th:action="@{/SWP/customers/delete/{id}(id=${customer.id})}"
                                       method="post"
                                       style="display: inline;"
-                                      onsubmit="return confirm('Are you sure you want to delete this customer?');">
-                                    <button type="submit" class="btn-icon danger" title="Delete Customer">
-                                        <i class="fas fa-trash"></i>
+                                      th:onsubmit="return confirm('Bạn có chắc chắn muốn ' + ((${#strings.toUpperCase(customer.roleName)} == 'BLOCKED') ? 'mở khóa' : 'ngưng hoạt động') + ' khách hàng này?')">
+                                    <button type="submit" class="btn-icon danger"
+                                            th:title="${#strings.toUpperCase(customer.roleName)} == 'BLOCKED' ? 'Mở khóa khách hàng' : 'Ngưng hoạt động khách hàng'">
+                                        <i class="fas"
+                                           th:classappend="${#strings.toUpperCase(customer.roleName)} == 'BLOCKED' ? ' fa-unlock' : ' fa-lock'"></i>
                                     </button>
                                 </form>
                             </div>
@@ -254,7 +248,7 @@
 </main>
 
 <script>
-    // Search functionality
+    // Chức năng tìm kiếm
     document.getElementById('searchInput').addEventListener('input', function(e) {
         const searchTerm = e.target.value.toLowerCase();
         const rows = document.querySelectorAll('.data-table tbody tr');
@@ -267,13 +261,13 @@
 
     function clearFilters() {
         document.getElementById('role').value = 'ALL';
-        document.getElementById('name') && (document.getElementById('name').value = ''); // giữ nguyên logic nếu bạn mở lại input name
+        document.getElementById('name').value = '';
         document.getElementById('customerId').value = '';
-        // Optionally submit the form to clear server-side filters
+        // Submit lại form để xóa bộ lọc phía server
         document.querySelector('.filter-form').submit();
     }
 
-    // Sidebar toggle for mobile
+    // Thu gọn sidebar cho mobile
     document.querySelector('.sidebar-toggle').addEventListener('click', function() {
         document.querySelector('.sidebar').classList.toggle('open');
     });
