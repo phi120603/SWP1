@@ -25,11 +25,12 @@ public class MyUserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return customerRepository.findByEmail(username)
-                .map(customer -> (UserDetails) customer)
-                .or(() -> staffRepository.findByEmail(username).map(staff -> (UserDetails) staff))
-                .or(() -> managerRepository.findByEmail(username).map(manager -> (UserDetails) manager))
+                .map(MyUserDetail::new)
+                .or(() -> staffRepository.findByEmail(username).map(MyUserDetail::new))
+                .or(() -> managerRepository.findByEmail(username).map(MyUserDetail::new))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
+
 
 //
 

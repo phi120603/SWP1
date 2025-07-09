@@ -1,10 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SWP Messenger‑like Chat</title>
+    <link rel="stylesheet" href="/css/chat.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2"></script>
 </head>
-<body>
-     Hello world
+<body class="messenger">
+<div id="app">
+    <!-- Sidebar (dành cho manager) -->
+    <aside class="sidebar" id="sidebar">
+        <header class="sidebar-header">Chats</header>
+        <ul id="thread-list"></ul>
+    </aside>
+
+    <!-- Chat panel -->
+    <section class="chat-panel">
+        <header class="chat-header">
+            <div class="chat-peer-avatar" id="peer-avatar"></div>
+            <h2 class="chat-peer-name" id="peer-name">Chat</h2>
+        </header>
+
+        <main class="messages" id="messages"></main>
+
+        <footer class="composer">
+            <input id="msg" type="text" placeholder="Aa" autocomplete="off" />
+            <button id="send" title="Send"></button>
+        </footer>
+    </section>
+</div>
+
+<script src="/js/chat.js"></script>
 </body>
 </html>
