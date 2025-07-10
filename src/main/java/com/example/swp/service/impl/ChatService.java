@@ -47,4 +47,16 @@ public class ChatService {
     public List<ChatMessage> history(UUID sid) {
         return msgRepo.findBySessionIdOrderByCreatedAtAsc(sid);
     }
+
+    public ChatMessage send(UUID sessionId, String content, boolean mine) {
+        ChatSession session = sesRepo.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid session ID"));
+
+        ChatMessage msg = new ChatMessage();
+        msg.setSession(session);
+        msg.setContent(content);
+        msg.setMine(mine);
+        return msgRepo.save(msg);
+    }
+
 }

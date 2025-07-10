@@ -38,24 +38,26 @@ public class ChatController {
         return "index"; // KHÔNG cần .html
     }
 
-    /* REST tạo session */
-    @PostMapping("/api/session")
-    public Map<String, UUID> create() {
-        return Map.of("session", svc.newSession().getId());
-    }
 
-    /* REST lấy lịch sử */
-    @GetMapping("/api/history/{sid}")
-    public List<ChatMessage> hist(@PathVariable UUID sid) {
-        return svc.history(sid);
-    }
 
-    /* WS nhận tin */
-    @MessageMapping("/send/{sid}")
-    public void msg(@DestinationVariable UUID sid, @Payload String text, Principal p) {
-        ChatMessage saved = svc.save(sid, text, true);
-        ws.convertAndSend("/topic/" + sid, saved);
-    }
+//    /* REST tạo session */
+//    @PostMapping("/api/session")
+//    public Map<String, UUID> create() {
+//        return Map.of("session", svc.newSession().getId());
+//    }
+//
+//    /* REST lấy lịch sử */
+//    @GetMapping("/api/history/{sid}")
+//    public List<ChatMessage> hist(@PathVariable UUID sid) {
+//        return svc.history(sid);
+//    }
+//
+//    /* WS nhận tin */
+//    @MessageMapping("/send/{sid}")
+//    public void msg(@DestinationVariable UUID sid, @Payload String text, Principal p) {
+//        ChatMessage saved = svc.save(sid, text, true);
+//        ws.convertAndSend("/topic/" + sid, saved);
+//    }
 }
 
 
