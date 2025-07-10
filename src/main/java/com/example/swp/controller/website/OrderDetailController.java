@@ -1,8 +1,10 @@
 package com.example.swp.controller.website;
 
+import com.example.swp.entity.Storage;
 import com.example.swp.entity.StorageTransaction;
 import com.example.swp.repository.StorageTransactionRepository;
 import com.example.swp.service.EmailService;
+import com.example.swp.service.StorageService;
 import com.example.swp.service.VNPayService;
 import com.example.swp.service.impl.VnPayServiceimpl;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,6 +38,10 @@ public class OrderDetailController {
     @Autowired
     @Qualifier("vnPayServiceimpl")
     private VNPayService vnPayService;
+
+    @Autowired
+    private StorageService storageService;
+
 
     @GetMapping("/orders/{id}")
     public String viewOrderDetail(@PathVariable int id, Model model) {
@@ -83,6 +89,14 @@ public class OrderDetailController {
 
 
             emailService.sendEmail(customerEmail, subject, emailBody);
+            // 1. Cập nhật trạng thái kho
+            Storage storage = order.getStorage();
+            if (storage != null) {
+                storage.setStatus(false); // đánh dấu là đã thuê
+                // Gọi hàm save từ service
+                storageService.save(storage);
+            }
+
 
             redirectAttributes.addFlashAttribute("message", "Đã duyệt đơn hàng #" + id + " và gửi email xác nhận.");
             return "redirect:/SWP/orders/{id}";

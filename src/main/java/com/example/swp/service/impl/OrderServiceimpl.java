@@ -51,10 +51,27 @@ public class OrderServiceimpl implements OrderService {
 
     @Override
     public Order createOrder(OrderRequest orderRequest) {
-        Customer customer =  customerRepository.findById(orderRequest.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("ko co customer " +orderRequest.getCustomerId()));
+        Customer customer = customerRepository.findById(orderRequest.getCustomerId())
+                .orElseThrow(() -> new RuntimeException("Không có customer " + orderRequest.getCustomerId()));
+
         Storage storage = storageReponsitory.findById(orderRequest.getStorageId())
-                .orElseThrow(() -> new RuntimeException("ko co storage " +orderRequest.getStorageId()));
+                .orElseThrow(() -> new RuntimeException("Không có storage " + orderRequest.getStorageId()));
+
+        boolean available = isStorageAvailable(storage.getStorageid(),
+                orderRequest.getStartDate(), orderRequest.getEndDate());
+
+        if (!available) {
+            throw new RuntimeException("Kho đã có người đặt trong khoảng thời gian này!");
+        }
+
+        long rentalDays = ChronoUnit.DAYS.between(orderRequest.getStartDate(), orderRequest.getEndDate());
+        if (rentalDays <= 0) {
+            throw new RuntimeException("Ngày kết thúc phải sau ngày bắt đầu!");
+        }
+
+        double dailyRate = storage.getPricePerDay();
+        double totalAmount = rentalDays * dailyRate;
+
         Order order = new Order();
         order.setStartDate(orderRequest.getStartDate());
         order.setEndDate(orderRequest.getEndDate());
@@ -67,8 +84,10 @@ public class OrderServiceimpl implements OrderService {
         order.setStatus(orderRequest.getStatus());
         order.setCustomer(customer);
         order.setStorage(storage);
+
         return orderRepository.save(order);
     }
+
 
     @Override
     public List<Order> findOrdersByStatus(String status) {
@@ -117,7 +136,7 @@ public class OrderServiceimpl implements OrderService {
     public double getRevenueApproved() {
         return orderRepository.findAll()
                 .stream()
-                .filter(order -> "Approved".equalsIgnoreCase(order.getStatus()))
+                .filter(order -> "APPROVED".equalsIgnoreCase(order.getStatus()))
                 .mapToDouble(Order::getTotalAmount)
                 .sum();
     }
@@ -135,6 +154,19 @@ public class OrderServiceimpl implements OrderService {
 
     @Transactional
     public void markOrderAsPaid(int orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Order với ID: " + orderId));
+
+        long overlap = orderRepository.countOverlapOrders(
+                order.getStorage().getStorageid(),
+                order.getStartDate(),
+                order.getEndDate()
+        );
+
+        if (overlap > 1) {
+            throw new RuntimeException("Kho đã có người khác đặt trong khoảng thời gian này. Không thể thanh toán đơn hàng này.");
+        }
+
         orderRepository.updateOrderStatusToPaid(orderId);
     }
 
@@ -152,6 +184,42 @@ public class OrderServiceimpl implements OrderService {
         return orderRepository.findTop5ByOrderByOrderDateDesc();
     }
 
+
+
+    @Override
+    public boolean isStorageAvailable(int storageId, LocalDate startDate, LocalDate endDate) {
+        return orderRepository.countOverlapOrders(storageId, startDate, endDate) == 0;
+
+
+
+
+    }
+
+    @Override
+    public long countOverlapOrdersByCustomer(int customerId, int storageId, LocalDate startDate, LocalDate endDate) {
+        return orderRepository.countOverlapOrdersByCustomer(customerId, storageId, startDate, endDate);
+    }
+
+    @Override
+    public Order createBookingOrder(Storage storage, Customer customer,
+                                    LocalDate startDate, LocalDate endDate, double total) {
+        boolean available = isStorageAvailable(storage.getStorageid(), startDate, endDate);
+        if (!available) {
+            throw new RuntimeException("Kho đã có người đặt trong khoảng thời gian này!");
+        }
+        Order order = new Order();
+        order.setStorage(storage);
+        order.setCustomer(customer);
+        order.setStartDate(startDate);
+        order.setEndDate(endDate);
+        order.setOrderDate(LocalDate.now());
+        order.setTotalAmount(total);
+        order.setStatus("PENDING");
+        // Cần setRentalArea từ controller truyền vào!
+        // order.setRentalArea(rentalArea);
+
+        return orderRepository.save(order);
+    }
 
 
 

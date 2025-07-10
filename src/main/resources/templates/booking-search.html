@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tìm kiếm kho trống</title>
+    <link rel="stylesheet" href="/css/storage-list.css">
+    <!-- Lucide icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="page-wrapper">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                <a href="/home-page">
+                    <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
+                         alt="QVL Storage Logo" class="navbar-logo">
+                </a>
+            </div>
+            <ul class="navbar-nav">
+                <li><a href="/home-page">Trang chủ</a></li>
+                <li><a href="/SWP/storages">Danh sách</a></li>
+                <li><a href="/SWP/booking/search" class="active">Đặt kho</a></li>
+            </ul>
+
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1>Tìm kiếm & Đặt kho</h1>
+            <p>Chọn thời gian và khu vực bạn cần thuê kho. Đặt kho dễ dàng chỉ với vài bước!</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="search-section">
+            <div class="search-card">
+                <form th:action="@{/SWP/booking/search/result}" method="get" th:object="${order}" class="search-form">
+                    <div class="search-grid">
+                        <div class="form-group">
+                            <label for="startDate">Ngày bắt đầu</label>
+                            <div class="input-with-icon">
+                                <i data-lucide="calendar"></i>
+                                <input type="date" id="startDate" name="startDate" class="form-input"
+                                       th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">Ngày kết thúc</label>
+                            <div class="input-with-icon">
+                                <i data-lucide="calendar"></i>
+                                <input type="date" id="endDate" name="endDate" class="form-input"
+                                       th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="city">Khu vực (tỉnh/thành)</label>
+                            <div class="select-wrapper">
+                                <select id="city" name="city" class="form-select">
+                                    <option value="">-- Tất cả --</option>
+                                    <option th:each="city : ${cities}"
+                                            th:value="${city}"
+                                            th:text="${city}"
+                                            th:selected="${city} == ${citySelected}">
+                                    </option>
+                                </select>
+                                <i data-lucide="chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="minArea">Diện tích tối thiểu (m²)</label>
+                            <div class="input-with-icon">
+                                <i data-lucide="ruler"></i>
+                                <input type="number" id="minArea" name="minArea" min="0" class="form-input" placeholder="Nhập diện tích">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i data-lucide="search"></i>
+                                Tìm kho
+                            </button>
+                            <a href="/SWP/booking/search" class="btn btn-secondary">
+                                <i data-lucide="filter-x"></i>
+                                Xóa bộ lọc
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="brand-header">
+                        <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
+                             alt="QVL Storage Logo" class="footer-logo">
+                        <h2 class="brand-name">QVL Storage</h2>
+                    </div>
+                    <p class="brand-description">
+                        Hệ thống cho thuê kho hàng chuyên nghiệp trên toàn quốc. Chúng tôi cung cấp giải pháp lưu trữ an toàn, tiện lợi và hiệu quả cho mọi nhu cầu kinh doanh.
+                    </p>
+                </div>
+                <div class="footer-column">
+                    <h3>Về chúng tôi</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Dịch vụ</a></li>
+                        <li><a href="#">Tin tức</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Hỗ trợ</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Trung tâm trợ giúp</a></li>
+                        <li><a href="#">Chat trực tuyến</a></li>
+                        <li><a href="#">Hotline 24/7</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Sản phẩm</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Kho nhỏ</a></li>
+                        <li><a href="#">Kho vừa</a></li>
+                        <li><a href="#">Kho lớn</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-divider"></div>
+            <div class="footer-bottom">
+                <p class="copyright">Bản quyền ©2024. Tất cả quyền được bảo lưu. — QVL Storage System</p>
+                <ul class="footer-bottom-links">

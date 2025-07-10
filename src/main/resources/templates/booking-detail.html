@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết đơn hàng - QVL STORAGE</title>
+    <link rel="stylesheet" th:href="@{/css/booking-detail.css}" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-green-100 via-white to-green-200 min-h-screen font-sans">
+<header class="bg-green-700 text-white shadow-md p-4">
+    <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-xl font-bold tracking-wide">Chi tiết đơn hàng</h1>
+        <nav class="space-x-6 text-base">
+            <a href="/home-page" class="hover:underline hover:text-yellow-200 transition">Trang chủ</a>
+            <a href="/SWP/customers/my-bookings" class="hover:underline hover:text-yellow-200 transition">Đơn hàng của tôi</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container mx-auto mt-10 px-2">
+    <div class="bg-white rounded-2xl shadow-lg p-8 max-w-2xl mx-auto">
+        <h2 class="text-2xl font-bold mb-6 text-green-700">Thông tin đơn hàng</h2>
+        <div class="space-y-3 text-gray-700 text-lg">
+            <p><span class="font-semibold">Mã đơn hàng:</span> <span th:text="'#' + ${order.id}"></span></p>
+            <p><span class="font-semibold">Tên kho:</span> <span th:text="${order.storage.storagename}"></span></p>
+            <p><span class="font-semibold">Địa chỉ kho:</span> <span th:text="${order.storage.address}"></span></p>
+            <p><span class="font-semibold">Diện tích:</span> <span th:text="${order.storage.area}"></span> m²</p>
+            <p><span class="font-semibold">Ngày bắt đầu:</span> <span th:text="${#temporals.format(order.startDate, 'dd/MM/yyyy')}"></span></p>
+            <p><span class="font-semibold">Ngày kết thúc:</span> <span th:text="${#temporals.format(order.endDate, 'dd/MM/yyyy')}"></span></p>
+            <p><span class="font-semibold">Tổng tiền:</span>
+                <span th:text="${#numbers.formatInteger(order.totalAmount, '0')}"></span> VNĐ</p>
+            <p>
+                <span class="font-semibold">Trạng thái:</span>
+                <span th:if="${order.status == 'CANCELLED'}" th:text="${order.status}" class="text-red-600 font-bold"></span>
+                <span th:if="${order.status == 'CONFIRMED'}" th:text="${order.status}" class="text-green-600 font-bold"></span>
+                <span th:if="${order.status != 'CANCELLED' and order.status != 'CONFIRMED'}" th:text="${order.status}" class="text-yellow-600 font-bold"></span>
+            </p>
+            <!-- Hiển thị lý do hủy nếu đơn đã bị hủy -->
+            <th:block th:if="${order.status == 'CANCELLED'}">
+                <p>
+                    <span class="font-semibold">Lý do hủy:</span>
+                    <span th:text="${order.cancelReason}" class="italic text-gray-500"></span>
+                </p>
+            </th:block>
+        </div>
+
+        <div class="mt-8 flex gap-4 justify-end">
+            <!-- Nút Hủy đơn chỉ hiện khi PENDING hoặc CONFIRMED -->
+            <button type="button"
+                    th:if="${order.status == 'PENDING' or order.status == 'CONFIRMED'}"
+                    class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl shadow transition font-semibold"
+                    onclick="openCancelModal()">
+                Hủy đơn
+            </button>
+            <button type="button"
+                    th:unless="${order.status == 'PENDING' or order.status == 'CONFIRMED'}"
+                    class="bg-gray-300 text-gray-600 px-5 py-2 rounded-xl font-semibold" disabled>
+                Không thể hủy
+            </button>
+        </div>
+    </div>
+</main>
+
+<!-- Modal chọn lý do hủy -->
+<div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50 transition">
+    <div class="bg-white rounded-2xl p-8 w-full max-w-lg mx-auto shadow-xl animate-fadeIn">
+        <h3 class="text-xl font-bold mb-4 text-green-800">Lý do hủy đơn hàng</h3>
+        <form th:action="@{/SWP/customers/my-bookings/{id}/cancel(id=${order.id})}" method="post" onsubmit="return validateCancelReason()">
+            <div class="space-y-3 mb-5 text-base">
+                <label class="flex items-center gap-2">
+                    <input type="radio" name="cancelReason" value="Không còn nhu cầu thuê kho" required>
+                    Tôi không còn nhu cầu thuê kho nữa
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="radio" name="cancelReason" value="Muốn thay đổi thời gian thuê">
+                    Tôi muốn thay đổi thời gian thuê
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="radio" name="cancelReason" value="Đã tìm được kho khác phù hợp hơn">
+                    Tôi đã tìm được kho khác phù hợp hơn
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="radio" name="cancelReason" value="Giá thuê chưa phù hợp">
+                    Giá thuê chưa phù hợp với tôi
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="radio" name="cancelReason" value="Nhập sai thông tin khi đặt">
+                    Tôi nhập sai thông tin khi đặt
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="radio" name="cancelReason" value="Kho ở vị trí chưa thuận tiện">
+                    Kho ở vị trí chưa thuận tiện
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="radio" name="cancelReason" value="Chủ kho không phản hồi">
+                    Chủ kho không phản hồi/gọi lại
+                </label>
+                <!-- Lý do khác -->
+                <label class="flex items-center gap-2">
+                    <input type="radio" name="cancelReason" value="other" id="reason-other-radio">
+                    <span>Lý do khác:</span>
+                    <input type="text" name="otherReason" id="otherReasonInput"
+                           class="border rounded px-2 py-1 ml-2 w-1/2 focus:ring focus:border-green-500"
+                           placeholder="Nhập lý do khác" disabled>
+                </label>
+            </div>
+            <div class="flex justify-end gap-4">
+                <button type="button" onclick="closeCancelModal()"
+                        class="px-5 py-2 border rounded-xl text-gray-700 bg-gray-100 hover:bg-gray-200 font-semibold">
+                    Hủy
+                </button>
+                <button type="submit"
+                        class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl font-semibold">
+                    Xác nhận hủy
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer class="bg-green-700 text-white text-center p-4 mt-10 shadow-inner">
+    <p>© 2025 QVL STORAGE. All rights reserved.</p>
+</footer>
+
+<script>
+    function openCancelModal() {
+        document.getElementById('cancelModal').classList.remove('hidden');
+        document.getElementById('cancelModal').classList.add('flex');
+    }
+    function closeCancelModal() {
+        document.getElementById('cancelModal').classList.add('hidden');
+        document.getElementById('cancelModal').classList.remove('flex');
+    }
+    // Xử lý bật/tắt input "Lý do khác"
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('input[name="cancelReason"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                var otherInput = document.getElementById('otherReasonInput');
+                if (this.value === "other") {
+                    otherInput.disabled = false;
+                    otherInput.focus();
+                } else {
+                    otherInput.disabled = true;
+                    otherInput.value = '';
+                }
+            });
+        });
+    });
+    // Validate trước khi submit
+    function validateCancelReason() {
+        var otherRadio = document.getElementById('reason-other-radio');
+        var otherInput = document.getElementById('otherReasonInput');
+        if (otherRadio && otherRadio.checked && (!otherInput.value.trim())) {
+            alert("Vui lòng nhập lý do khác.");
+            otherInput.focus();
+            return false;
+        }
+        return true;
+    }
+</script>
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px);}
+        to { opacity: 1; transform: translateY(0);}
+    }
+    .animate-fadeIn { animation: fadeIn 0.3s ease; }
+</style>
+</body>
+</html>

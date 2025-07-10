@@ -2,7 +2,7 @@ package com.example.swp.enums;
 
 public enum RoleName {
     CUSTOMER,
-    DELIVERY,
+    delivery,
     STAFF,
     MANAGER,
     BLOCKED
