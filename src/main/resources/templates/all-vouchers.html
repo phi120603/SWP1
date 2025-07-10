@@ -40,7 +40,7 @@
                     </a>
                 </button>
                 <button class="btn-primary">
-                    <a href="/SWP/addvoucher" style="color: white; text-decoration: none;">
+                    <a href="/SWP/staff/addvoucher" style="color: white; text-decoration: none;">
                         <i class="fas fa-plus"></i>
                         Thêm Voucher Mới
                     </a>
@@ -75,6 +75,18 @@
                 <i class="fas fa-times"></i>
                 Xóa Filters
             </button>
+
+            <div class="filter-group">
+                <label for="sortSelect">Sắp xếp:</label>
+                <select id="sortSelect" class="filter-select">
+                    <option value="">Mặc định</option>
+                    <option value="discount-asc">Giảm giá tăng dần</option>
+                    <option value="discount-desc">Giảm giá giảm dần</option>
+                    <option value="point-asc">Điểm đổi tăng dần</option>
+                    <option value="point-desc">Điểm đổi giảm dần</option>
+                </select>
+            </div>
+
         </div>
 
         <!-- Voucher Table -->
@@ -117,14 +129,23 @@
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <a th:href="@{'/SWP/vouchers/' + ${voucher.id} + '/detail'}"
+                                <a th:href="@{'/SWP/staff/vouchers/' + ${voucher.id} + '/edit'}"
                                    class="btn-icon" title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <form th:action="@{'/SWP/vouchers/' + ${voucher.id} + '/delete'}"
+                                <form th:action="@{'/SWP/staff/vouchers/' + ${voucher.id} + '/toggle-status'}"
+                                      method="post" style="display: inline;">
+                                    <input type="hidden" name="returnUrl" value="/SWP/staff/vouchers"/>
+                                    <button type="submit"
+                                            th:class="'btn-icon ' + (${voucher.status.name() == 'ACTIVE'} ? 'toggle-active' : 'toggle-inactive')"
+                                            th:title="${voucher.status.name() == 'ACTIVE'} ? 'Inactive Voucher' : 'Activate Voucher'">
+                                        <i th:class="${voucher.status.name() == 'ACTIVE'} ? 'fas fa-ban' : 'fas fa-check'"></i>
+                                    </button>
+                                </form>
+                                <form th:action="@{'/SWP/staff/vouchers/' + ${voucher.id} + '/delete'}"
                                       method="post" style="display: inline;"
                                       onsubmit="return confirm('Bạn có chắc là xóa voucher này không?');">
-                                    <input type="hidden" name="returnUrl" value="/SWP/staff/all-vouchers"/>
+                                    <input type="hidden" name="returnUrl" value="/SWP/staff/vouchers"/>
                                     <button type="submit" class="btn-icon danger" title="Delete">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -188,6 +209,11 @@
             row.style.display = show ? '' : 'none';
         });
         showPage(1);
+        // Gọi sort sau lọc
+        const currentSort = document.getElementById('sortSelect').value;
+        if (currentSort) {
+            sortTable(currentSort);
+        }
     }
 
     function clearFilters() {
@@ -266,6 +292,39 @@
     window.onload = function() {
         showPage(1);
     };
+    document.getElementById('sortSelect').addEventListener('change', function () {
+        const sortValue = this.value;
+        sortTable(sortValue);
+    });
+
+    function sortTable(sortValue) {
+        const rows = Array.from(document.querySelectorAll('.data-table tbody tr'));
+        if (!sortValue || sortValue === "") {
+            showPage(1);
+            return;
+        }
+
+        const [field, order] = sortValue.split("-");
+
+        rows.sort((a, b) => {
+            let valA = 0;
+            let valB = 0;
+
+            if (field === "discount") {
+                valA = parseFloat(a.children[3].textContent.replace(/,/g, '')) || 0;
+                valB = parseFloat(b.children[3].textContent.replace(/,/g, '')) || 0;
+            } else if (field === "point") {
+                valA = parseInt(a.children[4].textContent) || 0;
+                valB = parseInt(b.children[4].textContent) || 0;
+            }
+
+            return (order === "asc" ? valA - valB : valB - valA);
+        });
+
+        const tbody = document.querySelector('.data-table tbody');
+        rows.forEach(row => tbody.appendChild(row));
+        showPage(1);
+    }
 </script>
 </body>
 </html>
