@@ -1,8 +1,10 @@
 package com.example.swp.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -29,6 +31,8 @@ public class ChatMessage {
     @Column(nullable = false)
     private boolean mine;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
+
 }

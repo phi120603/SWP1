@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ChatSessionRepository extends JpaRepository<ChatSession, UUID> {
+    Optional<ChatSession> findTopByOrderByCreatedAtAsc();
 }
 
 

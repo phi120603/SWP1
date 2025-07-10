@@ -4,8 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SWP Messenger Chat</title>
+
     <link rel="stylesheet" href="/css/chat.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        /* Nếu không có CSS chat.css thì tối thiểu hiển thị gọn */
+        .avatar, .chat-peer-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    </style>
 </head>
 <body>
 <div id="app" class="messenger-app">
@@ -43,7 +54,10 @@
             <header class="chat-header" id="chatHeader">
                 <div class="chat-peer-info">
                     <div class="peer-avatar-container">
-                        <img class="chat-peer-avatar" id="peerAvatar" src="/placeholder.svg" alt="">
+                        <img class="chat-peer-avatar" id="peerAvatar"
+                             src="data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjQ4IiB3aWR0aD0iNDgiIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBmaWxsPSIjY2NjY2NjIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogICAgPHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIHJ4PSIyMCIgZmlsbD0iI2RkZGRkZCIgLz4KICAgIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM3NzdjODAiPk08L3RleHQ+Cjwvc3ZnPg=="
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjQ4IiB3aWR0aD0iNDgiIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBmaWxsPSIjY2NjY2NjIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iMjAiIGZpbGw9IiNkZGRkZGQiIC8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iNDUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzc3N2M4MCI+PzwvdGV4dD48L3N2Zz4='"
+                             alt="placeholder">
                         <div class="online-indicator" id="onlineIndicator"></div>
                     </div>
                     <div class="peer-details">
@@ -84,6 +98,7 @@
     </section>
 </div>
 
-<script src="script.js"></script>
+<!-- Đảm bảo đường dẫn script đúng và script tồn tại -->
+<script src="/js/chat.js"></script>
 </body>
 </html>
