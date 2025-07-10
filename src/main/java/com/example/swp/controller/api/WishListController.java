@@ -1,5 +1,6 @@
 package com.example.swp.controller.api;
 
+import com.example.swp.dto.WishlistRequest;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Storage;
 import com.example.swp.entity.WishList;
@@ -25,7 +26,8 @@ public class WishListController {
     private StorageRepository storageRepository;
 
     @PostMapping("/add")
-    public ResponseEntity<?> addToWishList(@RequestBody Long storageId, HttpSession session) {
+    public ResponseEntity<?> addToWishList(@RequestBody WishlistRequest request, HttpSession session) {
+        Long storageId = request.getStorageId();
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
         if (customer == null) {
             return ResponseEntity.status(401).body("Bạn cần đăng nhập");
@@ -39,7 +41,8 @@ public class WishListController {
         // Check if already in wishlist
         List<WishList> existingWishlist = wishListService.getWishListByCustomer(customer);
         boolean alreadyExists = existingWishlist.stream()
-                .anyMatch(w -> w.getStorage().getStorageid() == (storageOpt.get().getStorageid()));
+                .anyMatch(w -> w.getStorage() != null &&
+                        w.getStorage().getStorageid() == storageOpt.get().getStorageid());
 
         if (alreadyExists) {
             return ResponseEntity.badRequest().body("Kho đã có trong wishlist");
@@ -50,7 +53,8 @@ public class WishListController {
     }
 
     @PostMapping("/remove")
-    public ResponseEntity<?> removeFromWishList(@RequestBody Long storageId, HttpSession session) {
+    public ResponseEntity<?> removeFromWishList(@RequestBody WishlistRequest request, HttpSession session) {
+        Long storageId = request.getStorageId();
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
         if (customer == null) {
             return ResponseEntity.status(401).body("Bạn cần đăng nhập");
