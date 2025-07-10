@@ -76,10 +76,10 @@ public class OrderServiceimpl implements OrderService {
         order.setStartDate(orderRequest.getStartDate());
         order.setEndDate(orderRequest.getEndDate());
         order.setOrderDate(orderRequest.getOrderDate());
-        long rentalDays = ChronoUnit.DAYS.between(orderRequest.getStartDate(), orderRequest.getEndDate());
+        rentalDays = ChronoUnit.DAYS.between(orderRequest.getStartDate(), orderRequest.getEndDate());
         // Tính tổng tiền thuê
-        double dailyRate =storage.getPricePerDay(); // hoặc giá cố định
-        double totalAmount = rentalDays * dailyRate;
+         dailyRate =storage.getPricePerDay(); // hoặc giá cố định
+         totalAmount = rentalDays * dailyRate;
         order.setTotalAmount(totalAmount);
         order.setStatus(orderRequest.getStatus());
         order.setCustomer(customer);
@@ -221,6 +221,30 @@ public class OrderServiceimpl implements OrderService {
         return orderRepository.save(order);
     }
 
+    @Override
+    public double getTotalRentedArea(int storageId) {
+        return 0;
+    }
+
+    @Override
+    public double getRemainArea(int storageId, LocalDate startDate, LocalDate endDate) {
+        Optional<Storage> storageOpt = storageReponsitory.findById(storageId);
+        if (storageOpt.isEmpty()) return 0.0;
+        double totalArea = storageOpt.get().getArea();
+        double maxUsed = 0;
+
+        for (LocalDate d = startDate; !d.isAfter(endDate.minusDays(1)); d = d.plusDays(1)) {
+            // Tính tổng diện tích đã bị đặt cho ngày d (các order trùng ngày d, trạng thái còn hiệu lực)
+            double used = orderRepository.sumRentedAreaForStorageOnDate(storageId, d);
+            if (used > maxUsed) maxUsed = used;
+        }
+        return Math.max(0, totalArea - maxUsed);
+    }
+
+//    @Override
+//    public List<Order> getLast5Orders() {
+//        return List.of();
+//    }
 
 
 }

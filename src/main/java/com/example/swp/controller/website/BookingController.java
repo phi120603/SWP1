@@ -213,7 +213,7 @@ public class BookingController {
         // Kiểm tra trùng đơn đặt
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
         if (customer == null) {
-            Optional<Customer> existingCustomer = customerService.findByEmail(email);
+            Optional<Customer> existingCustomer = customerService.findByEmail1(email);
             if (existingCustomer.isPresent()) {
                 customer = existingCustomer.get();
             } else {

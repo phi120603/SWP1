@@ -15,9 +15,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
-    public Optional<Customer> findByEmail(String email) {
-        return customerRepository.findByEmail(email);
-    }
+//    public Optional<Customer> findByEmail(String email) {
+//        return customerRepository.findByEmail(email);
+//    }
 
     @Override
     public List<Customer> getAll() {
@@ -27,6 +27,11 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer getCustomer(int id) {
         return customerRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public Optional<Customer> findByEmail1(String email) {
+        return Optional.empty();
     }
 
     @Override

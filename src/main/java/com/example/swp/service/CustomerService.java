@@ -9,7 +9,7 @@ public interface CustomerService {
 
     List<Customer> getAll();
     Customer getCustomer(int id);
-//    Optional<Customer> findByEmail(String email);
+    Optional<Customer> findByEmail1(String email);
 
     // Thêm nếu muốn search/filter
     List<Customer> searchByName(String name);
