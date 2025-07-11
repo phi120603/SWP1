@@ -223,9 +223,11 @@ public class BookingController {
                 customer.setPhone(phone);
                 customer.setRoleName(RoleName.CUSTOMER);
                 customer.setPassword("default-guest-password");
-                customer.setId_citizen("GUEST-" + UUID.randomUUID());
+                customer.setId_citizen("GUEST-" + UUID.randomUUID().toString().substring(0, 13));
                 customer = customerService.save(customer);
             }
+            session.setAttribute("loggedInCustomer", customer);
+
         }
         long overlapCount = orderService.countOverlapOrdersByCustomer(
                 customer.getId(),
