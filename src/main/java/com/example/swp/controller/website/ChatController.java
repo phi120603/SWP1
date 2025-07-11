@@ -3,8 +3,7 @@ package com.example.swp.controller.website;
 import com.example.swp.dto.ChatMessageRequest;
 import com.example.swp.dto.ChatMessageResponse;
 import com.example.swp.entity.ChatMessage;
-import com.example.swp.entity.ChatSession;
-import com.example.swp.mapper.ChatMapper;
+//import com.example.swp.mapper.ChatMapper;
 import com.example.swp.security.MyUserDetail;
 import com.example.swp.service.impl.ChatService;
 import lombok.RequiredArgsConstructor;
@@ -35,9 +34,8 @@ public class ChatController {
 
     @GetMapping("/chat")
     public String chatPage() {
-        return "index"; // KHÔNG cần .html
+        return "index";
     }
-
 
 
 //    /* REST tạo session */

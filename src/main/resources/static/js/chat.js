@@ -1,11 +1,13 @@
+// == File: chat.js - Đã cập nhật ==
 class MessengerChat {
     constructor() {
         this.currentThread = null;
         this.threads = [];
         this.apiBase = '/api';
+        this.stompClient = null;
+        this.senderId = null; // ✅ Gán từ session backend
 
-        // Base64 avatar dự phòng (ảnh hình tròn chữ "M")
-        this.defaultAvatar = "data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjQ4IiB3aWR0aD0iNDgiIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBmaWxsPSIjY2NjY2NjIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogICAgPHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIHJ4PSIyMCIgZmlsbD0iI2RkZGRkZCIgLz4KICAgIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM3NzdjODAiPk08L3RleHQ+Cjwvc3ZnPg==";
+        this.defaultAvatar = "data:image/svg+xml;base64,...";
 
         this.elements = {
             messageInput: document.getElementById("messageInput"),
@@ -16,48 +18,118 @@ class MessengerChat {
             chatContent: document.getElementById("chatContent"),
             peerName: document.getElementById("peerName"),
         };
+
         this.init();
     }
 
     async init() {
+        await this.loadSessionInfo();
         await this.loadThreads();
         this.renderThreadList();
         this.bindEvents();
         this.updateUI();
+        this.connectWebSocket(this.currentThread.id);
     }
 
-    async loadThreads() {
+    async loadSessionInfo() {
         try {
             const res = await fetch(`${this.apiBase}/session/dev`);
             const data = await res.json();
             this.currentSessionId = data.session;
+            this.senderId = data.senderId;
+        } catch (e) {
+            console.error("❌ Failed to load session info", e);
+        }
+    }
 
-            const historyRes = await fetch(`${this.apiBase}/history/${this.currentSessionId}`);
+    generateRoomId(userA, userB) {
+        return userA < userB ? `room-${userA}-${userB}` : `room-${userB}-${userA}`;
+    }
+
+    async loadThreads() {
+        try {
+            const peerId = "user-6"; // Manager ID
+            const roomId = this.generateRoomId(this.senderId, peerId);
+
+            const historyRes = await fetch(`${this.apiBase}/messages?peerId=${peerId}&currentUserId=${this.senderId}`);
             const messages = await historyRes.json();
 
             const formattedMessages = messages.map((msg) => ({
                 id: msg.id,
                 text: msg.content,
-                sender: msg.mine === true || msg.mine === 1 ? "user" : "other",  // <-- sửa chỗ này
+                sender: msg.senderId === this.senderId ? "user" : "other",
                 timestamp: new Date(msg.createdAt),
-                avatar: (msg.mine === true || msg.mine === 1) ? null : "/placeholder.svg",
+                avatar: msg.senderId === this.senderId ? null : "/placeholder.svg",
             }));
 
-
-            this.threads = [{
-                id: this.currentSessionId,
-                name: "Manager",
+            // ✅ Luôn tạo thread với manager, kể cả khi chưa có tin nhắn nào
+            const thread = {
+                id: roomId,
+                name: "Quản lý",
                 avatar: this.defaultAvatar,
-                lastMessage: formattedMessages.at(-1)?.text || "",
+                lastMessage: formattedMessages.at(-1)?.text || "Bắt đầu trò chuyện với quản lý",
+                timestamp: formattedMessages.at(-1)?.timestamp || "now",
+                unread: 0,
+                online: true,
+                messages: formattedMessages.length > 0 ? formattedMessages : [],
+            };
+
+            this.threads = [thread];
+            this.currentThread = thread;
+
+        } catch (e) {
+            console.error("❌ Failed to load messages:", e);
+
+            // ✅ Trường hợp lỗi gọi API vẫn tạo thread
+            const fallbackRoomId = this.generateRoomId(this.senderId, "user-6");
+            this.threads = [{
+                id: fallbackRoomId,
+                name: "Quản lý",
+                avatar: this.defaultAvatar,
+                lastMessage: "Bắt đầu trò chuyện với quản lý",
                 timestamp: "now",
                 unread: 0,
                 online: true,
-                messages: formattedMessages,
+                messages: [],
             }];
-
             this.currentThread = this.threads[0];
-        } catch (e) {
-            console.error("❌ Failed to load threads or messages:", e);
+        }
+    }
+
+
+    connectWebSocket(roomId) {
+        const socket = new SockJS('/ws');
+        this.stompClient = Stomp.over(socket);
+        const _this = this;
+
+        this.stompClient.connect({}, function () {
+            console.log("✅ Connected to WebSocket");
+
+            _this.stompClient.subscribe(`/topic/room/${roomId}`, function (message) {
+                if (!message.body) return;
+                const msg = JSON.parse(message.body);
+
+                const newMsg = {
+                    id: msg.id,
+                    text: msg.content,
+                    sender: msg.senderId === _this.senderId ? "user" : "other",
+                    timestamp: new Date(msg.createdAt),
+                    avatar: msg.senderId === _this.senderId ? null : "/placeholder.svg"
+                };
+
+                if (_this.currentThread?.id === roomId) {
+                    _this.currentThread.messages.push(newMsg);
+                    _this.renderMessages(_this.currentThread.messages);
+                }
+            });
+        });
+    }
+
+    sendViaWebSocket(payload) {
+        if (this.stompClient && this.stompClient.connected) {
+            this.stompClient.send("/app/chat", {}, JSON.stringify(payload));
+        } else {
+            console.warn("❌ WebSocket not connected");
         }
     }
 
@@ -71,58 +143,30 @@ class MessengerChat {
         });
     }
 
-    async sendMessage() {
+    sendMessage() {
         const text = this.elements.messageInput.value.trim();
-        if (!text || !this.currentThread) return;
+        if (!text || !this.currentThread || !this.senderId) return;
 
         const payload = {
             content: text,
-            sessionId: this.currentThread.id,
+            roomId: this.currentThread.id,
+            senderId: this.senderId
         };
 
-        console.log("📤 Sending payload:", payload);
+        this.sendViaWebSocket(payload);
 
-        try {
-            const res = await fetch(`${this.apiBase}/message`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
+        const newMessage = {
+            id: Date.now(),
+            text: text,
+            sender: "user",
+            timestamp: new Date(),
+        };
 
-            if (!res.ok) {
-                console.error("❌ Message send failed. Status:", res.status);
-                return;
-            }
-
-            let saved;
-            try {
-                saved = await res.json();
-            } catch (jsonErr) {
-                console.error("❌ Failed to parse JSON from server:", jsonErr);
-                return;
-            }
-
-            if (!saved || !saved.content) {
-                console.warn("⚠️ Server returned invalid message:", saved);
-                return;
-            }
-
-            const newMessage = {
-                id: saved.id,
-                text: saved.content,
-                sender: "user",
-                timestamp: new Date(saved.createdAt || Date.now()),
-            };
-
-            this.currentThread.messages.push(newMessage);
-            this.currentThread.lastMessage = newMessage.text;
-            this.elements.messageInput.value = "";
-            this.renderMessages(this.currentThread.messages);
-            this.renderThreadList();
-
-        } catch (e) {
-            console.error("❌ Error sending message:", e);
-        }
+        this.currentThread.messages.push(newMessage);
+        this.currentThread.lastMessage = newMessage.text;
+        this.elements.messageInput.value = "";
+        this.renderMessages(this.currentThread.messages);
+        this.renderThreadList();
     }
 
     renderMessages(messages) {
@@ -159,9 +203,7 @@ class MessengerChat {
         this.threads.forEach(thread => {
             const li = document.createElement("li");
             li.className = "thread-item";
-            if (this.currentThread?.id === thread.id) {
-                li.classList.add("active");
-            }
+            if (this.currentThread?.id === thread.id) li.classList.add("active");
 
             li.innerHTML = `
                 <img src="${thread.avatar}" class="avatar" onerror="this.src='${this.defaultAvatar}'">

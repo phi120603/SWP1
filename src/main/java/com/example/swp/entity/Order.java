@@ -59,7 +59,7 @@ public class Order {
         private String cancelReason;
 
         @Column(nullable = false)
-        private double rentalArea; // diện tích khách muốn thuê
+        private Double rentalArea; // diện tích khách muốn thuê
 
 
 

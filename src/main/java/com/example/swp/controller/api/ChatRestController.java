@@ -2,96 +2,61 @@ package com.example.swp.controller.api;
 
 import com.example.swp.dto.ChatMessageRequest;
 import com.example.swp.dto.ChatMessageResponse;
-import com.example.swp.entity.ChatMessage;
-import com.example.swp.entity.ChatSession;
-import com.example.swp.repository.ChatMessageRepository;
-import com.example.swp.repository.ChatSessionRepository;
 import com.example.swp.service.impl.ChatService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class ChatRestController {
 
-    private final ChatService svc;
-    @Autowired
-    ChatSessionRepository sessionRepo;
-    @Autowired
-    ChatMessageRepository chatRepo;
+    private final ChatService chatService;
 
-    @Autowired
-    private ChatMessageRepository messageRepository;
+    // API: Lấy lịch sử tin nhắn của 1 phòng
+    @GetMapping("/messages")
+    public ResponseEntity<List<ChatMessageResponse>> getMessages(
+            @RequestParam String userId1,
+            @RequestParam String userId2
+    ) {
+        String roomId = chatService.generateRoomIdBetween(userId1, userId2);
+        List<ChatMessageResponse> messages = chatService.getMessagesByRoom(roomId, userId1);
+        return ResponseEntity.ok(messages);
+    }
 
-    @Autowired
-    private ChatSessionRepository sessionRepository;
 
-    @PostMapping("/message")
-    public ResponseEntity<?> sendMessage(@RequestBody ChatMessageRequest request) {
-        // Validate request
+    // API: Gửi tin nhắn (qua REST, dùng để lưu)
+    @PostMapping("/messages")
+    public ResponseEntity<ChatMessageResponse> sendMessage(@RequestBody ChatMessageRequest request) {
         if (request.getContent() == null || request.getContent().isBlank()) {
-            return ResponseEntity.badRequest().body("Message content is required.");
+            return ResponseEntity.badRequest().build();
         }
-
-        UUID sessionId;
-        try {
-            sessionId = UUID.fromString(request.getSessionId());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Invalid session ID format.");
-        }
-
-        Optional<ChatSession> optionalSession = sessionRepository.findById(sessionId);
-        if (optionalSession.isEmpty()) {
-            return ResponseEntity.badRequest().body("Session not found.");
-        }
-
-        // Tạo và lưu message
-        ChatMessage message = ChatMessage.builder()
-                .session(optionalSession.get())
-                .content(request.getContent())
-                .mine(true)
-                .build();
-
-        ChatMessage saved = messageRepository.save(message);
-
-        // Trả về DTO để tránh vòng lặp hoặc dữ liệu dư
-        ChatMessageResponse response = ChatMessageResponse.builder()
-                .id(saved.getId())
-                .content(saved.getContent())
-                .mine(saved.isMine())
-                .createdAt(saved.getCreatedAt())
-                .build();
-
+        ChatMessageResponse response = chatService.save(request);
         return ResponseEntity.ok(response);
     }
 
-
-
-
+    // API: Lấy thông tin session (roomId & senderId)
     @GetMapping("/session/dev")
-    public Map<String, UUID> devSession() {
-        ChatSession s = sessionRepo.findTopByOrderByCreatedAtAsc()
-                .orElseThrow(() -> new RuntimeException("No session in DB"));
-        return Map.of("session", s.getId());
-    }
+    public ResponseEntity<?> getSession(HttpSession session) {
+        // ✅ Nếu userId chưa có thì tạo tạm
+        String senderId = (String) session.getAttribute("userId");
+        if (senderId == null) {
+            senderId = "user-" + System.currentTimeMillis(); // Tạo user giả lập
+            session.setAttribute("userId", senderId);
+        }
 
+        // ✅ Tạm thời dùng userId làm roomId (1-1 chat)
+        String roomId = "room-" + senderId;
 
-
-    @PostMapping("/session")
-    public Map<String, UUID> create() {
-        return Map.of("session", svc.newSession().getId());
-    }
-
-    @GetMapping("/history/{sid}")
-    public List<ChatMessage> hist(@PathVariable UUID sid) {
-        return svc.history(sid);
+        Map<String, String> result = new HashMap<>();
+        result.put("session", roomId);
+        result.put("senderId", senderId);
+        return ResponseEntity.ok(result);
     }
 }

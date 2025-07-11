@@ -3,6 +3,8 @@ package com.example.swp.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -14,25 +16,22 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = "session") // Tránh stack overflow khi gọi session.toString()
 public class ChatMessage {
 
     @Id
-    @GeneratedValue
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "session_id", nullable = false)
-    private ChatSession session;
+    @Column(nullable = false)
+    private String senderId;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(nullable = false)
     private String content;
 
     @Column(nullable = false)
-    private boolean mine;
+    private String roomId; // room giữa manager và 1 customer
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @Column(nullable = false, updatable = false)
-    private Instant createdAt = Instant.now();
-
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 }

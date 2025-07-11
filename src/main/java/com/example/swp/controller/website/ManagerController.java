@@ -3,11 +3,14 @@ package com.example.swp.controller.website;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.swp.config.CloudinaryConfig;
+import com.example.swp.dto.ChatThreadResponse;
 import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.*;
+import com.example.swp.repository.ChatMessageRepository;
 import com.example.swp.repository.FeedbackRepository;
 import com.example.swp.repository.OrderRepository;
 import com.example.swp.service.*;
+import com.example.swp.service.impl.ChatService;
 import com.example.swp.service.impl.CustomerServiceImpl;
 import com.example.swp.service.impl.StaffServiceimpl;
 import org.apache.catalina.User;
@@ -40,6 +43,8 @@ public class ManagerController {
     OrderRepository orderRepository;
 
     @Autowired
+    ChatMessageRepository chatMessageRepository;
+    @Autowired
     StorageService storageService;
 
     @Autowired
@@ -53,6 +58,9 @@ public class ManagerController {
 
     @Autowired
     private StaffService staffService;
+
+    @Autowired
+    private ChatService chatService;
 
     @GetMapping("/manager-dashboard")
     public String showDashboard(Model model) {
@@ -236,4 +244,22 @@ public class ManagerController {
         }
         return "redirect:/admin/staff-list";
     }
+
+    @GetMapping("/manager/rooms")
+    public ResponseEntity<List<String>> getAllRooms() {
+        List<String> roomIds = chatMessageRepository.findAllDistinctRoomIds(); // Viết custom query
+        return ResponseEntity.ok(roomIds);
+    }
+
+    @GetMapping("/all-threads")
+    public ResponseEntity<List<ChatThreadResponse>> getAllThreadsForManager() {
+        List<ChatThreadResponse> threads = chatService.getAllUserThreadsWithManager("user-6"); // manager ID
+        return ResponseEntity.ok(threads);
+    }
+
+    @GetMapping("/chat-manager")
+    public String chatPage() {
+        return "chat-manager";
+    }
+
 }
