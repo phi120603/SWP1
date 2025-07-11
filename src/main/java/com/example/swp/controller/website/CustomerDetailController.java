@@ -44,6 +44,7 @@ public class CustomerDetailController {
         model.addAttribute("feedbacks", feedbacks);
         return "customer-detail";
     }
+
     @GetMapping("/my-bookings")
     public String viewMyBookings(HttpSession session, Model model) {
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
