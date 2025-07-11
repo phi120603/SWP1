@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Chi tiết kho</title>
     <link rel="stylesheet" th:href="@{/css/storage-detail.css}">
+    <script src="https://cdn.tailwindcss.com"></script>
+
 </head>
 <body>
 <!-- Navigation Bar -->
@@ -244,8 +246,36 @@
             </ul>
         </div>
     </div>
-</footer>
 
+</footer>
+<!-- Scripts -->
+<script th:inline="javascript">
+    const modal = document.getElementById("dateModal");
+    const form = document.getElementById("dateForm");
+
+    function openModal() {
+        modal.classList.remove("hidden");
+    }
+
+    function closeModal() {
+        modal.classList.add("hidden");
+    }
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const startDate = form.startDate.value;
+        const endDate = form.endDate.value;
+        const storageId = /*[[${storage.storageid}]]*/ 0;
+
+        if (!startDate || !endDate) {
+            alert("Vui lòng chọn đầy đủ ngày thuê.");
+            return;
+        }
+
+        const url = `/SWP/booking/${storageId}/booking?startDate=${startDate}&endDate=${endDate}`;
+        window.location.href = url;
+    });
+</script>
 
 </body>
 
