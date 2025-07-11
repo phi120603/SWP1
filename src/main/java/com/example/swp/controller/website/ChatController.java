@@ -4,8 +4,10 @@ import com.example.swp.dto.ChatMessageRequest;
 import com.example.swp.dto.ChatMessageResponse;
 import com.example.swp.entity.ChatMessage;
 //import com.example.swp.mapper.ChatMapper;
+import com.example.swp.entity.Customer;
 import com.example.swp.security.MyUserDetail;
 import com.example.swp.service.impl.ChatService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +18,12 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -33,9 +38,15 @@ public class ChatController {
     private final ChatService svc; private final SimpMessagingTemplate ws;
 
     @GetMapping("/chat")
-    public String chatPage() {
-        return "index";
+    public String chatPage(Model model, HttpSession session) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof MyUserDetail userDetail) {
+            Customer customer = (Customer) userDetail.getUser();
+            model.addAttribute("currentUserId", customer.getId());
+        }
+        return "index"; // hoặc file chat.html
     }
+
 
 
 //    /* REST tạo session */

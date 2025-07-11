@@ -1,13 +1,13 @@
-// == File: chat.js - Đã cập nhật ==
 class MessengerChat {
     constructor() {
-        this.currentThread = null;
-        this.threads = [];
         this.apiBase = '/api';
         this.stompClient = null;
-        this.senderId = null; // ✅ Gán từ session backend
+        this.senderId = null;
+        this.currentThread = null;
+        this.threads = [];
 
-        this.defaultAvatar = "data:image/svg+xml;base64,...";
+        this.managerId = "user-6"; // ID cố định của Manager
+        this.defaultAvatar = "/placeholder.svg";
 
         this.elements = {
             messageInput: document.getElementById("messageInput"),
@@ -23,22 +23,24 @@ class MessengerChat {
     }
 
     async init() {
-        await this.loadSessionInfo();
-        await this.loadThreads();
+        await this.loadSessionInfo(); // Lấy senderId
+        await this.loadThreads();     // Gọi sau khi có senderId
         this.renderThreadList();
         this.bindEvents();
         this.updateUI();
-        this.connectWebSocket(this.currentThread.id);
+
+        // Kết nối WebSocket với đúng roomId
+        this.connectWebSocket(this.currentThread?.id);
     }
 
     async loadSessionInfo() {
         try {
-            const res = await fetch(`${this.apiBase}/session/dev`);
+            const res = await fetch(`${this.apiBase}/current-user`);
             const data = await res.json();
-            this.currentSessionId = data.session;
-            this.senderId = data.senderId;
+            this.senderId = data.id;
         } catch (e) {
-            console.error("❌ Failed to load session info", e);
+            alert("Phiên đăng nhập đã hết. Vui lòng đăng nhập lại.");
+            window.location.href = "/api/login";
         }
     }
 
@@ -48,88 +50,75 @@ class MessengerChat {
 
     async loadThreads() {
         try {
-            const peerId = "user-6"; // Manager ID
-            const roomId = this.generateRoomId(this.senderId, peerId);
+            const roomId = this.generateRoomId(this.senderId, this.managerId);
+            const response = await fetch(`${this.apiBase}/messages?peerId=${this.managerId}&currentUserId=${this.senderId}`);
+            const messages = await response.json();
 
-            const historyRes = await fetch(`${this.apiBase}/messages?peerId=${peerId}&currentUserId=${this.senderId}`);
-            const messages = await historyRes.json();
-
-            const formattedMessages = messages.map((msg) => ({
-                id: msg.id,
-                text: msg.content,
-                sender: msg.senderId === this.senderId ? "user" : "other",
-                timestamp: new Date(msg.createdAt),
-                avatar: msg.senderId === this.senderId ? null : "/placeholder.svg",
+            const formatted = messages.map(m => ({
+                id: m.id,
+                text: m.content,
+                sender: m.senderId === this.senderId ? "user" : "other",
+                timestamp: new Date(m.createdAt),
+                avatar: m.senderId === this.senderId ? null : this.defaultAvatar
             }));
 
-            // ✅ Luôn tạo thread với manager, kể cả khi chưa có tin nhắn nào
             const thread = {
                 id: roomId,
                 name: "Quản lý",
                 avatar: this.defaultAvatar,
-                lastMessage: formattedMessages.at(-1)?.text || "Bắt đầu trò chuyện với quản lý",
-                timestamp: formattedMessages.at(-1)?.timestamp || "now",
-                unread: 0,
-                online: true,
-                messages: formattedMessages.length > 0 ? formattedMessages : [],
+                lastMessage: formatted.at(-1)?.text || "Bắt đầu trò chuyện với quản lý",
+                timestamp: formatted.at(-1)?.timestamp || new Date(),
+                messages: formatted
             };
 
             this.threads = [thread];
             this.currentThread = thread;
 
         } catch (e) {
-            console.error("❌ Failed to load messages:", e);
-
-            // ✅ Trường hợp lỗi gọi API vẫn tạo thread
-            const fallbackRoomId = this.generateRoomId(this.senderId, "user-6");
-            this.threads = [{
-                id: fallbackRoomId,
+            console.error("❌ Lỗi khi load tin nhắn:", e);
+            const roomId = this.generateRoomId(this.senderId, this.managerId);
+            const emptyThread = {
+                id: roomId,
                 name: "Quản lý",
                 avatar: this.defaultAvatar,
                 lastMessage: "Bắt đầu trò chuyện với quản lý",
-                timestamp: "now",
-                unread: 0,
-                online: true,
-                messages: [],
-            }];
-            this.currentThread = this.threads[0];
+                timestamp: new Date(),
+                messages: []
+            };
+            this.threads = [emptyThread];
+            this.currentThread = emptyThread;
         }
     }
-
 
     connectWebSocket(roomId) {
         const socket = new SockJS('/ws');
         this.stompClient = Stomp.over(socket);
-        const _this = this;
-
-        this.stompClient.connect({}, function () {
-            console.log("✅ Connected to WebSocket");
-
-            _this.stompClient.subscribe(`/topic/room/${roomId}`, function (message) {
+        this.stompClient.connect({}, () => {
+            console.log("✅ Kết nối WebSocket thành công");
+            this.stompClient.subscribe(`/topic/room/${roomId}`, (message) => {
                 if (!message.body) return;
                 const msg = JSON.parse(message.body);
-
                 const newMsg = {
                     id: msg.id,
                     text: msg.content,
-                    sender: msg.senderId === _this.senderId ? "user" : "other",
+                    sender: msg.senderId === this.senderId ? "user" : "other",
                     timestamp: new Date(msg.createdAt),
-                    avatar: msg.senderId === _this.senderId ? null : "/placeholder.svg"
+                    avatar: msg.senderId === this.senderId ? null : this.defaultAvatar
                 };
 
-                if (_this.currentThread?.id === roomId) {
-                    _this.currentThread.messages.push(newMsg);
-                    _this.renderMessages(_this.currentThread.messages);
+                if (this.currentThread?.id === roomId) {
+                    this.currentThread.messages.push(newMsg);
+                    this.renderMessages(this.currentThread.messages);
                 }
             });
         });
     }
 
     sendViaWebSocket(payload) {
-        if (this.stompClient && this.stompClient.connected) {
+        if (this.stompClient?.connected) {
             this.stompClient.send("/app/chat", {}, JSON.stringify(payload));
         } else {
-            console.warn("❌ WebSocket not connected");
+            console.warn("❌ WebSocket chưa kết nối");
         }
     }
 
@@ -150,20 +139,22 @@ class MessengerChat {
         const payload = {
             content: text,
             roomId: this.currentThread.id,
-            senderId: this.senderId
+            senderId: this.senderId,
+            receiverId: this.managerId
         };
 
         this.sendViaWebSocket(payload);
 
-        const newMessage = {
+        const newMsg = {
             id: Date.now(),
             text: text,
             sender: "user",
-            timestamp: new Date(),
+            timestamp: new Date()
         };
 
-        this.currentThread.messages.push(newMessage);
-        this.currentThread.lastMessage = newMessage.text;
+        this.currentThread.messages.push(newMsg);
+        this.currentThread.lastMessage = newMsg.text;
+
         this.elements.messageInput.value = "";
         this.renderMessages(this.currentThread.messages);
         this.renderThreadList();
@@ -234,14 +225,6 @@ class MessengerChat {
             this.elements.emptyState.style.display = "flex";
             this.elements.chatContent.style.display = "none";
         }
-    }
-
-    updateSendButton() {
-        const input = this.elements.messageInput;
-        this.elements.sendBtn.disabled = input.value.trim() === "";
-        input.addEventListener("input", () => {
-            this.elements.sendBtn.disabled = input.value.trim() === "";
-        });
     }
 }
 

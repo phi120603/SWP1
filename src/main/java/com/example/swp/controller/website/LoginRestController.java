@@ -2,6 +2,7 @@ package com.example.swp.controller.website;
 
 import com.example.swp.dto.LoginRequest;
 import com.example.swp.entity.Customer;
+import com.example.swp.security.MyUserDetail;
 import com.example.swp.service.CustomerService;
 import com.example.swp.service.EmailService;
 import jakarta.servlet.http.HttpSession;
@@ -134,4 +135,24 @@ public class LoginRestController {
             return ResponseEntity.ok("Chưa đăng nhập hoặc session đã hết hạn.");
         }
     }
+
+    @GetMapping("/current-user")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof MyUserDetail userDetail) {
+            Object user = userDetail.getUser();
+            if (user instanceof Customer customer) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("id", customer.getId());
+                data.put("email", customer.getEmail());
+                data.put("fullName", customer.getFullname());
+                return ResponseEntity.ok(data);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+    }
+
 }
+
+
