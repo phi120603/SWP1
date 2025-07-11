@@ -143,7 +143,6 @@ public class StaffStorageController {
                 storageRequest.setState(storage.getState());
                 storageRequest.setCity(storage.getCity());
                 storageRequest.setDescription(storage.getDescription());
-
                 storageRequest.setArea(existingStorage.getArea());
                 storageRequest.setPricePerDay(existingStorage.getPricePerDay());
                 storageRequest.setStatus(existingStorage.isStatus());

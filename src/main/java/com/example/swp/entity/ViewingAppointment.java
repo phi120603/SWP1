@@ -30,4 +30,10 @@ public class ViewingAppointment {
     @ManyToOne
     @JoinColumn(name = "storage_id")
     private Storage storage;
+
+    @Column(nullable = false)
+    private String status = "PENDING"; // ACCEPTED, REJECTED
+
+    @Column(columnDefinition = "NVARCHAR(255)")
+    private String rejectReason;
 }
