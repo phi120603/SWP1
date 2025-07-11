@@ -4,14 +4,18 @@
         <meta charset="UTF-8">
         <title>Danh sách kho</title>
         <link rel="stylesheet" th:href="@{/css/storage-list.css}">
+        <!-- Thêm vào phần <head> hoặc trước script cuối trang -->
+        <script src="https://unpkg.com/lucide@latest"></script>
+
     </head>
+
     <body>
     <div class="page-wrapper">
         <!-- Navigation Bar -->
         <nav class="navbar">
             <div class="navbar-content">
                 <div class="navbar-brand">
-                    <a href="/homepage">
+                    <a href="/home-page">
                         <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
                              alt="QVL Storage Logo" class="navbar-logo">
                     </a>
@@ -281,7 +285,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(storageId)
+                    body: JSON.stringify({ storageId })
                 });
 
                 if (response.ok) {
@@ -301,6 +305,9 @@
             } catch (error) {
                 showToast('Có lỗi xảy ra!', 'error');
                 console.error('Error:', error);
+                button.textContent = originalText;
+            } finally {
+                button.disabled = false;
             }
         }
 
