@@ -5,11 +5,13 @@ import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Order;
 import com.example.swp.entity.Storage;
+import com.example.swp.entity.StorageTransaction;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.OrderRepository;
 import com.example.swp.repository.StorageRepository;
 import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageService;
+import com.example.swp.service.StorageTransactionService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,6 +37,9 @@ public class OrderServiceimpl implements OrderService {
     private StorageRequest storageRequest;
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private StorageTransactionService storageTransactionService;
     @Override
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
@@ -168,6 +173,15 @@ public class OrderServiceimpl implements OrderService {
         }
 
         orderRepository.updateOrderStatusToPaid(orderId);
+
+        // Tạo StorageTransaction khi đơn hàng được đánh dấu là PAID
+        StorageTransaction transaction = new StorageTransaction();
+        transaction.setType("PENDING");
+        transaction.setTransactionDate(LocalDate.now().atStartOfDay());
+        transaction.setAmount(order.getTotalAmount());
+        transaction.setStorage(order.getStorage());
+        transaction.setCustomer(order.getCustomer());
+        storageTransactionService.save(transaction);
     }
 
     // Trong OrderServiceImpl
@@ -189,10 +203,6 @@ public class OrderServiceimpl implements OrderService {
     @Override
     public boolean isStorageAvailable(int storageId, LocalDate startDate, LocalDate endDate) {
         return orderRepository.countOverlapOrders(storageId, startDate, endDate) == 0;
-
-
-
-
     }
 
     @Override
@@ -225,6 +235,10 @@ public class OrderServiceimpl implements OrderService {
     public double getTotalRentedArea(int storageId) {
         return 0;
     }
+    @Transactional
+    public void updateOrderStatusToPaid(int orderId) {
+        orderRepository.updateOrderStatusToPaid(orderId);
+    }
 
     @Override
     public double getRemainArea(int storageId, LocalDate startDate, LocalDate endDate) {
@@ -239,6 +253,9 @@ public class OrderServiceimpl implements OrderService {
             if (used > maxUsed) maxUsed = used;
         }
         return Math.max(0, totalArea - maxUsed);
+    }
+    public Optional<Order> findOrderByCustomerAndStorage(int customerId, int storageId) {
+        return orderRepository.findByCustomer_IdAndStorage_Storageid(customerId, storageId);
     }
 
 //    @Override

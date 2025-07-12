@@ -95,11 +95,4 @@ public class StorageServiceimpl implements StorageService {
     public List<String> findAllCities() {
         return storageRepository.findAllCities();
     }
-
-
-
-
-
-
-
 }

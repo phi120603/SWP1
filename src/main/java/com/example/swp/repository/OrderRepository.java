@@ -66,6 +66,9 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     Optional<Order> findById(int id);
 
     List<Order> findTop5ByOrderByOrderDateDesc();
+    Optional<Order> findByCustomer_IdAndStorage_Storageid(int customerId, int storageId);
+
+
 
 
 }

@@ -1,37 +1,53 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Transaction Detail</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
-        h2 { text-align: center; color: #333; }
-        p { margin: 10px 0; color: #555; }
-        .message { color: green; font-weight: bold; }
-        .error { color: red; font-weight: bold; }
-        form { margin-top: 20px; }
-        button { padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #218838; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Detail - QVL Storage</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-<div class="container">
-    <h2>Transaction Detail</h2>
-    <div th:if="${message}" class="message" th:text="${message}"></div>
-    <div th:if="${error}" class="error" th:text="${error}"></div>
-    <p><strong>ID:</strong> <span th:text="${transaction.id}"></span></p>
-    <p><strong>Type:</strong> <span th:text="${transaction.type}"></span></p>
-    <p><strong>Transaction Date:</strong> <span th:text="${#dates.format(transaction.transactionDate, 'yyyy-MM-dd HH:mm')}"></span></p>
-    <p><strong>Storage ID:</strong> <span th:text="${transaction.storage != null ? transaction.storage.storageid : 'N/A'}"></span></p>
-    <p><strong>Customer ID:</strong> <span th:text="${transaction.customer != null ? transaction.customer.id : 'N/A'}"></span></p>
+<body class="bg-gray-100 font-sans">
+<header class="bg-blue-600 text-white p-4">
+    <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-2xl font-bold">✅ QVL STORAGE</h1>
+        <nav>
+            <ul class="flex space-x-4">
+                <li><a href="/SWP/home" class="hover:underline">Trang chủ</a></li>
+                <li><a href="/SWP/orders" class="hover:underline">Đơn hàng</a></li>
+                <li><a href="/SWP/storage-transactions" class="hover:underline">Lịch sử giao dịch</a></li>
+                <li><a href="/SWP/logout" class="hover:underline">Đăng xuất</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
 
-    <form th:action="@{/SWP/storage-transactions/{id}/complete(id=${transaction.id})}" method="post">
-        <button type="submit">Mark as Completed</button>
-    </form>
-    <form th:action="@{/SWP/storage-transactions/{id}/fail(id=${transaction.id})}" method="post">
-        <button type="submit">Mark as Failed</button>
-    </form>
-</div>
+<main class="container mx-auto py-8">
+    <h2 class="text-3xl font-bold mb-6">Chi tiết giao dịch</h2>
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <p><strong>ID:</strong> <span th:text="${transaction.id}"></span></p>
+        <p><strong>Type:</strong> <span th:text="${transaction.type}"></span></p>
+        <p><strong>Transaction Date:</strong> <span th:text="${transaction.transactionDate}"></span></p>
+        <p><strong>Storage:</strong> <span th:text="${transaction.storage.storagename}"></span></p>
+        <p><strong>Customer:</strong> <span th:text="${transaction.customer.fullname}"></span></p>
+        <p><strong>Amount:</strong> <span th:text="${transaction.amount} + ' VNĐ'"></span></p>
+
+        <div th:if="${transaction.type == 'PENDING'}" class="mt-4 flex space-x-4">
+            <form th:action="@{/SWP/storage-transactions/{id}/mark-import(id=${transaction.id})}" method="post">
+                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
+                    Mark as Import
+                </button>
+            </form>
+            <form th:action="@{/SWP/storage-transactions/{id}/mark-export(id=${transaction.id})}" method="post">
+                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">
+                    Mark as Export
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-gray-800 text-white text-center p-4">
+    <p>© 2025 QVL STORAGE. All rights reserved.</p>
+</footer>
 </body>
 </html>

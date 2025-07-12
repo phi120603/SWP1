@@ -1,57 +1,59 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lịch sử giao dịch - QVL Storage</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50 font-sans">
-
-<!-- HEADER -->
-<header class="bg-green-600 text-white p-4">
+<body class="bg-gray-100 font-sans">
+<header class="bg-blue-600 text-white p-4">
     <div class="container mx-auto flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-            <span class="text-2xl">✅</span>
-            <h1 class="text-xl font-bold">QVL STORAGE</h1>
-        </div>
-        <nav class="space-x-4">
-            <a href="/home-page" class="hover:underline">Trang chủ</a>
-            <a href="/SWP/customers/my-bookings" class="hover:underline">Đơn hàng của tôi</a>
-            <a href="/SWP/customers/my-transactions" class="hover:underline font-bold">Lịch sử giao dịch</a>
+        <h1 class="text-2xl font-bold">✅ QVL STORAGE</h1>
+        <nav>
+            <ul class="flex space-x-4">
+                <li><a href="/SWP/home" class="hover:underline">Trang chủ</a></li>
+                <li><a href="/SWP/customers/my-bookings" class="hover:underline">Đơn hàng của tôi</a></li>
+                <li><a href="/SWP/customers/my-transactions" class="hover:underline">Lịch sử giao dịch</a></li>
+                <li><a href="/SWP/logout" class="hover:underline">Đăng xuất</a></li>
+            </ul>
         </nav>
     </div>
 </header>
 
-<main class="container mx-auto mt-8">
-    <h2 class="text-2xl font-bold mb-4 text-green-700">Lịch sử giao dịch của <span th:text="${customer.fullname}"></span></h2>
+<main class="container mx-auto py-8">
+    <h2 class="text-3xl font-bold mb-6">Lịch sử giao dịch của <span th:text="${customer.fullname}"></span></h2>
 
-    <table class="min-w-full bg-white border border-gray-300">
-        <thead>
-        <tr class="bg-green-600 text-white">
-            <th class="py-2 px-4 border">Mã GD</th>
-            <th class="py-2 px-4 border">Thời gian</th>
-            <th class="py-2 px-4 border">Loại giao dịch</th>
-            <th class="py-2 px-4 border">Kho</th>
-            <th class="py-2 px-4 border">Số tiền</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="tx : ${transactions}" class="hover:bg-gray-100">
-            <td class="py-2 px-4 border" th:text="'#' + ${tx.id}"></td>
-            <td class="py-2 px-4 border" th:text="${#temporals.format(tx.transactionDate, 'dd/MM/yyyy HH:mm')}"></td>
-            <td class="py-2 px-4 border" th:text="${tx.type}"></td>
-            <td class="py-2 px-4 border" th:text="${tx.storage.storagename}"></td>
-            <td class="py-2 px-4 border text-right" th:text="${tx.amount != null ? #numbers.formatDecimal(tx.amount, 0, 'POINT', 0, 'COMMA') + ' VNĐ' : '-'}"></td>
-        </tr>
-        </tbody>
-    </table>
-
-    <div th:if="${#lists.isEmpty(transactions)}" class="mt-4 text-gray-500">
-        Không có giao dịch nào.
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mã GD</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thời gian</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Loại giao dịch</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kho</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Số tiền</th>
+            </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+            <tr th:each="transaction : ${transactions}">
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${transaction.id}"></td>
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${transaction.transactionDate}"></td>
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${transaction.type}"></td>
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${transaction.storage.storagename}"></td>
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${transaction.amount} + ' VNĐ'"></td>
+            </tr>
+            <tr th:if="${transactions.isEmpty}">
+                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                    Không có giao dịch nào.
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </main>
 
-<footer class="bg-gray-800 text-white text-center p-4 mt-12">
+<footer class="bg-gray-800 text-white text-center p-4">
     <p>© 2025 QVL STORAGE. All rights reserved.</p>
 </footer>
 </body>

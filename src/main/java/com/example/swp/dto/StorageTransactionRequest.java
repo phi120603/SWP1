@@ -17,6 +17,7 @@ public class StorageTransactionRequest {
     private LocalDateTime transactionDate;
     private int customerId;
     private int storageId;
+    private double amount;
 
     public int getId() {
         return id;

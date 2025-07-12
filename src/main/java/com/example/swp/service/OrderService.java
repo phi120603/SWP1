@@ -47,5 +47,11 @@ public interface OrderService {
 
     // ✅ Sửa lỗi tại đây
     List<Order> getLast5orders();
+    Optional<Order> findOrderByCustomerAndStorage(int customerId, int storageId);
+    void updateOrderStatusToPaid(int orderId);
+
+
+
+
 
 }
