@@ -20,4 +20,6 @@ public interface VoucherService {
     List<Voucher> getAvailableVouchersForCustomer(int customerPoint);
 
     List<Voucher> getVouchersByStatus(VoucherStatus status);
+
+    long countByStatus(VoucherStatus status);
 }

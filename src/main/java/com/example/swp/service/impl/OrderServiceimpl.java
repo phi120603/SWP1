@@ -151,8 +151,4 @@ public class OrderServiceimpl implements OrderService {
     public List<Order> getLast5orders() {
         return orderRepository.findTop5ByOrderByOrderDateDesc();
     }
-
-
-
-
 }

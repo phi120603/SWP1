@@ -47,4 +47,9 @@ public class VoucherServiceImpl implements VoucherService {
     public List<Voucher> getVouchersByStatus(VoucherStatus status) {
         return voucherRepository.findByStatus(status);
     }
+
+    @Override
+    public long countByStatus(VoucherStatus status) {
+        return voucherRepository.countByStatus(status);
+    }
 }

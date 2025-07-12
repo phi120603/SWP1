@@ -15,4 +15,6 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
 
     // Lấy tất cả voucher theo trạng thái
     List<Voucher> findByStatus(VoucherStatus status);
+
+    long countByStatus(VoucherStatus status);
 }

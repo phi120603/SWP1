@@ -3,6 +3,7 @@ package com.example.swp.controller.website;
 import com.cloudinary.Cloudinary;
 import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.*;
+import com.example.swp.enums.VoucherStatus;
 import com.example.swp.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -37,50 +38,74 @@ public class StaffDBoardController {
 
     @GetMapping("/staff-dashboard")
     public String showDashboard(Model model) {
-
+        // Doanh thu
         double totalRevenueAll = orderService.getTotalRevenueAll();
         double revenuePaid = orderService.getRevenuePaid();
         double revenueApproved = orderService.getRevenueApproved();
 
+        model.addAttribute("allRevenue", totalRevenueAll);
+        model.addAttribute("revenueLabels", new String[]{"Tổng DT dự kiến", "DT Đã thanh toán", "DT Chờ thanh toán"});
+        model.addAttribute("revenueValues", new double[]{totalRevenueAll, revenuePaid, revenueApproved});
+
+        // Danh sách kho
         List<Storage> storages = storageService.getAll();
         int totalStorages = storages.size();
+        model.addAttribute("storages", storages);
+        model.addAttribute("totalStorages", totalStorages);
 
+        // Danh sách khách hàng
         List<Customer> customers = customerService.getAll();
-        int totalUser = customers.size();
+        model.addAttribute("customers", customers);
+        model.addAttribute("totalUser", customers.size());
 
+        // Feedback
+        List<Feedback> feedbacks = feedbackService.getAllFeedbacks();
+        model.addAttribute("feedbacks", feedbacks);
+        model.addAttribute("totalFeedback", feedbacks.size());
+
+        // Order
         List<Order> orders = orderService.getAllOrders();
         model.addAttribute("orders", orders);
 
-        List<Feedback> feedbacks = feedbackService.getAllFeedbacks();
-        model.addAttribute("feedbacks", feedbacks);
-
-        int totalFeedback = feedbackService.getAllFeedbacks().size();
-        model.addAttribute("totalFeedback", totalFeedback);
-
-        model.addAttribute("allRevenue", totalRevenueAll);
-
-        model.addAttribute("storages", storages);
-        model.addAttribute("totalStorages", totalStorages);
-        model.addAttribute("customers", customers);
-        model.addAttribute("totalUser", totalUser);
-
-        model.addAttribute("revenueLabels",
-                new String[]{"Tổng DT dự kiến", "DT Đã thanh toán", "DT Chờ thanh toán"});
-        model.addAttribute("revenueValues",
-                new double[]{totalRevenueAll, revenuePaid, revenueApproved});
-
+        // Recent activities
         List<RecentActivity> activities = recentActivityService.getAllActivities();
         if (activities.size() > 6) {
             activities = activities.subList(0, 6);
         }
         model.addAttribute("recentActivities", activities);
 
+        // Voucher
         List<Voucher> vouchers = voucherService.getAllVouchers();
         int totalVouchers = vouchers.size();
         List<Voucher> latestVouchers = vouchers.size() > 5 ? vouchers.subList(0, 5) : vouchers;
-
         model.addAttribute("totalVouchers", totalVouchers);
-        model.addAttribute("latestVouchers", latestVouchers != null ? latestVouchers : List.of());
+        model.addAttribute("latestVouchers", latestVouchers);
+
+        // ===== Thống kê số lượng theo trạng thái =====
+        // Storage status
+        long countAvailableStorages = storages.stream().filter(Storage::isStatus).count();
+        long countRentedStorages = storages.stream().filter(s -> !s.isStatus()).count();
+        model.addAttribute("availableStorages", countAvailableStorages);
+        model.addAttribute("rentedStorages", countRentedStorages);
+
+        // Order status
+        var orderStatusMap = orderService.countOrdersByStatus();
+        long paidOrderCount = orderStatusMap.getOrDefault("PAID", 0L);
+        long pendingOrderCount = orderStatusMap.getOrDefault("PENDING", 0L);
+        long rejectedOrderCount = orderStatusMap.getOrDefault("REJECTED", 0L);
+        long acceptedOrderCount = orderStatusMap.getOrDefault("APPROVED", 0L);
+        model.addAttribute("orderPaidCount", paidOrderCount);
+        model.addAttribute("orderPendingCount", pendingOrderCount);
+        model.addAttribute("orderRejectedCount", rejectedOrderCount);
+        model.addAttribute("orderAcceptedCount", acceptedOrderCount);
+
+        // Voucher status
+        long activeVoucherCount = voucherService.countByStatus(VoucherStatus.ACTIVE);
+        long pausedVoucherCount = voucherService.countByStatus(VoucherStatus.INACTIVE);
+        long expiredVoucherCount = voucherService.countByStatus(VoucherStatus.EXPIRED);
+        model.addAttribute("activeVoucherCount", activeVoucherCount);
+        model.addAttribute("pausedVoucherCount", pausedVoucherCount);
+        model.addAttribute("expiredVoucherCount", expiredVoucherCount);
 
         return "staff-dashboard";
     }
@@ -170,7 +195,6 @@ public class StaffDBoardController {
                 storageRequest.setState(storage.getState());
                 storageRequest.setCity(storage.getCity());
                 storageRequest.setDescription(storage.getDescription());
-
                 storageRequest.setArea(existingStorage.getArea());
                 storageRequest.setPricePerDay(existingStorage.getPricePerDay());
                 storageRequest.setStatus(existingStorage.isStatus());
@@ -178,15 +202,12 @@ public class StaffDBoardController {
 
                 storageService.updateStorage(storageRequest, existingStorage);
                 redirectAttributes.addFlashAttribute("message", "Cập nhật kho thành công!");
-                redirectAttributes.addFlashAttribute("messageType", "success");
             } else {
                 redirectAttributes.addFlashAttribute("message", "Không tìm thấy kho để cập nhật!");
-                redirectAttributes.addFlashAttribute("messageType", "error");
             }
         } catch (Exception e) {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("message", "Lỗi khi cập nhật kho: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("messageType", "error");
         }
         return "redirect:/SWP/staff/storages/" + id + "/detail";
     }
@@ -200,5 +221,25 @@ public class StaffDBoardController {
             redirectAttributes.addFlashAttribute("error", "Lỗi xóa hoạt động: " + e.getMessage());
         }
         return "redirect:/SWP/staff/all-recent-activity";
+    }
+
+    @PostMapping("/storages/{id}/toggle-status")
+    public String toggleStorageStatus(@PathVariable("id") int id,
+                                      @RequestParam(value = "returnUrl", required = false) String returnUrl,
+                                      RedirectAttributes redirectAttributes) {
+        Optional<Storage> optionalStorage = storageService.findByID(id);
+        if (optionalStorage.isPresent()) {
+            Storage storage = optionalStorage.get();
+            storage.setStatus(!storage.isStatus());
+            storageService.save(storage);
+            redirectAttributes.addFlashAttribute("message", "Trạng thái kho đã được cập nhật.");
+        } else {
+            redirectAttributes.addFlashAttribute("message", "Không tìm thấy kho để cập nhật.");
+        }
+
+        if (returnUrl == null || returnUrl.isEmpty()) {
+            return "redirect:/SWP/staff/staff-all-storage";
+        }
+        return "redirect:" + returnUrl;
     }
 }

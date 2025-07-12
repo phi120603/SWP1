@@ -78,7 +78,16 @@ public class StorageServiceimpl implements StorageService {
     public void deleteStorageById(int id) {
 //        storageRepository.resetAutoIncrement();
         storageRepository.deleteById(id);
-
-
     }
+
+    @Override
+    public long countAvailableStorages() {
+        return storageRepository.countByStatus(true);
+    }
+
+    @Override
+    public long countRentedStorages() {
+        return storageRepository.countByStatus(false);
+    }
+
 }

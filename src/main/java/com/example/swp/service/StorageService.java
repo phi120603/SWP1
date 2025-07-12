@@ -19,4 +19,7 @@ public interface StorageService {
     void save(Storage storage);
 
     void deleteStorageById(int id);
+
+    long countAvailableStorages(); // còn trống (status == true)
+    long countRentedStorages();    // đang thuê (status == false)
 }

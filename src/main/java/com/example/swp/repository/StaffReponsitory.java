@@ -18,6 +18,4 @@ public interface StaffReponsitory extends JpaRepository<Staff, Integer> {
     int countAllStaff();
 
 
-
-
 }
