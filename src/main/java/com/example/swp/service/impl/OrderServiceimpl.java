@@ -84,10 +84,8 @@ public class OrderServiceimpl implements OrderService {
         order.setStatus(orderRequest.getStatus());
         order.setCustomer(customer);
         order.setStorage(storage);
-
         return orderRepository.save(order);
     }
-
 
     @Override
     public List<Order> findOrdersByStatus(String status) {

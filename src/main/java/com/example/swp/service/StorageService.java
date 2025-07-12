@@ -31,4 +31,7 @@ public interface StorageService {
 
     List<String> findAllCities();
 
+
+    long countAvailableStorages(); // còn trống (status == true)
+    long countRentedStorages();    // đang thuê (status == false)
 }

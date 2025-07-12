@@ -1,6 +1,8 @@
 package com.example.swp.controller.website;
 
+import com.example.swp.dto.IssueRequest;
 import com.example.swp.entity.Customer;
+
 import com.example.swp.entity.Issue;
 import com.example.swp.enums.IssueStatus;
 import com.example.swp.entity.Staff;
@@ -22,6 +24,7 @@ import java.util.Collections;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -111,12 +114,17 @@ public class IssueController {
         } catch (Exception e) {
             model.addAttribute("error", "Tạo Issue thất bại: " + e.getMessage());
         }
+        model.addAttribute("customers", customerRepository.findAll());
+        model.addAttribute("staffs", staffRepository.findAll());
         return "create-issue";
     }
 
     @GetMapping("/report")
     public String showStaffReport(Model model) {
         List<Issue> issues = issueService.getAllIssues();
+        if (issues == null) {
+            issues = new ArrayList<>();
+        }
         model.addAttribute("issues", issues);
         return "staff-report";
     }

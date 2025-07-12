@@ -983,3 +983,107 @@ body {
     text-decoration: none;
     margin-left: 5px;
 }
+
+.voucher-card .stat-icon.voucher {
+    background: #fbbf24;
+    color: #fff;
+}
+.voucher-list {
+    padding: 10px 0;
+}
+.voucher-item {
+    margin-bottom: 6px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.sort-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sort-bar label {
+    font-weight: 500;
+    margin-right: 0.3rem;
+}
+
+.sort-select {
+    border: 1px solid #ddd;
+    background-color: #f8f9fa;
+    color: #333;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    font-size: 14px;
+    min-width: 160px;
+    transition: all 0.2s ease;
+}
+
+.sort-select:focus {
+    outline: none;
+    border-color: #2c3e50;
+}
+
+.sort-select:hover {
+    background-color: #e9ecef;
+    cursor: pointer;
+}
+
+/* Badge styling for Voucher Status */
+
+.status-badge.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.inactive {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.expired {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Toggle button when voucher is ACTIVE → xanh */
+.btn-icon.toggle-active {
+    background: #d4edda;
+    color: #155724;
+    border: none;
+}
+
+.btn-icon.toggle-active:hover,
+.btn-icon.toggle-active:focus {
+    background: #c3e6cb;
+    color: #0b2e13;
+    box-shadow: 0 5px 14px rgba(21, 87, 36, 0.2);
+    transform: translateY(-2px) scale(1.12);
+}
+
+.btn-icon.toggle-active:active {
+    background: #a5d6a7;
+    color: #0b2e13;
+    transform: scale(0.95);
+}
+
+/* Toggle button when voucher is INACTIVE → vàng */
+.btn-icon.toggle-inactive {
+    background: #fff3cd;
+    color: #856404;
+    border: none;
+}
+
+.btn-icon.toggle-inactive:hover,
+.btn-icon.toggle-inactive:focus {
+    background: #ffe8a1;
+    color: #533f03;
+    box-shadow: 0 5px 14px rgba(133, 100, 4, 0.2);
+    transform: translateY(-2px) scale(1.12);
+}
+
+.btn-icon.toggle-inactive:active {
+    background: #ffecb5;
+    color: #533f03;
+    transform: scale(0.95);
+}
