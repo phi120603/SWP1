@@ -10,9 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/SWP/issues")
@@ -113,4 +115,17 @@ public class IssueController {
         return "staff-report-detail";
     }
 
+    @PostMapping("/{id}/toggle-status")
+    public String toggleIssueStatus(@PathVariable("id") int id, RedirectAttributes redirectAttributes) {
+        Optional<Issue> issueOpt = issueService.getIssueById(id);
+        if (issueOpt.isPresent()) {
+            Issue issue = issueOpt.get();
+            issue.setResolved(!issue.isResolved()); // Đảo trạng thái
+            issueService.save(issue);
+            redirectAttributes.addFlashAttribute("success", "Đã cập nhật trạng thái thành công.");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy vấn đề.");
+        }
+        return "redirect:/SWP/issues/report";
+    }
 }

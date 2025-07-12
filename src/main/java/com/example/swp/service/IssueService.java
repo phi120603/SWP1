@@ -15,4 +15,5 @@ public interface IssueService {
 
     void updateAssignedStaffAndStatus(int id, int staffId, Boolean resolved);
 
+    void save(Issue issue);
 }
