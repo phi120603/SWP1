@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface ManageRepository extends JpaRepository<Manager, Integer> {
     Optional<Manager> findByEmail(String email);
+    Optional<Manager> findFirstByOnDutyTrue();
+
 }

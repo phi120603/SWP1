@@ -8,6 +8,7 @@ import com.example.swp.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -89,5 +90,25 @@ public class StorageServiceimpl implements StorageService {
     public long countRentedStorages() {
         return storageRepository.countByStatus(false);
     }
+    @Override
+    public List<Storage> findAvailableStorages(
+            LocalDate startDate, LocalDate endDate,
+            Double minArea, Double minPrice,
+            Double maxPrice, String nameKeyword, String city) {
+        return storageRepository.findAvailableStorages(
+                startDate, endDate, minArea, minPrice, maxPrice, nameKeyword, city);
+    }
+
+    @Override
+    public List<String> findAllCities() {
+        return storageRepository.findAllCities();
+    }
+
+
+
+
+
+
+
 
 }

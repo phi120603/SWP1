@@ -16,4 +16,5 @@ public interface StorageTransactionService {
     StorageTransaction createStorageTransaction(StorageTransactionRequest transactionRequest);
 
     StorageTransaction save(StorageTransaction transaction);
+    List<StorageTransaction> findByCustomerId(Integer customerId);
 }

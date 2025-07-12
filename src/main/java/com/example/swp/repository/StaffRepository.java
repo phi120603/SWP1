@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface StaffReponsitory extends JpaRepository<Staff, Integer> {
+public interface StaffRepository extends JpaRepository<Staff, Integer> {
     Optional<Staff> findByEmail(String email);
 
     Page<Staff> findAll(Pageable pageable);

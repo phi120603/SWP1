@@ -25,6 +25,7 @@ import java.util.List;
         private String email;
         private String password;
         private String phone;
+        private Boolean onDuty;
 
         @Enumerated(EnumType.STRING)
         private RoleName roleName;

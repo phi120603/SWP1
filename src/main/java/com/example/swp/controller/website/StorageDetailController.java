@@ -37,69 +37,6 @@ public class StorageDetailController {
         return "storage-detail";
     }
 
-    // Hiển thị form booking
-    @GetMapping("/storages/{id}/booking")
-    public String showBookingForm(@PathVariable int id, HttpSession session, Model model) {
-        Customer customer = (Customer) session.getAttribute("loggedInCustomer");
-        if (customer == null) {
-            return "redirect:/api/login";
-        }
 
-        Optional<Storage> optionalStorage = storageService.findByID(id);
-        if (optionalStorage.isEmpty()) {
-            return "redirect:/SWP/storages";
-        }
-
-        model.addAttribute("storage", optionalStorage.get());
-        model.addAttribute("customer", customer); // truyền sang booking.html
-        return "booking";
-    }
-
-
-
-
-
-    // Xử lý submit booking
-    @PostMapping("/storages/{id}/booking/save")
-    public String processBooking(@PathVariable int id,
-                                 @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                 @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-                                 HttpSession session,
-                                 Model model) {
-
-        Customer customer = (Customer) session.getAttribute("loggedInCustomer");
-        if (customer == null) {
-            return "redirect:/api/login";
-        }
-
-        Optional<Storage> optionalStorage = storageService.findByID(id);
-        if (optionalStorage.isEmpty()) {
-            return "redirect:/SWP/storages";
-        }
-
-        Storage storage = optionalStorage.get();
-
-        if (!endDate.isAfter(startDate)) {
-            model.addAttribute("storage", storage);
-            model.addAttribute("error", "Ngày kết thúc phải sau ngày bắt đầu.");
-            return "booking";
-        }
-
-        long days = ChronoUnit.DAYS.between(startDate, endDate);
-        double total = days * storage.getPricePerDay();
-
-        Order order = new Order();
-        order.setCustomer(customer); // GÁN customer từ session
-        order.setStorage(storage);
-        order.setStartDate(startDate);
-        order.setEndDate(endDate);
-        order.setOrderDate(LocalDate.now());
-        order.setTotalAmount(total);
-        order.setStatus("PENDING");
-
-        orderService.save(order);
-
-        return "redirect:/SWP/storages/" + id + "?message=Booking thành công!";
-    }
 
 }

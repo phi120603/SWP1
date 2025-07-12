@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff Attendance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+        }
+
+        button {
+            margin: 5px 0 15px 0;
+            padding: 8px 18px;
+            font-size: 16px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 70%;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid #aaa;
+            padding: 8px 12px;
+            text-align: center;
+        }
+
+        th {
+            background: #eee;
+        }
+
+        #msg {
+            color: green;
+            margin: 8px 0;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<h2>Chấm Công Nhân Viên</h2>
+<button onclick="checkIn()">Check-in</button>
+<button onclick="checkOut()">Check-out</button>
+<div id="msg"></div>
+<h3>Lịch Sử Chấm Công</h3>
+<table>
+    <thead>
+    <tr>
+        <th>Ngày</th>
+        <th>Giờ vào</th>
+        <th>Giờ ra</th>
+    </tr>
+    </thead>
+    <tbody id="attendance-body">
+    </tbody>
+</table>
+<script>
+    function showMsg(text, error = false) {
+        let msg = document.getElementById("msg");
+        msg.textContent = text;
+        msg.className = error ? "error" : "";
+        setTimeout(() => msg.textContent = "", 3000);
+    }
+
+    function checkIn() {
+        fetch('/api/attendance/checkin', {method: 'POST'})
+            .then(r => {
+                if (!r.ok) throw new Error("Không thể check-in.");
+                return r.json();
+            })
+            .then(() => {
+                showMsg("Check-in thành công!");
+                loadHistory();
+            })
+            .catch(e => showMsg(e.message, true));
+    }
+
+    function checkOut() {
+        fetch('/api/attendance/checkout', {method: 'POST'})
+            .then(r => {
+                if (!r.ok) throw new Error("Không thể check-out.");
+                return r.json();
+            })
+            .then(() => {
+                showMsg("Check-out thành công!");
+                loadHistory();
+            })
+            .catch(e => showMsg(e.message, true));
+    }
+
+    function loadHistory() {
+        fetch('/api/attendance/history')
+            .then(r => {
+                if (!r.ok) throw new Error("Không thể tải lịch sử chấm công.");
+                return r.json();
+            })
+            .then(list => {
+                let html = "";
+                for (let att of list) {
+                    let inTime = att.checkInTime ? att.checkInTime.replace('T', ' ').substring(0, 16) : "";
+                    let outTime = att.checkOutTime ? att.checkOutTime.replace('T', ' ').substring(0, 16) : "";
+                    let date = inTime ? inTime.substring(0, 10) : "";
+                    html += `<tr>
+                            <td>${date}</td>
+                            <td>${inTime.substring(11)}</td>
+                            <td>${outTime.substring(11)}</td>
+                        </tr>`;
+                }
+                document.getElementById("attendance-body").innerHTML = html;
+            })
+            .catch(e => showMsg(e.message, true));
+    }
+
+    // Tải lịch sử khi vào trang
+    window.onload = loadHistory;
+</script>
+</body>
+</html>

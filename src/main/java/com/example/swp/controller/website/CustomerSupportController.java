@@ -4,6 +4,7 @@ import com.example.swp.entity.Customer;
 import com.example.swp.entity.SupportActivity;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.SupportActivityRepository;
+import com.example.swp.validate.ForgotPasswordValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -89,12 +91,35 @@ public class CustomerSupportController {
             @RequestParam("id_citizen") String idCitizen,
             Model model) {
 
+        // Validate: Kiểm tra rỗng
+        Map<String, String> errors = ForgotPasswordValidator.validate(fullname, idCitizen);
+
+        // Nếu bị thiếu trường nào, trả lỗi luôn
+        if (!errors.isEmpty()) {
+            model.addAttribute("errors", errors);
+            model.addAttribute("fullname", fullname);
+            model.addAttribute("id_citizen", idCitizen);
+            return "forgot-password";
+        }
+
+        // Kiểm tra có trong DB không
         Optional<Customer> customerOpt = customerRepository
                 .findAll()
                 .stream()
-                .filter(c -> c.getFullname().equalsIgnoreCase(fullname.trim()) &&
-                        c.getId_citizen().equals(idCitizen.trim()))
+                .filter(c -> c.getFullname().equalsIgnoreCase(fullname.trim())
+                        && c.getId_citizen().equals(idCitizen.trim()))
                 .findFirst();
+
+        if (customerOpt.isEmpty()) {
+            errors.put("global", "Không tìm thấy họ tên và số căn cước phù hợp!");
+            // Hoặc bạn có thể gán lỗi này vào từng trường:
+            errors.put("fullname", "Không tìm thấy họ tên và số căn cước phù hợp!");
+            errors.put("id_citizen", "Không tìm thấy họ tên và số căn cước phù hợp!");
+            model.addAttribute("errors", errors);
+            model.addAttribute("fullname", fullname);
+            model.addAttribute("id_citizen", idCitizen);
+            return "forgot-password";
+        }
 
         if (customerOpt.isPresent()) {
             Customer customer = customerOpt.get();

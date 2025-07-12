@@ -10,4 +10,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     Optional<Customer> findByEmail(String email);
     List<Customer> findByFullnameContainingIgnoreCase(String fullname);
     List<Customer> findByRoleName(RoleName roleName);
+    // Trong CustomerRepository.java
+    boolean existsByEmail(String email);
+    // Nếu muốn validate phone, hãy bổ sung:
+    boolean existsByPhone(String phone);
+
 }

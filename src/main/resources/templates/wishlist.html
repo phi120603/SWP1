@@ -528,16 +528,18 @@
     function renderWishlist() {
         const container = document.getElementById('wishlistContainer');
 
-        if (wishlistData.length === 0) {
-            showEmptyState();
+        const validWishlist = wishlistData.filter(item => item && item.storage);
+
+        if (validWishlist.length === 0) {
+            showEmptyState(); // <-- Hiển thị thông báo
             return;
         }
 
         const wishlistHTML = `
-                <div class="wishlist-grid">
-                    ${wishlistData.map(item => createWishlistCard(item)).join('')}
-                </div>
-            `;
+        <div class="wishlist-grid">
+            ${validWishlist.map(item => createWishlistCard(item)).join('')}
+        </div>
+    `;
 
         container.innerHTML = wishlistHTML;
     }

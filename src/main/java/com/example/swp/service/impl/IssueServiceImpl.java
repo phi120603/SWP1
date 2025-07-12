@@ -65,9 +65,4 @@ public class IssueServiceImpl implements IssueService {
         issue.setResolved(resolved);
         issueRepository.save(issue);
     }
-
-    @Override
-    public void save(Issue issue) {
-        issueRepository.save(issue);
-    }
 }

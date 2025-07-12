@@ -2,6 +2,9 @@ package com.example.swp.entity;
 
 import com.example.swp.enums.RoleName;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,20 +21,42 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-
 public class Customer implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @NotBlank(message = "Họ tên không được để trống")
+    @Size(max = 50, message = "Họ tên tối đa 50 ký tự")
     private String fullname;
+
+    @Lob
+    @Column(name = "avatar")
+    private byte[] avatar;
+
+    @Size(max = 255, message = "Địa chỉ tối đa 255 ký tự")
     private String address;
+
+    @NotBlank(message = "Số điện thoại không được để trống")
+    @Size(min = 10, max = 15, message = "Số điện thoại phải từ 10-15 số")
     private String phone;
+
+    @NotBlank(message = "Email không được để trống")
+    @Email(message = "Email không hợp lệ")
+    @Size(max = 255, message = "Email tối đa 255 ký tự")
     private String email;
+
     @Enumerated(EnumType.STRING)
     private RoleName roleName;
+
+    @Size(max = 20, message = "CCCD tối đa 20 ký tự")
     private String id_citizen;
+
+    @NotBlank(message = "Mật khẩu không được để trống")
+    @Size(min = 6, max = 100, message = "Mật khẩu phải từ 6-100 ký tự")
     private String password;
 
+    // Relations
     @OneToMany(mappedBy = "customer")
     private List<Contact> contacts;
 
@@ -46,14 +71,16 @@ public class Customer implements UserDetails {
 
     @OneToMany
     private List<WishList> wishLists;
+
+    // UserDetails methods
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("CUSTOMER"));
+        return List.of(new SimpleGrantedAuthority(roleName != null ? roleName.name() : "CUSTOMER"));
     }
+
     public Customer(Integer id) {
         this.id = id;
     }
-
 
     @Override
     public String getPassword() {

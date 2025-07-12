@@ -35,6 +35,11 @@ public class StorageTransactionServiceImpl implements StorageTransactionService 
     public Optional<StorageTransaction> getStorageTransactionById(int id) {
         return storageTransactionRepository.findById(id);
     }
+    @Override
+    public List<StorageTransaction> findByCustomerId(Integer customerId) {
+        return storageTransactionRepository.findByCustomerId(customerId);
+    }
+
 
     @Override
     public StorageTransaction createStorageTransaction(StorageTransactionRequest transactionRequest) {

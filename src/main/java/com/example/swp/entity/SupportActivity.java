@@ -26,7 +26,6 @@ public class SupportActivity {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    // SỬA CHỖ NÀY: sử dụng Date thay vì LocalDateTime
     public Date getActivityTime() { return activityTime; }
     public void setActivityTime(Date activityTime) { this.activityTime = activityTime; }
 

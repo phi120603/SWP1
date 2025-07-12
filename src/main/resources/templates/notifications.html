@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Thông báo của tôi</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Font Google hỗ trợ tiếng Việt -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap&subset=vietnamese" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .back-button {
+            position: absolute;
+            top: 20px; left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 20px; border-radius: 50px;
+            text-decoration: none; font-weight: 600; font-size: 0.95rem;
+            display: flex; align-items: center; gap: 8px;
+            transition: all 0.3s ease; backdrop-filter: blur(10px);
+        }
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateX(-3px);
+            color: white;
+            text-decoration: none;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding-top: 60px;
+        }
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+        .header h2 {
+            font-size: 2.5rem;
+            color: #2d3748;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 0;
+        }
+        .notification-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .unread-badge {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            border-radius: 50%;
+            padding: 8px 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            min-width: 35px;
+            height: 35px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            animation: pulse 2s infinite;
+            position: relative;
+        }
+        .unread-badge::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0.3;
+            animation: ripple 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes ripple {
+            0% { transform: scale(1); opacity: 0.3; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+        .mark-all-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .mark-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        }
+        .notifications-container {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            margin-bottom: 30px;
+        }
+        .notification {
+            padding: 25px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            position: relative;
+        }
+        .notification:last-child {
+            border-bottom: none;
+        }
+        .notification:hover {
+            background: #f8fafc;
+            transform: translateX(5px);
+        }
+        .notification.unread {
+            background: linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 5px solid #667eea;
+            position: relative;
+        }
+        .notification.unread:hover {
+            background: linear-gradient(90deg, #e0f2fe 0%, #bae6fd 100%);
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .notification-time {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        .notification.unread .notification-time {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .notification-message {
+            font-size: 1.1rem;
+            color: #334155;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+        .notification.unread .notification-message {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .notification-type {
+            display: inline-block;
+            background: #e2e8f0;
+            color: #475569;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .notification.unread .notification-type {
+            background: #3b82f6;
+            color: white;
+        }
+        .mark-read-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .mark-read-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #64748b;
+        }
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 25px;
+            opacity: 0.5;
+        }
+        .empty-state h3 {
+            font-size: 1.5rem;
+            color: #334155;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .empty-state p {
+            font-size: 1.1rem;
+            color: #64748b;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .back-button {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin-bottom: 20px;
+                align-self: flex-start;
+            }
+            .container { padding-top: 20px; }
+            .header { padding: 25px; }
+            .header h2 {
+                font-size: 1.8rem;
+                flex-direction: column;
+                gap: 15px;
+            }
+            .notification {
+                flex-direction: column;
+                gap: 15px;
+                padding: 20px;
+            }
+            .mark-read-btn {
+                align-self: flex-start;
+            }
+            .notification:hover { transform: none; }
+        }
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .header h2 { font-size: 1.5rem; }
+            .notification { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+<a th:href="@{/home-page}" class="back-button">← Trang chủ</a>
+
+<div class="container">
+    <div class="header">
+        <div class="header-content">
+            <h2>
+                <span class="notification-icon">🔔</span>
+                Thông báo của bạn
+                <span th:if="${unreadCount > 0}" class="unread-badge" th:text="${unreadCount}"></span>
+            </h2>
+            <form th:action="@{/notifications/read-all}" method="post" th:if="${unreadCount > 0}">
+                <button type="submit" class="mark-all-btn">Đánh dấu tất cả đã đọc</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="notifications-container">
+        <div th:if="${#lists.isEmpty(notifications)}" class="empty-state">
+            <div class="empty-icon">🔔</div>
+            <h3>Không có thông báo nào</h3>
+            <p>Bạn đã xem hết tất cả thông báo!</p>
+        </div>
+        <div th:each="noti : ${notifications}">
+            <div class="notification" th:classappend="${!noti.read} ? ' unread'">
+                <div class="notification-content">
+                    <div class="notification-header">
+                        <div class="notification-time">
+                            <span th:text="${noti.createdAt != null} ? ${noti.createdAt.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy HH:mm'))} : ''"></span>
+                        </div>
+                        <span class="notification-type">Thông báo</span>
+                    </div>
+                    <div class="notification-message" th:text="${noti.message}"></div>
+                </div>
+                <form th:if="${!noti.read}" th:action="@{/notifications/read/{id}(id=${noti.id})}" method="post">
+                    <button type="submit" class="mark-read-btn">Đánh dấu đã đọc</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    setInterval(() => {
+        const badge = document.querySelector('.unread-badge');
+        if (badge && parseInt(badge.textContent) === 0) {
+            badge.style.display = 'none';
+        }
+    }, 1000);
+
+    document.querySelectorAll('button[type="submit"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.style.opacity = 0.6;
+            this.textContent = "Đang xử lý...";
+        });
+    });
+</script>
+</body>
+</html>

@@ -55,7 +55,17 @@ public class Order {
         @JoinColumn(name = "storage_id", nullable = true)
         @JsonIgnore
         private Storage storage;
+        @Column(length = 500) // Tùy nhu cầu, có thể dài/ngắn hơn
+        private String cancelReason;
 
-    }
+        @Column(nullable = false)
+        private Double rentalArea; // diện tích khách muốn thuê
+
+
+
+
+
+
+}
 
 
