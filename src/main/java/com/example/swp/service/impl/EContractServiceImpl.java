@@ -1,43 +1,49 @@
 package com.example.swp.service.impl;
 
-import com.example.swp.entity.EContract;
-import com.example.swp.repository.EContractRepository;
-import com.example.swp.service.EContractService;
 import com.example.swp.service.EmailService;
-import jakarta.transaction.Transactional;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.util.List;
+import java.io.File;
 
 @Service
 @RequiredArgsConstructor
-public class EContractServiceImpl implements EContractService {
+public class EmailServiceImpl implements EmailService {
 
-    private final EContractRepository contractRepo;
-    private final EmailService emailService;
-
-    @Override
-    public EContract createContract(EContract contract) {
-        contract.setCreatedDate(LocalDate.now());
-        contract.setSigned(false);
-        return contractRepo.save(contract);
-    }
+    private final JavaMailSender mailSender;
+    private static final Logger log = LoggerFactory.getLogger(EmailServiceImpl.class);
 
     @Override
-    public List<EContract> getContractsByCustomerId(Integer customerId) {
-        return contractRepo.findByCustomerId(customerId);
-    }
+    public void sendPaymentEmail(String to, Integer contractId, String pdfPath) {
+        String subject = "Xác nhận thanh toán hợp đồng #" + contractId;
+        String body = "Cảm ơn bạn đã ký hợp đồng.\n"
+                + "Vui lòng thanh toán tại: http://yourdomain.com/payment?contractId=" + contractId;
 
-    @Override
-    @Transactional
-    public void signContract(Integer contractId) {
-        EContract contract = contractRepo.findById(contractId).orElseThrow();
-        contract.setSigned(true);
-        contractRepo.save(contract);
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, pdfPath != null);
 
-        // Gửi email sau khi ký hợp đồng thành công
-        emailService.sendPaymentEmail(contract.getCustomer().getEmail(), contract.getId());
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body);
+
+            if (pdfPath != null) {
+                FileSystemResource file = new FileSystemResource(new File(pdfPath));
+                helper.addAttachment("hop_dong_" + contractId + ".pdf", file);
+            }
+
+            mailSender.send(message);
+            log.info("Email đã được gửi tới: {}", to);
+
+        } catch (MessagingException e) {
+            log.error("Lỗi khi gửi email tới {}: {}", to, e.getMessage(), e);
+        }
     }
 }
