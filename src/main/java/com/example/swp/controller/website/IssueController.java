@@ -1,5 +1,6 @@
 package com.example.swp.controller.website;
 
+import com.example.swp.dto.IssueRequest;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Issue;
 import com.example.swp.enums.IssueStatus;
@@ -13,6 +14,8 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -70,49 +73,68 @@ public class IssueController {
         return "customer-issue-list";
     }
 
-    // ----------- Tạo mới Issue -----------
+    // --------------- CREATE FORM ---------------
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        model.addAttribute("issueRequest", new com.example.swp.dto.IssueRequest());
+        model.addAttribute("issueRequest", new IssueRequest());
         model.addAttribute("customers", customerRepository.findAll());
-        model.addAttribute("staffs", staffRepository.findAll());
+
+        // Lấy thông tin xác thực từ Spring Security
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdminOrStaff = auth.getAuthorities().stream().anyMatch(a ->
+                a.getAuthority().equals("MANAGER") || a.getAuthority().equals("STAFF"));
+
+        // Nếu là admin/staff thì hiển thị danh sách staffs
+        if (isAdminOrStaff) {
+            model.addAttribute("staffs", staffRepository.findAll());
+        } else {
+            model.addAttribute("staffs", Collections.emptyList());
+        }
+
         return "create-issue";
     }
 
-    // Nhận form submit
     @PostMapping("/create")
     public String createIssue(
-            @ModelAttribute("issueRequest") @Valid com.example.swp.dto.IssueRequest issueRequest,
+            @ModelAttribute("issueRequest") @Valid IssueRequest issueRequest,
             BindingResult bindingResult,
             Model model,
             HttpSession session
     ) {
         model.addAttribute("customers", customerRepository.findAll());
-        model.addAttribute("staffs", staffRepository.findAll());
+
+        // Xác thực user
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdminOrStaff = auth.getAuthorities().stream().anyMatch(a ->
+                a.getAuthority().equals("MANAGER") || a.getAuthority().equals("STAFF"));
+
+        if (isAdminOrStaff) {
+            model.addAttribute("staffs", staffRepository.findAll());
+        } else {
+            model.addAttribute("staffs", Collections.emptyList());
+        }
 
         if (bindingResult.hasErrors()) {
-            // Có lỗi validate: trả lại form và hiển thị lỗi cạnh trường nhập!
             return "create-issue";
         }
 
         try {
             issueService.createIssue(issueRequest);
             model.addAttribute("success", "Tạo Issue thành công!");
-            model.addAttribute("issueRequest", new com.example.swp.dto.IssueRequest());
+            model.addAttribute("issueRequest", new IssueRequest());
 
-            // Thông báo cho customer (nếu đang đăng nhập)
+            // Thông báo cho khách nếu có đăng nhập
             String email = (String) session.getAttribute("email");
             if (email != null) {
-                Optional<Customer> customerOpt = customerRepository.findByEmail(email);
-                customerOpt.ifPresent(c ->
-                        notificationService.createNotification("Bạn vừa gửi yêu cầu hỗ trợ (Issue) thành công!", c)
-                );
+                customerRepository.findByEmail(email).ifPresent(c ->
+                        notificationService.createNotification("Bạn vừa gửi yêu cầu hỗ trợ thành công!", c));
             }
         } catch (Exception e) {
             model.addAttribute("error", "Tạo Issue thất bại: " + e.getMessage());
         }
         return "create-issue";
     }
+
 
     @GetMapping("/report")
     public String showStaffReport(Model model) {

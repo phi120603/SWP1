@@ -4,6 +4,7 @@ import com.example.swp.entity.Notification;
 import com.example.swp.entity.Customer;
 import com.example.swp.repository.NotificationRepository;
 import com.example.swp.service.NotificationService;
+import com.example.swp.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Autowired
     private NotificationRepository notificationRepository;
+
+    @Autowired
+    private CustomerService customerService;
 
     @Override
     public List<Notification> getNotificationsForCustomer(Customer customer) {
@@ -40,7 +44,7 @@ public class NotificationServiceImpl implements NotificationService {
         List<Notification> notis = notificationRepository.findByCustomerOrderByCreatedAtDesc(customer);
         for (Notification noti : notis) {
             if (!noti.isRead()) {
-                noti.setRead(true); // Sửa lại ở đây
+                noti.setRead(true);
             }
         }
         notificationRepository.saveAll(notis);
@@ -55,5 +59,13 @@ public class NotificationServiceImpl implements NotificationService {
                 .createdAt(LocalDateTime.now())
                 .build();
         notificationRepository.save(noti);
+    }
+
+    @Override
+    public void notifyCustomer(Integer customerId, String message) {
+        Customer customer = customerService.getCustomerById(customerId);
+        if (customer != null) {
+            createNotification(message, customer);
+        }
     }
 }

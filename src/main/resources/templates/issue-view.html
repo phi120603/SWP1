@@ -95,7 +95,7 @@
         <li><span class="label">Chủ đề:</span> <span class="value" th:text="${issue.subject}">Tiêu đề issue</span></li>
         <li><span class="label">Mô tả:</span> <span class="value" th:text="${issue.description}">Mô tả chi tiết...</span></li>
         <li><span class="label">Khách hàng:</span> <span class="value" th:text="${issue.customer.fullname}">Tên khách hàng</span></li>
-        <li><span class="label">Staff phụ trách:</span> <span class="value" th:text="${issue.assignedStaff.fullname}">Tên staff</span></li>
+<!--        <li><span class="label">Staff phụ trách:</span> <span class="value" th:text="${issue.assignedStaff.fullname}">Tên staff</span></li>-->
         <li><span class="label">Ngày tạo:</span> <span class="value" th:text="${#dates.format(issue.createdDate, 'dd/MM/yyyy HH:mm')}">27/06/2025 00:56</span></li>
         <li>
             <span class="label">Trạng thái:</span>

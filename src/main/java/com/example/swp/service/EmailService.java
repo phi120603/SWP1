@@ -3,6 +3,5 @@ package com.example.swp.service;
 public interface EmailService {
     void sendEmail(String to, String subject, String body);
 
-//    void sendEmailWithQR(String to, String subject, String body, String qrContent);
+    void sendPaymentEmail(String customerEmail, Integer contractId); // ✅ thêm phương thức này
 }
-

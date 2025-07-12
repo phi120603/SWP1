@@ -157,7 +157,7 @@
     </form>
     <div id="registerMessage" class="message"></div>
     <div class="links-container">
-        <a href="login.html">Đã có tài khoản? Đăng nhập</a>
+        <a href="/api/login">Đã có tài khoản? Đăng nhập</a>
     </div>
 </div>
 
@@ -199,7 +199,7 @@
                 messageDiv.textContent = text || 'Đăng ký thành công!';
                 // Sau 1-2s chuyển qua trang login
                 setTimeout(() => {
-                    window.location.href = "login.html";
+                    window.location.href = "/api/login";
                 }, 1500);
             } else {
                 messageDiv.className = 'message error';

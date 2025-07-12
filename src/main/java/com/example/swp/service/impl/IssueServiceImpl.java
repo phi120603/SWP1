@@ -24,7 +24,6 @@ public class IssueServiceImpl implements IssueService {
 
     @Autowired
     private CustomerRepository customerRepository;
-
     @Autowired
     private StaffRepository staffRepository;
 
@@ -46,35 +45,44 @@ public class IssueServiceImpl implements IssueService {
 
     @Override
     public Issue createIssue(IssueRequest issueRequest) {
+        // Xác thực customerId
+        if (issueRequest.getCustomerId() == null) {
+            throw new IllegalArgumentException("Customer ID must not be null");
+        }
+
         Customer customer = customerRepository.findById(issueRequest.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với id " + issueRequest.getCustomerId()));
-        Staff staff = staffRepository.findById(issueRequest.getAssignedStaffId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy staff với id " + issueRequest.getAssignedStaffId()));
 
         Issue issue = new Issue();
         issue.setSubject(issueRequest.getSubject());
         issue.setDescription(issueRequest.getDescription());
         issue.setCustomer(customer);
-        issue.setAssignedStaff(staff);
         issue.setCreatedDate(new Date());
         issue.setResolved(false);
         issue.setStatus(IssueStatus.Pending);
 
+        // Không gán staff vì form không chọn staff nữa
+        issue.setAssignedStaff(null);
+
         return issueRepository.save(issue);
     }
-
-
 
     @Override
     public void updateAssignedStaffAndStatus(int id, int staffId, Boolean resolved) {
         Issue issue = issueRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy issue với id " + id));
         Staff staff = staffRepository.findById(staffId)
+
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy staff với id " + staffId));
+
         issue.setAssignedStaff(staff);
+
         issue.setResolved(resolved);
+
         issueRepository.save(issue);
+
     }
+
     @Override
     public List<Issue> getIssuesByCustomerId(int customerId) {
         return issueRepository.findByCustomerId(customerId);
@@ -99,6 +107,7 @@ public class IssueServiceImpl implements IssueService {
     public long countByStatus(IssueStatus status) {
         return issueRepository.countByStatus(status);
     }
+
     @Override
     public List<Issue> searchAndFilterIssues(String search, String status) {
         if ((search == null || search.isBlank()) && (status == null || status.isBlank()))
@@ -106,7 +115,9 @@ public class IssueServiceImpl implements IssueService {
 
         IssueStatus st = null;
         if (status != null && !status.isBlank()) {
-            try { st = IssueStatus.valueOf(status); } catch (Exception ignored) {}
+            try {
+                st = IssueStatus.valueOf(status);
+            } catch (Exception ignored) {}
         }
 
         if (search != null && !search.isBlank() && st != null)
@@ -118,5 +129,4 @@ public class IssueServiceImpl implements IssueService {
 
         return issueRepository.findAll();
     }
-
 }

@@ -14,6 +14,7 @@ public interface CustomerService {
     // Thêm nếu muốn search/filter
     List<Customer> searchByName(String name);
     List<Customer> filterByRole(RoleName roleName);
+    Customer getCustomerById(Integer id);
 
     Customer save(Customer customer);
     void delete(int id);

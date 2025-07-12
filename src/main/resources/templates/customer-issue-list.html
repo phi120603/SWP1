@@ -512,10 +512,6 @@
                     <span>KH: <span th:text="${issue.customer.fullname}">Tên khách hàng</span></span>
                 </div>
                 <div class="meta-item">
-                    <span>👨‍💼</span>
-                    <span>Staff: <span th:text="${issue.assignedStaff.fullname}">Tên staff</span></span>
-                </div>
-                <div class="meta-item">
                     <span>📅</span>
                     <span th:text="${#dates.format(issue.createdDate, 'dd/MM/yyyy')}">15/01/2024</span>
                 </div>

@@ -559,24 +559,24 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">
-                    Staff phụ trách <span class="required">*</span>
-                </label>
-                <div class="input-wrapper">
-                    <select class="form-select" th:field="*{assignedStaffId}" required>
-                        <option value="">-- Chọn staff --</option>
-                        <option th:each="staff : ${staffs}"
-                                th:value="${staff.staffid}"
-                                th:text="${staff.fullname}"></option>
-                    </select>
-                </div>
-                <div class="form-error" th:if="${#fields.hasErrors('assignedStaffId')}" th:errors="*{assignedStaffId}">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                    </svg>
-                </div>
-            </div>
+<!--            <div class="form-group">-->
+<!--                <label class="form-label">-->
+<!--                    Staff phụ trách <span class="required">*</span>-->
+<!--                </label>-->
+<!--                <div class="input-wrapper">-->
+<!--                    <select class="form-select" th:field="*{assignedStaffId}" required>-->
+<!--                        <option value="">&#45;&#45; Chọn staff &#45;&#45;</option>-->
+<!--                        <option th:each="staff : ${staffs}"-->
+<!--                                th:value="${staff.staffid}"-->
+<!--                                th:text="${staff.fullname}"></option>-->
+<!--                    </select>-->
+<!--                </div>-->
+<!--                <div class="form-error" th:if="${#fields.hasErrors('assignedStaffId')}" th:errors="*{assignedStaffId}">-->
+<!--                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">-->
+<!--                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>-->
+<!--                    </svg>-->
+<!--                </div>-->
+<!--            </div>-->
         </div>
 
         <button type="submit" class="btn" id="submitBtn">

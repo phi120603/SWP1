@@ -12,6 +12,10 @@ import java.util.Optional;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
+    @Override
+    public Customer getCustomerById(Integer id) {
+        return customerRepository.findById(id).orElse(null);
+    }
 
     @Autowired
     private CustomerRepository customerRepository;
