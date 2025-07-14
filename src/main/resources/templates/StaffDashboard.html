@@ -41,6 +41,14 @@
                     <span>Order List</span>
                 </a>
             </li>
+            <li class="menu-item" id="transactionlist-menu">
+                <a th:href="@{/SWP/staff/transactions}">
+
+                <i class="fas fa-exchange-alt"></i>
+                    <span>Transaction List</span>
+                </a>
+            </li>
+
             <li class="menu-item">
                 <a th:href="@{/staff/feedbacks}">
                     <i class="fas fa-boxes"></i>
@@ -243,8 +251,58 @@
                 </div>
             </div>
         </div>
+        <!-- Transaction Overview -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Giao Dịch Gần Đây</h3>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <select class="select">
+                        <option value="">Lọc theo</option>
+                        <option value="type">Loại giao dịch</option>
+                        <option value="date">Ngày</option>
+                        <option value="amount">Số tiền</option>
+                        <option value="storage">Kho</option>
+                    </select>
+                    <a th:href="@{/staff/transactions}" class="btn btn-secondary">Xem Tất Cả</a>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Loại</th>
+                            <th>Ngày giao dịch</th>
+                            <th>Số tiền</th>
+                            <th>Kho</th>
+                            <th>Khách hàng</th>
+                            <th>Hành động</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="trans : ${transactions}" th:if="${iterStat.index < 5}">
+                            <td th:text="${trans.id}"></td>
+                            <td th:text="${trans.type}"></td>
+                            <td th:text="${#temporals.format(trans.transactionDate, 'dd/MM/yyyy')}"></td>
+                            <td th:text="${#numbers.formatDecimal(trans.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+                            <td th:text="${trans.storage.storagename}"></td>
+                            <td th:text="${trans.customer.fullname}"></td>
+                            <td>
+                                <a th:href="@{/staff/transactions/detail/{id}(id=${trans.id})}" class="btn-icon" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </main>
 </div>
+
 
 <script>
     // Sidebar toggle functionality

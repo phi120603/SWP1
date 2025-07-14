@@ -70,7 +70,7 @@ public class LoginRestController {
             // Ghi nhận thông tin đăng nhập vào Spring Security Context
             SecurityContextHolder.getContext().setAuthentication(authentication);
             // Lưu thông tin vào session
-            session.setMaxInactiveInterval(600); // 10 phút
+            session.setMaxInactiveInterval(6000); // 10 phút
             session.setAttribute("email", loginRequest.getEmail());
             Customer customer = customerService.findByEmail(loginRequest.getEmail());
             if (customer != null) {

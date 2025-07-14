@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/staff-dashboard.css}">
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div th:replace="taskbar/staff-taskbar :: staffTaskbar"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Quản Lý Giao Dịch</h1>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Danh Sách Giao Dịch</h3>
+                </div>
+                <div class="card-content">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Loại giao dịch</th>
+                                <th>Khách hàng</th>
+                                <th>Kho</th>
+                                <th>Ngày giao dịch</th>
+                                <th>Số lượng</th>
+                                <th>Hành động</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="tran : ${transactions}">
+                                <td th:text="${tran.id}"></td>
+                                <td th:text="${tran.type}"></td>
+                                <td th:text="${tran.customer.fullname}"></td>
+                                <td th:text="${tran.storage.storagename}"></td>
+                                <td th:text="${#temporals.format(tran.transactionDate, 'dd/MM/yyyy HH:mm')}"></td>
+                                <td th:text="${tran.amount}"></td>
+                                <td>
+                                    <div th:if="${tran.type == 'IMPORT'}">
+                                        <form th:action="@{/SWP/staff/export-storage}" method="post">
+                                            <input type="hidden" name="transactionId" th:value="${tran.id}"/>
+                                            <button type="submit" class="btn btn-danger">Xuất kho</button>
+                                        </form>
+                                    </div>
+                                    <div th:if="${tran.type == 'EXPORT'}">
+                                        <span class="status-badge">Exported</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

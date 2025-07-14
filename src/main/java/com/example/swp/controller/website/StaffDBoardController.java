@@ -33,6 +33,8 @@ public class StaffDBoardController {
     FeedbackService feedbackService;
     @Autowired
     RecentActivityService recentActivityService;
+    @Autowired
+    StorageTransactionService storageTransactionService;
 
     @GetMapping("/staff-dashboard")
     public String showDashboard(Model model) {
@@ -83,6 +85,15 @@ public class StaffDBoardController {
         model.addAttribute("customers", customers);
         return "customer-list"; // Trang HTML hiển thị danh sách người dùng
     }
+    @GetMapping("/transactions")
+    public String showTransactionList(Model model) {
+        List<StorageTransaction> transactions = storageTransactionService.getAllStorageTransactions();
+        model.addAttribute("transactions", transactions);
+        return "staff-transaction-list";
+    }
+
+
+
 
     @GetMapping("/staff-add-storage")
     public String showAddStorageForm(Model model) {
