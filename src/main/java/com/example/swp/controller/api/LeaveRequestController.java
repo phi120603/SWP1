@@ -48,6 +48,17 @@ public class LeaveRequestController {
         return leaveRequestService.getRequestsByStaff(staff);
     }
 
+    @GetMapping("/api/leave-requests")
+    public List<LeaveRequest> getRequests(@RequestParam(required = false) String status) {
+        if (status == null) {
+            return leaveRequestService.getAllRequests();
+        } else {
+            return leaveRequestService.getRequestsByStatus(status);
+        }
+    }
+
+
+
     // Manager xem tất cả đơn nghỉ phép đang chờ duyệt
     @GetMapping("/pending")
     public List<LeaveRequest> pendingRequests() {
@@ -64,5 +75,10 @@ public class LeaveRequestController {
     @PutMapping("/{id}/reject")
     public LeaveRequest rejectRequest(@PathVariable Long id, @RequestBody ManagerNoteDTO noteDto) {
         return leaveRequestService.rejectRequest(id, noteDto.getManagerNote());
+    }
+
+    @GetMapping
+    public List<LeaveRequest> getAllRequests() {
+        return leaveRequestService.getAllRequests();
     }
 }

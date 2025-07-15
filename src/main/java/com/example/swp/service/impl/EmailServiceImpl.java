@@ -23,6 +23,12 @@ public class EmailServiceImpl implements EmailService {
 
         mailSender.send(message);
     }
+
+    public void sendOtpEmail(String to, String otp) {
+        String subject = "OTP Check-in";
+        String content = "Mã OTP check-in của bạn là: " + otp;
+        sendEmail(to, subject, content);
+    }
 }
 
 
