@@ -61,6 +61,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/admin/**").hasAuthority(RoleName.MANAGER.name())
                         .requestMatchers("/staff/**").hasAuthority(RoleName.STAFF.name())
                         .requestMatchers("/index/**", "/api/login", "/api/register", "/static/**").permitAll()
+                        .requestMatchers("/customer-support.html", "/messenger.html", "/manager-inbox.html").authenticated()
+                        .requestMatchers("/api/conversations/**", "/api/managers/**", "/ws/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session

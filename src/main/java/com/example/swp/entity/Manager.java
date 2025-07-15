@@ -10,62 +10,70 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-    @Setter
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Entity
-    public class Manager implements UserDetails {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private int id;
-        private String fullname;
-        private String email;
-        private String password;
-        private String phone;
-        private Boolean onDuty;
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+public class Manager implements UserDetails {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    private String fullname;
+    private String email;
+    private String password;
+    private String phone;
+    private boolean onDuty;
 
-        @Enumerated(EnumType.STRING)
-        private RoleName roleName;
+    // Online status tracking
+    @Column(name = "is_online", nullable = true)
+    private Boolean isOnline = false;
 
-        @OneToMany(mappedBy = "manager")
-        private List<Order> orders;
-        @Override
-        public Collection<? extends GrantedAuthority> getAuthorities() {
-            return List.of(new SimpleGrantedAuthority("MANAGER"));
-        }
+    @Column(name = "last_seen", nullable = true)
+    private LocalDateTime lastSeen;
 
-        @Override
-        public String getPassword() {
-            return this.password;
-        }
+    @Enumerated(EnumType.STRING)
+    private RoleName roleName;
 
-        @Override
-        public String getUsername() {
-            return this.email;
-        }
-
-        @Override
-        public boolean isAccountNonExpired() {
-            return true;
-        }
-
-        @Override
-        public boolean isAccountNonLocked() {
-            return true;
-        }
-
-        @Override
-        public boolean isCredentialsNonExpired() {
-            return true;
-        }
-
-        @Override
-        public boolean isEnabled() {
-            return true;
-        }
+    @OneToMany(mappedBy = "manager")
+    private List<Order> orders;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("MANAGER"));
     }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+}
 
 

@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Hỗ Trợ Khách Hàng</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f0f2f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .chat-container {
+            display: flex;
+            height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 360px;
+            background: white;
+            border-right: 1px solid #e4e6ea;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e4e6ea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sidebar-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .search-container {
+            padding: 16px;
+            border-bottom: 1px solid #e4e6ea;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            background: #f0f2f5;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            background: white;
+            border-color: #1877f2;
+        }
+
+        .conversations-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f2f5;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .conversation-item:hover {
+            background: #f0f2f5;
+        }
+
+        .conversation-item.active {
+            background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+            border-left: 4px solid #1877f2;
+        }
+
+        .conversation-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 12px;
+            position: relative;
+        }
+
+        .online-indicator {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 16px;
+            height: 16px;
+            background: #42b883;
+            border: 3px solid white;
+            border-radius: 50%;
+        }
+
+        .conversation-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .conversation-name {
+            font-weight: 600;
+            color: #1c1e21;
+            margin-bottom: 4px;
+            font-size: 16px;
+        }
+
+        .conversation-preview {
+            color: #65676b;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .conversation-time {
+            color: #65676b;
+            font-size: 12px;
+        }
+
+        .unread-badge {
+            background: #1877f2;
+            color: white;
+            border-radius: 12px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f0f2f5;
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: white;
+            border-bottom: 1px solid #e4e6ea;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-header .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .chat-header-info h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1c1e21;
+        }
+
+        .chat-header-info .status {
+            font-size: 13px;
+            color: #42b883;
+            margin: 2px 0 0 0;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            max-width: 70%;
+            animation: messageSlideIn 0.3s ease-out;
+        }
+
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message.received {
+            align-self: flex-start;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+            max-width: 100%;
+        }
+
+        .message.sent .message-content {
+            background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%);
+            color: white;
+        }
+
+        .message-text {
+            margin: 0;
+            line-height: 1.4;
+            word-wrap: break-word;
+            font-size: 15px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 6px;
+            text-align: right;
+        }
+
+        .message.received .message-time {
+            text-align: left;
+        }
+
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e4e6ea;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            background: #f0f2f5;
+            border-radius: 25px;
+            padding: 8px 16px;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .input-container:focus-within {
+            border-color: #1877f2;
+            background: white;
+        }
+
+        .message-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 12px 0;
+            resize: none;
+            max-height: 120px;
+            font-family: inherit;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(24, 119, 242, 0.3);
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(24, 119, 242, 0.4);
+        }
+
+        .send-button:disabled {
+            background: #bcc0c4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            color: #65676b;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #65676b;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #65676b;
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 8px;
+            color: #1c1e21;
+            font-size: 20px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .chat-container {
+                height: 100vh;
+            }
+
+            .sidebar {
+                width: 100%;
+                display: none;
+            }
+
+            .chat-container.mobile-chat .sidebar {
+                display: none;
+            }
+
+            .chat-container.mobile-chat .chat-area {
+                display: flex;
+            }
+
+            .message {
+                max-width: 85%;
+            }
+        }
+
+        /* Scrollbar styling */
+        .conversations-list::-webkit-scrollbar,
+        .messages-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .conversations-list::-webkit-scrollbar-track,
+        .messages-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .conversations-list::-webkit-scrollbar-thumb,
+        .messages-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .conversations-list::-webkit-scrollbar-thumb:hover,
+        .messages-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body>
+<div class="chat-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>💬 Hỗ Trợ Khách Hàng</h2>
+            <p>Quản lý cuộc trò chuyện</p>
+        </div>
+
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Tìm kiếm cuộc trò chuyện..." id="searchInput">
+        </div>
+
+        <!-- Debug buttons -->
+        <div style="padding: 10px; border-bottom: 1px solid #e4e6ea; background: #f8f9fa;">
+            <button onclick="loadConversations()" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 3px; font-size: 12px; margin-right: 5px;">🔄 Reload</button>
+            <button onclick="console.clear()" style="background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 3px; font-size: 12px; margin-right: 5px;">🧹 Clear</button>
+            <button onclick="testAPI()" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 3px; font-size: 12px; margin-right: 5px;">🧪 Test API</button>
+            <button onclick="checkWebSocket()" style="background: #17a2b8; color: white; border: none; padding: 5px 10px; border-radius: 3px; font-size: 12px;">🔌 WS Status</button>
+            <div id="wsStatus" style="display: inline-block; margin-left: 10px; padding: 2px 8px; border-radius: 3px; font-size: 11px; background: #ffc107; color: #212529;">Checking...</div>
+        </div>
+
+        <div class="conversations-list" id="conversationsList">
+            <div style="text-align: center; padding: 40px; color: #65676b;">
+                Đang tải cuộc trò chuyện...
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="chat-area">
+        <!-- Chat Header -->
+        <div id="chatHeader" class="chat-header" style="display: none;">
+            <div class="avatar" id="chatAvatar">K</div>
+            <div class="chat-header-info">
+                <h3 id="chatHeaderName">Khách hàng</h3>
+                <p class="status" id="chatHeaderStatus">Đang online</p>
+            </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div id="messagesContainer" class="messages-container">
+            <div class="empty-state">
+                <div class="empty-state-icon">💬</div>
+                <h3>Chọn cuộc trò chuyện</h3>
+                <p>Chọn một cuộc trò chuyện từ danh sách để bắt đầu hỗ trợ khách hàng</p>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="typingIndicator" class="typing-indicator" style="display: none;">
+            <span>Khách hàng đang nhập tin nhắn</span>
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div id="inputArea" class="input-area" style="display: none;">
+            <div class="input-container">
+                <textarea id="messageInput" class="message-input" placeholder="Nhập tin nhắn..." rows="1"></textarea>
+                <button id="sendButton" class="send-button" onclick="sendMessage()">
+                    ➤
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentConversation = null;
+    let stompClient = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        loadConversations();
+        setupEventListeners();
+        connectWebSocket();
+    });
+
+    function loadConversations() {
+        console.log('🔄 Loading conversations...');
+
+        fetch('/api/conversations')
+            .then(response => {
+                console.log('📡 Conversations API response status:', response.status);
+                console.log('📡 Response headers:', response.headers);
+
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        console.log('🔒 Authentication required');
+                        showAuthError();
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(conversations => {
+                if (conversations) {
+                    console.log('✅ Conversations loaded:', conversations.length, 'conversations');
+                    console.log('📋 Conversations data:', conversations);
+                    displayConversations(conversations);
+                } else {
+                    console.log('⚠️ No conversations data received');
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error loading conversations:', error);
+                console.error('❌ Error details:', error.message);
+                showError(`Không thể tải cuộc trò chuyện: ${error.message}`);
+            });
+    }
+
+    function displayConversations(conversations) {
+        console.log('🎨 Displaying conversations:', conversations);
+
+        const container = document.getElementById('conversationsList');
+        console.log('📦 Container element:', container);
+
+        if (!container) {
+            console.error('❌ conversationsList container not found!');
+            return;
+        }
+
+        if (!conversations || conversations.length === 0) {
+            console.log('📭 No conversations to display');
+            container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #65676b;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📭</div>
+                        <p>Chưa có cuộc trò chuyện nào</p>
+                    </div>
+                `;
+            return;
+        }
+
+        console.log(`📋 Displaying ${conversations.length} conversations`);
+        container.innerHTML = '';
+
+        conversations.forEach((conversation, index) => {
+            console.log(`📝 Creating conversation item ${index + 1}:`, conversation);
+            const item = createConversationItem(conversation);
+            container.appendChild(item);
+
+            // Auto-select first conversation if none selected
+            if (index === 0 && !currentConversation) {
+                console.log('🎯 Auto-selecting first conversation:', conversation.id);
+                setTimeout(() => {
+                    item.click();
+                }, 100);
+            }
+        });
+
+        console.log('✅ All conversations displayed');
+    }
+
+    function createConversationItem(conversation) {
+        console.log('🏗️ Creating conversation item for:', conversation);
+
+        const item = document.createElement('div');
+        item.className = 'conversation-item';
+        item.onclick = () => openConversation(conversation);
+
+        const customerName = conversation.customerName || 'Khách hàng';
+        const avatar = customerName.charAt(0).toUpperCase();
+        const preview = conversation.lastMessage || 'Chưa có tin nhắn';
+        const time = formatTime(conversation.lastMessageAt);
+
+        console.log(`👤 Customer: ${customerName}, Preview: ${preview}, Time: ${time}`);
+
+        item.innerHTML = `
+                <div class="conversation-avatar">
+                    ${avatar}
+                    ${conversation.isOnline ? '<div class="online-indicator"></div>' : ''}
+                </div>
+                <div class="conversation-info">
+                    <div class="conversation-name">${customerName}</div>
+                    <div class="conversation-preview">${preview}</div>
+                </div>
+                <div class="conversation-meta">
+                    <div class="conversation-time">${time}</div>
+                    ${conversation.unreadCount > 0 ? `<div class="unread-badge">${conversation.unreadCount}</div>` : ''}
+                </div>
+            `;
+
+        console.log('✅ Conversation item created');
+        return item;
+    }
+
+    function openConversation(conversation) {
+        currentConversation = conversation;
+
+        // Clear all tracking data when switching conversations
+        sentMessageIds.clear();
+        pendingMessages.clear();
+
+        // Update active conversation
+        document.querySelectorAll('.conversation-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        event.currentTarget.classList.add('active');
+
+        // Show chat interface
+        showChatInterface(conversation);
+
+        // Load messages
+        loadMessages(conversation.id);
+
+        // Connect WebSocket if not connected
+        if (!stompClient || !stompClient.connected) {
+            connectWebSocket();
+        }
+    }
+
+    function showChatInterface(conversation) {
+        const chatHeader = document.getElementById('chatHeader');
+        const chatAvatar = document.getElementById('chatAvatar');
+        const chatHeaderName = document.getElementById('chatHeaderName');
+        const chatHeaderStatus = document.getElementById('chatHeaderStatus');
+        const inputArea = document.getElementById('inputArea');
+
+        chatHeader.style.display = 'flex';
+        inputArea.style.display = 'block';
+
+        const customerName = conversation.customerName || 'Khách hàng';
+        chatAvatar.textContent = customerName.charAt(0).toUpperCase();
+        chatHeaderName.textContent = customerName;
+        chatHeaderStatus.textContent = conversation.isOnline ? 'Đang online' : 'Offline';
+
+        // Clear messages container
+        const messagesContainer = document.getElementById('messagesContainer');
+        messagesContainer.innerHTML = '';
+    }
+
+    function loadMessages(conversationId) {
+        console.log('Loading messages for conversation:', conversationId);
+        fetch(`/api/conversations/${conversationId}/messages/all`)
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to load messages');
+                return response.json();
+            })
+            .then(messages => {
+                console.log('Loaded messages:', messages.length, 'messages');
+                console.log('First message:', messages[0]);
+                console.log('Last message:', messages[messages.length - 1]);
+                displayMessages(messages);
+            })
+            .catch(error => {
+                console.error('Error loading messages:', error);
+                showError('Không thể tải tin nhắn');
+            });
+    }
+
+    function displayMessages(messages) {
+        const container = document.getElementById('messagesContainer');
+        container.innerHTML = '';
+
+        // Clear all tracking data when loading fresh messages
+        sentMessageIds.clear();
+        pendingMessages.clear();
+
+        // Sort messages by creation time (oldest first) to ensure correct order
+        const sortedMessages = messages.sort((a, b) => {
+            return new Date(a.createdAt) - new Date(b.createdAt);
+        });
+
+        sortedMessages.forEach(message => {
+            displayMessage(message);
+        });
+
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function displayMessage(message) {
+        // Check if message already exists to prevent duplicates
+        const existingMessage = document.querySelector(`[data-message-id="${message.id}"]`);
+        if (existingMessage) {
+            console.log('Message already exists, skipping:', message.id);
+            return; // Message already displayed
+        }
+
+        const container = document.getElementById('messagesContainer');
+        const messageDiv = document.createElement('div');
+
+        const isSent = message.senderType === 'MANAGER';
+        messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+        messageDiv.setAttribute('data-message-id', message.id); // Add unique identifier
+
+        // Add optimistic styling if it's a temporary message
+        if (message.isOptimistic) {
+            messageDiv.classList.add('optimistic');
+            messageDiv.style.opacity = '0.7';
+            console.log('Displaying optimistic message:', message.id);
+        } else {
+            console.log('Displaying real message:', message.id, 'from', message.senderType);
+        }
+
+        const senderName = isSent ? 'Bạn' : (message.senderName || 'Khách hàng');
+        const avatar = senderName.charAt(0).toUpperCase();
+
+        messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    <p class="message-text">${escapeHtml(message.content)}</p>
+                    <div class="message-time">${formatTime(message.createdAt)}</div>
+                </div>
+            `;
+
+        container.appendChild(messageDiv);
+        container.scrollTop = container.scrollHeight;
+
+        // Add to sent messages set if it's from current user
+        if (isSent && !message.isOptimistic) {
+            sentMessageIds.add(message.id);
+        }
+    }
+
+    function removeMessage(messageId) {
+        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (messageElement) {
+            messageElement.remove();
+        }
+    }
+
+
+
+    let sentMessageIds = new Set(); // Track sent messages to prevent duplicates
+    let pendingMessages = new Map(); // Track pending messages by content+timestamp
+
+    function sendMessage() {
+        if (!currentConversation) return;
+
+        const input = document.getElementById('messageInput');
+        const content = input.value.trim();
+
+        if (!content) return;
+
+        // Disable send button temporarily
+        const sendButton = document.getElementById('sendButton');
+        sendButton.disabled = true;
+
+        // Create unique key for this message
+        const messageKey = `${content}_${Date.now()}`;
+        const messageData = {
+            conversationId: currentConversation.id,
+            content: content,
+            messageType: 'TEXT'
+        };
+
+        // Clear input immediately for better UX
+        input.value = '';
+        adjustTextareaHeight(input);
+
+        // Create optimistic message for immediate display
+        const optimisticMessage = {
+            id: 'temp_' + Date.now(),
+            conversationId: currentConversation.id,
+            content: content,
+            senderType: 'MANAGER',
+            senderName: 'Bạn',
+            createdAt: new Date().toISOString(),
+            isOptimistic: true
+        };
+
+        // Display optimistic message immediately
+        displayMessage(optimisticMessage);
+        pendingMessages.set(messageKey, optimisticMessage.id);
+
+        // Send via WebSocket if connected, otherwise REST API
+        if (stompClient && stompClient.connected) {
+            console.log('Manager sending message via WebSocket:', messageData);
+            stompClient.send('/app/message.send', {}, JSON.stringify(messageData));
+
+            // WebSocket will handle the response
+            setTimeout(() => {
+                const optimisticId = pendingMessages.get(messageKey);
+                if (optimisticId) {
+                    console.log('WebSocket message sent, waiting for confirmation...');
+                }
+            }, 1000);
+        } else {
+            // Fallback to REST API
+            console.log('Manager sending message via REST API:', messageData);
+            sendMessageViaREST(messageData, messageKey);
+        }
+
+        // Re-enable send button
+        setTimeout(() => {
+            sendButton.disabled = false;
+        }, 500);
+    }
+
+    function sendMessageViaREST(messageData, messageKey) {
+        fetch(`/api/conversations/${currentConversation.id}/messages`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(messageData)
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to send message');
+                return response.json();
+            })
+            .then(message => {
+                console.log('Manager message sent successfully via REST:', message);
+
+                // Remove optimistic message and replace with real message
+                const optimisticId = pendingMessages.get(messageKey);
+                if (optimisticId) {
+                    removeMessage(optimisticId);
+                    pendingMessages.delete(messageKey);
+                }
+
+                // Display real message
+                displayMessage(message);
+                sentMessageIds.add(message.id);
+                loadConversations(); // Refresh conversation list
+            })
+            .catch(error => {
+                console.error('Error sending message via REST:', error);
+                handleManagerSendError(messageKey, error.message);
+            });
+    }
+
+    function handleManagerSendError(messageKey, errorMessage) {
+        // Remove optimistic message on error
+        const optimisticId = pendingMessages.get(messageKey);
+        if (optimisticId) {
+            removeMessage(optimisticId);
+            pendingMessages.delete(messageKey);
+        }
+
+        showError(`Không thể gửi tin nhắn: ${errorMessage}`);
+    }
+
+    // Re-enable send button
+    setTimeout(() => {
+        sendButton.disabled = false;
+    }, 500);
+
+
+    function connectWebSocket() {
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function(frame) {
+            console.log('🔌 Manager WebSocket connected:', frame);
+            console.log('🔌 Connection ID:', stompClient.ws.readyState);
+            console.log('🔌 Subscriptions will be set up now...');
+
+            // Subscribe to manager notifications (for receiving messages from customers)
+            stompClient.subscribe('/topic/manager/notifications', function(message) {
+                const newMessage = JSON.parse(message.body);
+                console.log('🔔 Manager received WebSocket notification:', newMessage);
+                console.log('🔍 Current conversation ID:', currentConversation?.id);
+                console.log('🔍 Message conversation ID:', newMessage.conversationId);
+                console.log('🔍 Message sender type:', newMessage.senderType);
+
+                // Display all customer messages regardless of current conversation for debugging
+                if (newMessage.senderType === 'CUSTOMER') {
+                    console.log('✅ Displaying customer message');
+                    displayMessage(newMessage);
+                    loadConversations(); // Refresh conversation list
+
+                    // If it's for current conversation, also scroll to bottom
+                    if (currentConversation && newMessage.conversationId === currentConversation.id) {
+                        const container = document.getElementById('messagesContainer');
+                        container.scrollTop = container.scrollHeight;
+                    }
+                } else {
+                    console.log('❌ Skipping message - not from customer');
+                }
+            });
+
+            // Subscribe to user-specific queue for message confirmations
+            stompClient.subscribe('/user/queue/notifications', function(message) {
+                const response = JSON.parse(message.body);
+                console.log('📨 Manager received confirmation:', response);
+
+                // Handle message send confirmation
+                if (response.senderType === 'MANAGER') {
+                    console.log('✅ Manager message confirmed, replacing optimistic...');
+                    // This is confirmation of our sent message
+                    // Find and replace optimistic message
+                    const optimisticMessages = document.querySelectorAll('.message[data-message-id^="temp_"]');
+                    if (optimisticMessages.length > 0) {
+                        const lastOptimistic = optimisticMessages[optimisticMessages.length - 1];
+                        const optimisticId = lastOptimistic.getAttribute('data-message-id');
+                        console.log('🔄 Removing optimistic message:', optimisticId);
+                        removeMessage(optimisticId);
+
+                        // Remove from pending
+                        for (let [key, id] of pendingMessages.entries()) {
+                            if (id === optimisticId) {
+                                pendingMessages.delete(key);
+                                break;
+                            }
+                        }
+                    }
+
+                    console.log('📝 Displaying confirmed message:', response.id);
+                    displayMessage(response);
+                    sentMessageIds.add(response.id);
+                    loadConversations(); // Refresh conversation list
+                }
+            });
+
+            // Subscribe to error queue
+            stompClient.subscribe('/user/queue/errors', function(message) {
+                console.error('❌ WebSocket error received:', message.body);
+                showError('WebSocket error: ' + message.body);
+            });
+
+            // Update status indicator
+            const statusDiv = document.getElementById('wsStatus');
+            if (statusDiv) {
+                statusDiv.textContent = '✅ Connected';
+                statusDiv.style.background = '#28a745';
+                statusDiv.style.color = 'white';
+            }
+        }, function(error) {
+            console.error('❌ Manager WebSocket connection error:', error);
+
+            // Update status indicator
+            const statusDiv = document.getElementById('wsStatus');
+            if (statusDiv) {
+                statusDiv.textContent = '❌ Error';
+                statusDiv.style.background = '#dc3545';
+                statusDiv.style.color = 'white';
+            }
+        });
+    }
+
+    function subscribeToConversation(conversationId) {
+        if (stompClient && stompClient.connected) {
+            // Unsubscribe from previous conversation if any
+            if (window.currentSubscription) {
+                window.currentSubscription.unsubscribe();
+            }
+
+            // Subscribe to new conversation
+            window.currentSubscription = stompClient.subscribe(`/topic/conversation/${conversationId}`, function(message) {
+                const newMessage = JSON.parse(message.body);
+
+                // Only display messages from other users (not from current manager)
+                if (newMessage.senderType !== 'MANAGER') {
+                    displayMessage(newMessage);
+                    loadConversations();
+                }
+            });
+        }
+    }
+
+    function setupEventListeners() {
+        const messageInput = document.getElementById('messageInput');
+        const searchInput = document.getElementById('searchInput');
+
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        messageInput.addEventListener('input', function() {
+            adjustTextareaHeight(this);
+        });
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            const conversations = document.querySelectorAll('.conversation-item');
+
+            conversations.forEach(item => {
+                const name = item.querySelector('.conversation-name').textContent.toLowerCase();
+                item.style.display = name.includes(query) ? 'flex' : 'none';
+            });
+        });
+    }
+
+    function formatTime(timestamp) {
+        if (!timestamp) return '';
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diff = now - date;
+
+        if (diff < 60000) return 'vừa xong';
+        if (diff < 3600000) return Math.floor(diff / 60000) + ' phút trước';
+        if (diff < 86400000) return Math.floor(diff / 3600000) + ' giờ trước';
+        return Math.floor(diff / 86400000) + ' ngày trước';
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function adjustTextareaHeight(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+    }
+
+    function showError(message) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #ff4757;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+                font-weight: 500;
+            `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+
+    function showAuthError() {
+        const container = document.getElementById('messagesContainer');
+        container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔒</div>
+                    <h3>Cần đăng nhập</h3>
+                    <p>Bạn cần đăng nhập để sử dụng hệ thống chat</p>
+                    <button onclick="window.location.href='/login'" style="
+                        background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%);
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 25px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        font-weight: 600;
+                        margin-top: 16px;
+                    ">
+                        Đăng nhập
+                    </button>
+                </div>
+            `;
+    }
+
+    function testAPI() {
+        console.log('🧪 Testing API manually...');
+
+        // Test authentication first
+        fetch('/api/conversations')
+            .then(response => {
+                console.log('🔍 Manual API test - Status:', response.status);
+                console.log('🔍 Manual API test - Headers:', [...response.headers.entries()]);
+
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            })
+            .then(data => {
+                console.log('🔍 Manual API test - Data:', data);
+                console.log('🔍 Manual API test - Data type:', typeof data);
+                console.log('🔍 Manual API test - Is array:', Array.isArray(data));
+
+                if (Array.isArray(data)) {
+                    console.log(`🔍 Manual API test - Found ${data.length} conversations`);
+                    data.forEach((conv, index) => {
+                        console.log(`🔍 Conversation ${index + 1}:`, conv);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('🔍 Manual API test - Error:', error);
+            });
+    }
+
+    function checkWebSocket() {
+        console.log('🔌 Checking WebSocket status...');
+
+        const statusDiv = document.getElementById('wsStatus');
+
+        if (!stompClient) {
+            console.log('❌ WebSocket client not initialized');
+            statusDiv.textContent = '❌ Not initialized';
+            statusDiv.style.background = '#dc3545';
+            statusDiv.style.color = 'white';
+            return;
+        }
+
+        if (stompClient.connected) {
+            console.log('✅ WebSocket connected');
+            console.log('🔍 Connection state:', stompClient.ws.readyState);
+            console.log('🔍 Subscriptions:', Object.keys(stompClient.subscriptions || {}));
+            statusDiv.textContent = '✅ Connected';
+            statusDiv.style.background = '#28a745';
+            statusDiv.style.color = 'white';
+        } else {
+            console.log('❌ WebSocket disconnected');
+            statusDiv.textContent = '❌ Disconnected';
+            statusDiv.style.background = '#dc3545';
+            statusDiv.style.color = 'white';
+
+            // Try to reconnect
+            console.log('🔄 Attempting to reconnect...');
+            connectWebSocket();
+        }
+    }
+</script>
+</body>
+</html>

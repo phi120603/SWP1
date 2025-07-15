@@ -13,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -55,6 +56,13 @@ public class Customer implements UserDetails {
     @NotBlank(message = "Mật khẩu không được để trống")
     @Size(min = 6, max = 100, message = "Mật khẩu phải từ 6-100 ký tự")
     private String password;
+
+    // Online status tracking
+    @Column(name = "is_online", nullable = true)
+    private Boolean isOnline = false;
+
+    @Column(name = "last_seen", nullable = true)
+    private LocalDateTime lastSeen;
 
     // Relations
     @OneToMany(mappedBy = "customer")

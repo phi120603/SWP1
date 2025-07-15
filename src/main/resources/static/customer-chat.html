@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chat-container {
+            width: 400px;
+            height: 600px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            max-width: 80%;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message.received {
+            align-self: flex-start;
+        }
+
+        .message-content {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .message.sent .message-content {
+            background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%);
+            color: white;
+        }
+
+        .message-text {
+            margin: 0;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid #e4e6ea;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 12px;
+            background: #f0f2f5;
+            border-radius: 25px;
+            padding: 8px 16px;
+        }
+
+        .message-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+        }
+
+        .send-button:disabled {
+            background: #bcc0c4;
+            cursor: not-allowed;
+            transform: none;
+        }
+    </style>
+</head>
+<body>
+<div class="chat-container">
+    <div class="chat-header">
+        <h2>💬 Customer Support</h2>
+        <p>Chat với đội hỗ trợ</p>
+    </div>
+
+    <div id="messagesContainer" class="messages-container">
+        <div style="text-align: center; color: #65676b; padding: 20px;">
+            Đang tải cuộc trò chuyện...
+        </div>
+    </div>
+
+    <div class="input-area">
+        <div class="input-container">
+            <input type="text" id="messageInput" class="message-input" placeholder="Nhập tin nhắn...">
+            <button id="sendButton" class="send-button" onclick="sendMessage()">
+                ➤
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentConversation = null;
+    let stompClient = null;
+    let sentMessageIds = new Set();
+    let pendingMessages = new Map();
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        loadOrCreateConversation();
+        connectWebSocket();
+        setupEventListeners();
+    });
+
+    function loadOrCreateConversation() {
+        console.log('Loading customer conversations...');
+
+        // Get customer's conversations
+        fetch('/api/conversations')
+            .then(response => {
+                console.log('Load conversations response status:', response.status);
+
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        console.log('Authentication required');
+                        showAuthError();
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(conversations => {
+                console.log('Loaded conversations:', conversations);
+
+                if (conversations && conversations.length > 0) {
+                    // Use first conversation
+                    currentConversation = conversations[0];
+                    console.log('Using existing conversation:', currentConversation.id);
+                    loadMessages(currentConversation.id);
+                } else {
+                    // No conversations, show start message
+                    console.log('No existing conversations, showing start message');
+                    showStartMessage();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading conversations:', error);
+                showError(`Không thể tải cuộc trò chuyện: ${error.message}`);
+            });
+    }
+
+    function showStartMessage() {
+        const container = document.getElementById('messagesContainer');
+        container.innerHTML = `
+                <div style="text-align: center; color: #65676b; padding: 20px;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">💬</div>
+                    <p>Chưa có cuộc trò chuyện nào</p>
+                    <p>Gửi tin nhắn đầu tiên để bắt đầu!</p>
+                </div>
+            `;
+    }
+
+    function loadMessages(conversationId) {
+        console.log('🔄 Customer loading messages for conversation:', conversationId);
+
+        fetch(`/api/conversations/${conversationId}/messages/all`)
+            .then(response => {
+                console.log('📡 Load messages response status:', response.status);
+                if (!response.ok) throw new Error(`Failed to load messages: ${response.status}`);
+                return response.json();
+            })
+            .then(messages => {
+                console.log('✅ Messages loaded:', messages.length, 'messages');
+                console.log('📋 Messages data:', messages);
+                displayMessages(messages);
+            })
+            .catch(error => {
+                console.error('❌ Error loading messages:', error);
+                showError('Không thể tải tin nhắn: ' + error.message);
+            });
+    }
+
+    function displayMessages(messages) {
+        const container = document.getElementById('messagesContainer');
+        container.innerHTML = '';
+
+        sentMessageIds.clear();
+        pendingMessages.clear();
+
+        const sortedMessages = messages.sort((a, b) => {
+            return new Date(a.createdAt) - new Date(b.createdAt);
+        });
+
+        sortedMessages.forEach(message => {
+            displayMessage(message);
+        });
+
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function displayMessage(message) {
+        if (document.querySelector(`[data-message-id="${message.id}"]`)) {
+            return;
+        }
+
+        const container = document.getElementById('messagesContainer');
+        const messageDiv = document.createElement('div');
+
+        const isSent = message.senderType === 'CUSTOMER';
+        messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+        messageDiv.setAttribute('data-message-id', message.id);
+
+        if (message.isOptimistic) {
+            messageDiv.style.opacity = '0.7';
+        }
+
+        messageDiv.innerHTML = `
+                <div class="message-content">
+                    <p class="message-text">${escapeHtml(message.content)}</p>
+                    <div class="message-time">${formatTime(message.createdAt)}</div>
+                </div>
+            `;
+
+        container.appendChild(messageDiv);
+        container.scrollTop = container.scrollHeight;
+
+        if (isSent && !message.isOptimistic) {
+            sentMessageIds.add(message.id);
+        }
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const content = input.value.trim();
+
+        if (!content) return;
+
+        const sendButton = document.getElementById('sendButton');
+        sendButton.disabled = true;
+
+        const messageKey = `${content}_${Date.now()}`;
+
+        // Create optimistic message
+        const optimisticMessage = {
+            id: 'temp_' + Date.now(),
+            content: content,
+            senderType: 'CUSTOMER',
+            createdAt: new Date().toISOString(),
+            isOptimistic: true
+        };
+
+        displayMessage(optimisticMessage);
+        pendingMessages.set(messageKey, optimisticMessage.id);
+
+        input.value = '';
+
+        if (currentConversation) {
+            // Send message to existing conversation
+            sendMessageToConversation(content, messageKey);
+        } else {
+            // Create new conversation first
+            createConversationAndSendMessage(content, messageKey);
+        }
+
+        setTimeout(() => {
+            sendButton.disabled = false;
+        }, 500);
+    }
+
+    function sendMessageToConversation(content, messageKey) {
+        const messageData = {
+            conversationId: currentConversation.id,
+            content: content,
+            messageType: 'TEXT'
+        };
+
+        // Send via WebSocket if connected, otherwise REST API
+        if (stompClient && stompClient.connected) {
+            console.log('Sending message via WebSocket:', messageData);
+            stompClient.send('/app/message.send', {}, JSON.stringify(messageData));
+
+            // WebSocket will handle the response, just clean up optimistic message after delay
+            setTimeout(() => {
+                const optimisticId = pendingMessages.get(messageKey);
+                if (optimisticId) {
+                    // Don't remove optimistic message immediately, let WebSocket response handle it
+                    console.log('WebSocket message sent, waiting for response...');
+                }
+            }, 1000);
+        } else {
+            // Fallback to REST API
+            console.log('Sending message via REST API:', messageData);
+            fetch(`/api/conversations/${currentConversation.id}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(messageData)
+            })
+                .then(response => {
+                    console.log('Send message response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(message => {
+                    console.log('Message sent successfully via REST:', message);
+
+                    const optimisticId = pendingMessages.get(messageKey);
+                    if (optimisticId) {
+                        removeMessage(optimisticId);
+                        pendingMessages.delete(messageKey);
+                    }
+
+                    displayMessage(message);
+                    sentMessageIds.add(message.id);
+                })
+                .catch(error => {
+                    console.error('Error sending message via REST:', error);
+                    handleSendError(messageKey, content, error.message);
+                });
+        }
+    }
+
+    function createConversationAndSendMessage(content, messageKey) {
+        const conversationData = {
+            managerId: 1, // Default manager - you might want to make this dynamic
+            initialMessage: content
+        };
+
+        fetch('/api/conversations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(conversationData)
+        })
+            .then(response => {
+                console.log('Create conversation response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(conversation => {
+                console.log('Conversation created successfully:', conversation);
+
+                currentConversation = conversation;
+
+                const optimisticId = pendingMessages.get(messageKey);
+                if (optimisticId) {
+                    removeMessage(optimisticId);
+                    pendingMessages.delete(messageKey);
+                }
+
+                // Reload messages to show the conversation
+                loadMessages(conversation.id);
+            })
+            .catch(error => {
+                console.error('Error creating conversation:', error);
+                handleSendError(messageKey, content, error.message);
+            });
+    }
+
+    function handleSendError(messageKey, content, errorMessage) {
+        const optimisticId = pendingMessages.get(messageKey);
+        if (optimisticId) {
+            removeMessage(optimisticId);
+            pendingMessages.delete(messageKey);
+        }
+
+        showError(`Không thể gửi tin nhắn: ${errorMessage}`);
+
+        // Restore input content
+        const input = document.getElementById('messageInput');
+        input.value = content;
+    }
+
+    function removeMessage(messageId) {
+        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (messageElement) {
+            messageElement.remove();
+        }
+    }
+
+    function connectWebSocket() {
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function(frame) {
+            console.log('Customer WebSocket connected:', frame);
+
+            // Subscribe to customer notifications (for receiving messages from managers)
+            stompClient.subscribe('/topic/customer/notifications', function(message) {
+                const newMessage = JSON.parse(message.body);
+                console.log('🔔 Customer received WebSocket notification:', newMessage);
+                console.log('🔍 Current conversation ID:', currentConversation?.id);
+                console.log('🔍 Message conversation ID:', newMessage.conversationId);
+                console.log('🔍 Message sender type:', newMessage.senderType);
+
+                // Display all manager messages regardless of current conversation for debugging
+                if (newMessage.senderType === 'MANAGER') {
+                    console.log('✅ Displaying manager message');
+                    displayMessage(newMessage);
+
+                    // If it's for current conversation, also scroll to bottom
+                    if (currentConversation && newMessage.conversationId === currentConversation.id) {
+                        const container = document.getElementById('messagesContainer');
+                        container.scrollTop = container.scrollHeight;
+                    }
+                } else {
+                    console.log('❌ Skipping message - not from manager');
+                }
+            });
+
+            // Subscribe to user-specific queue for message confirmations
+            stompClient.subscribe('/user/queue/notifications', function(message) {
+                const response = JSON.parse(message.body);
+                console.log('📨 Customer received confirmation:', response);
+
+                // Handle message send confirmation
+                if (response.senderType === 'CUSTOMER') {
+                    console.log('✅ Customer message confirmed, replacing optimistic...');
+                    // This is confirmation of our sent message
+                    // Find and replace optimistic message
+                    const optimisticMessages = document.querySelectorAll('.message[data-message-id^="temp_"]');
+                    if (optimisticMessages.length > 0) {
+                        const lastOptimistic = optimisticMessages[optimisticMessages.length - 1];
+                        const optimisticId = lastOptimistic.getAttribute('data-message-id');
+                        console.log('🔄 Removing optimistic message:', optimisticId);
+                        removeMessage(optimisticId);
+
+                        // Remove from pending
+                        for (let [key, id] of pendingMessages.entries()) {
+                            if (id === optimisticId) {
+                                pendingMessages.delete(key);
+                                break;
+                            }
+                        }
+                    }
+
+                    console.log('📝 Displaying confirmed message:', response.id);
+                    displayMessage(response);
+                    sentMessageIds.add(response.id);
+                }
+            });
+
+            // Subscribe to error queue
+            stompClient.subscribe('/user/queue/errors', function(message) {
+                console.error('❌ WebSocket error received:', message.body);
+                showError('WebSocket error: ' + message.body);
+            });
+        }, function(error) {
+            console.error('Customer WebSocket connection error:', error);
+        });
+    }
+
+    function setupEventListeners() {
+        const messageInput = document.getElementById('messageInput');
+
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    }
+
+    function formatTime(timestamp) {
+        if (!timestamp) return '';
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diff = now - date;
+
+        if (diff < 60000) return 'vừa xong';
+        if (diff < 3600000) return Math.floor(diff / 60000) + ' phút trước';
+        if (diff < 86400000) return Math.floor(diff / 3600000) + ' giờ trước';
+        return Math.floor(diff / 86400000) + ' ngày trước';
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function showError(message) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #ff4757;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+            `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+
+    function showAuthError() {
+        const container = document.getElementById('messagesContainer');
+        container.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #65676b;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">🔒</div>
+                    <h3>Cần đăng nhập</h3>
+                    <p>Bạn cần đăng nhập để sử dụng chat</p>
+                    <button onclick="window.location.href='/login'" style="
+                        background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%);
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 25px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        margin-top: 16px;
+                    ">
+                        Đăng nhập
+                    </button>
+                </div>
+            `;
+    }
+</script>
+</body>
+</html>

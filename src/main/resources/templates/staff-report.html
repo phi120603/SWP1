@@ -46,6 +46,36 @@
             .action-bar { flex-direction: column; align-items: stretch; gap: 1rem;}
             .filter-bar { flex-wrap: wrap;}
         }
+        .action-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: -10px;
+        }
+
+        .action-top {
+            display: flex;
+            justify-content: flex-start;
+            margin-left: -1380px;
+            margin-bottom: -10px;
+        }
+
+        .filter-flex {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .filter-group-container {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-section {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -74,24 +104,39 @@
             </h2>
         </div>
 
-        <!-- Action Bar: Filter + Buttons -->
+        <!-- Action Bar -->
         <div class="action-bar">
-            <div style="display: flex; gap: 0.7rem;">
+            <div class="action-top">
                 <a th:href="@{/SWP/staff-dashboard}" class="btn btn-secondary">
                     <i class="fa-solid fa-arrow-left"></i> Quay lại Dashboard
                 </a>
-                <div class="filter-bar">
-                    <label for="statusFilter"><i class="fa-solid fa-filter"></i> Lọc trạng thái:</label>
-                    <select id="statusFilter" class="btn btn-secondary" style="padding:0.4rem 0.6rem;">
-                        <option value="all">Tất cả</option>
-                        <option value="resolved">Đã xử lý</option>
-                        <option value="unresolved">Chưa xử lý</option>
-                    </select>
-                </div>
             </div>
-            <a th:href="@{/SWP/issues/staff-send-report}" class="btn btn-primary" style="margin-left:auto;">
-                <i class="fa-solid fa-paper-plane"></i> Gửi báo cáo
-            </a>
+
+            <div class="filter-section filter-flex">
+                <div class="filter-group-container">
+                    <div class="filter-group">
+                        <label for="statusFilter"><i class="fa-solid fa-filter"></i> Lọc trạng thái:</label>
+                        <select id="statusFilter" class="filter-select">
+                            <option value="all">Tất cả</option>
+                            <option value="resolved">Đã xử lý</option>
+                            <option value="unresolved">Chưa xử lý</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="sortSelect"><i class="fa-solid fa-filter"></i> Sắp xếp:</label>
+                        <select id="sortSelect" class="filter-select">
+                            <option value="">Mặc định</option>
+                            <option value="customer-asc">Khách hàng A-Z</option>
+                            <option value="customer-desc">Khách hàng Z-A</option>
+                            <option value="staff-asc">Nhân viên A-Z</option>
+                            <option value="staff-desc">Nhân viên Z-A</option>
+                        </select>
+                    </div>
+                </div>
+                <a th:href="@{/SWP/issues/staff-send-report}" class="btn btn-primary">
+                    <i class="fa-solid fa-paper-plane"></i> Gửi báo cáo
+                </a>
+            </div>
         </div>
 
         <!-- Thông báo -->
@@ -102,7 +147,8 @@
         <div class="card">
             <div class="card-header">
                 <h3>
-                    Danh Sách Vấn Đề (<span id="totalCount" th:text="${#lists.size(issues)}"></span>)
+                    Danh Sách Vấn Đề
+                    (<span id="totalCount" th:text="${issues != null ? #lists.size(issues) : 0}"></span>)
                 </h3>
             </div>
             <div class="table-container">
@@ -110,6 +156,7 @@
                     <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Tiêu đề</th>
                         <th>Mô tả</th>
                         <th>Khách hàng</th>
                         <th>Nhân viên xử lý</th>
@@ -119,6 +166,7 @@
                     </thead>
                     <tbody id="issueTableBody">
                     <tr th:each="issue, iterStat : ${issues}">
+                        <td th:text="${issue.id}"></td>
                         <td th:text="${issue.subject}"></td>
                         <td th:text="${issue.description}"></td>
                         <td th:text="${issue.customer?.fullname ?: 'Không xác định'}"></td>
@@ -149,88 +197,104 @@
 </main>
 
 <script>
-    const COLUMN_COUNT = 6;
+    const COLUMN_COUNT = 7;
+    const rowsPerPage = 10;
+    let currentPage = 1;
 
-    function applyAllFilters() {
+    document.addEventListener('DOMContentLoaded', function () {
+        // Gắn sự kiện
+        document.getElementById('searchInput').addEventListener('input', applyFiltersAndPaginate);
+        document.getElementById('statusFilter').addEventListener('change', applyFiltersAndPaginate);
+        document.getElementById('sortSelect').addEventListener('change', handleSort);
+
+        // Gọi lần đầu
+        applyFiltersAndPaginate();
+    });
+
+    function applyFiltersAndPaginate() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
         const status = document.getElementById('statusFilter').value;
-        const rows = document.querySelectorAll('.data-table tbody tr');
+
+        const rows = Array.from(document.querySelectorAll('.data-table tbody tr'))
+            .filter(row => row.querySelectorAll('td').length === COLUMN_COUNT);
+
         let visibleRows = 0;
 
         rows.forEach(row => {
-            if(row.querySelectorAll('td').length < COLUMN_COUNT) return; // skip "Không có issue nào"
-            let text = row.textContent.toLowerCase();
-            let visible = true;
+            const rowText = row.textContent.toLowerCase();
+            let show = true;
 
-            // Lọc search
-            if(searchTerm && !text.includes(searchTerm)) visible = false;
+            // Lọc theo từ khóa
+            if (searchTerm && !rowText.includes(searchTerm)) show = false;
 
-            // Lọc status
-            if(visible && status !== 'all') {
-                const resolvedBadge = row.querySelector('.status-badge.active');
-                if(status === 'resolved' && !resolvedBadge) visible = false;
-                if(status === 'unresolved' && resolvedBadge) visible = false;
-            }
+            // Lọc theo trạng thái
+            const isResolved = !!row.querySelector('.status-badge.active');
+            if (status === 'resolved' && !isResolved) show = false;
+            if (status === 'unresolved' && isResolved) show = false;
 
-            row.style.display = visible ? '' : 'none';
-            if(visible) visibleRows++;
+            row.style.display = show ? '' : 'none';
+            row.dataset.filtered = show ? 'true' : 'false';
+            if (show) visibleRows++;
         });
 
         updateTotalCount(visibleRows);
         toggleNoIssueRow(visibleRows);
-        showPage(1);
+
+        const totalPages = Math.max(1, Math.ceil(visibleRows / rowsPerPage));
+        currentPage = 1;
+        renderPagination(totalPages);
+        showPage(currentPage);
     }
 
-    function updateTotalCount(visibleRows) {
-        document.getElementById('totalCount').textContent = visibleRows;
-    }
-
-    function toggleNoIssueRow(visibleRows) {
-        const noIssueRow = document.getElementById('noIssueRow');
-        if(noIssueRow) {
-            noIssueRow.style.display = visibleRows === 0 ? '' : 'none';
+    function handleSort() {
+        const sortValue = document.getElementById('sortSelect').value;
+        if (!sortValue) {
+            applyFiltersAndPaginate();
+            return;
         }
-    }
 
-    // Phân trang
-    const rowsPerPage = 10;
-    let currentPage = 1;
+        const [field, order] = sortValue.split("-");
+        const rows = Array.from(document.querySelectorAll('.data-table tbody tr'))
+            .filter(row => row.querySelectorAll('td').length === COLUMN_COUNT);
+
+        rows.sort((a, b) => {
+            let aText = '', bText = '';
+
+            if (field === 'customer') {
+                aText = a.children[3].textContent.trim().toLowerCase();
+                bText = b.children[3].textContent.trim().toLowerCase();
+            } else if (field === 'staff') {
+                aText = a.children[4].textContent.trim().toLowerCase();
+                bText = b.children[4].textContent.trim().toLowerCase();
+            }
+
+            const cmp = aText.localeCompare(bText, 'vi', { sensitivity: 'base' });
+            return order === 'asc' ? cmp : -cmp;
+        });
+
+        const tbody = document.querySelector('.data-table tbody');
+        rows.forEach(row => tbody.appendChild(row));
+
+        applyFiltersAndPaginate(); // Sau sắp xếp thì áp dụng lọc lại
+    }
 
     function showPage(page) {
-        const rows = document.querySelectorAll('.data-table tbody tr');
-        const dataRows = Array.from(rows).filter(row => row.querySelectorAll('td').length === COLUMN_COUNT && row.style.display !== 'none');
-        const totalRows = dataRows.length;
+        const rows = Array.from(document.querySelectorAll('.data-table tbody tr'))
+            .filter(row => row.dataset.filtered === 'true');
+        const totalRows = rows.length;
         const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
 
-        if (page < 1) page = 1;
-        if (page > totalPages) page = totalPages;
-        currentPage = page;
+        currentPage = Math.min(Math.max(1, page), totalPages);
 
-        let shown = 0, skipped = 0;
-        rows.forEach(row => {
-            if(row.querySelectorAll('td').length < COLUMN_COUNT) {
-                // Dòng "Không có issue nào"
-                row.style.display = (totalRows === 0) ? '' : 'none';
-                return;
-            }
-            if (row.style.display === 'none') {
-                row.dataset.pagiHide = '1';
-                return;
-            }
-            if (skipped < (page - 1) * rowsPerPage) {
-                row.style.display = 'none';
-                row.dataset.pagiHide = '1';
-                skipped++;
-            } else if (shown < rowsPerPage) {
+        rows.forEach((row, index) => {
+            if (index >= (currentPage - 1) * rowsPerPage && index < currentPage * rowsPerPage) {
                 row.style.display = '';
-                row.dataset.pagiHide = '';
-                shown++;
             } else {
                 row.style.display = 'none';
-                row.dataset.pagiHide = '1';
             }
         });
-        renderPagination(totalPages);
+
+        highlightActivePage();
     }
 
     function renderPagination(totalPages) {
@@ -238,34 +302,64 @@
         if (!pagination) return;
         pagination.innerHTML = '';
 
-        const prevBtn = document.createElement('button');
-        prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
-        prevBtn.disabled = currentPage === 1;
-        prevBtn.onclick = () => showPage(currentPage - 1);
-        pagination.appendChild(prevBtn);
+        // Previous button
+        const prev = document.createElement('button');
+        prev.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        prev.disabled = currentPage === 1;
+        prev.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                showPage(currentPage);
+            }
+        });
+        pagination.appendChild(prev);
 
+        // Number buttons
         for (let i = 1; i <= totalPages; i++) {
             const btn = document.createElement('button');
             btn.textContent = i;
-            if (i === currentPage) btn.classList.add('active');
-            btn.onclick = () => showPage(i);
+            btn.classList.toggle('active', i === currentPage);
+            btn.addEventListener('click', () => {
+                currentPage = i;
+                showPage(currentPage);
+            });
             pagination.appendChild(btn);
         }
 
-        const nextBtn = document.createElement('button');
-        nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
-        nextBtn.disabled = currentPage === totalPages;
-        nextBtn.onclick = () => showPage(currentPage + 1);
-        pagination.appendChild(nextBtn);
+        // Next button
+        const next = document.createElement('button');
+        next.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        next.disabled = currentPage === totalPages;
+        next.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                showPage(currentPage);
+            }
+        });
+        pagination.appendChild(next);
     }
 
-    // Event listeners
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('searchInput').addEventListener('input', applyAllFilters);
-        document.getElementById('statusFilter').addEventListener('change', applyAllFilters);
-        // Phân trang ban đầu
-        showPage(1);
-    });
+    function highlightActivePage() {
+        const paginationButtons = document.querySelectorAll('.pagination button');
+        paginationButtons.forEach(btn => {
+            if (btn.textContent === String(currentPage)) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    function updateTotalCount(count) {
+        document.getElementById('totalCount').textContent = count;
+    }
+
+    function toggleNoIssueRow(count) {
+        const row = document.getElementById('noIssueRow');
+        if (row) {
+            row.style.display = count === 0 ? '' : 'none';
+        }
+    }
 </script>
 </body>
 </html>

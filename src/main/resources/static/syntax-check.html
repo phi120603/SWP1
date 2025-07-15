@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Syntax Checker</title>
+  <style>
+    body {
+      font-family: monospace;
+      margin: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .result {
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    .button:hover {
+      background: #0056b3;
+    }
+    pre {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🔍 JavaScript Syntax Checker</h1>
+
+  <div>
+    <button class="button" onclick="checkSocialChat()">Check social-chat.html</button>
+    <button class="button" onclick="checkCustomerChat()">Check customer-chat.html</button>
+    <button class="button" onclick="checkDebugChat()">Check debug-chat.html</button>
+  </div>
+
+  <div id="results"></div>
+</div>
+
+<script>
+  function checkSocialChat() {
+    checkFile('/social-chat.html', 'social-chat.html');
+  }
+
+  function checkCustomerChat() {
+    checkFile('/customer-chat.html', 'customer-chat.html');
+  }
+
+  function checkDebugChat() {
+    checkFile('/debug-chat.html', 'debug-chat.html');
+  }
+
+  function checkFile(url, filename) {
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = `<div>Checking ${filename}...</div>`;
+
+    fetch(url)
+            .then(response => response.text())
+            .then(html => {
+              // Extract JavaScript from HTML
+              const scriptRegex = /<script[^>]*>([\s\S]*?)<\/script>/gi;
+              let match;
+              let allScripts = '';
+              let scriptCount = 0;
+
+              while ((match = scriptRegex.exec(html)) !== null) {
+                if (!match[1].trim().startsWith('http') && match[1].trim().length > 0) {
+                  allScripts += match[1] + '\n';
+                  scriptCount++;
+                }
+              }
+
+              if (scriptCount === 0) {
+                resultsDiv.innerHTML = `
+                            <div class="result error">
+                                ❌ No JavaScript found in ${filename}
+                            </div>
+                        `;
+                return;
+              }
+
+              // Try to parse JavaScript
+              try {
+                // Create a function to test syntax
+                new Function(allScripts);
+
+                resultsDiv.innerHTML = `
+                            <div class="result success">
+                                ✅ ${filename} - JavaScript syntax is valid!
+                                <br>Found ${scriptCount} script blocks.
+                            </div>
+                        `;
+              } catch (error) {
+                resultsDiv.innerHTML = `
+                            <div class="result error">
+                                ❌ ${filename} - Syntax Error:
+                                <pre>${error.message}</pre>
+                                <details>
+                                    <summary>Show JavaScript Code</summary>
+                                    <pre>${allScripts}</pre>
+                                </details>
+                            </div>
+                        `;
+              }
+            })
+            .catch(error => {
+              resultsDiv.innerHTML = `
+                        <div class="result error">
+                            ❌ Failed to load ${filename}: ${error.message}
+                        </div>
+                    `;
+            });
+  }
+
+  // Auto-check social-chat on load
+  document.addEventListener('DOMContentLoaded', function() {
+    checkSocialChat();
+  });
+</script>
+</body>
+</html>

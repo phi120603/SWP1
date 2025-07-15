@@ -14,6 +14,7 @@ import java.util.Optional;
 
 @Repository
 public interface StorageRepository extends JpaRepository<Storage, Integer> {
+    long countByStatus(boolean status);
 //    @Modifying
 //    @Transactional
 //    @Query(value = "ALTER TABLE storage AUTO_INCREMENT = 1", nativeQuery = true)

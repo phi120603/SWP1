@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Messages Loading</title>
+  <style>
+    body {
+      font-family: monospace;
+      margin: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .section {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    .log {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      padding: 10px;
+      height: 300px;
+      overflow-y: auto;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+    input, select {
+      padding: 8px;
+      margin: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .message {
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 8px;
+      background: #f0f0f0;
+    }
+    .message.sent {
+      background: #007bff;
+      color: white;
+      margin-left: 50px;
+    }
+    .message.received {
+      background: #e9ecef;
+      margin-right: 50px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🔍 Test Messages Loading</h1>
+
+  <!-- Conversation Selection -->
+  <div class="section">
+    <h3>1. Select Conversation</h3>
+    <button class="button" onclick="loadConversations()">Load Conversations</button>
+    <select id="conversationSelect" onchange="selectConversation()">
+      <option value="">Select conversation...</option>
+    </select>
+    <div id="conversationInfo"></div>
+  </div>
+
+  <!-- Message Loading -->
+  <div class="section">
+    <h3>2. Load Messages</h3>
+    <button class="button" onclick="loadMessages()">Load Messages</button>
+    <button class="button" onclick="clearMessages()">Clear Messages</button>
+    <div id="messageCount"></div>
+    <div id="messagesContainer"></div>
+  </div>
+
+  <!-- Logs -->
+  <div class="section">
+    <h3>3. Debug Logs</h3>
+    <button class="button" onclick="clearLogs()">Clear Logs</button>
+    <div id="logs" class="log"></div>
+  </div>
+</div>
+
+<script>
+  let conversations = [];
+  let selectedConversation = null;
+  let messages = [];
+
+  function log(message) {
+    const timestamp = new Date().toLocaleTimeString();
+    const logsDiv = document.getElementById('logs');
+    logsDiv.innerHTML += `[${timestamp}] ${message}\n`;
+    logsDiv.scrollTop = logsDiv.scrollHeight;
+    console.log(message);
+  }
+
+  function loadConversations() {
+    log('🔄 Loading conversations...');
+
+    fetch('/api/conversations')
+            .then(response => {
+              log(`📡 Conversations API response: ${response.status}`);
+              if (!response.ok) throw new Error(`HTTP ${response.status}`);
+              return response.json();
+            })
+            .then(data => {
+              conversations = data;
+              log(`✅ Loaded ${data.length} conversations`);
+
+              const select = document.getElementById('conversationSelect');
+              select.innerHTML = '<option value="">Select conversation...</option>';
+
+              data.forEach((conv, index) => {
+                const option = document.createElement('option');
+                option.value = conv.id;
+                option.textContent = `${conv.customerName || 'Unknown'} (${conv.id.substring(0, 8)}...)`;
+                select.appendChild(option);
+
+                log(`📝 Conversation ${index + 1}: ${conv.customerName} - ${conv.id}`);
+              });
+            })
+            .catch(error => {
+              log(`❌ Error loading conversations: ${error.message}`);
+            });
+  }
+
+  function selectConversation() {
+    const select = document.getElementById('conversationSelect');
+    const conversationId = select.value;
+
+    if (!conversationId) {
+      selectedConversation = null;
+      document.getElementById('conversationInfo').innerHTML = '';
+      return;
+    }
+
+    selectedConversation = conversations.find(c => c.id === conversationId);
+    log(`🎯 Selected conversation: ${selectedConversation.customerName} - ${conversationId}`);
+
+    document.getElementById('conversationInfo').innerHTML = `
+                <strong>Selected:</strong> ${selectedConversation.customerName}<br>
+                <strong>ID:</strong> ${conversationId}<br>
+                <strong>Last Message:</strong> ${selectedConversation.lastMessage || 'None'}<br>
+                <strong>Status:</strong> ${selectedConversation.status}
+            `;
+  }
+
+  function loadMessages() {
+    if (!selectedConversation) {
+      log('❌ No conversation selected');
+      return;
+    }
+
+    const conversationId = selectedConversation.id;
+    log(`🔄 Loading messages for conversation: ${conversationId}`);
+
+    fetch(`/api/conversations/${conversationId}/messages/all`)
+            .then(response => {
+              log(`📡 Messages API response: ${response.status}`);
+              if (!response.ok) throw new Error(`HTTP ${response.status}`);
+              return response.json();
+            })
+            .then(data => {
+              messages = data;
+              log(`✅ Loaded ${data.length} messages`);
+
+              document.getElementById('messageCount').innerHTML = `<strong>Messages loaded:</strong> ${data.length}`;
+
+              displayMessages(data);
+
+              // Log each message
+              data.forEach((msg, index) => {
+                log(`📨 Message ${index + 1}: [${msg.senderType}] ${msg.content} (${msg.createdAt})`);
+              });
+            })
+            .catch(error => {
+              log(`❌ Error loading messages: ${error.message}`);
+            });
+  }
+
+  function displayMessages(messages) {
+    const container = document.getElementById('messagesContainer');
+    container.innerHTML = '';
+
+    if (!messages || messages.length === 0) {
+      container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No messages found</div>';
+      return;
+    }
+
+    // Sort messages by creation time (oldest first)
+    const sortedMessages = messages.sort((a, b) => {
+      return new Date(a.createdAt) - new Date(b.createdAt);
+    });
+
+    sortedMessages.forEach(message => {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${message.senderType === 'MANAGER' ? 'sent' : 'received'}`;
+
+      const time = new Date(message.createdAt).toLocaleTimeString();
+      messageDiv.innerHTML = `
+                    <div><strong>${message.senderType}:</strong> ${message.content}</div>
+                    <div style="font-size: 11px; opacity: 0.7; margin-top: 5px;">${time}</div>
+                `;
+
+      container.appendChild(messageDiv);
+    });
+
+    log(`📝 Displayed ${sortedMessages.length} messages in UI`);
+  }
+
+  function clearMessages() {
+    document.getElementById('messagesContainer').innerHTML = '';
+    document.getElementById('messageCount').innerHTML = '';
+    messages = [];
+    log('🧹 Messages cleared');
+  }
+
+  function clearLogs() {
+    document.getElementById('logs').innerHTML = '';
+  }
+
+  // Auto-load conversations on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    log('🚀 Page loaded, auto-loading conversations...');
+    loadConversations();
+  });
+</script>
+</body>
+</html>
