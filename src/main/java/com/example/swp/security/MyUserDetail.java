@@ -17,7 +17,7 @@ import java.util.List;
 @Setter
 public class MyUserDetail implements UserDetails {
 
-    private UserDetails user;
+    private Object user;
 
     public MyUserDetail(Customer customer) {
         this.user = customer;
@@ -31,13 +31,9 @@ public class MyUserDetail implements UserDetails {
         this.user = manager;
     }
 
-    public MyUserDetail() {
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
-
         if (user instanceof Customer) {
             authorities.add(new SimpleGrantedAuthority("CUSTOMER"));
         } else if (user instanceof Staff) {
@@ -45,37 +41,35 @@ public class MyUserDetail implements UserDetails {
         } else if (user instanceof Manager) {
             authorities.add(new SimpleGrantedAuthority("MANAGER"));
         }
-
         return authorities;
     }
 
     @Override
     public String getPassword() {
-        return user != null ? user.getPassword() : null;
+        if (user instanceof Customer) {
+            return ((Customer) user).getPassword();
+        } else if (user instanceof Staff) {
+            return ((Staff) user).getPassword();
+        } else if (user instanceof Manager) {
+            return ((Manager) user).getPassword();
+        }
+        return null;
     }
 
     @Override
     public String getUsername() {
-        return user != null ? user.getUsername() : null;
+        if (user instanceof Customer) {
+            return ((Customer) user).getEmail();
+        } else if (user instanceof Staff) {
+            return ((Staff) user).getEmail();
+        } else if (user instanceof Manager) {
+            return ((Manager) user).getEmail();
+        }
+        return null;
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true; // hoặc tùy logic của bạn
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+    @Override public boolean isAccountNonExpired() { return true; }
+    @Override public boolean isAccountNonLocked() { return true; }
+    @Override public boolean isCredentialsNonExpired() { return true; }
+    @Override public boolean isEnabled() { return true; }
 }

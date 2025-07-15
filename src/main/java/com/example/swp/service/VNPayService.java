@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 
 @Service
 public interface VNPayService {
-    public String createVNPayUrl(HttpServletRequest req, long amount) throws UnsupportedEncodingException;
+    public String createVNPayUrl(HttpServletRequest req, long amount, int orderId) throws UnsupportedEncodingException;
 
 //    public String createVnpayUrl(String orderId, double amount, String returnUrl);
 

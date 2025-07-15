@@ -9,7 +9,7 @@
 <!-- Navigation Bar -->
 <nav class="navbar">
     <ul>
-        <li><a href="/SWP/home-page">Home</a></li>
+        <li><a href="/SWP">Home</a></li>
         <li><a href="/SWP/orders">Orders</a></li>
     </ul>
 </nav>
@@ -79,21 +79,38 @@
             </div>
 
             <div class="action-buttons">
-                <form th:action="@{'/SWP/orders/' + ${order.id} + '/approve'}" method="post" style="display:inline;">
-                    <button type="submit" class="approve-btn">
-                        ✓ Phê duyệt
-                    </button>
-                </form>
+                <!-- Nếu status là Pending thì hiện nút approve/reject -->
+                <div th:if="${order.getStatus()?.toLowerCase() == 'pending'}">
+                    <form th:action="@{'/SWP/orders/' + ${order.id} + '/approve'}" method="post" style="display:inline;">
+                        <button type="submit" class="approve-btn">
+                            ✓ Phê duyệt
+                        </button>
+                    </form>
+                    <form method="post" th:action="@{/SWP/orders/{id}/reject(id=${order.id})}" style="display: inline;">
+                        <button type="submit" class="reject-btn">
+                            ✗ Từ chối
+                        </button>
+                    </form>
+                </div>
+                <!-- Nếu status là Rejected thì hiện thông báo -->
+                <div th:if="${order.getStatus()?.toLowerCase() == 'rejected'}" style="font-weight:600;color:#c82333;padding:12px 0;">
+                    Order này đã bị từ chối
+                </div>
+                <!-- Nếu status là Paid thì hiện thông báo -->
+                <div th:if="${order.getStatus()?.toLowerCase() == 'paid'}" style="font-weight:600;color:#20c997;padding:12px 0;">
+                    Order này đã được thanh toán
+                </div>
+                <!-- Nếu status là Approved thì hiện thông báo cần thanh toán -->
+                <div th:if="${order.getStatus()?.toLowerCase() == 'approved'}" style="font-weight:600;color:#007bff;padding:12px 0;">
+                    Order này cần được thanh toán
+                </div>
 
-                <form method="post" th:action="@{/SWP/orders/{id}/reject(id=${order.id})}" style="display: inline;">
-                    <button type="submit" class="reject-btn">
-                        ✗ Từ chối
-                    </button>
-                </form>
-
-                <a href="/SWP/orders" class="back-btn">
-                    Quay lại danh sách
-                </a>
+                <!-- Nút quay lại danh sách xuống dòng riêng -->
+                <div style="width:100%;margin-top:20px;">
+                    <a href="/SWP/orders" class="back-btn">
+                        Quay lại danh sách
+                    </a>
+                </div>
             </div>
         </div>
     </div>

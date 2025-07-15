@@ -1,4 +1,3 @@
-
 package com.example.swp;
 
 
@@ -8,7 +7,7 @@ import com.example.swp.entity.Manager;
 import com.example.swp.entity.Staff;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.ManageRepository;
-import com.example.swp.repository.StaffReponsitory;
+import com.example.swp.repository.StaffRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,7 +20,7 @@ public class PasswordEncoderTool implements CommandLineRunner {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private StaffReponsitory staffRepository;
+    private StaffRepository staffRepository;
 
     @Autowired
     private ManageRepository manageRepository;

@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Support Messenger</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f0f2f5;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .messenger-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 360px;
+      background: white;
+      border-right: 1px solid #e4e6ea;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 16px;
+      border-bottom: 1px solid #e4e6ea;
+      background: #fff;
+    }
+
+    .sidebar-header h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #050505;
+    }
+
+    .search-box {
+      padding: 8px 16px;
+      border-bottom: 1px solid #e4e6ea;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ccd0d5;
+      border-radius: 20px;
+      background: #f0f2f5;
+      outline: none;
+    }
+
+    .conversations-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .conversation-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid #f0f2f5;
+      transition: background-color 0.2s;
+    }
+
+    .conversation-item:hover {
+      background-color: #f0f2f5;
+    }
+
+    .conversation-item.active {
+      background-color: #e7f3ff;
+    }
+
+    .avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #42b883;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      margin-right: 12px;
+    }
+
+    .conversation-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .conversation-name {
+      font-weight: 600;
+      color: #050505;
+      margin-bottom: 4px;
+    }
+
+    .conversation-preview {
+      color: #65676b;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .conversation-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .conversation-time {
+      color: #65676b;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .unread-badge {
+      background: #1877f2;
+      color: white;
+      border-radius: 10px;
+      padding: 2px 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .online-indicator {
+      width: 12px;
+      height: 12px;
+      background: #42b883;
+      border-radius: 50%;
+      border: 2px solid white;
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+    }
+
+    /* Chat Area */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: white;
+    }
+
+    .chat-header {
+      padding: 16px;
+      border-bottom: 1px solid #e4e6ea;
+      display: flex;
+      align-items: center;
+      background: white;
+    }
+
+    .chat-header .avatar {
+      width: 40px;
+      height: 40px;
+      margin-right: 12px;
+    }
+
+    .chat-header-info h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #050505;
+    }
+
+    .chat-header-info .status {
+      font-size: 12px;
+      color: #42b883;
+    }
+
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background: #f0f2f5;
+    }
+
+    .message {
+      display: flex;
+      margin-bottom: 16px;
+    }
+
+    .message.mine {
+      justify-content: flex-end;
+    }
+
+    .message-bubble {
+      max-width: 70%;
+      padding: 8px 12px;
+      border-radius: 18px;
+      position: relative;
+    }
+
+    .message.mine .message-bubble {
+      background: #1877f2;
+      color: white;
+    }
+
+    .message:not(.mine) .message-bubble {
+      background: #e4e6ea;
+      color: #050505;
+    }
+
+    .message-time {
+      font-size: 11px;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px;
+      color: #65676b;
+      font-size: 13px;
+      font-style: italic;
+    }
+
+    /* Input Area */
+    .input-area {
+      padding: 16px;
+      border-top: 1px solid #e4e6ea;
+      background: white;
+    }
+
+    .input-container {
+      display: flex;
+      align-items: flex-end;
+      background: #f0f2f5;
+      border-radius: 20px;
+      padding: 8px;
+    }
+
+    .message-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      padding: 8px 12px;
+      resize: none;
+      max-height: 100px;
+      font-family: inherit;
+    }
+
+    .send-button {
+      background: #1877f2;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 8px;
+    }
+
+    .send-button:hover {
+      background: #166fe5;
+    }
+
+    .send-button:disabled {
+      background: #bcc0c4;
+      cursor: not-allowed;
+    }
+
+    /* Dark mode toggle */
+    .dark-mode-toggle {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: #42b883;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+
+    /* Dark mode styles */
+    body.dark-mode {
+      background-color: #18191a;
+      color: #e4e6ea;
+    }
+
+    body.dark-mode .sidebar,
+    body.dark-mode .chat-area,
+    body.dark-mode .chat-header,
+    body.dark-mode .input-area {
+      background: #242526;
+      border-color: #3a3b3c;
+    }
+
+    body.dark-mode .conversation-item:hover {
+      background-color: #3a3b3c;
+    }
+
+    body.dark-mode .conversation-item.active {
+      background-color: #2d4373;
+    }
+
+    body.dark-mode .search-input,
+    body.dark-mode .input-container {
+      background: #3a3b3c;
+      border-color: #3a3b3c;
+      color: #e4e6ea;
+    }
+
+    body.dark-mode .messages-container {
+      background: #18191a;
+    }
+
+    body.dark-mode .message:not(.mine) .message-bubble {
+      background: #3a3b3c;
+      color: #e4e6ea;
+    }
+  </style>
+</head>
+<body>
+<button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+
+<div class="messenger-container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>Messages</h2>
+    </div>
+
+    <div class="search-box">
+      <input type="text" class="search-input" placeholder="Search conversations..." id="searchInput">
+    </div>
+
+    <div class="conversations-list" id="conversationsList">
+      <!-- Conversations will be loaded here -->
+    </div>
+  </div>
+
+  <!-- Chat Area -->
+  <div class="chat-area">
+    <div class="chat-header" id="chatHeader" style="display: none;">
+      <div class="avatar">M</div>
+      <div class="chat-header-info">
+        <h3 id="chatHeaderName">Select a conversation</h3>
+        <div class="status" id="chatHeaderStatus">Online</div>
+      </div>
+    </div>
+
+    <div class="messages-container" id="messagesContainer">
+      <div style="text-align: center; color: #65676b; margin-top: 50px;">
+        Select a conversation to start messaging
+      </div>
+    </div>
+
+    <div class="typing-indicator" id="typingIndicator" style="display: none;">
+      Someone is typing...
+    </div>
+
+    <div class="input-area" id="inputArea" style="display: none;">
+      <div class="input-container">
+        <textarea class="message-input" id="messageInput" placeholder="Type a message..." rows="1"></textarea>
+        <button class="send-button" id="sendButton" onclick="sendMessage()">
+          ➤
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // WebSocket connection
+  let stompClient = null;
+  let currentConversationId = null;
+  let currentUser = null;
+
+  // Initialize
+  document.addEventListener('DOMContentLoaded', function() {
+    connectWebSocket();
+    loadConversations();
+    setupEventListeners();
+  });
+
+  function connectWebSocket() {
+    const socket = new SockJS('/ws');
+    stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function(frame) {
+      console.log('Connected: ' + frame);
+
+      // Subscribe to user-specific notifications
+      stompClient.subscribe('/user/queue/notifications', function(message) {
+        const notification = JSON.parse(message.body);
+        handleNewMessage(notification);
+      });
+
+      // Subscribe to user status updates
+      stompClient.subscribe('/topic/user.status', function(message) {
+        const statusUpdate = JSON.parse(message.body);
+        updateUserStatus(statusUpdate);
+      });
+    }, function(error) {
+      console.error('WebSocket connection error:', error);
+      showError('Unable to connect to real-time messaging. Please refresh the page.');
+    });
+  }
+
+  function loadConversations() {
+    fetch('/api/conversations')
+            .then(response => {
+              if (response.status === 401 || response.status === 403) {
+                // User not authenticated, redirect to login
+                showAuthError();
+                return;
+              }
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
+            })
+            .then(conversations => {
+              if (conversations) {
+                displayConversations(conversations);
+              }
+            })
+            .catch(error => {
+              console.error('Error loading conversations:', error);
+              showError('Unable to load conversations. Please check your connection and try again.');
+            });
+  }
+
+  function displayConversations(conversations) {
+    const container = document.getElementById('conversationsList');
+    container.innerHTML = '';
+
+    conversations.forEach(conversation => {
+      const item = createConversationItem(conversation);
+      container.appendChild(item);
+    });
+  }
+
+  function createConversationItem(conversation) {
+    const item = document.createElement('div');
+    item.className = 'conversation-item';
+    item.onclick = () => selectConversation(conversation);
+
+    const avatar = conversation.customerName ? conversation.customerName.charAt(0).toUpperCase() : 'U';
+    const name = conversation.customerName || 'Unknown User';
+    const preview = conversation.lastMessage || 'No messages yet';
+    const time = formatTime(conversation.lastMessageAt);
+
+    item.innerHTML = `
+                <div class="avatar" style="position: relative;">
+                    ${avatar}
+                    ${conversation.isOnline ? '<div class="online-indicator"></div>' : ''}
+                </div>
+                <div class="conversation-info">
+                    <div class="conversation-name">${name}</div>
+                    <div class="conversation-preview">${preview}</div>
+                </div>
+                <div class="conversation-meta">
+                    <div class="conversation-time">${time}</div>
+                    ${conversation.unreadCount > 0 ? `<div class="unread-badge">${conversation.unreadCount}</div>` : ''}
+                </div>
+            `;
+
+    return item;
+  }
+
+  function selectConversation(conversation) {
+    currentConversationId = conversation.id;
+
+    // Update UI
+    document.querySelectorAll('.conversation-item').forEach(item => {
+      item.classList.remove('active');
+    });
+    event.currentTarget.classList.add('active');
+
+    // Show chat header and input
+    document.getElementById('chatHeader').style.display = 'flex';
+    document.getElementById('inputArea').style.display = 'block';
+
+    // Update header
+    document.getElementById('chatHeaderName').textContent = conversation.customerName || 'Unknown User';
+    document.getElementById('chatHeaderStatus').textContent = conversation.isOnline ? 'Online' : 'Offline';
+
+    // Load messages
+    loadMessages(conversation.id);
+
+    // Subscribe to conversation updates
+    if (stompClient && stompClient.connected) {
+      stompClient.subscribe(`/topic/conversation/${conversation.id}`, function(message) {
+        const newMessage = JSON.parse(message.body);
+        displayMessage(newMessage);
+      });
+
+      stompClient.subscribe(`/topic/conversation/${conversation.id}/typing`, function(message) {
+        const typingEvent = JSON.parse(message.body);
+        handleTypingIndicator(typingEvent);
+      });
+    }
+
+    // Mark as read
+    markConversationAsRead(conversation.id);
+  }
+
+  function loadMessages(conversationId) {
+    fetch(`/api/conversations/${conversationId}/messages/all`)
+            .then(response => response.json())
+            .then(messages => {
+              displayMessages(messages);
+            })
+            .catch(error => console.error('Error loading messages:', error));
+  }
+
+  function displayMessages(messages) {
+    const container = document.getElementById('messagesContainer');
+    container.innerHTML = '';
+
+    messages.forEach(message => {
+      displayMessage(message);
+    });
+
+    scrollToBottom();
+  }
+
+  function displayMessage(message) {
+    const container = document.getElementById('messagesContainer');
+    const messageElement = document.createElement('div');
+    messageElement.className = `message ${message.isMine ? 'mine' : ''}`;
+
+    messageElement.innerHTML = `
+                <div class="message-bubble">
+                    ${message.content}
+                    <div class="message-time">${formatTime(message.createdAt)}</div>
+                </div>
+            `;
+
+    container.appendChild(messageElement);
+    scrollToBottom();
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const content = input.value.trim();
+
+    if (!content || !currentConversationId || !stompClient) return;
+
+    const message = {
+      conversationId: currentConversationId,
+      content: content,
+      messageType: 'TEXT'
+    };
+
+    stompClient.send('/app/message.send', {}, JSON.stringify(message));
+    input.value = '';
+    adjustTextareaHeight(input);
+  }
+
+  function markConversationAsRead(conversationId) {
+    fetch(`/api/conversations/${conversationId}/read`, {
+      method: 'PUT'
+    }).catch(error => console.error('Error marking as read:', error));
+  }
+
+  function handleNewMessage(message) {
+    if (message.conversationId === currentConversationId) {
+      displayMessage(message);
+    }
+    // Update conversation list
+    loadConversations();
+  }
+
+  function handleTypingIndicator(typingEvent) {
+    const indicator = document.getElementById('typingIndicator');
+    if (typingEvent.isTyping && !typingEvent.isMine) {
+      indicator.textContent = `${typingEvent.userName} is typing...`;
+      indicator.style.display = 'block';
+    } else {
+      indicator.style.display = 'none';
+    }
+  }
+
+  function updateUserStatus(statusUpdate) {
+    // Update online indicators in conversation list
+    loadConversations();
+  }
+
+  function setupEventListeners() {
+    const messageInput = document.getElementById('messageInput');
+
+    messageInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    messageInput.addEventListener('input', function() {
+      adjustTextareaHeight(this);
+    });
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function() {
+      const query = this.value.toLowerCase();
+      const conversations = document.querySelectorAll('.conversation-item');
+
+      conversations.forEach(item => {
+        const name = item.querySelector('.conversation-name').textContent.toLowerCase();
+        item.style.display = name.includes(query) ? 'flex' : 'none';
+      });
+    });
+  }
+
+  function adjustTextareaHeight(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+  }
+
+  function scrollToBottom() {
+    const container = document.getElementById('messagesContainer');
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function formatTime(timestamp) {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+
+    if (diff < 60000) return 'now';
+    if (diff < 3600000) return Math.floor(diff / 60000) + 'm';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h';
+    return Math.floor(diff / 86400000) + 'd';
+  }
+
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const button = document.querySelector('.dark-mode-toggle');
+    button.textContent = document.body.classList.contains('dark-mode') ? '☀️ Light Mode' : '🌙 Dark Mode';
+  }
+
+  function showAuthError() {
+    const container = document.getElementById('messagesContainer');
+    container.innerHTML = `
+                <div style="text-align: center; padding: 50px; color: #65676b;">
+                    <div style="font-size: 64px; margin-bottom: 20px;">🔒</div>
+                    <h3 style="color: #1c1e21; margin-bottom: 10px;">Authentication Required</h3>
+                    <p style="margin-bottom: 20px;">You need to log in to access the messenger.</p>
+                    <button onclick="window.location.href='/login'" style="
+                        background: #1877f2;
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 16px;
+                    ">
+                        Go to Login
+                    </button>
+                </div>
+            `;
+  }
+
+  function showError(message) {
+    const container = document.getElementById('messagesContainer');
+    container.innerHTML = `
+                <div style="text-align: center; padding: 50px; color: #65676b;">
+                    <div style="font-size: 64px; margin-bottom: 20px;">⚠️</div>
+                    <h3 style="color: #1c1e21; margin-bottom: 10px;">Error</h3>
+                    <p style="margin-bottom: 20px;">${message}</p>
+                    <button onclick="location.reload()" style="
+                        background: #1877f2;
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 16px;
+                    ">
+                        Retry
+                    </button>
+                </div>
+            `;
+  }
+</script>
+</body>
+</html>

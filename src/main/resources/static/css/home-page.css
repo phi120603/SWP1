@@ -32,13 +32,6 @@ body {
     align-items: center;
 }
 
-.logo {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: white;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-}
-
 .nav-links {
     display: flex;
     list-style: none;
@@ -71,6 +64,21 @@ body {
 
 .nav-links a:hover::after {
     width: 100%;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    height: 60px; /* Điều chỉnh tùy ý cho độ cao navbar */
+}
+
+.logo img {
+    transform: scale(1.4); /* Tăng kích thước hình ảnh mà không làm vỡ layout */
+    transform-origin: left center; /* Căn điểm phóng to từ bên trái */
+    height: 100%; /* Giữ theo chiều cao của khung cha */
+    width: auto;
+    max-height: 100%;
+    object-fit: contain;
 }
 
 /* Hero Section */
@@ -169,7 +177,7 @@ body {
 
 .btn-outline-white:hover {
     background-color: white;
-    color: transparent;
+    color: #2c3e50;
     box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
     border-color: white;
 }
@@ -370,25 +378,31 @@ body {
 
 .dots-pattern {
     position: absolute;
-    top: -30px;
+    top: 50px;
     left: -40px;
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
     background-image: radial-gradient(#2c3e50 2px, transparent 2px);
     background-size: 20px 20px;
     z-index: 1;
     opacity: 0.6;
 }
 
-.storage-visual {
-    background: linear-gradient(135deg, #2c3e50, #34495e);
+.image-wrapper {
     width: 100%;
-    padding-top: 100%;
-    border-radius: 25px;
-    box-shadow: 0 20px 40px rgba(44, 62, 80, 0.3);
-    overflow: hidden;
-    z-index: 2;
+    max-width: 400px; /* Tùy chỉnh theo kích thước mong muốn */
+    margin: 0 auto;
+    margin-top: -60px; /* Đẩy ảnh lên trên */
     position: relative;
+    z-index: 2;
+}
+
+.image-wrapper img {
+    margin-top: 180px;
+    width: 150%;
+    height: auto;
+    border-radius: 20px; /* Tuỳ chỉnh */
+    box-shadow: 0 20px 20px rgba(44, 62, 80, 0.2);
 }
 
 .storage-boxes {

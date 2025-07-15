@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback List - QVL Storage</title>
+    <link rel="stylesheet" th:href="@{/css/feedback-list.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- Sidebar -->
+<div th:replace="taskbar/staff-taskbar :: staffTaskbar"></div>
+<main class="main-content">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>Staff Feedback List</h1>
+        </div>
+
+        <div class="header-right">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search feedback...">
+            </div>
+        </div>
+    </header>
+    <!-- Page Content -->
+    <div class="page-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2 class="page-title">Danh sách Feedback</h2>
+            <div class="page-actions">
+                <button class="btn-secondary btn-back">
+                    <a href="/SWP" style="color: inherit; text-decoration: none;">
+                        <i class="fas fa-arrow-left"></i>
+                        Quay lại
+                    </a>
+                </button>
+                <button class="btn-secondary">
+                    <i class="fas fa-download"></i>
+                    Xuất dữ liệu
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <form action="/SWP/feedbacks" method="get" class="filter-form">
+                <div class="filter-group">
+                    <label for="rating">Đánh giá:</label>
+                    <select id="rating" name="rating" class="filter-select">
+                        <option value="">Tất cả đánh giá</option>
+                        <option value="5">5 sao</option>
+                        <option value="4">4 sao</option>
+                        <option value="3">3 sao</option>
+                        <option value="2">2 sao</option>
+                        <option value="1">1 sao</option>
+                    </select>
+                </div>
+            </form>
+
+            <form action="/SWP/feedbacks" method="get" class="search-form">
+                <div class="filter-group">
+                    <label for="customerId">Tìm theo ID:</label>
+                    <input type="number" id="customerId" name="customerId" placeholder="Nhập ID feedback..." class="filter-select">
+                    <button type="submit" class="btn-secondary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <button class="btn-secondary" onclick="clearFilters()">
+                <i class="fas fa-times"></i>
+                Xóa bộ lọc
+            </button>
+        </div>
+
+        <!-- Feedback Content -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Tất cả Feedback (<span id="totalCount" th:text="${#lists.size(feedbacks)}">0</span>)</h3>
+                <div class="card-actions">
+                    <button class="btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Xuất
+                    </button>
+                    <button class="btn-secondary">
+                        <i class="fas fa-print"></i>
+                        In
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" th:if="${#lists.isEmpty(feedbacks)}">
+                <div class="empty-content">
+                    <i class="fas fa-comment-slash"></i>
+                    <h3>Chưa có feedback nào</h3>
+                    <p>Feedback từ khách hàng sẽ hiển thị ở đây</p>
+                </div>
+            </div>
+
+            <!-- Feedback List -->
+            <div class="feedback-container" th:unless="${#lists.isEmpty(feedbacks)}">
+                <div class="feedback-item" th:each="fb : ${feedbacks}">
+                    <div class="feedback-card">
+                        <div class="feedback-header">
+                            <div class="feedback-id">
+                                <span class="id-badge">#<span th:text="${fb.id}">1</span></span>
+                            </div>
+                            <div class="rating-section">
+                                <div class="stars">
+                                    <i class="fas fa-star" th:each="i : ${#numbers.sequence(1, fb.rating)}"></i>
+                                    <i class="far fa-star" th:each="i : ${#numbers.sequence(fb.rating + 1, 5)}"></i>
+                                </div>
+                                <span class="rating-number" th:text="${fb.rating} + '/5'">5/5</span>
+                            </div>
+                        </div>
+
+                        <div class="feedback-content">
+                            <p class="feedback-text" th:text="${fb.content}">Nội dung feedback...</p>
+                        </div>
+
+                        <div class="feedback-footer">
+                            <div class="feedback-info">
+                                <div class="info-item">
+                                    <i class="fas fa-user"></i>
+                                    <span th:text="${fb.customer != null ? fb.customer.fullname : 'Ẩn danh'}">Khách hàng</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-warehouse"></i>
+                                    <span th:text="${fb.storage != null ? fb.storage.storagename : 'Không xác định'}">Kho</span>
+                                </div>
+                            </div>
+                            <div class="feedback-actions">
+                                <button class="btn-icon" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon" title="Trả lời">
+                                    <i class="fas fa-reply"></i>
+                                </button>
+                                <button class="btn-icon danger" title="Xóa">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" th:unless="${#lists.isEmpty(feedbacks)}">
+                <button><i class="fas fa-chevron-left"></i></button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const feedbackItems = document.querySelectorAll('.feedback-item');
+
+        feedbackItems.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    function clearFilters() {
+        document.getElementById('rating').value = '';
+        document.getElementById('customerId').value = '';
+        document.querySelector('.filter-form').submit();
+    }
+
+    // Sidebar toggle for mobile
+    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('open');
+    });
+
+    window.onload = function() {
+        var pathname = window.location.pathname;
+        if (pathname.includes("feedbacks")) {
+            document.getElementById('feedback-menu').classList.add('active');
+        }
+    };
+</script>
+</body>
+</html>

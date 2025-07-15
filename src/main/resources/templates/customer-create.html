@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Customer - QVL Storage</title>
+    <link rel="stylesheet" th:href="@{/css/customer-create.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-database"></i>
+            <span>QVL Storage</span>
+        </div>
+    </div>
+    <ul class="sidebar-menu">
+        <li class="menu-item">
+            <a href="/SWP">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/staff/staff-dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="addstorage">
+                <i class="fas fa-hdd"></i>
+                <span>Add Storage</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/staff/staff-all-storage">
+                <i class="fas fa-warehouse"></i>
+                <span>Storage List</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/orders">
+                <i class="fas fa-chart-bar"></i>
+                <span>Order List</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="#inventory">
+                <i class="fas fa-boxes"></i>
+                <span>Feedback</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="#reports">
+                <i class="fas fa-file-alt"></i>
+                <span>Reports</span>
+            </a>
+        </li>
+        <li class="menu-item active">
+            <a href="/SWP/customers">
+                <i class="fas fa-users"></i>
+                <span>Customer List</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="#settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details">
+                <span class="user-name">Admin User</span>
+                <span class="user-role">Administrator</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>Create New Customer</h1>
+        </div>
+
+        <div class="header-right">
+            <div class="breadcrumb">
+                <a href="/SWP/customers">Customers</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Create New</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="page-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-left">
+                <div class="customer-avatar-large">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="customer-title">
+                    <h2 class="page-title">Add New Customer</h2>
+                    <p class="customer-subtitle">
+                        <span>Create a new customer account with complete information</span>
+                    </p>
+                </div>
+            </div>
+            <div class="page-actions">
+                <button class="btn-secondary btn-back">
+                    <a href="/SWP/customers" style="color: inherit; text-decoration: none;">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to List
+                    </a>
+                </button>
+                <button class="btn-secondary" onclick="clearForm()">
+                    <i class="fas fa-eraser"></i>
+                    Clear Form
+                </button>
+            </div>
+        </div>
+
+        <!-- Create Form Card -->
+        <div class="card form-card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-user-plus"></i>
+                    Customer Registration Form
+                </h3>
+                <div class="form-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <span class="progress-text" id="progressText">0% Complete</span>
+                </div>
+            </div>
+
+            <div class="card-content">
+                <form th:action="@{/SWP/customers/create}"
+                      th:object="${customer}"
+                      method="post"
+                      class="customer-form"
+                      id="customerForm">
+
+                    <!-- Personal Information Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h4>
+                                <i class="fas fa-user"></i>
+                                Personal Information
+                            </h4>
+                            <div class="section-badge">Required</div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="fullname" class="form-label">
+                                    <i class="fas fa-user"></i>
+                                    Full Name *
+                                </label>
+                                <input type="text"
+                                       id="fullname"
+                                       th:field="*{fullname}"
+                                       required
+                                       class="form-input"
+                                       placeholder="Enter customer's full name">
+                                <div class="form-error" id="fullname-error"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope"></i>
+                                    Email Address *
+                                </label>
+                                <input type="email"
+                                       id="email"
+                                       th:field="*{email}"
+                                       required
+                                       class="form-input"
+                                       placeholder="customer@example.com">
+                                <div class="form-error" id="email-error"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone" class="form-label">
+                                    <i class="fas fa-phone"></i>
+                                    Phone Number
+                                </label>
+                                <input type="tel"
+                                       id="phone"
+                                       th:field="*{phone}"
+                                       class="form-input"
+                                       placeholder="+1 (555) 123-4567">
+                                <div class="form-error" id="phone-error"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="id_citizen" class="form-label">
+                                    <i class="fas fa-id-card"></i>
+                                    Citizen ID
+                                </label>
+                                <input type="text"
+                                       id="id_citizen"
+                                       th:field="*{id_citizen}"
+                                       class="form-input"
+                                       placeholder="Enter citizen identification number">
+                                <div class="form-error" id="id_citizen-error"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address Information Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h4>
+                                <i class="fas fa-map-marker-alt"></i>
+                                Address Information
+                            </h4>
+                            <div class="section-badge optional">Optional</div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="address" class="form-label">
+                                <i class="fas fa-home"></i>
+                                Complete Address
+                            </label>
+                            <textarea id="address"
+                                      th:field="*{address}"
+                                      class="form-textarea"
+                                      rows="3"
+                                      placeholder="Enter street address, city, state, postal code"></textarea>
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Include street address, city, state, and postal code for accurate delivery
+                            </div>
+                            <div class="form-error" id="address-error"></div>
+                        </div>
+                    </div>
+
+                    <!-- Account Settings Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h4>
+                                <i class="fas fa-cog"></i>
+                                Account Settings
+                            </h4>
+                            <div class="section-badge">Required</div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="roleName" class="form-label">
+                                    <i class="fas fa-crown"></i>
+                                    Customer Role *
+                                </label>
+                                <select id="roleName" th:field="*{roleName}" class="form-select" required>
+                                    <option value="">Select Customer Role</option>
+                                    <option th:each="role : ${roles}"
+                                            th:value="${role}"
+                                            th:text="${role}">
+                                    </option>
+                                </select>
+                                <div class="form-help">
+                                    <i class="fas fa-info-circle"></i>
+                                    CUSTOMER: Standard access, VIP: Premium features, BLOCKED: Restricted access
+                                </div>
+                                <div class="form-error" id="roleName-error"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock"></i>
+                                    Password *
+                                </label>
+                                <div class="password-input-group">
+                                    <input type="password"
+                                           id="password"
+                                           th:field="*{password}"
+                                           required
+                                           class="form-input"
+                                           placeholder="Create a secure password">
+                                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                                        <i class="fas fa-eye" id="passwordToggleIcon"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength" id="passwordStrength">
+                                    <div class="strength-bar">
+                                        <div class="strength-fill" id="strengthFill"></div>
+                                    </div>
+                                    <span class="strength-text" id="strengthText">Password strength</span>
+                                </div>
+                                <div class="form-error" id="password-error"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" id="submitBtn">
+                            <i class="fas fa-user-plus"></i>
+                            Create Customer
+                        </button>
+                        <button type="button" class="btn-secondary" onclick="previewCustomer()">
+                            <i class="fas fa-eye"></i>
+                            Preview
+                        </button>
+                        <a href="/SWP/customers" class="btn-cancel">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Tips Card -->
+        <div class="card tips-card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-lightbulb"></i>
+                    Quick Tips
+                </h3>
+            </div>
+            <div class="card-content">
+                <div class="tips-grid">
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="tip-content">
+                            <h5>Required Fields</h5>
+                            <p>Full name, email, role, and password are mandatory for account creation.</p>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="tip-content">
+                            <h5>Password Security</h5>
+                            <p>Use a strong password with at least 8 characters, including letters and numbers.</p>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="tip-content">
+                            <h5>Email Verification</h5>
+                            <p>Ensure the email address is valid as it will be used for account notifications.</p>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="tip-content">
+                            <h5>Customer Roles</h5>
+                            <p>Choose the appropriate role based on the customer's service level requirements.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Preview Modal -->
+<div class="modal" id="previewModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Customer Preview</h3>
+            <button class="modal-close" onclick="closePreview()">&times;</button>
+        </div>
+        <div class="modal-body" id="previewContent">
+            <!-- Preview content will be populated by JavaScript -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closePreview()">Close</button>
+            <button class="btn-primary" onclick="submitFromPreview()">Create Customer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Sidebar toggle for mobile
+    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('open');
+    });
+
+    // Form progress tracking
+    function updateProgress() {
+        const requiredFields = ['fullname', 'email', 'roleName', 'password'];
+        const filledFields = requiredFields.filter(field => {
+            const input = document.getElementById(field);
+            return input && input.value.trim() !== '';
+        });
+
+        const progress = (filledFields.length / requiredFields.length) * 100;
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+
+        progressFill.style.width = progress + '%';
+        progressText.textContent = Math.round(progress) + '% Complete';
+
+        if (progress < 50) {
+            progressFill.className = 'progress-fill low';
+        } else if (progress < 100) {
+            progressFill.className = 'progress-fill medium';
+        } else {
+            progressFill.className = 'progress-fill high';
+        }
+    }
+
+    // Password strength checker
+    function checkPasswordStrength(password) {
+        let strength = 0;
+        if (password.length >= 8) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+
+        const strengthLevels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+        const strengthColors = ['#dc3545', '#fd7e14', '#ffc107', '#28a745', '#20c997'];
+
+        strengthFill.style.width = (strength * 20) + '%';
+        strengthFill.style.backgroundColor = strengthColors[strength - 1] || '#dc3545';
+        strengthText.textContent = strengthLevels[strength - 1] || 'Very Weak';
+    }
+
+    // Password toggle
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('passwordToggleIcon');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.className = 'fas fa-eye-slash';
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.className = 'fas fa-eye';
+        }
+    }
+
+    // Form validation
+    function validateForm() {
+        let isValid = true;
+        const requiredFields = ['fullname', 'email', 'roleName', 'password'];
+
+        requiredFields.forEach(field => {
+            const input = document.getElementById(field);
+            const error = document.getElementById(field + '-error');
+
+            if (!input.value.trim()) {
+                error.textContent = 'This field is required';
+                input.classList.add('error');
+                isValid = false;
+            } else {
+                error.textContent = '';
+                input.classList.remove('error');
+            }
+        });
+
+        // Email validation
+        const email = document.getElementById('email');
+        const emailError = document.getElementById('email-error');
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (email.value && !emailRegex.test(email.value)) {
+            emailError.textContent = 'Please enter a valid email address';
+            email.classList.add('error');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    // Clear form
+    function clearForm() {
+        if (confirm('Are you sure you want to clear all form data?')) {
+            document.getElementById('customerForm').reset();
+            updateProgress();
+            document.getElementById('strengthFill').style.width = '0%';
+            document.getElementById('strengthText').textContent = 'Password strength';
+        }
+    }
+
+    // Preview customer
+    function previewCustomer() {
+        const formData = new FormData(document.getElementById('customerForm'));
+        const previewContent = document.getElementById('previewContent');
+
+        previewContent.innerHTML = `
+                <div class="preview-grid">
+                    <div class="preview-item">
+                        <strong>Full Name:</strong> ${formData.get('fullname') || 'Not provided'}
+                    </div>
+                    <div class="preview-item">
+                        <strong>Email:</strong> ${formData.get('email') || 'Not provided'}
+                    </div>
+                    <div class="preview-item">
+                        <strong>Phone:</strong> ${formData.get('phone') || 'Not provided'}
+                    </div>
+                    <div class="preview-item">
+                        <strong>Address:</strong> ${formData.get('address') || 'Not provided'}
+                    </div>
+                    <div class="preview-item">
+                        <strong>Citizen ID:</strong> ${formData.get('id_citizen') || 'Not provided'}
+                    </div>
+                    <div class="preview-item">
+                        <strong>Role:</strong> ${formData.get('roleName') || 'Not selected'}
+                    </div>
+                </div>
+            `;
+
+        document.getElementById('previewModal').style.display = 'flex';
+    }
+
+    // Close preview
+    function closePreview() {
+        document.getElementById('previewModal').style.display = 'none';
+    }
+
+    // Submit from preview
+    function submitFromPreview() {
+        closePreview();
+        document.getElementById('customerForm').submit();
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // Progress tracking
+        const inputs = document.querySelectorAll('.form-input, .form-select, .form-textarea');
+        inputs.forEach(input => {
+            input.addEventListener('input', updateProgress);
+        });
+
+        // Password strength
+        document.getElementById('password').addEventListener('input', function() {
+            checkPasswordStrength(this.value);
+        });
+
+        // Real-time validation
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                const error = document.getElementById(this.id + '-error');
+                if (this.hasAttribute('required') && !this.value.trim()) {
+                    error.textContent = 'This field is required';
+                    this.classList.add('error');
+                } else {
+                    error.textContent = '';
+                    this.classList.remove('error');
+                }
+            });
+        });
+
+        // Form submission
+        document.getElementById('customerForm').addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+            }
+        });
+
+        // Initial progress update
+        updateProgress();
+    });
+</script>
+</body>
+</html>

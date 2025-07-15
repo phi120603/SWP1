@@ -1,352 +1,283 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer List</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f8fafc;
-            color: #334155;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        header {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 0.5rem;
-        }
-
-        .subtitle {
-            color: #64748b;
-            font-size: 1.1rem;
-        }
-
-        .stats {
-            display: flex;
-            gap: 2rem;
-            margin: 2rem 0;
-            flex-wrap: wrap;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #059669;
-        }
-
-        .stat-label {
-            color: #64748b;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .search-container {
-            margin-bottom: 2rem;
-        }
-
-        .search-input {
-            width: 100%;
-            max-width: 400px;
-            padding: 0.75rem 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.2s;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-
-        .table-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: #f8fafc;
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            color: #374151;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        tr:hover {
-            background-color: #f8fafc;
-        }
-
-        .customer-name {
-            font-weight: 600;
-            color: #1e293b;
-        }
-
-        .customer-email {
-            color: #64748b;
-            font-size: 0.9rem;
-        }
-
-        .status {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .status.active {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-
-        .status.inactive {
-            background-color: #fef2f2;
-            color: #991b1b;
-        }
-
-        .status.pending {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-
-        .actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-primary {
-            background-color: #3b82f6;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #2563eb;
-        }
-
-        .btn-secondary {
-            background-color: #e5e7eb;
-            color: #374151;
-        }
-
-        .btn-secondary:hover {
-            background-color: #d1d5db;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            margin-top: 2rem;
-            padding: 1rem;
-        }
-
-        .page-info {
-            color: #64748b;
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            .stats {
-                flex-direction: column;
-            }
-
-            .table-container {
-                overflow-x: auto;
-            }
-
-            table {
-                min-width: 600px;
-            }
-
-            .actions {
-                flex-direction: column;
-            }
-        }
-    </style>
+    <title>Danh sách khách hàng - QVL Storage</title>
+    <link rel="stylesheet" th:href="@{/customer-list.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-<div class="container">
-    <header>
-        <h1>Customer Management</h1>
-        <p class="subtitle">Manage and view all your customers in one place</p>
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-database"></i>
+            <span>Bảng điều khiển Nhân viên</span>
+        </div>
+    </div>
+
+    <ul class="sidebar-menu">
+        <li class="menu-item" id="dashboard-menu">
+            <a href="/SWP/staff/staff-dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Trang chủ</span>
+            </a>
+        </li>
+        <li class="menu-item" id="addstorage-menu">
+            <a href="addstorage">
+                <i class="fas fa-hdd"></i>
+                <span>Thêm kho</span>
+            </a>
+        </li>
+        <li class="menu-item" id="storagelist-menu">
+            <a href="/SWP/storages">
+                <i class="fas fa-warehouse"></i>
+                <span>Danh sách kho</span>
+            </a>
+        </li>
+        <li class="menu-item" id="orderlist-menu">
+            <a href="/SWP/orders">
+                <i class="fas fa-chart-bar"></i>
+                <span>Danh sách đơn hàng</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/feedbacks">
+                <i class="fas fa-boxes"></i>
+                <span>Phản hồi</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/issues/report">
+                <i class="fas fa-file-alt"></i>
+                <span>Báo cáo</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/statistics">
+                <i class="fas fa-chart-bar"></i>
+                <span>Thống kê doanh thu</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/support">
+                <i class="fas fa-chart-bar"></i>
+                <span>Hỗ trợ khách hàng</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="customer-list">
+                <i class="fas fa-users"></i>
+                <span>Danh sách người dùng</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details">
+                <span class="user-name">John Nhân viên</span>
+                <span class="user-role">Nhân viên</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>Quản lý khách hàng</h1>
+        </div>
+
+        <div class="header-right">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Tìm kiếm khách hàng..." id="searchInput">
+            </div>
+        </div>
     </header>
 
-    <div class="stats">
-        <div class="stat-card">
-            <div class="stat-number">1,247</div>
-            <div class="stat-label">Total Customers</div>
+    <!-- Page Content -->
+    <div class="page-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2 class="page-title">Cơ sở dữ liệu khách hàng</h2>
+            <div class="page-actions">
+                <button class="btn-secondary btn-back">
+                    <a href="/SWP" style="color: inherit; text-decoration: none;">
+                        <i class="fas fa-arrow-left"></i>
+                        Về trang chủ
+                    </a>
+                </button>
+                <button class="btn-primary">
+                    <a href="/SWP/customers/create" style="color: white; text-decoration: none;">
+                        <i class="fas fa-plus"></i>
+                        Thêm khách hàng mới
+                    </a>
+                </button>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-number">892</div>
-            <div class="stat-label">Active Customers</div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <form action="/SWP/customers" method="get" class="filter-form">
+                <div class="filter-group">
+                    <label for="role">Vai trò:</label>
+                    <select id="role" name="role" class="filter-select" onchange="this.form.submit()">
+                        <option value="ALL" th:selected="${selectedRole == 'ALL'}">Tất cả</option>
+                        <option value="CUSTOMER" th:selected="${selectedRole == 'CUSTOMER'}">Khách hàng</option>
+                        <option value="VIP" th:selected="${selectedRole == 'VIP'}">VIP</option>
+                        <option value="BLOCKED" th:selected="${selectedRole == 'BLOCKED'}">Bị khóa</option>
+                    </select>
+                </div>
+            </form>
+
+            <form action="/SWP/customers" method="get" class="search-form">
+                <div class="filter-group">
+                    <label for="customerId">Tìm theo ID:</label>
+                    <input type="number" id="customerId" name="customerId" placeholder="Nhập ID khách hàng..." class="filter-select">
+                    <button type="submit" class="btn-secondary">
+                        <i class="fas fa-search"></i>
+                        Tìm
+                    </button>
+                </div>
+            </form>
+
+            <button class="btn-secondary" onclick="clearFilters()">
+                <i class="fas fa-times"></i>
+                Xóa bộ lọc
+            </button>
         </div>
-        <div class="stat-card">
-            <div class="stat-number">45</div>
-            <div class="stat-label">New This Month</div>
+
+        <!-- Customer Table -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Tất cả khách hàng (<span id="totalCount" th:text="${#lists.size(customers)}">0</span>)</h3>
+                <div class="card-actions">
+                    <button class="btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Xuất file
+                    </button>
+                    <button class="btn-secondary">
+                        <i class="fas fa-print"></i>
+                        In danh sách
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Mã KH</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Địa chỉ</th>
+                        <th>Số điện thoại</th>
+                        <th>Vai trò</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="customer : ${customers}">
+                        <td>
+                            <span class="customer-id" th:text="'#' + ${customer.id}"></span>
+                        </td>
+                        <td>
+                            <span class="customer-name" th:text="${customer.fullname}"></span>
+                        </td>
+                        <td>
+                            <span class="customer-email" th:text="${customer.email}"></span>
+                        </td>
+                        <td>
+                            <span class="description-cell" th:text="${customer.address}" th:title="${customer.address}"></span>
+                        </td>
+                        <td th:text="${customer.phone}"></td>
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${customer.roleName == 'VIP' ? ' vip' : (customer.roleName == 'BLOCKED' ? ' blocked' : ' customer')}"
+                                  th:text="${customer.roleName}">
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a th:href="@{/SWP/customers/{id}(id=${customer.id})}"
+                                   class="btn-icon" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a th:href="@{/SWP/customers/edit/{id}(id=${customer.id})}"
+                                   class="btn-icon" title="Chỉnh sửa">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form th:action="@{/SWP/customers/delete/{id}(id=${customer.id})}"
+                                      method="post"
+                                      style="display: inline;"
+                                      th:onsubmit="return confirm('Bạn có chắc chắn muốn ' + ((${#strings.toUpperCase(customer.roleName)} == 'BLOCKED') ? 'mở khóa' : 'ngưng hoạt động') + ' khách hàng này?')">
+                                    <button type="submit" class="btn-icon danger"
+                                            th:title="${#strings.toUpperCase(customer.roleName)} == 'BLOCKED' ? 'Mở khóa khách hàng' : 'Ngưng hoạt động khách hàng'">
+                                        <i class="fas"
+                                           th:classappend="${#strings.toUpperCase(customer.roleName)} == 'BLOCKED' ? ' fa-unlock' : ' fa-lock'"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button><i class="fas fa-chevron-left"></i></button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button><i class="fas fa-chevron-right"></i></button>
+            </div>
         </div>
     </div>
-
-    <div class="search-container">
-        <input
-                type="text"
-                class="search-input"
-                placeholder="Search customers by name or email..."
-                id="searchInput"
-        >
-    </div>
-
-    <div class="table-container">
-        <table id="customerTable">
-            <thead>
-            <tr>
-                <th>Customer id</th>
-                <th>Customer Name</th>
-                <th>Phone</th>
-                <th>ROLE</th>
-                <th>ID citizen</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="customer : ${customers}">
-                <td th:text="${customer.getId()}"></td>
-                <td th:text="${customer.getFullname()}">
-                    <div th:text="${customer.getEmail()}"></div>
-                </td>
-                <td th:text="${customer.getPhone()}"></td>
-                <td th:text="${customer.getRoleName()}"></td>
-                <td th:text="${customer.getId_citizen()}"></td>
-                <td>
-                    <div class="actions">
-                        <button class="btn btn-primary">Edit</button>
-                        <button class="btn btn-secondary">
-                        <a href="#">View</a>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="pagination">
-        <button class="btn btn-secondary">Previous</button>
-        <span class="page-info">Page 1 of 12</span>
-        <button class="btn btn-secondary">Next</button>
-    </div>
-</div>
+</main>
 
 <script>
-    // Search functionality
+    // Chức năng tìm kiếm
     document.getElementById('searchInput').addEventListener('input', function(e) {
         const searchTerm = e.target.value.toLowerCase();
-        const tableRows = document.querySelectorAll('#customerTable tbody tr');
+        const rows = document.querySelectorAll('.data-table tbody tr');
 
-        tableRows.forEach(row => {
-            const customerName = row.querySelector('.customer-name').textContent.toLowerCase();
-            const customerEmail = row.querySelector('.customer-email').textContent.toLowerCase();
-            const company = row.cells[1].textContent.toLowerCase();
-
-            if (customerName.includes(searchTerm) ||
-                customerEmail.includes(searchTerm) ||
-                company.includes(searchTerm)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
         });
     });
 
-    // Add click handlers for buttons
-    document.querySelectorAll('.btn-primary').forEach(button => {
-        button.addEventListener('click', function() {
-            if (this.textContent === 'Edit') {
-                alert('Edit functionality would be implemented here');
-            }
-        });
+    function clearFilters() {
+        document.getElementById('role').value = 'ALL';
+        document.getElementById('name').value = '';
+        document.getElementById('customerId').value = '';
+        // Submit lại form để xóa bộ lọc phía server
+        document.querySelector('.filter-form').submit();
+    }
+
+    // Thu gọn sidebar cho mobile
+    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('open');
     });
 
-    document.querySelectorAll('.btn-secondary').forEach(button => {
-        button.addEventListener('click', function() {
-            if (this.textContent === 'View') {
-                alert('View customer details would be implemented here');
-            } else if (this.textContent === 'Previous' || this.textContent === 'Next') {
-                alert('Pagination functionality would be implemented here');
-            }
-        });
-    });
+    window.onload = function() {
+        var pathname = window.location.pathname;
+        if (pathname.includes("customers")) {
+            document.getElementById('customers-menu').classList.add('active');
+        }
+    };
 </script>
 </body>
 </html>

@@ -1,10 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="UTF-8">
+  <title>Chi tiết kho</title>
+  <link rel="stylesheet" th:href="@{/css/manager-storagedetail.css}">
 </head>
 <body>
+<div class="storage-detail-container">
+  <!-- Bên trái: ảnh mô tả -->
+  <div class="left-panel">
+    <img th:src="${storage.imUrl}" alt="Ảnh kho" class="storage-image">
+  </div>
+
+  <!-- Bên phải: thông tin chi tiết -->
+  <div class="right-panel">
+    <h1 th:text="${storage.storagename}" class="storage-name">Tên Kho</h1>
+
+    <p><strong>Trạng thái:</strong>
+      <span th:text="${storage.status} ? 'Còn trống' : 'Đang thuê'" class="status-badge"></span>
+    </p>
+
+    <p><strong>Địa chỉ:</strong>
+      <span th:text="${storage.address}"></span>,
+      <span th:text="${storage.state}"></span>,
+      <span th:text="${storage.city}"></span>
+    </p>
+
+    <p><strong>Diện tích:</strong> <span th:text="${storage.area}"></span> m²</p>
+    <p><strong>Giá thuê theo ngày:</strong> <span th:text="${storage.pricePerDay}"></span> VNĐ</p>
+    <p><strong>Mô tả:</strong></p>
+    <p th:text="${storage.description}"></p>
+
+    <div class="button-group">
+      <a th:href="@{'/admin/manager-dashboard/storages/' + ${storage.getStorageid()} + '/edit' }" class="btn btn-edit">
+        <i class="fas fa-edit"></i> Chỉnh sửa
+      </a>
+      <a th:href="@{'/admin/manager-dashboard'}" class="btn btn-back">
+        <i class="fas fa-arrow-left"></i> Trở về
+      </a>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>

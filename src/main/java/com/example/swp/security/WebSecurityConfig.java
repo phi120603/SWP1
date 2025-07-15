@@ -1,80 +1,48 @@
 package com.example.swp.security;
 
 import com.example.swp.enums.RoleName;
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import javax.sql.DataSource;
 import java.util.Arrays;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+// ... phần đầu giữ nguyên
+
 @Configuration
-@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
-    @Autowired
-    private  PasswordEncoder passwordEncoder;
-    @Autowired
-    private  UserDetailsService userDetailsService;
 
-    public WebSecurityConfig(
-            MyUserDetailService userDetailsService,
-            PasswordEncoder passwordEncoder
-    ) {
+    private final UserDetailsService userDetailsService;
+
+    // CHỈ nhận UserDetailsService, KHÔNG nhận PasswordEncoder
+    public WebSecurityConfig(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
-        this.passwordEncoder = passwordEncoder;
-    }
-    // cau hinh
-
-    @Bean
-
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
-            throws Exception {
-        http
-                .authorizeHttpRequests(authConfig -> {
-                    authConfig.requestMatchers(HttpMethod.GET, "/admin/**").hasAuthority(RoleName.MANAGER.toString());
-                    authConfig.requestMatchers(HttpMethod.GET, "/staff/**").hasAuthority(RoleName.STAFF.toString());
-                    authConfig.requestMatchers(HttpMethod.GET, "/index/**").permitAll();
-                    authConfig.anyRequest().permitAll();
-                }).formLogin(form -> form
-                        .loginPage("/login") // Trang hiển thị form
-                        .loginProcessingUrl("/login") // URL xử lý đăng nhập
-                        .defaultSuccessUrl("/")
-                        .failureUrl("/login?error")
-                )
-                .logout(logout -> {
-//                    logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
-                    logout.logoutUrl("/logout");
-                    logout.logoutSuccessUrl("/");
-
-                    logout.invalidateHttpSession(true);
-                })
-                .csrf(AbstractHttpConfigurer::disable);
-        return http.build();
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
-    public AuthenticationProvider daoAuthenticationProvider() {
+    public DaoAuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
@@ -82,30 +50,55 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource()
-
-    {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8088"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
-        configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
+    public AuthenticationManager authenticationManager(DaoAuthenticationProvider provider) {
+        return new ProviderManager(provider);
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(){
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder);
-        return new ProviderManager(authProvider);
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/admin/**").hasAuthority(RoleName.MANAGER.name())
+                        .requestMatchers("/staff/**").hasAuthority(RoleName.STAFF.name())
+                        .requestMatchers("/index/**", "/api/login", "/api/register", "/static/**").permitAll()
+                        .requestMatchers("/customer-support.html", "/messenger.html", "/manager-inbox.html").authenticated()
+                        .requestMatchers("/api/conversations/**", "/api/managers/**", "/ws/**").authenticated()
+                        .anyRequest().permitAll()
+                )
+                .sessionManagement(session -> session
+                        .maximumSessions(1)
+                )
+                .logout(logout -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .logoutSuccessUrl("/api/login")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
+                )
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable());
+
+        return http.build();
     }
 
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return NoOpPasswordEncoder.getInstance();
-//    }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(Arrays.asList("http://localhost:8080"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(Arrays.asList("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+    // ✅ Bắt buộc để session tracking (giữ SPRING_SECURITY_CONTEXT trong session)
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
+    }
+
 
 }
+

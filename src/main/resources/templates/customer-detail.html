@@ -1,10 +1,342 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết khách hàng - QVL Storage</title>
+    <link rel="stylesheet" th:href="@{/customer-detail.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-database"></i>
+            <span>QVL Storage</span>
+        </div>
+    </div>
+    <ul class="sidebar-menu">
+        <li class="menu-item">
+            <a href="/SWP">
+                <i class="fas fa-home"></i>
+                <span>Trang chủ</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/staff/staff-dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Bảng điều khiển</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="addstorage">
+                <i class="fas fa-hdd"></i>
+                <span>Thêm kho</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/staff/staff-all-storage">
+                <i class="fas fa-warehouse"></i>
+                <span>Danh sách kho</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/orders">
+                <i class="fas fa-chart-bar"></i>
+                <span>Danh sách đơn hàng</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="#inventory">
+                <i class="fas fa-boxes"></i>
+                <span>Phản hồi</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="#reports">
+                <i class="fas fa-file-alt"></i>
+                <span>Báo cáo</span>
+            </a>
+        </li>
+        <li class="menu-item active">
+            <a href="/SWP/customers">
+                <i class="fas fa-users"></i>
+                <span>Danh sách khách hàng</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="#settings">
+                <i class="fas fa-cog"></i>
+                <span>Cài đặt</span>
+            </a>
+        </li>
+    </ul>
 
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details">
+                <span class="user-name">Admin User</span>
+                <span class="user-role">Quản trị viên</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>Hồ sơ khách hàng</h1>
+        </div>
+
+        <div class="header-right">
+            <div class="breadcrumb">
+                <a href="/SWP/customers">Khách hàng</a>
+                <i class="fas fa-chevron-right"></i>
+                <span th:text="${customer.fullname}">Chi tiết khách hàng</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="page-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-left">
+                <div class="customer-avatar-large">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="customer-title">
+                    <h2 class="page-title" th:text="${customer.fullname}">Tên khách hàng</h2>
+                    <p class="customer-subtitle">
+                            <span class="status-badge"
+                                  th:classappend="${customer.roleName == 'VIP' ? ' vip' : (customer.roleName == 'BLOCKED' ? ' blocked' : ' customer')}"
+                                  th:text="${customer.roleName}">
+                            </span>
+                        <span class="customer-id">Mã: #<span th:text="${customer.id}"></span></span>
+                    </p>
+                </div>
+            </div>
+            <div class="page-actions">
+                <button class="btn-secondary btn-back">
+                    <a href="/SWP/customers" style="color: inherit; text-decoration: none;">
+                        <i class="fas fa-arrow-left"></i>
+                        Quay lại danh sách
+                    </a>
+                </button>
+                <button class="btn-primary">
+                    <a th:href="@{/SWP/customers/edit/{id}(id=${customer.id})}" style="color: white; text-decoration: none;">
+                        <i class="fas fa-edit"></i>
+                        Sửa khách hàng
+                    </a>
+                </button>
+                <form th:action="@{/SWP/customers/delete/{id}(id=${customer.id})}"
+                      method="post" style="display:inline;"
+                      th:onsubmit="return confirm(${customer.roleName} == 'BLOCKED' ? 'Bạn có chắc chắn muốn MỞ KHÓA khách hàng này không?' : 'Bạn có chắc chắn muốn NGƯNG HOẠT ĐỘNG khách hàng này không?');">
+                    <button type="submit" class="btn-danger">
+                        <i class="fas"
+                           th:classappend="${#strings.toUpperCase(customer.roleName)} == 'BLOCKED' ? ' fa-unlock' : ' fa-lock'"></i>
+                        <span th:text="${#strings.toUpperCase(customer.roleName)} == 'BLOCKED' ? 'Mở khóa' : 'Ngưng hoạt động'"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Customer Information Card -->
+        <div class="card customer-info-card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-user-circle"></i>
+                    Thông tin khách hàng
+                </h3>
+            </div>
+            <div class="card-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-envelope"></i>
+                            Địa chỉ Email
+                        </div>
+                        <div class="info-value" th:text="${customer.email}">customer@example.com</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-phone"></i>
+                            Số điện thoại
+                        </div>
+                        <div class="info-value" th:text="${customer.phone}">+1234567890</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Địa chỉ
+                        </div>
+                        <div class="info-value" th:text="${customer.address}">Địa chỉ khách hàng</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-id-card"></i>
+                            CCCD/CMND
+                        </div>
+                        <div class="info-value" th:text="${customer.id_citizen}">123456789</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-crown"></i>
+                            Trạng thái vai trò
+                        </div>
+                        <div class="info-value">
+                                <span class="status-badge"
+                                      th:classappend="${customer.roleName == 'VIP' ? ' vip' : (customer.roleName == 'BLOCKED' ? ' blocked' : ' customer')}"
+                                      th:text="${customer.roleName}">
+                                </span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-calendar-alt"></i>
+                            Thành viên từ
+                        </div>
+                        <div class="info-value">Tháng 1/2024</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order History Card -->
+        <div class="card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-shopping-cart"></i>
+                    Lịch sử đơn hàng (<span th:text="${#lists.size(orders)}">0</span>)
+                </h3>
+                <div class="card-actions">
+                    <button class="btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Xuất đơn hàng
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td>
+                            <span class="order-id" th:text="'#' + ${order.id}"></span>
+                        </td>
+                        <td th:text="${order.orderDate}"></td>
+                        <td>
+                            <span class="price-cell" th:text="'₫' + ${order.totalAmount}"></span>
+                        </td>
+                        <td>
+                            <span class="status-badge active" th:text="${order.status}"></span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a th:href="@{/SWP/orders/{id}(id=${order.id})}"
+                                   class="btn-icon" title="Xem chi tiết đơn hàng">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(orders)}">
+                        <td colspan="5" class="empty-state">
+                            <div class="empty-content">
+                                <i class="fas fa-shopping-cart"></i>
+                                <p>Không có đơn hàng</p>
+                                <span>Khách hàng này chưa có đơn hàng nào.</span>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Feedback History Card -->
+        <div class="card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-comments"></i>
+                    Lịch sử phản hồi (<span th:text="${#lists.size(feedbacks)}">0</span>)
+                </h3>
+                <div class="card-actions">
+                    <button class="btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Xuất phản hồi
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Mã phản hồi</th>
+                        <th>Nội dung</th>
+                        <th>Kho</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="fb : ${feedbacks}">
+                        <td>
+                            <span class="feedback-id" th:text="'#' + ${fb.id}"></span>
+                        </td>
+                        <td>
+                            <div class="feedback-content" th:text="${fb.content}" th:title="${fb.content}"></div>
+                        </td>
+                        <td>
+                            <span th:text="${fb.storage != null ? fb.storage.storagename : 'Không có'}"></span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon" title="Xem toàn bộ phản hồi">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(feedbacks)}">
+                        <td colspan="4" class="empty-state">
+                            <div class="empty-content">
+                                <i class="fas fa-comments"></i>
+                                <p>Không có phản hồi</p>
+                                <span>Khách hàng này chưa gửi phản hồi nào.</span>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Sidebar toggle for mobile
+    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('open');
+    });
+</script>
 </body>
 </html>

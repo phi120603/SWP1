@@ -1,0 +1,81 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    padding: 40px;
+}
+
+.edit-container {
+    display: flex;
+    max-width: 1100px;
+    margin: auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.left-panel {
+    flex: 1;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+    text-align: center;
+}
+
+.preview-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.right-panel {
+    flex: 2;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.right-panel input,
+.right-panel select,
+.right-panel textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-update {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-update:hover {
+    background-color: #2980b9;
+}
+
+.btn-cancel {
+    background-color: #bdc3c7;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background-color: #95a5a6;
+}

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đơn hàng của tôi - QVL Storage</title>
+  <link rel="stylesheet" th:href="@{/css/customer-detail.css}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <i class="fas fa-database"></i>
+      <span>QVL Storage</span>
+    </div>
+  </div>
+  <ul class="sidebar-menu">
+    <li class="menu-item"><a href="/home-page"><i class="fas fa-home"></i><span>Trang chủ</span></a></li>
+    <li class="menu-item"><a href="/SWP/storages"><i class="fas fa-warehouse"></i><span>Danh sách kho</span></a></li>
+    <li class="menu-item active"><a href="/SWP/customers/my-bookings"><i class="fas fa-box"></i><span>Đơn hàng</span></a></li>
+    <li class="menu-item"><a href="/api/logout"><i class="fas fa-sign-out-alt"></i><span>Dăng xuất</span></a></li>
+  </ul>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar"><i class="fas fa-user"></i></div>
+      <div class="user-details">
+        <span class="user-name" th:text="${customer.fullname}">User Name</span>
+        <span class="user-role">Customer</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+  <div th:if="${successMessage}" class="alert-success" style="background-color: #e6fffa; border: 1px solid #38b2ac; color: #285e61; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: 600;">
+    <i class="fas fa-check-circle"></i>
+    <span th:text="${successMessage}"></span>
+  </div>
+
+  <header class="header">
+    <div class="header-left">
+      <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <h1>My Bookings</h1>
+    </div>
+    <div class="header-right">
+      <div class="breadcrumb">
+        <a href="/SWP">Home</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>My Bookings</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-content">
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="customer-avatar-large"><i class="fas fa-user"></i></div>
+        <div class="customer-title">
+          <h2 class="page-title">Đơn hàng của <span th:text="${customer.fullname}">Tên khách hàng</span></h2>
+          <div class="customer-subtitle">
+            <span><i class="fas fa-envelope"></i> <span th:text="${customer.email}">email@example.com</span></span>
+            <span class="total-orders"><i class="fas fa-box"></i> <span th:text="${#lists.size(orders)}">0</span> đơn hàng</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fas fa-clipboard-list"></i> Danh sách đơn hàng</h3>
+      </div>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+          <tr>
+            <th>Mã đơn</th>
+            <th>Ngày đặt</th>
+            <th>Thời gian thuê</th>
+            <th>Kho</th>
+            <th>Trạng thái</th>
+            <th>Tổng tiền</th>
+            <th>Thao tác</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="order : ${orders}">
+            <td><span th:text="'#' + ${order.id}"></span></td>
+            <td th:text="${order.orderDate}"></td>
+            <td>
+              <div class="date-range">
+                <span th:text="'Bắt đầu: ' + ${order.startDate}"></span>
+                <span th:text="'Kết thúc: ' + ${order.endDate}"></span>
+              </div>
+            </td>
+            <td>
+              <div class="storage-name">
+                <i class="fas fa-building"></i>
+                <span th:text="${order.storage.storagename}">Tên kho</span>
+              </div>
+            </td>
+            <td>
+                <span class="status-badge"
+                      th:classappend="${order.status == 'PENDING' ? ' pending' : (order.status == 'CONFIRMED' ? ' confirmed' : (order.status == 'ACTIVE' ? ' active' : (order.status == 'COMPLETED' ? ' completed' : ' cancelled')))}"
+                      th:text="${order.status}">t
+                </span>
+            </td>
+            <td>
+              <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')}">0</span>
+              <span class="currency">VNĐ</span>
+            </td>
+            <td>
+              <a th:href="@{/SWP/booking/detail(orderId=${order.id})}"
+                 class="btn-action view"
+                 title="Xem chi tiết"
+                 style="color: #4a6fa5; font-size: 18px;">
+                <i class="fas fa-eye"></i>
+              </a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+    document.querySelector('.sidebar').classList.toggle('open');
+  });
+</script>
+</body>
+</html>

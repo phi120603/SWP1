@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm Kho Lưu Trữ & Danh Sách Kho</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen py-8">
+<!-- Header -->
+<div th:replace="taskbar/staff-taskbar :: staffTaskbar"></div>
+<main class="main-content" style="margin-top:-30px;">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>Thêm Kho Mới</h1>
+        </div>
+
+        <div class="header-right">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search...">
+            </div>
+        </div>
+    </header>
+<div class="text-center mb-8" style="margin-top: 20px;">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Thêm Kho Mới</h1>
+    <p class="text-gray-600">Điền thông tin chi tiết để thêm kho vào hệ thống</p>
+</div>
+
+<!-- Form Container -->
+<div class="bg-white rounded-lg shadow-lg p-8 mb-10 max-w-xl mx-auto">
+    <form action="/SWP/staff/staff-add-storage" method="post" enctype="multipart/form-data" class="space-y-6">
+        <!-- Storage Name -->
+        <div>
+            <label for="storagename" class="block text-sm font-medium text-gray-700 mb-2">
+                Tên kho <span class="text-red-500">*</span>
+            </label>
+            <input
+                    type="text"
+                    id="storagename"
+                    name="storagename"
+                    maxlength="30"
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
+                    placeholder="Nhập tên kho lưu trữ"
+            />
+            <div id="storagenameError" class="error-message"></div>
+        </div>
+        <!-- Address -->
+        <div>
+            <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
+                Địa chỉ <span class="text-red-500">*</span>
+            </label>
+            <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    maxlength="100"
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
+                    placeholder="Nhập địa chỉ chi tiết"
+            />
+            <div id="storageaddressError" class="error-message"></div>
+        </div>
+        <!-- City and State Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="city" class="block text-sm font-medium text-gray-700 mb-2">
+                    Thành phố <span class="text-red-500">*</span>
+                </label>
+                <input
+                        type="text"
+                        id="city"
+                        name="city"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
+                        placeholder="Nhập thành phố"
+                />
+                <div id="storagecityError" class="error-message"></div>
+            </div>
+            <div>
+                <label for="state" class="block text-sm font-medium text-gray-700 mb-2">
+                    Bang/Tỉnh <span class="text-red-500">*</span>
+                </label>
+                <input
+                        type="text"
+                        id="state"
+                        name="state"
+                        maxlength="30"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
+                        placeholder="Nhập tỉnh/bang"
+                />
+                <div id="storagestateError" class="error-message"></div>
+            </div>
+        </div>
+        <!-- Area and Price Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="area" class="block text-sm font-medium text-gray-700 mb-2">
+                    Diện tích (m²) <span class="text-red-500">*</span>
+                </label>
+                <input
+                        type="number"
+                        id="area"
+                        name="area"
+                        min="0"
+                        step="0.01"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
+                        placeholder="0.00"
+                />
+                <div id="storageareaError" class="error-message"></div>
+            </div>
+            <div>
+                <label for="pricePerDay" class="block text-sm font-medium text-gray-700 mb-2">
+                    Giá/ngày (VNĐ) <span class="text-red-500">*</span>
+                </label>
+                <input
+                        type="number"
+                        id="pricePerDay"
+                        name="pricePerDay"
+                        min="0"
+                        step="0.01"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
+                        placeholder="0.00"
+                />
+                <div id="storagepriceError" class="error-message"></div>
+            </div>
+        </div>
+        <!-- Description -->
+        <div>
+            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                Mô tả
+            </label>
+            <textarea
+                    id="description"
+                    name="description"
+                    rows="4"
+                    maxlength="1000"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out resize-vertical"
+                    placeholder="Nhập mô tả chi tiết về kho lưu trữ..."
+            ></textarea>
+            <div id="storagedescriptionError" class="error-message"></div>
+        </div>
+        <!-- Status and Image Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Status -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-3">
+                    Trạng thái
+                </label>
+                <div class="flex items-center">
+                    <input
+                            type="checkbox"
+                            id="status"
+                            name="status"
+                            class="h-5 w-5 text-blue-500 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                    />
+                    <label for="status" class="ml-3 text-sm text-gray-700">
+                        Kho đang hoạt động
+                    </label>
+                </div>
+            </div>
+            <!-- Image Upload -->
+            <div class="mb-4">
+                <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
+                    Ảnh đại diện
+                </label>
+                <input
+                        type="file"
+                        id="image"
+                        name="image"
+                        accept="image/*"
+                        class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                />
+                <p class="mt-1 text-xs text-gray-500">Định dạng PNG, JPG hoặc GIF. Dung lượng tối đa 10MB.</p>
+            </div>
+            <!-- Submit Button -->
+            <div class="pt-6">
+                <button
+                        type="submit"
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                        <span class="flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Thêm Kho Lưu Trữ
+                        </span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+</main>
+<script>
+     const form = document.querySelector("form");
+        form.addEventListener("submit", function(e) {
+            let isValid = true;
+
+            function setError(inputId, message) {
+                const input = document.getElementById(inputId);
+                const errorDiv = document.getElementById(inputId + "Error");
+                if (message) {
+                    input.classList.add("error-border");
+                    errorDiv.textContent = message;
+                    isValid = false;
+                } else {
+                    input.classList.remove("error-border");
+                    errorDiv.textContent = "";
+                }
+            }
+
+            // Tên kho
+            const storagename = document.getElementById("storagename").value.trim();
+            setError("storagename", storagename.length > 30 ? "Tên kho không vượt quá 30 ký tự." : "");
+
+            // Địa chỉ
+            const address = document.getElementById("address").value.trim();
+            setError("address", address.length > 50 ? "Địa chỉ không vượt quá 50 ký tự." : "");
+
+            // Thành phố
+            const city = document.getElementById("city").value.trim();
+            setError("city", city.length > 30 ? "Thành phố không vượt quá 30 ký tự." : "");
+
+            // Bang/Tỉnh
+            const state = document.getElementById("state").value.trim();
+            setError("state", state.length > 30 ? "Bang/Tỉnh không vượt quá 30 ký tự." : "");
+
+            // Diện tích
+            const area = document.getElementById("area").value.trim();
+            setError("area", (area === "" || isNaN(area) || Number(area) <= 0) ? "Diện tích phải lớn hơn 0." : "");
+
+            // Giá/ngày
+            const price = document.getElementById("pricePerDay").value.trim();
+            setError("pricePerDay", (price === "" || isNaN(price) || Number(price) <= 0) ? "Giá/ngày phải lớn hơn 0." : "");
+
+            // Mô tả
+            const description = document.getElementById("description").value.trim();
+            setError("description", description.length > 1000 ? "Mô tả không vượt quá 1000 ký tự." : "");
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+</script>
+</body>
+</html>

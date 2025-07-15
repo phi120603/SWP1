@@ -7,9 +7,10 @@ import com.example.swp.entity.Order;
 import com.example.swp.entity.Storage;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.OrderRepository;
-import com.example.swp.repository.StorageReponsitory;
+import com.example.swp.repository.StorageRepository;
 import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,9 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
@@ -27,7 +30,7 @@ public class OrderServiceimpl implements OrderService {
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
-    private StorageReponsitory storageReponsitory;
+    private StorageRepository storageReponsitory;
     @Autowired
     private StorageRequest storageRequest;
     @Autowired
@@ -40,27 +43,60 @@ public class OrderServiceimpl implements OrderService {
     @Override
     public Optional<Order> getOrderById(int id) {return orderRepository.findById(id);}
 
+    @Override
+    public List<Order> findOrdersByCustomer(Customer customer) {
+        return orderRepository.findByCustomer(customer);
+    }
+
 
     @Override
     public Order createOrder(OrderRequest orderRequest) {
-        Customer customer =  customerRepository.findById(orderRequest.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("ko co customer " +orderRequest.getCustomerId()));
+        Customer customer = customerRepository.findById(orderRequest.getCustomerId())
+                .orElseThrow(() -> new RuntimeException("Không có customer " + orderRequest.getCustomerId()));
+
         Storage storage = storageReponsitory.findById(orderRequest.getStorageId())
-                .orElseThrow(() -> new RuntimeException("ko co storage " +orderRequest.getStorageId()));
+                .orElseThrow(() -> new RuntimeException("Không có storage " + orderRequest.getStorageId()));
+
+        boolean available = isStorageAvailable(storage.getStorageid(),
+                orderRequest.getStartDate(), orderRequest.getEndDate());
+
+        if (!available) {
+            throw new RuntimeException("Kho đã có người đặt trong khoảng thời gian này!");
+        }
+
+        long rentalDays = ChronoUnit.DAYS.between(orderRequest.getStartDate(), orderRequest.getEndDate());
+        if (rentalDays <= 0) {
+            throw new RuntimeException("Ngày kết thúc phải sau ngày bắt đầu!");
+        }
+
+        double dailyRate = storage.getPricePerDay();
+        double totalAmount = rentalDays * dailyRate;
+
         Order order = new Order();
         order.setStartDate(orderRequest.getStartDate());
         order.setEndDate(orderRequest.getEndDate());
         order.setOrderDate(orderRequest.getOrderDate());
-        long rentalDays = ChronoUnit.DAYS.between(orderRequest.getStartDate(), orderRequest.getEndDate());
+        rentalDays = ChronoUnit.DAYS.between(orderRequest.getStartDate(), orderRequest.getEndDate());
         // Tính tổng tiền thuê
-        double dailyRate =storage.getPricePerDay(); // hoặc giá cố định
-        double totalAmount = rentalDays * dailyRate;
+         dailyRate =storage.getPricePerDay(); // hoặc giá cố định
+         totalAmount = rentalDays * dailyRate;
         order.setTotalAmount(totalAmount);
         order.setStatus(orderRequest.getStatus());
         order.setCustomer(customer);
         order.setStorage(storage);
         return orderRepository.save(order);
     }
+
+    @Override
+    public List<Order> findOrdersByStatus(String status) {
+        return orderRepository.findByStatus(status);
+    }
+    @Override
+    public void deleteById(int id) {
+        orderRepository.deleteById(id);
+    }
+
+
 
     @Override
     public Order save(Order order) {
@@ -74,8 +110,139 @@ public class OrderServiceimpl implements OrderService {
             throw new IllegalArgumentException("Ngày kết thúc phải sau ngày bắt đầu");
         }
         return pricePerDay.multiply(BigDecimal.valueOf(days));
+    }
+
+    @Override
+    public double getTotalRevenueAll() {
+        return orderRepository.findAll()
+                .stream()
+                .filter(order -> !"Rejected".equalsIgnoreCase(order.getStatus()))
+                .mapToDouble(Order::getTotalAmount)
+                .sum();
+    }
+
+    @Override
+    public double getRevenuePaid() {
+        return orderRepository.findAll()
+                .stream()
+                .filter(order -> "Paid".equalsIgnoreCase(order.getStatus()))
+                .mapToDouble(Order::getTotalAmount)
+                .sum();
+    }
+
+    @Override
+    public double getRevenueApproved() {
+        return orderRepository.findAll()
+                .stream()
+                .filter(order -> "APPROVED".equalsIgnoreCase(order.getStatus()))
+                .mapToDouble(Order::getTotalAmount)
+                .sum();
+    }
+
+//    //Hàm tính total amount
+//    public BigDecimal calculateTotalAmount(LocalDate startDate, LocalDate endDate, BigDecimal pricePerDay) {
+//        long days = ChronoUnit.DAYS.between(startDate, endDate);
+//        if (days <= 0) {
+//            throw new IllegalArgumentException("Ngày kết thúc phải sau ngày bắt đầu");
+//        }
+//        return pricePerDay.multiply(BigDecimal.valueOf(days));
+//
+//
+//    }
+
+    @Transactional
+    public void markOrderAsPaid(int orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Order với ID: " + orderId));
+
+        long overlap = orderRepository.countOverlapOrders(
+                order.getStorage().getStorageid(),
+                order.getStartDate(),
+                order.getEndDate()
+        );
+
+        if (overlap > 1) {
+            throw new RuntimeException("Kho đã có người khác đặt trong khoảng thời gian này. Không thể thanh toán đơn hàng này.");
+        }
+
+        orderRepository.updateOrderStatusToPaid(orderId);
+    }
+
+    // Trong OrderServiceImpl
+    @Override
+    public Map<String, Long> countOrdersByStatus() {
+        List<Order> orders = orderRepository.findAll();
+        return orders.stream().collect(
+                Collectors.groupingBy(Order::getStatus, Collectors.counting())
+        );
+    }
+
+    @Override
+    public List<Order> getLast5orders() {
+        return orderRepository.findTop5ByOrderByOrderDateDesc();
+    }
+
+
+
+    @Override
+    public boolean isStorageAvailable(int storageId, LocalDate startDate, LocalDate endDate) {
+        return orderRepository.countOverlapOrders(storageId, startDate, endDate) == 0;
+
+
 
 
     }
+
+    @Override
+    public long countOverlapOrdersByCustomer(int customerId, int storageId, LocalDate startDate, LocalDate endDate) {
+        return orderRepository.countOverlapOrdersByCustomer(customerId, storageId, startDate, endDate);
+    }
+
+    @Override
+    public Order createBookingOrder(Storage storage, Customer customer,
+                                    LocalDate startDate, LocalDate endDate, double total) {
+        boolean available = isStorageAvailable(storage.getStorageid(), startDate, endDate);
+        if (!available) {
+            throw new RuntimeException("Kho đã có người đặt trong khoảng thời gian này!");
+        }
+        Order order = new Order();
+        order.setStorage(storage);
+        order.setCustomer(customer);
+        order.setStartDate(startDate);
+        order.setEndDate(endDate);
+        order.setOrderDate(LocalDate.now());
+        order.setTotalAmount(total);
+        order.setStatus("PENDING");
+        // Cần setRentalArea từ controller truyền vào!
+        // order.setRentalArea(rentalArea);
+
+        return orderRepository.save(order);
+    }
+
+    @Override
+    public double getTotalRentedArea(int storageId) {
+        return 0;
+    }
+
+    @Override
+    public double getRemainArea(int storageId, LocalDate startDate, LocalDate endDate) {
+        Optional<Storage> storageOpt = storageReponsitory.findById(storageId);
+        if (storageOpt.isEmpty()) return 0.0;
+        double totalArea = storageOpt.get().getArea();
+        double maxUsed = 0;
+
+        for (LocalDate d = startDate; !d.isAfter(endDate.minusDays(1)); d = d.plusDays(1)) {
+            // Tính tổng diện tích đã bị đặt cho ngày d (các order trùng ngày d, trạng thái còn hiệu lực)
+            double used = orderRepository.sumRentedAreaForStorageOnDate(storageId, d);
+            if (used > maxUsed) maxUsed = used;
+        }
+        return Math.max(0, totalArea - maxUsed);
+    }
+
+//    @Override
+//    public List<Order> getLast5Orders() {
+//        return List.of();
+//    }
+
 
 }

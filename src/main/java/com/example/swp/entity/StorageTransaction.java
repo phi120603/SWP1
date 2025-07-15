@@ -23,6 +23,7 @@ public class StorageTransaction {
     private String type; // "IMPORT", "EXPORT"
 
     private LocalDateTime transactionDate;
+    private Double amount;
 
     @ManyToOne
     @JoinColumn(name = "storage_id")

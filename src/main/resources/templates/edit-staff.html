@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chỉnh sửa nhân viên</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/staff-edit.css}">
+
+</head>
+<body>
+<div class="edit-card">
+    <div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
+    <h2>Chỉnh sửa thông tin nhân viên</h2>
+    <form th:action="@{'/SWP/staff-list/edit/' + ${staff.staffid}}" th:object="${staff}" method="post" class="edit-form">
+        <label for="fullname">Họ tên</label>
+        <input type="text" th:field="*{fullname}" id="fullname" required/>
+
+        <label for="email">Email</label>
+        <input type="email" th:field="*{email}" id="email" required/>
+
+        <label for="phone">SĐT</label>
+        <input type="text" th:field="*{phone}" id="phone" required/>
+
+        <label for="idCitizenCard">CCCD</label>
+        <input type="text" th:field="*{idCitizenCard}" id="idCitizenCard" required/>
+
+        <label for="roleName">Trạng thái</label>
+        <input type="text" id="roleName" required/>
+
+        <div class="form-actions">
+            <button type="submit">Lưu</button>
+            <a th:href="@{/SWP/staff-list}" class="cancel-link">Hủy</a>
+        </div>
+    </form>
+</div>
+</body>
+</html> 

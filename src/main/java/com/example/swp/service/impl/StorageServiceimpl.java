@@ -2,22 +2,26 @@ package com.example.swp.service.impl;
 
 import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Storage;
-import com.example.swp.repository.StorageReponsitory;
-import com.example.swp.repository.StorageReponsitory;
+import com.example.swp.repository.StorageRepository;
+import com.example.swp.repository.StorageRepository;
 import com.example.swp.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Component
 public class StorageServiceimpl implements StorageService {
     @Autowired
-    private StorageReponsitory storageReponsitory;
+    private StorageRepository storageRepository;
+    private List<Storage> storageList = new ArrayList<>();
+    private Storage storage;
     @Override
     public List<Storage> getAll() {
-        return storageReponsitory.findAll();
+        return storageRepository.findAll();
     }
 
     @Override
@@ -37,13 +41,13 @@ public class StorageServiceimpl implements StorageService {
             storage.setImUrl(storageRequest.getImUrl());
         }
 
-        return storageReponsitory.save(storage);
+        return storageRepository.save(storage);
     }
 
 
     @Override
     public Optional<Storage> findByID(int id) {
-        return storageReponsitory.findById(id);
+        return storageRepository.findById(id);
     }
 
     @Override
@@ -54,18 +58,57 @@ public class StorageServiceimpl implements StorageService {
         storage.setCity(storageRequest.getCity());
         storage.setState(storageRequest.getState());
         storage.setStatus(storageRequest.isStatus());
-        return storageReponsitory.save(storage);
+
+        storage.setArea(storageRequest.getArea());
+        storage.setPricePerDay(storageRequest.getPricePerDay());
+        storage.setDescription(storageRequest.getDescription());
+
+        if (storageRequest.getImUrl() != null && !storageRequest.getImUrl().isEmpty()) {
+            storage.setImUrl(storageRequest.getImUrl());
+        }
+
+        return storageRepository.save(storage);
     }
 
     @Override
     public void save(Storage storage) {
-        storageReponsitory.save(storage);
+        storageRepository.save(storage);
     }
 
     @Override
     public void deleteStorageById(int id) {
-        storageReponsitory.deleteById(id);
+//        storageRepository.resetAutoIncrement();
+        storageRepository.deleteById(id);
     }
+
+    @Override
+    public long countAvailableStorages() {
+        return storageRepository.countByStatus(true);
+    }
+
+    @Override
+    public long countRentedStorages() {
+        return storageRepository.countByStatus(false);
+    }
+    @Override
+    public List<Storage> findAvailableStorages(
+            LocalDate startDate, LocalDate endDate,
+            Double minArea, Double minPrice,
+            Double maxPrice, String nameKeyword, String city) {
+        return storageRepository.findAvailableStorages(
+                startDate, endDate, minArea, minPrice, maxPrice, nameKeyword, city);
+    }
+
+    @Override
+    public List<String> findAllCities() {
+        return storageRepository.findAllCities();
+    }
+
+
+
+
+
+
 
 
 }
