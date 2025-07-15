@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý hợp đồng - QVL</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/manager-style.css}">
+</head>
+<body>
+<div class="container">
+    <h2><i class="fas fa-file-signature"></i> Danh sách hợp đồng</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Mã hợp đồng</th>
+            <th>Kho</th>
+            <th>Diện tích</th>
+            <th>Tổng tiền</th>
+            <th>Khách hàng</th> <!-- thêm dòng này -->
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="c : ${contracts}">
+            <td th:text="${c.id}">1</td>
+            <td th:text="${c.contractCode}">HD123</td>
+            <td th:text="${c.storageName}">Kho A</td>
+            <td th:text="${c.rentalArea + ' m²'}">50 m²</td>
+            <td th:text="${#numbers.formatDecimal(c.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">1,000,000</td>
+
+            <!-- Hiển thị tên khách hàng -->
+            <td th:text="${c.order != null && c.order.customer != null ? c.order.customer.fullname : 'N/A'}">Nguyễn Văn A</td>
+
+            <td th:text="${c.status}">PENDING</td>
+            <td>
+                <form th:action="@{'/admin/contracts/change-status/' + ${c.id}}" method="post">
+                    <select name="status">
+                        <option th:each="status : ${statuses}"
+                                th:value="${status}"
+                                th:text="${status}"
+                                th:selected="${status == c.status}">
+                        </option>
+                    </select>
+                    <button type="submit">Cập nhật</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý hợp đồng - QVL</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body>
+<div class="container mt-4">
+    <h2 class="mb-3">📄 Danh sách hợp đồng</h2>
+    <table class="table table-bordered">
+        <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Mã hợp đồng</th>
+            <th>Kho</th>
+            <th>Diện tích</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="contract : ${contracts}">
+            <td th:text="${contract.id}">1</td>
+            <td th:text="${contract.contractCode}">HD-XXXXXX</td>
+            <td th:text="${contract.storageName}">Kho ABC</td>
+            <td th:text="${contract.rentalArea + ' m²'}">100 m²</td>
+            <td th:text="${#numbers.formatDecimal(contract.totalAmount, 0, 'COMMA') + ' VND'}">1,000,000 VND</td>
+            <td>
+                <form th:action="@{/manager/contracts/update-status}" method="post" class="d-flex align-items-center">
+                    <input type="hidden" name="id" th:value="${contract.id}">
+                    <select name="status" class="form-select me-2">
+                        <option th:each="s : ${statuses}"
+                                th:value="${s}"
+                                th:text="${s}"
+                                th:selected="${s} == ${contract.status}">
+                        </option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary">✔</button>
+                </form>
+            </td>
+            <td>
+                <div class="d-flex flex-column gap-1">
+                    <!-- Sửa -->
+                    <a th:href="@{'/manager/contracts/edit/' + ${contract.id}}"
+                       class="btn btn-sm btn-warning">✏ Sửa</a>
+
+                    <!-- Xóa -->
+                    <form th:action="@{'/manager/contracts/delete/' + ${contract.id}}" method="post"
+                          onsubmit="return confirm('Bạn có chắc chắn muốn xóa hợp đồng này?');">
+                        <button type="submit" class="btn btn-sm btn-danger">🗑 Xóa</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Optional: Bootstrap script -->
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

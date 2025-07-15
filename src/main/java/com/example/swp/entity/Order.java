@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
 import java.time.LocalDate;
 
 @Setter
@@ -55,17 +54,13 @@ public class Order {
         @JoinColumn(name = "storage_id", nullable = true)
         @JsonIgnore
         private Storage storage;
-        @Column(length = 500) // Tùy nhu cầu, có thể dài/ngắn hơn
+
+        @Column(length = 500)
         private String cancelReason;
 
         @Column(nullable = false)
-        private Double rentalArea; // diện tích khách muốn thuê
+        private Double rentalArea;
 
-
-
-
-
-
+        @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+        private EContract eContract;
 }
-
-

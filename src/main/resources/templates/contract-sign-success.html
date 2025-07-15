@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ký hợp đồng thành công</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body>
+<div class="container mt-4">
+    <div class="alert alert-success">
+        <h3>🎉 Bạn đã ký hợp đồng thành công!</h3>
+        <p>Mã hợp đồng: <strong th:text="${contract.contractCode}">HD-XXXXXX</strong></p>
+        <p>Chúng tôi sẽ liên hệ lại với bạn sớm nhất để xác nhận.</p>
+        <a th:href="@{/SWP/customers/my-bookings}" class="btn btn-primary mt-3">Quay lại đơn hàng</a>
+    </div>
+</div>
+</body>
+</html>

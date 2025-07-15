@@ -74,8 +74,11 @@ public class LoginRestController {
             session.setMaxInactiveInterval(600); // 10 phút
             session.setAttribute("email", loginRequest.getEmail());
             Object principal = authentication.getPrincipal();
-            if (principal instanceof Customer) {
-                session.setAttribute("loggedInCustomer", principal); // dùng được cho wishlist
+            if (principal instanceof MyUserDetail userDetail) {
+                Object user = userDetail.getUser();
+                if (user instanceof Customer customer) {
+                    session.setAttribute("loggedInCustomer", customer); // đúng rồi!
+                }
             }
 
 

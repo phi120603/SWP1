@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Ký hợp đồng</title>
+  <meta charset="UTF-8">
+</head>
+<body>
+<h2>HỢP ĐỒNG THUÊ KHO</h2>
+
+<p>Mã hợp đồng: <b th:text="${contract.contractCode}"></b></p>
+<p>Khách hàng: <span th:text="${order.customer.fullname}"></span></p>
+<p>Email: <span th:text="${order.customer.email}"></span></p>
+<p>Kho: <span th:text="${order.storage.storagename}"></span></p>
+<p>Thời gian thuê: <span th:text="${order.startDate}"></span> → <span th:text="${order.endDate}"></span></p>
+<p>Diện tích: <span th:text="${order.rentalArea}"></span> m²</p>
+<p>Tổng tiền: <span th:text="${order.totalAmount}"></span> VNĐ</p>
+
+<hr>
+<div>
+  <strong>Điều khoản & Cam kết pháp lý:</strong>
+  <ul>
+    <li>Khách hàng cam kết cung cấp thông tin chính xác, đầy đủ khi ký kết hợp đồng.</li>
+    <li>Không được đơn phương chấm dứt hợp đồng khi chưa có sự đồng ý bằng văn bản của bên quản lý kho.</li>
+    <li>Không sử dụng kho vào mục đích trái pháp luật, bao gồm nhưng không giới hạn bởi việc lưu trữ chất cấm, hàng giả, hàng vi phạm bản quyền.</li>
+    <li>Khách hàng chịu toàn bộ trách nhiệm dân sự và hình sự nếu phát hiện lưu trữ hàng hóa trái quy định.</li>
+    <li>Bên quản lý kho có quyền kiểm tra định kỳ và đột xuất để đảm bảo an toàn và tuân thủ pháp luật.</li>
+    <li>Mọi hư hại, mất mát tài sản bên trong kho do lỗi của khách hàng sẽ không được bên quản lý kho bồi thường.</li>
+    <li>Trường hợp thiên tai, hỏa hoạn, sự cố bất khả kháng gây ảnh hưởng đến tài sản, các bên sẽ thỏa thuận giải pháp hợp lý.</li>
+    <li>Khách hàng có trách nhiệm thanh toán đúng hạn. Quá hạn 7 ngày mà không thanh toán sẽ bị khóa quyền truy cập và thanh lý tài sản.</li>
+    <li>Tất cả các tranh chấp phát sinh sẽ được giải quyết tại Tòa án có thẩm quyền tại nơi đặt kho.</li>
+  </ul>
+</div>
+
+<!-- Chỉ hiện nút ký nếu hợp đồng chưa ký -->
+<div th:if="${contract.status.name() != 'SIGNED'}">
+  <form th:action="${'/econtract/sign/' + contract.id}" method="post">
+    <label>
+      <input type="checkbox" required> Tôi đồng ý với các điều khoản trên.
+    </label><br><br>
+    <button type="submit">Ký hợp đồng</button>
+  </form>
+</div>
+
+<!-- Trạng thái đã ký -->
+<div th:if="${contract.status.name() == 'SIGNED'}">
+  <p style="color:green;"><strong>✅ Hợp đồng đã được ký.</strong></p>
+</div>
+
+<!-- Nút xuất PDF -->
+<div th:if="${contract.status.name() == 'SIGNED'}">
+  <form th:action="${'/econtract/export-pdf/' + contract.id}" method="get" style="margin-top: 20px;">
+    <button type="submit">📄 Xuất hợp đồng PDF</button>
+  </form>
+</div>
+
+</body>
+</html>
