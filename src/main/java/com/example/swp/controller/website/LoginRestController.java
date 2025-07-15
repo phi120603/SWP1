@@ -51,11 +51,11 @@ public class LoginRestController {
     }
 
 
+
     @PostMapping("/login")
     @ResponseBody
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
-
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getEmail(),
@@ -68,25 +68,24 @@ public class LoginRestController {
                         .body("Tài khoản hoặc mật khẩu không chính xác.");
             }
 
-            // Ghi nhận thông tin đăng nhập vào Spring Security Context
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            // Lưu thông tin vào session
             session.setMaxInactiveInterval(600); // 10 phút
             session.setAttribute("email", loginRequest.getEmail());
+
             Object principal = authentication.getPrincipal();
-            if (principal instanceof Customer) {
-                session.setAttribute("loggedInCustomer", principal); // dùng được cho wishlist
+
+            if (principal instanceof Customer customer) {
+                session.setAttribute("loggedInCustomer", customer);
+            } else if (principal instanceof MyUserDetail myUserDetail && myUserDetail.getUser() instanceof Customer customer) {
+                session.setAttribute("loggedInCustomer", customer);
             }
 
-
-            // Gắn context vào session
             session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
+            // Mặc định
+            String redirectUrl = "/home-page";
 
-            // Xác định vai trò để redirect
-            String redirectUrl = "/home-page"; // default
             for (GrantedAuthority authority : authentication.getAuthorities()) {
-
                 String role = authority.getAuthority();
                 switch (role) {
                     case "MANAGER":
@@ -99,7 +98,14 @@ public class LoginRestController {
                         redirectUrl = "/home-page";
                         break;
                 }
-                break; // chỉ lấy role đầu tiên
+                break; // chỉ dùng role đầu tiên
+            }
+
+            // ✅ Nếu có redirect URL sau khi login thì dùng
+            String sessionRedirectUrl = (String) session.getAttribute("redirectAfterLogin");
+            if (sessionRedirectUrl != null && !sessionRedirectUrl.isBlank()) {
+                redirectUrl = sessionRedirectUrl;
+                session.removeAttribute("redirectAfterLogin");
             }
 
             Map<String, String> response = new HashMap<>();
@@ -110,11 +116,12 @@ public class LoginRestController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Email hoặc mật khẩu không chính xác.");
         } catch (Exception e) {
-            e.printStackTrace(); // in lỗi cho debug
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Đã xảy ra lỗi khi đăng nhập.");
         }
     }
+
 
 
     @GetMapping("/logout")

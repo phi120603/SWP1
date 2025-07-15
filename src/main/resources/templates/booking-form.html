@@ -6,20 +6,6 @@
   <title>Đặt kho - QVL STORAGE</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
   <link rel="stylesheet" th:href="@{/css/booking-form.css}" />
-  <style>
-    .info-card { margin-bottom: 1rem;}
-    .highlight {background: #f6ffe0; border-radius: 6px;}
-    .storage-img {
-      width: 100%;
-      max-width: 250px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px #ddd;
-      margin-bottom: 16px;
-    }
-    .remain-label { font-weight: bold; color: #159700;}
-    .remain-value { font-weight: bold; }
-    .remain-header { font-size: 13px; color: #888; }
-  </style>
 </head>
 <body>
 <div class="page-wrapper">
@@ -41,6 +27,9 @@
       <div class="user-info">
         <i class="fas fa-user"></i>
         <span th:text="${customer != null ? customer.fullname : 'Khách'}"></span>
+        <span th:if="${customer != null}" style="margin-left: 10px; color: #fca311; font-weight: bold;">
+    (<span th:text="${customer.points}">0</span> điểm)
+  </span>
       </div>
     </div>
   </nav>
@@ -112,11 +101,7 @@
               </div>
               <div class="info-card highlight">
                 <div class="info-label">TỔNG CHI PHÍ (dự kiến)</div>
-                <div class="info-value"
-                     th:with="days=${T(java.time.temporal.ChronoUnit).DAYS.between(startDate, endDate)}"
-                     th:text="${#numbers.formatDecimal(storage.pricePerDay * (days > 0 ? days : 1), 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">
-                  0 VNĐ
-                </div>
+                <div class="info-value" id="totalCostDisplay">0 VNĐ</div>
               </div>
             </div>
           </div>
@@ -125,10 +110,13 @@
           <!-- Customer Info -->
           <!-- ...Các thông tin kho phía trên... -->
 
-          <div class="form-section">
-            <h3 class="section-title"><i class="fas fa-user-edit"></i> Thông tin khách hàng</h3>
+          <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0;"><i class="fas fa-user-edit"></i> Thông tin khách hàng</h3>
+            <button type="button" class="voucher-btn" onclick="toggleVoucherModal()"> Voucher</button>
+          </div>
+          <input type="hidden" name="voucherId" id="voucherId" />
 
-            <!-- Trường chọn diện tích thuê -->
+          <!-- Trường chọn diện tích thuê -->
             <div class="form-group">
               <label for="rentalArea" class="form-label">Diện tích muốn thuê (m²) *</label>
               <input type="number"
@@ -169,9 +157,6 @@
                      required />
             </div>
 
-          </div>
-
-
           <div class="submit-section">
             <button type="submit" class="submit-btn">
               <i class="fas fa-check-circle"></i> Xác nhận đặt kho
@@ -183,11 +168,96 @@
     </div>
   </main>
 
+<div id="voucherModal" class="voucher-modal" style="display: none;">
+  <div class="voucher-modal-content">
+    <span class="voucher-close" onclick="toggleVoucherModal()">&times;</span>
+    <h3>Danh sách voucher</h3>
+    <div id="voucherList"></div>
+  </div>
+</div>
+
+
   <footer class="footer">
     <div class="container">
       <p>© 2025 QVL Storage. Tất cả quyền được bảo lưu.</p>
     </div>
   </footer>
 </div>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  const vouchers = /*[[${vouchers}]]*/ [];
+  const customerPoint = /*[[${customer != null ? customer.points : 0}]]*/ 0;
+  const pricePerDay = /*[[${storage.pricePerDay}]]*/ 0;
+  const area = /*[[${storage.area}]]*/ 1;
+  const startDate = new Date(/*[[${startDate}]]*/);
+  const endDate = new Date(/*[[${endDate}]]*/);
+  let selectedVoucher = null;
+
+  function toggleVoucherModal() {
+    const modal = document.getElementById('voucherModal');
+    modal.style.display = modal.style.display === 'none' ? 'flex' : 'none';
+
+    if (modal.style.display === 'flex') {
+      const list = document.getElementById('voucherList');
+      list.innerHTML = '';
+
+      vouchers.forEach(v => {
+        const usable = v.requiredPoint <= customerPoint && v.remainQuantity > 0 &&
+                new Date(v.endDate) > new Date();
+        const div = document.createElement('div');
+        div.className = 'voucher-item ' + (usable ? 'voucher-usable' : 'voucher-disabled');
+        div.innerHTML = `<span>${v.name} - ${v.requiredPoint} điểm</span>`;
+        div.dataset.id = v.id;
+
+        if (usable) {
+          div.onclick = () => {
+            document.querySelectorAll('.voucher-item').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
+            selectedVoucher = v;
+          };
+        }
+        list.appendChild(div);
+      });
+
+      const applyBtn = document.createElement('button');
+      applyBtn.className = 'voucher-apply-btn';
+      applyBtn.textContent = 'Áp dụng';
+      applyBtn.onclick = () => applyVoucher();
+      list.appendChild(applyBtn);
+    }
+  }
+
+  function calculateTotal() {
+    const rentalArea = parseFloat(document.getElementById('rentalArea').value) || 0;
+    const days = Math.max(1, Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)));
+    let total = (days * pricePerDay * rentalArea / area);
+
+    if (selectedVoucher && selectedVoucher.discountAmount) {
+      total = Math.max(0, total - selectedVoucher.discountAmount);
+    }
+
+    document.getElementById('totalCostDisplay').innerText = total.toLocaleString('vi-VN') + ' VNĐ';
+  }
+
+  function applyVoucher() {
+    if (!selectedVoucher) return alert('Vui lòng chọn một voucher khả dụng.');
+    document.getElementById('voucherId').value = selectedVoucher.id;
+    document.getElementById('voucherModal').style.display = 'none';
+    alert('Đã áp dụng voucher: ' + selectedVoucher.name);
+    calculateTotal();
+  }
+
+  window.onclick = function(event) {
+    const modal = document.getElementById('voucherModal');
+    if (event.target === modal) modal.style.display = 'none';
+  };
+
+  window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('rentalArea').addEventListener('input', calculateTotal);
+    calculateTotal();
+  });
+  /*]]>*/
+</script>
 </body>
 </html>

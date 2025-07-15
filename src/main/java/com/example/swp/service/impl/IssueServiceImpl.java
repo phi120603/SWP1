@@ -4,9 +4,10 @@ import com.example.swp.dto.IssueRequest;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Issue;
 import com.example.swp.entity.Staff;
+import com.example.swp.enums.IssueStatus;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.IssueRepository;
-import com.example.swp.repository.StaffReponsitory;
+import com.example.swp.repository.StaffRepository;
 import com.example.swp.service.IssueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class IssueServiceImpl implements IssueService {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private StaffReponsitory staffRepository;
+    private StaffRepository staffRepository;
 
     @Override
     public List<Issue> getAllIssues() {
@@ -56,6 +57,41 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
+    public List<Issue> getIssuesByCustomerId(int customerId) {
+        return List.of();
+    }
+
+    @Override
+    public Issue getIssueByIdOrThrow(int id) {
+        return null;
+    }
+
+    @Override
+    public Issue saveIssue(Issue issue) {
+        return null;
+    }
+
+    @Override
+    public void deleteIssueById(int id) {
+
+    }
+
+    @Override
+    public long countAll() {
+        return 0;
+    }
+
+    @Override
+    public long countByStatus(IssueStatus status) {
+        return 0;
+    }
+
+    @Override
+    public List<Issue> searchAndFilterIssues(String search, String status) {
+        return List.of();
+    }
+
+    @Override
     public void updateAssignedStaffAndStatus(int id, int staffId, Boolean resolved) {
         Issue issue = issueRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy issue với id " + id));
@@ -64,5 +100,10 @@ public class IssueServiceImpl implements IssueService {
         issue.setAssignedStaff(staff);
         issue.setResolved(resolved);
         issueRepository.save(issue);
+    }
+
+    @Override
+    public void save(Issue issue) {
+
     }
 }

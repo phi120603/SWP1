@@ -22,4 +22,6 @@ public interface VoucherService {
     List<Voucher> getVouchersByStatus(VoucherStatus status);
 
     long countByStatus(VoucherStatus status);
+
+    Optional<Voucher> getBestEligibleVoucher(int customerPoint);
 }

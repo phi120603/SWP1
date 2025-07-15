@@ -4,7 +4,7 @@ import com.example.swp.dto.IssueRequest;
 import com.example.swp.entity.Issue;
 import com.example.swp.entity.Staff;
 import com.example.swp.repository.CustomerRepository;
-import com.example.swp.repository.StaffReponsitory;
+import com.example.swp.repository.StaffRepository;
 import com.example.swp.service.IssueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,7 +25,7 @@ public class IssueController {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private StaffReponsitory staffRepository;
+    private StaffRepository staffRepository;
 
     // Hiển thị form tạo mới
     @GetMapping("/create")
