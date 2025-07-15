@@ -82,6 +82,8 @@ public class ManagerController {
         List<Staff> staff = staffService.getAllStaff();
         int totalStaff = staff.size();
 
+        List<Order> last5orders = orderService.getLast5orders();
+
         // Chỗ này sửa lại để không lỗi null khi chưa có doanh thu
         Double totalRevenueRaw = orderRepository.calculateTotalRevenue();
         double totalRevenue = (totalRevenueRaw != null) ? totalRevenueRaw : 0.0;
@@ -93,6 +95,7 @@ public class ManagerController {
         model.addAttribute("staff", staff);
         model.addAttribute("totalStaff", totalStaff);
         model.addAttribute("totalRevenue", totalRevenue);
+        model.addAttribute("latestOrders", last5orders);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
@@ -266,9 +269,16 @@ public class ManagerController {
         return ResponseEntity.ok(threads);
     }
 
-    @GetMapping("/chat-manager")
-    public String chatPage() {
-        return "chat-manager";
+    @GetMapping("/manager-inbox")
+    public String managerInbox() {
+        return "manager-inbox";
     }
+
+    @GetMapping("/social-chat")
+    public String socialChat(){
+        return "social-chat";
+    }
+
+    
 
 }
