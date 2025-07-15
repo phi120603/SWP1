@@ -34,11 +34,13 @@ public class GlobalModelAttributeAdvice {
         }
 
         if (email != null) {
-            Customer customer = customerService.findByEmail(email);
+            Customer customer = customerService.findByEmail(email).orElse(null);
             if (customer != null) {
                 long unreadCount = notificationService.countUnreadNotifications(customer);
                 model.addAttribute("unreadCount", unreadCount);
             }
+
+        }
         }
     }
-}
+

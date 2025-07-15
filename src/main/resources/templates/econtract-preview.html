@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Xác nhận thanh toán hợp đồng</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .email-container {
+            background-color: #ffffff;
+            max-width: 650px;
+            margin: 30px auto;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            color: #333333;
+            line-height: 1.6;
+        }
+
+        h2, h3 {
+            color: #0a5bd3;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #0a5bd3;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .terms {
+            background-color: #f9f9f9;
+            border-left: 4px solid #0a5bd3;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .footer {
+            font-size: 12px;
+            color: #999999;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <h2>✅ Hợp đồng đã được ký thành công</h2>
+
+    <p>Xin chào <strong>{{customerName}}</strong>,</p>
+
+    <p>Chúng tôi xác nhận rằng bạn đã hoàn tất việc ký hợp đồng <strong>#{{contractId}}</strong>.</p>
+
+    <p>Trước khi thanh toán, vui lòng đọc kỹ và đồng ý với <strong>các điều khoản thuê kho</strong> dưới đây:</p>
+
+    <div class="terms">
+        <h3>Điều khoản thuê kho</h3>
+        <ul>
+            <li>Khách hàng có trách nhiệm đảm bảo tính hợp pháp của hàng hóa lưu trữ.</li>
+            <li>Chi phí thuê kho được thanh toán theo tháng hoặc theo hợp đồng đã ký.</li>
+            <li>Mọi hư hỏng hoặc mất mát hàng hóa do lỗi của bên thuê sẽ không được đền bù.</li>
+            <li>Thời gian thuê và chấm dứt hợp đồng phải báo trước tối thiểu 15 ngày.</li>
+            <li>Bên cho thuê có quyền kiểm tra đột xuất để đảm bảo tuân thủ quy định.</li>
+        </ul>
+        <p>Bằng cách nhấn nút thanh toán bên dưới, bạn xác nhận đã đọc và đồng ý với các điều khoản trên.</p>
+    </div>
+
+    <a href="http://yourdomain.com/payment?contractId={{contractId}}" class="button">Tôi đồng ý & Thanh toán</a>
+
+    <p>Trân trọng,<br>Đội ngũ Hợp đồng điện tử</p>
+
+    <div class="footer">
+        Email này được gửi tự động. Vui lòng không trả lời trực tiếp email này.
+    </div>
+</div>
+</body>
+</html>

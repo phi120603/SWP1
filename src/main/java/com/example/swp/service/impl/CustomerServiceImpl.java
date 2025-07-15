@@ -12,16 +12,14 @@ import java.util.Optional;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
     @Override
     public Customer getCustomerById(Integer id) {
         return customerRepository.findById(id).orElse(null);
     }
-
-    @Autowired
-    private CustomerRepository customerRepository;
-//    public Optional<Customer> findByEmail(String email) {
-//        return customerRepository.findByEmail(email);
-//    }
 
     @Override
     public List<Customer> getAll() {
@@ -34,8 +32,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Optional<Customer> findByEmail1(String email) {
-        return Optional.empty();
+    public Optional<Customer> findByEmail(String email) {
+        return customerRepository.findByEmail(email);
     }
 
     @Override
@@ -59,10 +57,6 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer findByEmail(String email) {
-        return customerRepository.findByEmail(email).orElse(null);
-    }
-    @Override
     public boolean existsByEmail(String email) {
         return customerRepository.existsByEmail(email);
     }
@@ -71,5 +65,4 @@ public class CustomerServiceImpl implements CustomerService {
     public boolean existsByPhone(String phone) {
         return customerRepository.existsByPhone(phone);
     }
-
 }

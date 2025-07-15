@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Danh sách hợp đồng</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>Danh sách hợp đồng của bạn</h2>
+
+<table border="1" cellspacing="0" cellpadding="10">
+    <thead>
+    <tr>
+        <th>Mã hợp đồng</th>
+        <th>Tiêu đề</th>
+        <th>Ngày tạo</th>
+        <th>Ngày bắt đầu</th>
+        <th>Ngày kết thúc</th>
+        <th>Giá thuê/ngày</th>
+        <th>Trạng thái</th>
+        <th>Thao tác</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="contract : ${contracts}">
+        <td th:text="${contract.id}"></td>
+        <td th:text="${contract.title}"></td>
+        <td th:text="${contract.createdDate}"></td>
+        <td th:text="${contract.startDate}"></td>
+        <td th:text="${contract.endDate}"></td>
+        <td th:text="${#numbers.formatDecimal(contract.pricePerDay, 0, 'COMMA', 2, 'POINT')} + ' VNĐ'"></td>
+        <td th:text="${contract.signed ? 'Đã ký' : 'Chưa ký'}"></td>
+        <td>
+            <a th:href="@{'/econtract/view/' + ${contract.id}}">Xem trước</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

@@ -1,49 +1,66 @@
 package com.example.swp.service.impl;
 
+import com.example.swp.entity.EContract;
+import com.example.swp.repository.EContractRepository;
+import com.example.swp.service.EContractService;
 import com.example.swp.service.EmailService;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import com.example.swp.util.PDFGenerator;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class EmailServiceImpl implements EmailService {
+public class EContractServiceImpl implements EContractService {
 
-    private final JavaMailSender mailSender;
-    private static final Logger log = LoggerFactory.getLogger(EmailServiceImpl.class);
+    private final EContractRepository contractRepo;
+    private final EmailService emailService;
+    private static final Logger log = LoggerFactory.getLogger(EContractServiceImpl.class);
 
     @Override
-    public void sendPaymentEmail(String to, Integer contractId, String pdfPath) {
-        String subject = "Xác nhận thanh toán hợp đồng #" + contractId;
-        String body = "Cảm ơn bạn đã ký hợp đồng.\n"
-                + "Vui lòng thanh toán tại: http://yourdomain.com/payment?contractId=" + contractId;
+    public EContract createContract(EContract contract) {
+        contract.setCreatedDate(LocalDate.now());
+        contract.setSigned(false);
+        return contractRepo.save(contract);
+    }
 
+    @Override
+    public List<EContract> getContractsByCustomerId(Integer customerId) {
+        return contractRepo.findByCustomerId(customerId);
+    }
+
+    @Override
+    public EContract findById(Integer id) {
+        return contractRepo.findById(id)
+                .orElse(null);
+    }
+
+    @Override
+    @Transactional
+    public void signContract(Integer contractId) {
+        EContract contract = contractRepo.findById(contractId)
+                .orElseThrow(() -> new IllegalArgumentException("Contract not found with ID: " + contractId));
+
+        contract.setSigned(true);
+        contractRepo.save(contract);
+
+        String pdfPath;
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, pdfPath != null);
-
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(body);
-
-            if (pdfPath != null) {
-                FileSystemResource file = new FileSystemResource(new File(pdfPath));
-                helper.addAttachment("hop_dong_" + contractId + ".pdf", file);
-            }
-
-            mailSender.send(message);
-            log.info("Email đã được gửi tới: {}", to);
-
-        } catch (MessagingException e) {
-            log.error("Lỗi khi gửi email tới {}: {}", to, e.getMessage(), e);
+            pdfPath = PDFGenerator.generateContractPdf(contract);
+        } catch (Exception e) {
+            log.error("Lỗi khi tạo PDF hợp đồng ID={}", contractId, e);
+            pdfPath = null;
         }
+
+        emailService.sendPaymentEmail(
+                contract.getCustomer().getEmail(),
+                contractId,
+                pdfPath
+        );
     }
 }

@@ -46,7 +46,7 @@ public class CustomerProfileController {
             return "redirect:/login";
         }
 
-        Customer customer = customerService.findByEmail(email);
+        Customer customer = customerService.findByEmail(email).orElse(null);
 
         CustomerProfileUpdateRequest customerProfile = new CustomerProfileUpdateRequest();
         ForgotPasswordRequest forgotPasswordRequest = new ForgotPasswordRequest();
@@ -84,7 +84,7 @@ public class CustomerProfileController {
             return "redirect:/login";
         }
 
-        Customer customer = customerService.findByEmail(email);
+        Customer customer = customerService.findByEmail(email).orElse(null);
 
         model.addAttribute("forgotPasswordRequest", new ForgotPasswordRequest());
         model.addAttribute("changePasswordRequest", new ChangePasswordRequest());
@@ -107,7 +107,7 @@ public class CustomerProfileController {
             customerService.save(customer);
             notificationService.createNotification("Bạn vừa cập nhật thông tin cá nhân thành công.", customer);
 
-            Customer updated = customerService.findByEmail(email);
+            Customer updated = customerService.findByEmail(email).orElse(null);
             model.addAttribute("customerProfile", form);
             model.addAttribute("customer", updated);
             model.addAttribute("success", "Cập nhật thành công!");
@@ -160,7 +160,7 @@ public class CustomerProfileController {
         model.addAttribute("activeTab", "forgot");
 
         if (bindingResult.hasErrors()) return "customer-profile";
-        Customer customer = customerService.findByEmail(form.getEmail());
+        Customer customer = customerService.findByEmail(form.getEmail()).orElse(null);
         if (customer == null) {
             bindingResult.rejectValue("email", "notfound", "Email này không tồn tại!");
             return "customer-profile";
@@ -186,7 +186,7 @@ public class CustomerProfileController {
         model.addAttribute("forgotPasswordRequest", new ForgotPasswordRequest());
         model.addAttribute("changePasswordRequest", form);
         model.addAttribute("activeTab", "changePassword");
-        Customer customer = (email != null) ? customerService.findByEmail(email) : null;
+        Customer customer = (email != null) ? customerService.findByEmail(email).orElse(null) : null;
         model.addAttribute("customer", customer);
 
         if (email == null) {

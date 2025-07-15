@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Xem Hợp Đồng</title>
+</head>
+<body>
+<h1>Xem trước hợp đồng</h1>
+
+<div th:if="${contract != null}">
+    <p>Mã hợp đồng: <span th:text="${contract.id}"></span></p>
+    <p>Link hợp đồng:
+        <a th:href="@{${contract.contractUrl}}" target="_blank">Xem hợp đồng</a>
+    </p>
+</div>
+
+<div th:if="${contract == null}">
+    <p style="color: red;">Không tìm thấy hợp đồng.</p>
+</div>
+</body>
+</html>

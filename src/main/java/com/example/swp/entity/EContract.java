@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @Entity
+@Table(name="econtract")
 public class EContract {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,6 +22,19 @@ public class EContract {
     private LocalDate endDate;
     private boolean signed;
 
+    // ————— Thêm dòng này —————
+    /** Giá thuê theo ngày (bắt buộc NOT NULL) **/
+    @Column(nullable = false)
+    private Double pricePerDay;
+    private String contractUrl;
+
+    public String getContractUrl() {
+        return contractUrl;
+    }
+
+    public void setContractUrl(String contractUrl) {
+        this.contractUrl = contractUrl;
+    }
     @Lob
     private String terms;
 

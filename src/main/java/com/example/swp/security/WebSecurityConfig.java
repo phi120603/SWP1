@@ -6,10 +6,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
@@ -20,18 +20,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-// ... phần đầu giữ nguyên
-
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
 
     private final UserDetailsService userDetailsService;
 
-    // CHỈ nhận UserDetailsService, KHÔNG nhận PasswordEncoder
     public WebSecurityConfig(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
@@ -42,11 +36,11 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder);
-        return provider;
+    public DaoAuthenticationProvider authenticationProvider(PasswordEncoder pw) {
+        DaoAuthenticationProvider p = new DaoAuthenticationProvider();
+        p.setUserDetailsService(userDetailsService);
+        p.setPasswordEncoder(pw);
+        return p;
     }
 
     @Bean
@@ -55,48 +49,41 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/**").hasAuthority(RoleName.MANAGER.name())
-                        .requestMatchers("/staff/**").hasAuthority(RoleName.STAFF.name())
-                        .requestMatchers("/index/**", "/api/login", "/api/register", "/static/**").permitAll()
-                        .anyRequest().permitAll()
-                )
-                .sessionManagement(session -> session
-                        .maximumSessions(1)
+                .authorizeHttpRequests(auth ->
+                        auth.requestMatchers("/admin/**").hasAuthority(RoleName.MANAGER.name())
+                                .requestMatchers("/staff/**").hasAuthority(RoleName.STAFF.name())
+                                .requestMatchers("/api/login","/api/register","/static/**").permitAll()
+                                .anyRequest().authenticated()
                 )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                         .logoutSuccessUrl("/api/login")
                         .invalidateHttpSession(true)
-                        .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
                 )
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(corsConfig()))
                 .csrf(csrf -> csrf.disable());
 
         return http.build();
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:8080"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("*"));
-        config.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
+    public CorsConfigurationSource corsConfig() {
+        CorsConfiguration c = new CorsConfiguration();
+        c.setAllowedOrigins(Arrays.asList("http://localhost:8080"));
+        c.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
+        c.setAllowedHeaders(Arrays.asList("*"));
+        c.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
+        src.registerCorsConfiguration("/**", c);
+        return src;
     }
-    // ✅ Bắt buộc để session tracking (giữ SPRING_SECURITY_CONTEXT trong session)
+
+    // để Spring Security giữ SPRING_SECURITY_CONTEXT trong session
     @Bean
     public HttpSessionEventPublisher httpSessionEventPublisher() {
         return new HttpSessionEventPublisher();
     }
-
-
 }
-

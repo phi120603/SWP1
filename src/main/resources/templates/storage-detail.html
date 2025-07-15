@@ -1,193 +1,145 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Chi tiết kho</title>
-    <link rel="stylesheet" th:href="@{/css/storage-detail.css}">
+    <link rel="stylesheet" th:href="@{/css/storage-detail.css}" />
     <script src="https://cdn.tailwindcss.com"></script>
-
 </head>
 <body>
 <!-- Navigation Bar -->
 <nav class="navbar">
     <div class="navbar-content">
         <div class="navbar-brand">
-            <a href="/homepage">
+            <a th:href="@{/homepage}">
                 <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
-                     alt="QVL Storage Logo" class="navbar-logo">
+                     alt="QVL Storage Logo" class="navbar-logo" />
             </a>
         </div>
         <ul class="navbar-nav">
-            <li><a href="/homepage">Trang chủ</a></li>
-            <li><a href="/SWP/storages" class="active">Danh sách</a></li>
+            <li><a th:href="@{/homepage}">Trang chủ</a></li>
+            <li><a th:href="@{/SWP/storages}" class="active">Danh sách</a></li>
         </ul>
     </div>
 </nav>
 
 <div class="container">
-    <!-- Hiển thị thông báo thành công -->
-    <div th:if="${message}" class="alert alert-success">
-        [[${message}]]
-    </div>
-
-    <!-- Hiển thị thông báo lỗi -->
-    <div th:if="${error}" class="alert alert-error">
-        [[${error}]]
-    </div>
+    <!-- Thông báo chung -->
+    <div th:if="${message}" class="alert alert-success">[[${message}]]</div>
+    <div th:if="${error}"   class="alert alert-error">[[${error}]]</div>
 
     <div class="detail-container">
-        <!-- Image Gallery Section -->
+        <!-- Image Gallery -->
         <div class="image-section">
             <div class="main-image-container">
                 <img id="mainImage"
-                     src="https://res.cloudinary.com/dpkxslork/image/upload/v1749656968/sto_3_vd9fdi.png"
-                     alt="Ảnh minh họa kho"
-                     class="main-image">
+                     th:src="${storage.imUrl}"
+                     alt="Ảnh kho"
+                     class="main-image" />
             </div>
-
             <div class="image-gallery">
+                <!-- Ảnh tĩnh demo -->
                 <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1749656968/sto_3_vd9fdi.png"
-                     alt="Ảnh 1" class="thumb-image active" onclick="changeMainImage(this, 0)">
+                     alt="Ảnh 1" class="thumb-image active" onclick="changeMainImage(this)" />
                 <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1749656969/sto_2_cu1tng.png"
-                     alt="Ảnh 2" class="thumb-image" onclick="changeMainImage(this, 1)">
-                <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1749752759/sto5_zajfiw.png"
-                     alt="Ảnh 3" class="thumb-image" onclick="changeMainImage(this, 2)">
-                <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1749752757/sto_7_atgrwb.png"
-                     alt="Ảnh 4" class="thumb-image" onclick="changeMainImage(this, 3)">
-                <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1749752757/sto_6_uo9lzg.png"
-                     alt="Ảnh 5" class="thumb-image" onclick="changeMainImage(this, 4)">
+                     alt="Ảnh 2" class="thumb-image" onclick="changeMainImage(this)" />
+                <!-- ... -->
             </div>
         </div>
 
-
-        <!-- Storage Information Section -->
+        <!-- Storage Info -->
         <div class="info-section">
             <div class="storage-header">
                 <div class="details-header">
-                    <h1 class="storage-title" th:text="${storage.getStoragename()}"></h1>
-                    <a href="/SWP/storages" class="back-btn-nav">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="m12 19-7-7 7-7"/>
-                            <path d="M19 12H5"/>
-                        </svg>
-                        Quay lại
-                    </a>
+                    <h1 class="storage-title" th:text="${storage.storagename}">Tên kho</h1>
+                    <a th:href="@{/SWP/storages}" class="back-btn-nav">← Quay lại</a>
                 </div>
-
-
                 <div class="status-rating-container">
-                    <div class="status-badge" th:class="${storage.isStatus()} ? 'status-badge available' : 'status-badge rented'">
-                        <svg class="status-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path th:if="${storage.isStatus()}" d="M9 12l2 2 4-4"/>
-                            <path th:unless="${storage.isStatus()}" d="M18 6L6 18"/>
-                            <path th:unless="${storage.isStatus()}" d="M6 6l12 12"/>
-                            <circle cx="12" cy="12" r="10"/>
-                        </svg>
-                        <span th:text="${storage.isStatus()} ? 'Còn trống' : 'Đang thuê'">Còn trống</span>
+                    <div th:class="${storage.status} ? 'status-badge available' : 'status-badge rented'">
+                        <span th:text="${storage.status} ? 'Còn trống' : 'Đang thuê'">Còn trống</span>
                     </div>
-
-                    <div class="rating-container">
-                        <div class="stars">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#fbbf24" stroke="#fbbf24" stroke-width="2">
-                                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
-                            </svg>
-                            <span class="rating-text">4.8 (127 đánh giá)</span>
-                        </div>
-                        <div class="location">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                <circle cx="12" cy="10" r="3"/>
-                            </svg>
-                            <span th:text="${storage.getState()} + ', ' + ${storage.getCity()}"></span>
-                        </div>
+                    <div class="location">
+                        📍 <span th:text="${storage.state} + ', ' + ${storage.city}">Địa điểm</span>
                     </div>
                 </div>
-
                 <div class="price-container">
-                    <span class="price" th:text="${storage.getPricePerDay()} + ' VND'"></span>
+            <span class="price"
+                  th:text="${#numbers.formatDecimal(storage.pricePerDay, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">
+              0 VNĐ
+            </span>
                     <span class="price-unit">/ngày</span>
                 </div>
             </div>
 
-            <!-- Storage Details Card -->
             <div class="info-card">
-                <h3 class="card-title">Thông tin chi tiết</h3>
+                <h3>Thông tin chi tiết</h3>
                 <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-icon area-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                            </svg>
-                        </div>
-                        <div class="info-content">
-                            <label>Diện tích</label>
-                            <span th:text="${storage.getArea()} + ' m²'"></span>
-                        </div>
+                    <div>
+                        <label>Diện tích</label>
+                        <span th:text="${storage.area} + ' m²'">0 m²</span>
                     </div>
-
-                    <div class="info-item">
-                        <div class="info-icon id-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                <polyline points="14,2 14,8 20,8"/>
-                                <line x1="16" y1="13" x2="8" y2="13"/>
-                                <line x1="16" y1="17" x2="8" y2="17"/>
-                                <polyline points="10,9 9,9 8,9"/>
-                            </svg>
-                        </div>
-                        <div class="info-content">
-                            <label>Mã kho</label>
-                            <span th:text="${storage.getStorageid()}"></span>
-                        </div>
+                    <div>
+                        <label>Mã kho</label>
+                        <span th:text="${storage.storageid}">0</span>
                     </div>
-                </div>
-
-                <div class="address-section">
-                    <label>Địa chỉ đầy đủ</label>
-                    <div class="address-content">
-                        <p class="address-main" th:text="${storage.getAddress() + ', ' + storage.getState()} + ', ' + ${storage.getCity()}"></p>
+                    <div>
+                        <label>Địa chỉ</label>
+                        <p th:text="${storage.address} + ', ' + ${storage.state} + ', ' + ${storage.city}">
+                            Địa chỉ đầy đủ
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Description Card -->
             <div class="info-card">
-                <h3 class="card-title">Mô tả</h3>
-                <p class="description-text" th:text="${storage.getDescription()}">
-                </p>
+                <h3>Mô tả</h3>
+                <p th:text="${storage.description}">Mô tả kho...</p>
             </div>
 
             <div class="action-buttons">
                 <button type="button" class="booking-btn" onclick="openModal()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                        <line x1="16" y1="2" x2="16" y2="6"/>
-                        <line x1="8" y1="2" x2="8" y2="6"/>
-                        <line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
                     Đặt thuê ngay
                 </button>
             </div>
-
         </div>
     </div>
 </div>
+
 <!-- Booking Date Modal -->
 <div id="dateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md">
         <h2 class="text-xl font-semibold mb-4 text-gray-800">Chọn ngày thuê</h2>
-        <form id="dateForm" class="space-y-4">
+
+        <form th:action="@{/SWP/booking/{storageId}/booking(storageId=${storage.storageid})}"
+              method="get"
+              class="space-y-4">
             <div>
                 <label for="startDate" class="block text-sm font-medium text-gray-700">Ngày bắt đầu</label>
-                <input type="date" id="startDate" name="startDate" required class="mt-1 block w-full border rounded-md px-3 py-2">
+                <input type="date"
+                       id="startDate"
+                       name="startDate"
+                       required
+                       class="mt-1 block w-full border rounded-md px-3 py-2"
+                       th:value="${#temporals.format(T(java.time.LocalDate).now(), 'yyyy-MM-dd')}" />
             </div>
             <div>
                 <label for="endDate" class="block text-sm font-medium text-gray-700">Ngày kết thúc</label>
-                <input type="date" id="endDate" name="endDate" required class="mt-1 block w-full border rounded-md px-3 py-2">
+                <input type="date"
+                       id="endDate"
+                       name="endDate"
+                       required
+                       class="mt-1 block w-full border rounded-md px-3 py-2"
+                       th:value="${#temporals.format(T(java.time.LocalDate).now().plusDays(1), 'yyyy-MM-dd')}" />
             </div>
             <div class="flex justify-end space-x-2 pt-4">
-                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Hủy</button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Tiếp tục</button>
+                <button type="button" onclick="closeModal()"
+                        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+                    Hủy
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    Tiếp tục
+                </button>
             </div>
         </form>
     </div>
@@ -196,87 +148,20 @@
 <!-- Footer -->
 <footer class="footer">
     <div class="container">
-        <div class="footer-content">
-            <div class="footer-brand">
-                <div class="brand-header">
-                    <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
-                         alt="QVL Storage Logo" class="footer-logo">
-                    <h2 class="brand-name">QVL Storage</h2>
-                </div>
-                <p class="brand-description">
-                    Hệ thống cho thuê kho hàng chuyên nghiệp trên toàn quốc. Chúng tôi cung cấp giải pháp lưu trữ an toàn, tiện lợi và hiệu quả cho mọi nhu cầu kinh doanh.
-                </p>
-            </div>
-
-            <div class="footer-column">
-                <h3>Về chúng tôi</h3>
-                <ul class="footer-links">
-                    <li><a href="#">Dịch vụ</a></li>
-                    <li><a href="#">Tin tức</a></li>
-                    <li><a href="#">Liên hệ</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-column">
-                <h3>Hỗ trợ</h3>
-                <ul class="footer-links">
-                    <li><a href="#">Trung tâm trợ giúp</a></li>
-                    <li><a href="#">Chat trực tuyến</a></li>
-                    <li><a href="#">Hotline 24/7</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-column">
-                <h3>Sản phẩm</h3>
-                <ul class="footer-links">
-                    <li><a href="#">Kho nhỏ</a></li>
-                    <li><a href="#">Kho vừa</a></li>
-                    <li><a href="#">Kho lớn</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="footer-divider"></div>
-
-        <div class="footer-bottom">
-            <p class="copyright">Bản quyền ©2024. Tất cả quyền được bảo lưu. — QVL Storage System</p>
-            <ul class="footer-bottom-links">
-                <li><a href="#">Điều khoản & Điều kiện</a></li>
-                <li><a href="#">Chính sách bảo mật</a></li>
-            </ul>
-        </div>
+        <p>© 2025 QVL Storage. Tất cả quyền được bảo lưu.</p>
     </div>
-
 </footer>
+
 <!-- Scripts -->
-<script th:inline="javascript">
-    const modal = document.getElementById("dateModal");
-    const form = document.getElementById("dateForm");
-
-    function openModal() {
-        modal.classList.remove("hidden");
+<script>
+    function openModal() { document.getElementById('dateModal').classList.remove('hidden'); }
+    function closeModal() { document.getElementById('dateModal').classList.add('hidden'); }
+    function changeMainImage(el) {
+        const main = document.getElementById('mainImage');
+        main.src = el.src;
+        document.querySelectorAll('.thumb-image').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
     }
-
-    function closeModal() {
-        modal.classList.add("hidden");
-    }
-
-    form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        const startDate = form.startDate.value;
-        const endDate = form.endDate.value;
-        const storageId = /*[[${storage.storageid}]]*/ 0;
-
-        if (!startDate || !endDate) {
-            alert("Vui lòng chọn đầy đủ ngày thuê.");
-            return;
-        }
-
-        const url = `/SWP/booking/${storageId}/booking?startDate=${startDate}&endDate=${endDate}`;
-        window.location.href = url;
-    });
 </script>
-
 </body>
-
 </html>

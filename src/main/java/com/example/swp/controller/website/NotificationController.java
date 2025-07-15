@@ -28,7 +28,7 @@ public class NotificationController {
         String email = auth.getName();
 
         // Đúng: KHÔNG dùng .orElse(null)
-        Customer customer = customerService.findByEmail(email);
+        Customer customer = customerService.findByEmail(email).orElse(null);
 
         if (customer == null) {
             return "redirect:/api/login";
@@ -52,7 +52,7 @@ public class NotificationController {
     public String markAllAsRead() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
-        Customer customer = customerService.findByEmail(email);
+        Customer customer = customerService.findByEmail(email).orElse(null);
         if (customer != null) {
             notificationService.markAllAsRead(customer);
         }

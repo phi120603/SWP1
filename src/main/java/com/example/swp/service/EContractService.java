@@ -10,4 +10,6 @@ public interface EContractService {
     List<EContract> getContractsByCustomerId(Integer customerId);
 
     void signContract(Integer contractId);
+    EContract findById(Integer id); // THÊM HÀM NÀY
+
 }

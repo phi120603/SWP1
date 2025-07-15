@@ -7,18 +7,9 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
   <link rel="stylesheet" th:href="@{/css/booking-form.css}" />
   <style>
-    .info-card { margin-bottom: 1rem;}
-    .highlight {background: #f6ffe0; border-radius: 6px;}
-    .storage-img {
-      width: 100%;
-      max-width: 250px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px #ddd;
-      margin-bottom: 16px;
-    }
-    .remain-label { font-weight: bold; color: #159700;}
-    .remain-value { font-weight: bold; }
-    .remain-header { font-size: 13px; color: #888; }
+    .info-card { margin-bottom: 1rem; }
+    .highlight { background: #f6ffe0; border-radius: 6px; }
+    .storage-img { width: 100%; max-width: 250px; border-radius: 12px; box-shadow: 0 2px 10px #ddd; margin-bottom: 16px; }
   </style>
 </head>
 <body>
@@ -59,7 +50,6 @@
           <i class="fas fa-exclamation-triangle"></i>
           <span th:text="${error}"></span>
         </div>
-
         <div th:if="${successMessage}" class="alert-success">
           <i class="fas fa-check-circle"></i>
           <span th:text="${successMessage}"></span>
@@ -67,17 +57,16 @@
 
         <form th:action="@{/SWP/booking/{storageId}/booking/save(storageId=${storage.storageid})}" method="post">
           <input type="hidden" name="startDate" th:value="${startDate}" />
-          <input type="hidden" name="endDate" th:value="${endDate}" />
+          <input type="hidden" name="endDate"   th:value="${endDate}" />
           <input type="hidden" name="orderToken" th:value="${orderToken}" />
 
           <!-- Storage Info -->
           <div class="form-section">
             <h3 class="section-title"><i class="fas fa-warehouse"></i> Thông tin kho</h3>
             <div class="storage-info">
-              <!-- Ảnh kho mặc định (KHÔNG kiểm tra imageUrl) -->
               <div class="info-card" style="text-align:center;">
                 <img src="https://img.freepik.com/premium-photo/warehouse-with-shelves-filled-with-boxes-storage-facility-ai_97167-3669.jpg"
-                     alt="Ảnh kho" class="storage-img" style="max-width: 100%; height: 140px; object-fit:cover; border-radius:8px; margin-bottom:12px;">
+                     alt="Ảnh kho" class="storage-img" />
               </div>
               <div class="info-card">
                 <div class="info-label">TÊN KHO</div>
@@ -92,7 +81,10 @@
               </div>
               <div class="info-card">
                 <div class="info-label">GIÁ/NGÀY</div>
-                <div class="info-value" th:text="${#numbers.formatDecimal(storage.pricePerDay, 0, 'POINT', 0, 'COMMA')} + ' VNĐ/ngày'">0 VNĐ/ngày</div>
+                <div class="info-value"
+                     th:text="${#numbers.formatDecimal(storage.pricePerDay,0,'POINT',0,'COMMA')} + ' VNĐ/ngày'">
+                  0 VNĐ/ngày
+                </div>
               </div>
               <div class="info-card">
                 <div class="info-label">DIỆN TÍCH TỔNG</div>
@@ -102,64 +94,43 @@
                 <div class="info-label">DIỆN TÍCH CÒN LẠI</div>
                 <div class="info-value" th:text="${remainArea} + ' m²'">0 m²</div>
               </div>
-              <div class="info-card">
-                <div class="info-label">NGÀY BẮT ĐẦU</div>
-                <div class="info-value" th:text="${#temporals.format(startDate, 'dd/MM/yyyy')}">Ngày bắt đầu</div>
-              </div>
-              <div class="info-card">
-                <div class="info-label">NGÀY KẾT THÚC</div>
-                <div class="info-value" th:text="${#temporals.format(endDate, 'dd/MM/yyyy')}">Ngày kết thúc</div>
-              </div>
               <div class="info-card highlight">
                 <div class="info-label">TỔNG CHI PHÍ (dự kiến)</div>
                 <div class="info-value"
-                     th:with="days=${T(java.time.temporal.ChronoUnit).DAYS.between(startDate, endDate)}"
-                     th:text="${#numbers.formatDecimal(storage.pricePerDay * (days > 0 ? days : 1), 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">
+                     th:with="days=${T(java.time.temporal.ChronoUnit).DAYS.between(startDate,endDate)}"
+                     th:text="${#numbers.formatDecimal(storage.pricePerDay * (days>0?days:1),0,'POINT',0,'COMMA')} + ' VNĐ'">
                   0 VNĐ
                 </div>
               </div>
             </div>
           </div>
 
-
           <!-- Customer Info -->
-          <!-- ...Các thông tin kho phía trên... -->
-
           <div class="form-section">
             <h3 class="section-title"><i class="fas fa-user-edit"></i> Thông tin khách hàng</h3>
-
-            <!-- Trường chọn diện tích thuê -->
             <div class="form-group">
               <label for="rentalArea" class="form-label">Diện tích muốn thuê (m²) *</label>
-              <input type="number"
-                     id="rentalArea"
-                     name="rentalArea"
-                     class="form-input"
-                     min="1"
-                     th:attr="max=${remainArea}"
-                     th:placeholder="'Tối đa ' + ${remainArea} + ' m²'"
-                     required
-                     step="0.01" />
-              <small class="form-text" th:text="'Có thể thuê tối đa ' + ${remainArea} + ' m².'"></small>
+              <input type="number" id="rentalArea" name="rentalArea" class="form-input"
+                     th:attr="max=${remainArea}" min="1" step="0.01" required
+                     th:placeholder="'Tối đa ' + ${remainArea} + ' m²'" />
+              <small class="form-text" th:text="'Tối đa ' + ${remainArea} + ' m².'"></small>
             </div>
-
             <div class="form-group">
               <label for="name" class="form-label">Họ và tên *</label>
               <input type="text" id="name" name="name" class="form-input"
-                     th:value="${customer != null ? customer.fullname : ''}" required maxlength="50" />
+                     th:value="${customer!=null?customer.fullname:''}" required maxlength="50" />
             </div>
             <div class="form-group">
               <label for="email" class="form-label">Email *</label>
               <input type="email" id="email" name="email" class="form-input"
-                     th:value="${customer != null ? customer.email : ''}" required />
+                     th:value="${customer!=null?customer.email:''}" required />
             </div>
             <div class="form-group">
               <label for="phone" class="form-label">Số điện thoại *</label>
               <input type="tel" id="phone" name="phone" class="form-input"
-                     th:value="${customer != null ? customer.phone : ''}" required pattern="[0-9]{10,11}" />
+                     th:value="${customer!=null?customer.phone:''}" required pattern="0[0-9]{9,10}" />
             </div>
           </div>
-
 
           <div class="submit-section">
             <button type="submit" class="submit-btn">
@@ -179,4 +150,16 @@
   </footer>
 </div>
 </body>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const form = document.querySelector("form");
+    const button = form.querySelector("button[type=submit]");
+
+    form.addEventListener("submit", function() {
+      button.disabled = true;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+    });
+  });
+</script>
+
 </html>

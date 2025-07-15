@@ -1,10 +1,12 @@
 package com.example.swp.controller.website;
 
 import com.example.swp.entity.Customer;
+import com.example.swp.entity.EContract;
 import com.example.swp.entity.Order;
 import com.example.swp.entity.Storage;
 import com.example.swp.enums.RoleName;
 import com.example.swp.service.CustomerService;
+import com.example.swp.service.EContractService;
 import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageService;
 import jakarta.servlet.http.HttpSession;
@@ -17,8 +19,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Optional;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/SWP/booking")
@@ -33,217 +35,135 @@ public class BookingController {
     @Autowired
     private CustomerService customerService;
 
+    @Autowired
+    private EContractService eContractService;
+
+    // Trang search (nếu có)
     @GetMapping("/search")
-    public String showBookingSearchForm(Model model, HttpSession session) {
-        model.addAttribute("order", new Order());
-        model.addAttribute("cities", storageService.findAllCities()); // THÊM DÒNG NÀY
-        model.addAttribute("citySelected", null); // hoặc "" nếu muốn
-        Customer customer = (Customer) session.getAttribute("loggedInCustomer");
-        if (customer != null) {
-            model.addAttribute("customer", customer);
-        }
-        return "booking-search";
+    public String searchPage() {
+        return "booking/search";
     }
 
-
-    @GetMapping("/search/result")
-    public String processBookingSearch(
-            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(value = "minArea", required = false) Double minArea,
-            @RequestParam(value = "nameKeyword", required = false) String nameKeyword,
-            @RequestParam(value = "minPrice", required = false) Double minPrice,
-            @RequestParam(value = "maxPrice", required = false) Double maxPrice,
-            @RequestParam(value = "city", required = false) String city,
-            @RequestParam(value = "sortOption", required = false) String sortOption,
-            Model model,
-            HttpSession session) {
-
-        if (startDate == null || endDate == null || startDate.isAfter(endDate)) {
-            model.addAttribute("error", "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.");
-            return "booking-search";
-        }
-
-        List<Storage> storages = storageService.findAvailableStorages(
-                startDate, endDate, minArea, minPrice, maxPrice, nameKeyword, city
-        );
-
-        Customer customer = (Customer) session.getAttribute("loggedInCustomer");
-        if (customer != null) {
-            storages = storages.stream()
-                    .filter(storage ->
-                            orderService.countOverlapOrdersByCustomer(
-                                    customer.getId(),
-                                    storage.getStorageid(),
-                                    startDate,
-                                    endDate
-                            ) == 0
-                    )
-                    .collect(Collectors.toList());
-        }
-        Map<Integer, Double> remainAreas = new HashMap<>();
-        for (Storage s : storages) {
-            double remain = orderService.getRemainArea(s.getStorageid(), startDate, endDate);
-            remainAreas.put(s.getStorageid(), remain);
-        }
-
-        // SORT giữ nguyên như cũ
-        if (sortOption != null) {
-            switch (sortOption) {
-                case "priceAsc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay));
-                case "priceDesc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay).reversed());
-                case "areaAsc" -> storages.sort(Comparator.comparing(Storage::getArea));
-                case "areaDesc" -> storages.sort(Comparator.comparing(Storage::getArea).reversed());
-                case "nameAsc" -> storages.sort(Comparator.comparing(Storage::getStoragename, String.CASE_INSENSITIVE_ORDER));
-                case "nameDesc" -> storages.sort(Comparator.comparing(Storage::getStoragename, String.CASE_INSENSITIVE_ORDER).reversed());
-            }
-        }
-
-        model.addAttribute("storages", storages);
-        model.addAttribute("remainAreas", remainAreas);
-        model.addAttribute("startDate", startDate);
-        model.addAttribute("endDate", endDate);
-        model.addAttribute("minArea", minArea);
-        model.addAttribute("nameKeyword", nameKeyword);
-        model.addAttribute("minPrice", minPrice);
-        model.addAttribute("maxPrice", maxPrice);
-        model.addAttribute("sortOption", sortOption);
-        model.addAttribute("citySelected", city);
-        model.addAttribute("cities", storageService.findAllCities());
-
-        return "booking-list";
-    }
-
-
-
+    // Hiển thị form đặt kho
     @GetMapping("/{storageId}/booking")
-    public String showBookingForm(@PathVariable int storageId,
-                                  @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                  @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-                                  HttpSession session,
-                                  Model model,
-                                  @ModelAttribute("successMessage") String successMessage) {
-
-        Optional<Storage> optionalStorage = storageService.findByID(storageId);
-        if (optionalStorage.isEmpty()) {
+    public String showBookingForm(
+            @PathVariable int storageId,
+            @RequestParam(value = "startDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Model model,
+            HttpSession session,
+            RedirectAttributes rd
+    ) {
+        Optional<Storage> opt = storageService.findByID(storageId);
+        if (opt.isEmpty()) {
+            rd.addFlashAttribute("error", "Không tìm thấy kho.");
             return "redirect:/SWP/booking/search";
         }
-        Storage storage = optionalStorage.get();
-        Customer customer = (Customer) session.getAttribute("loggedInCustomer");
+        Storage storage = opt.get();
 
-        // Tính diện tích còn lại để truyền xuống form cho khách nhập
+        if (startDate == null) startDate = LocalDate.now();
+        if (endDate == null)   endDate   = startDate.plusDays(1);
+        if (endDate.isBefore(startDate)) {
+            rd.addFlashAttribute("error", "Ngày kết thúc phải sau ngày bắt đầu.");
+            return "redirect:/SWP/booking/search";
+        }
+
         double remainArea = orderService.getRemainArea(storageId, startDate, endDate);
-        model.addAttribute("remainArea", remainArea);
-
-        // Token chống submit lại
-        String orderToken = UUID.randomUUID().toString();
-        session.setAttribute("orderToken", orderToken);
-        model.addAttribute("orderToken", orderToken);
+        String token = UUID.randomUUID().toString();
+        session.setAttribute("orderToken", token);
 
         model.addAttribute("storage", storage);
-        model.addAttribute("customer", customer);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
-
-        if (successMessage != null && !successMessage.isBlank()) {
-            model.addAttribute("successMessage", successMessage);
-        }
+        model.addAttribute("remainArea", remainArea);
+        model.addAttribute("orderToken", token);
+        model.addAttribute("customer", session.getAttribute("loggedInCustomer"));
 
         return "booking-form";
     }
 
+    // Xử lý submit form đặt kho
     @PostMapping("/{storageId}/booking/save")
-    public String processBooking(@PathVariable int storageId,
-                                 @RequestParam("name") String name,
-                                 @RequestParam("email") String email,
-                                 @RequestParam("phone") String phone,
-                                 @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                 @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-                                 @RequestParam("rentalArea") double rentalArea,
-                                 @RequestParam("orderToken") String orderToken,
-                                 HttpSession session,
-                                 RedirectAttributes redirectAttributes) {
-
-        // Kiểm tra token
+    public String processBooking(
+            @PathVariable int storageId,
+            @RequestParam String name,
+            @RequestParam String email,
+            @RequestParam String phone,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam double rentalArea,
+            @RequestParam String orderToken,
+            HttpSession session,
+            RedirectAttributes rd
+    ) {
+        // 1) Token chống double-submit
         String sessionToken = (String) session.getAttribute("orderToken");
         if (sessionToken == null || !sessionToken.equals(orderToken)) {
-            redirectAttributes.addFlashAttribute("error", "Form không hợp lệ hoặc đã được submit.");
+            rd.addFlashAttribute("error", "Form không hợp lệ hoặc đã submit rồi.");
             return "redirect:/SWP/booking/search";
         }
         session.removeAttribute("orderToken");
 
+        // 2) Validate bắt buộc
         if (name.isBlank() || email.isBlank() || phone.isBlank()) {
-            redirectAttributes.addFlashAttribute("error", "Vui lòng điền đầy đủ thông tin.");
+            rd.addFlashAttribute("error", "Vui lòng điền đầy đủ thông tin.");
             return "redirect:/SWP/booking/" + storageId + "/booking?startDate=" + startDate + "&endDate=" + endDate;
         }
-
-        // Kiểm tra định dạng tên
         if (!name.matches("[\\p{L} .'-]{2,50}")) {
-            redirectAttributes.addFlashAttribute("error", "Tên chỉ được chứa chữ, dấu cách và từ 2-50 ký tự.");
+            rd.addFlashAttribute("error", "Tên chỉ chứa chữ và dài 2-50 ký tự.");
             return "redirect:/SWP/booking/" + storageId + "/booking?startDate=" + startDate + "&endDate=" + endDate;
         }
-
-        // Kiểm tra định dạng email
         if (!email.matches("^[\\w-.]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
-            redirectAttributes.addFlashAttribute("error", "Email không đúng định dạng.");
+            rd.addFlashAttribute("error", "Email không đúng định dạng.");
             return "redirect:/SWP/booking/" + storageId + "/booking?startDate=" + startDate + "&endDate=" + endDate;
         }
-
-        // Kiểm tra SĐT
         if (!phone.matches("^0[0-9]{9,10}$")) {
-            redirectAttributes.addFlashAttribute("error", "Số điện thoại phải bắt đầu bằng 0 và có 10-11 chữ số.");
+            rd.addFlashAttribute("error", "SĐT phải bắt đầu 0 và dài 10-11 chữ số.");
             return "redirect:/SWP/booking/" + storageId + "/booking?startDate=" + startDate + "&endDate=" + endDate;
         }
 
-        Optional<Storage> optionalStorage = storageService.findByID(storageId);
-        if (optionalStorage.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Không tìm thấy kho.");
+        // 3) Lấy Storage
+        Optional<Storage> opt = storageService.findByID(storageId);
+        if (opt.isEmpty()) {
+            rd.addFlashAttribute("error", "Không tìm thấy kho.");
             return "redirect:/SWP/booking/search";
         }
-        Storage storage = optionalStorage.get();
+        Storage storage = opt.get();
 
-        // Kiểm tra diện tích còn lại
+        // 4) Kiểm tra diện tích còn
         double remainArea = orderService.getRemainArea(storageId, startDate, endDate);
         if (rentalArea <= 0 || rentalArea > remainArea) {
-            redirectAttributes.addFlashAttribute("error",
-                    "Diện tích thuê phải lớn hơn 0 và không vượt quá diện tích còn trống (" + remainArea + " m²) trong suốt thời gian đặt.");
+            rd.addFlashAttribute("error", "Diện tích thuê không hợp lệ. Tối đa còn " + remainArea + " m².");
             return "redirect:/SWP/booking/" + storageId + "/booking?startDate=" + startDate + "&endDate=" + endDate;
         }
 
-        // Kiểm tra trùng đơn đặt
+        // 5) Lấy hoặc tạo Customer
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
         if (customer == null) {
-            Optional<Customer> existingCustomer = customerService.findByEmail1(email);
-            if (existingCustomer.isPresent()) {
-                customer = existingCustomer.get();
-            } else {
-                customer = new Customer();
-                customer.setFullname(name);
-                customer.setEmail(email);
-                customer.setPhone(phone);
-                customer.setRoleName(RoleName.CUSTOMER);
-                customer.setPassword("default-guest-password");
-                customer.setId_citizen("GUEST-" + UUID.randomUUID());
-                customer = customerService.save(customer);
-            }
-        }
-        long overlapCount = orderService.countOverlapOrdersByCustomer(
-                customer.getId(),
-                storageId,
-                startDate,
-                endDate
-        );
-        if (overlapCount > 0) {
-            redirectAttributes.addFlashAttribute("error",
-                    "Bạn đã từng đặt kho này trong khoảng thời gian này. Vui lòng kiểm tra lại đơn hàng hoặc chọn thời gian khác.");
-            return "redirect:/SWP/booking/search";
+            Optional<Customer> ex = customerService.findByEmail(email);
+            customer = ex.orElseGet(() -> {
+                Customer c = new Customer();
+                c.setFullname(name);
+                c.setEmail(email);
+                c.setPhone(phone);
+                c.setRoleName(RoleName.CUSTOMER);
+                c.setPassword("default-guest-password");
+                String guestId = "GUEST-" + UUID.randomUUID();
+                c.setId_citizen(guestId.length() > 20 ? guestId.substring(0, 20) : guestId);
+                return customerService.save(c);
+            });
+            session.setAttribute("loggedInCustomer", customer);
         }
 
-        // Tính tiền
+        // 6) Tính tiền và lưu Order
         long days = ChronoUnit.DAYS.between(startDate, endDate);
-        double totalAmount = (days > 0 ? days : 1) * storage.getPricePerDay() * rentalArea / storage.getArea();
+        double totalAmount = (days > 0 ? days : 1)
+                * storage.getPricePerDay()
+                * rentalArea
+                / storage.getArea();
 
-        // Tạo mới Order (LƯU rentalArea)
         Order order = new Order();
         order.setCustomer(customer);
         order.setStorage(storage);
@@ -253,24 +173,31 @@ public class BookingController {
         order.setStatus("PENDING");
         order.setRentalArea(rentalArea);
         order.setTotalAmount(totalAmount);
-
         Order savedOrder = orderService.save(order);
 
-        redirectAttributes.addFlashAttribute("successMessage",
-                "Đặt kho thành công! Mã đơn #" + savedOrder.getId());
+        // 7) Tạo hợp đồng điện tử
+        EContract contract = EContract.builder()
+                .title("Hợp đồng thuê kho #" + savedOrder.getId())
+                .createdDate(LocalDate.now())
+                .startDate(startDate)
+                .endDate(endDate)
+                .signed(false)
+                .terms("""
+                        ➤ Khách hàng đồng ý tuân thủ quy định kho và thời gian thuê.
+                        ➤ Diện tích thuê: %s m².
+                        ➤ Tổng chi phí: %,.0f VNĐ.
+                        ➤ Thời gian thuê: %s đến %s.
+                        ➤ Việc ký hợp đồng là điều kiện để tiến hành thanh toán.
+                        """.formatted(rentalArea, totalAmount, startDate, endDate))
+                .customer(customer)
+                .build();
 
-        return "redirect:/SWP/customers/my-bookings";
+        // Sau khi build thì gọi setter pricePerDay
+        contract.setPricePerDay(storage.getPricePerDay());
+
+        EContract savedContract = eContractService.createContract(contract);
+        return "redirect:/econtract/view/" + savedContract.getId();
+
     }
 
-    @GetMapping("/detail")
-    public String bookingDetail(@RequestParam("orderId") int orderId, Model model) {
-        Optional<Order> orderOpt = orderService.getOrderById(orderId);
-        if (orderOpt.isEmpty()) {
-            model.addAttribute("error", "Không tìm thấy đơn hàng #" + orderId);
-            return "error";
-        }
-        Order order = orderOpt.get();
-        model.addAttribute("order", order);
-        return "booking-detail";
-    }
 }
