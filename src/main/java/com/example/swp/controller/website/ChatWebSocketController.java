@@ -1,4 +1,4 @@
-package com.example.swp.controller.ws;
+package com.example.swp.controller.website;
 
 import com.example.swp.dto.ChatMessageRequest;
 import com.example.swp.dto.ChatMessageResponse;

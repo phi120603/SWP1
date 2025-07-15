@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,7 +42,7 @@
                     <i class="fas fa-warehouse"></i>
                 </div>
                 <div class="stat-info">
-                    <h3>Total Storage Units</h3>
+                    <h3>Tổng số kho</h3>
                     <p class="stat-number" th:text="${totalStorages}">0</p>
                 </div>
             </div>
@@ -52,7 +52,7 @@
                     <i class="fas fa-chart-pie"></i>
                 </div>
                 <div class="stat-info">
-                    <h3>Total Users</h3>
+                    <h3>Tổng số người dùng</h3>
                     <p class="stat-number" th:text="${totalUser}">0</p>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                     <i class="fas fa-cube"></i>
                 </div>
                 <div class="stat-info">
-                    <h3>Total Staff</h3>
+                    <h3>Tổng số nhân viên</h3>
                     <p class="stat-number" th:text="${totalStaff}">0</p>
                 </div>
             </div>
@@ -72,37 +72,29 @@
                     <i class="fas fa-dollar-sign"></i>
                 </div>
                 <div class="stat-info">
-                    <h3>Monthly Revenue</h3>
-                    <p th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'">0 VND</p>
+                    <h3>Doanh thu tháng</h3>
+                    <p class="stat-number" th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'">0 VND</p>
                 </div>
             </div>
 
         </div>
 
         <!-- Charts and Tables Section -->
-        <div class="content-grid">
-
-            <!-- Storage Utilization Chart -->
-            <div class="card chart-card">
+        <div class="content-grid" style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+            <!-- Biểu đồ doanh thu -->
+            <div class="card chart-card" style="flex: 1 1 50%;">
                 <div class="card-header">
-                    <h3>Doanh thu theo tháng</h3>
-                    <div class="card-actions">
-                        <button class="btn-secondary">
-                            <i class="fas fa-download"></i> Export
-                        </button>
-                    </div>
+                    <h3>Biểu đồ doanh thu</h3>
                 </div>
                 <div class="chart-container">
-                    <div class="chart-placeholder">
-                        <canvas id="utilizationChart" width="400" height="200"></canvas>
-                    </div>
+                    <canvas id="revenueChart"></canvas>
                 </div>
             </div>
 
-            <!-- Recent Activities -->
-            <div class="card activity-card">
+            <!-- Notification -->
+            <div class="card activity-card" style="flex: 1 1 45%;">
                 <div class="card-header">
-                    <h3>Notification</h3>
+                    <h3>Thông báo</h3>
                     <a th:href="@{/SWP/orders}" class="view-all">View All</a>
                 </div>
                 <div class="activity-list">
@@ -120,15 +112,17 @@
                     </th:block>
                 </div>
             </div>
+        </div>
 
-            <!-- Storage Units Table -->
+
+        <!-- Storage Units Table -->
             <div class="card table-card full-width-card">
                 <div class="card-header">
-                    <h3>Storage Units Overview</h3>
+                    <h3>Tổng quan về kho bãi</h3>
                     <div class="card-actions">
                         <button class="btn-primary">
                             <a href="/admin/addstorage" style="color: white; text-decoration: none;">
-                                <i class="fas fa-plus"></i> Add Unit
+                                <i class="fas fa-plus"></i> Thêm kho
                             </a>
                         </button>
                         <select class="btn btn-secondary" style="padding: 8px 12px; border-radius: 5px;">
@@ -146,14 +140,14 @@
                     <table class="data-table">
                         <thead>
                         <tr>
-                            <th>Storage ID</th>
+                            <th>ID</th>
                             <th>Ảnh Minh Họa</th>
                             <th>Tên Kho</th>
                             <th>Diện Tích</th>
                             <th>Giá thuê theo ngày</th>
                             <th>Mô Tả</th>
                             <th>Tình Trạng Kho</th>
-                            <th>Actions</th>
+                            <th>Thao tác</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -203,6 +197,324 @@
     </div>
 
 </main>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
 
+    // Chart data from server
+    const labels = /*[[${revenueLabels}]]*/ [];
+    const revenueData = /*[[${revenueValues}]]*/ [];
+
+    // Initialize Revenue Chart with enhanced styling
+    const ctx = document.getElementById('revenueChart')?.getContext('2d');
+    let revenueChart;
+
+    if (ctx) {
+        revenueChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: revenueData,
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(255, 205, 86, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(153, 102, 255, 0.8)',
+                        'rgba(255, 159, 64, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(255, 205, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: 'white',
+                        bodyColor: 'white',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' +
+                                    Number(context.raw).toLocaleString('vi-VN') + ' VNĐ';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return value.toLocaleString('vi-VN') + ' VNĐ';
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+    }
+
+    // Search functionality for storage units
+    const searchInput = document.querySelector('.search-box input');
+    const storageTable = document.querySelector('.data-table tbody');
+    const originalRows = Array.from(storageTable.querySelectorAll('tr'));
+
+    function filterTable() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const filterValue = document.querySelector('.card-actions select').value;
+
+        originalRows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const storageId = cells[0].textContent.toLowerCase();
+            const storageName = cells[2].textContent.toLowerCase();
+            const area = cells[3].textContent.toLowerCase();
+            const price = cells[4].textContent.toLowerCase();
+            const description = cells[5].textContent.toLowerCase();
+            const status = cells[6].textContent.toLowerCase();
+
+            let matchesSearch = false;
+            let matchesFilter = true;
+
+            // Search functionality
+            if (searchTerm === '') {
+                matchesSearch = true;
+            } else {
+                matchesSearch = storageId.includes(searchTerm) ||
+                    storageName.includes(searchTerm) ||
+                    area.includes(searchTerm) ||
+                    price.includes(searchTerm) ||
+                    description.includes(searchTerm) ||
+                    status.includes(searchTerm);
+            }
+
+            // Filter functionality
+            if (filterValue && filterValue !== '') {
+                switch(filterValue) {
+                    case 'all':
+                        matchesFilter = true;
+                        break;
+                    case 'area':
+                        // Sort by area (you can customize this logic)
+                        matchesFilter = true;
+                        break;
+                    case 'price':
+                        // Sort by price (you can customize this logic)
+                        matchesFilter = true;
+                        break;
+                    case 'status':
+                        // Filter by status
+                        matchesFilter = status.includes('còn trống') || status.includes('đang thuê');
+                        break;
+                    case 'city':
+                        // Filter by city (you can add city data to implement this)
+                        matchesFilter = true;
+                        break;
+                    default:
+                        matchesFilter = true;
+                }
+            }
+
+            // Show/hide row based on search and filter results
+            if (matchesSearch && matchesFilter) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        updateTableStats();
+    }
+
+    // Update table statistics after filtering
+    function updateTableStats() {
+        const visibleRows = originalRows.filter(row => row.style.display !== 'none');
+        const tableCard = document.querySelector('.table-card .card-header h3');
+        tableCard.textContent = `Storage Units Overview (${visibleRows.length} units)`;
+    }
+
+    // Event listeners
+    if (searchInput) {
+        searchInput.addEventListener('input', filterTable);
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                filterTable();
+            }
+        });
+    }
+
+    // Filter dropdown functionality
+    const filterSelect = document.querySelector('.card-actions select');
+    if (filterSelect) {
+        filterSelect.addEventListener('change', function() {
+            const selectedValue = this.value;
+
+            if (selectedValue === 'area') {
+                sortTableByColumn(3, 'number'); // Sort by area column
+            } else if (selectedValue === 'price') {
+                sortTableByColumn(4, 'number'); // Sort by price column
+            } else if (selectedValue === 'all') {
+                sortTableByColumn(2, 'text'); // Sort by name column
+            }
+
+            filterTable();
+        });
+    }
+
+    // Sort table by column
+    function sortTableByColumn(columnIndex, type) {
+        const tbody = document.querySelector('.data-table tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        rows.sort((a, b) => {
+            const aValue = a.cells[columnIndex].textContent.trim();
+            const bValue = b.cells[columnIndex].textContent.trim();
+
+            if (type === 'number') {
+                const aNum = parseFloat(aValue.replace(/[^\d.-]/g, ''));
+                const bNum = parseFloat(bValue.replace(/[^\d.-]/g, ''));
+                return aNum - bNum;
+            } else {
+                return aValue.localeCompare(bValue);
+            }
+        });
+
+        // Clear tbody and append sorted rows
+        tbody.innerHTML = '';
+        rows.forEach(row => tbody.appendChild(row));
+
+        // Update originalRows array to maintain sort order
+        originalRows.length = 0;
+        originalRows.push(...rows);
+    }
+
+    // Sidebar toggle functionality
+    const sidebarToggle = document.querySelector('.sidebar-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        });
+    }
+
+    // Enhanced chart interactions
+    if (revenueChart) {
+        // Add click event to chart
+        ctx.canvas.addEventListener('click', function(event) {
+            const points = revenueChart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+
+            if (points.length) {
+                const firstPoint = points[0];
+                const label = revenueChart.data.labels[firstPoint.index];
+                const value = revenueChart.data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
+
+                // You can add custom actions here, like showing detailed revenue info
+                console.log(`Clicked on ${label}: ${value.toLocaleString('vi-VN')} VNĐ`);
+            }
+        });
+    }
+
+    // Real-time updates (you can customize this based on your needs)
+    function updateChartData(newLabels, newData) {
+        if (revenueChart) {
+            revenueChart.data.labels = newLabels;
+            revenueChart.data.datasets[0].data = newData;
+            revenueChart.update('active');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateTableStats();
+
+        // Add loading animation to chart
+        if (ctx) {
+            ctx.canvas.style.opacity = '0';
+            setTimeout(() => {
+                ctx.canvas.style.transition = 'opacity 0.5s ease-in-out';
+                ctx.canvas.style.opacity = '1';
+            }, 100);
+        }
+    });
+
+    // Export functionality (optional)
+    function exportTableData() {
+        const visibleRows = originalRows.filter(row => row.style.display !== 'none');
+        const csvContent = "data:text/csv;charset=utf-8,"
+            + "Storage ID,Storage Name,Area,Price,Description,Status\n"
+            + visibleRows.map(row => {
+                const cells = row.querySelectorAll('td');
+                return [
+                    cells[0].textContent,
+                    cells[2].textContent,
+                    cells[3].textContent,
+                    cells[4].textContent,
+                    cells[5].textContent,
+                    cells[6].textContent
+                ].join(',');
+            }).join('\n');
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "storage_units.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    /*]]>*/
+</script>
 </body>
 </html>

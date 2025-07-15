@@ -8,6 +8,7 @@
 </head>
 <body>
 <div class="edit-card">
+    <div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
     <h2>Chỉnh sửa thông tin nhân viên</h2>
     <form th:action="@{'/SWP/staff-list/edit/' + ${staff.staffid}}" th:object="${staff}" method="post" class="edit-form">
         <label for="fullname">Họ tên</label>

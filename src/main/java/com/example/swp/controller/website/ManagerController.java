@@ -64,6 +64,15 @@ public class ManagerController {
 
     @GetMapping("/manager-dashboard")
     public String showDashboard(Model model) {
+
+        // Doanh thu
+        double totalRevenueAll = orderService.getTotalRevenueAll();
+        double revenuePaid = orderService.getRevenuePaid();
+        double revenueApproved = orderService.getRevenueApproved();
+
+        model.addAttribute("revenueLabels", new String[]{"Tổng DT dự kiến", "DT Đã thanh toán", "DT Chờ thanh toán"});
+        model.addAttribute("revenueValues", new double[]{totalRevenueAll, revenuePaid, revenueApproved});
+
         List<Storage> storages = storageService.getAll();
         int totalStorages = storages.size();
 

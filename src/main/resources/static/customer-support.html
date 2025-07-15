@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Support</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .support-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .support-header {
+      margin-bottom: 30px;
+    }
+
+    .support-header h1 {
+      color: #333;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .support-header p {
+      color: #666;
+      font-size: 16px;
+    }
+
+    .manager-selection {
+      margin-bottom: 30px;
+    }
+
+    .manager-selection h3 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+
+    .managers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .manager-card {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .manager-card:hover {
+      border-color: #007bff;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,123,255,0.2);
+    }
+
+    .manager-card.selected {
+      border-color: #007bff;
+      background: #e7f3ff;
+    }
+
+    .manager-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #007bff;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin: 0 auto 15px;
+    }
+
+    .manager-name {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .manager-status {
+      font-size: 12px;
+      color: #28a745;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #28a745;
+    }
+
+    .message-input-section {
+      margin-bottom: 30px;
+    }
+
+    .message-input-section h3 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 18px;
+      text-align: left;
+    }
+
+    .message-textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 15px;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    .message-textarea:focus {
+      border-color: #007bff;
+    }
+
+    .message-textarea::placeholder {
+      color: #999;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: #007bff;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0056b3;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #545b62;
+    }
+
+    .btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .existing-conversations {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 1px solid #e9ecef;
+    }
+
+    .existing-conversations h3 {
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    .conversation-item {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .conversation-item:hover {
+      background: #e9ecef;
+    }
+
+    .conversation-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .conversation-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #28a745;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .conversation-details h4 {
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .conversation-details p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .unread-badge {
+      background: #dc3545;
+      color: white;
+      border-radius: 12px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .loading {
+      text-align: center;
+      color: #666;
+      padding: 20px;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .support-container {
+        padding: 20px;
+      }
+
+      .managers-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="support-container">
+  <div class="support-header">
+    <h1>💬 Customer Support</h1>
+    <p>Get help from our support team. Choose a manager and start a conversation.</p>
+  </div>
+
+  <!-- Error Message -->
+  <div id="errorMessage" class="error" style="display: none;"></div>
+
+  <!-- Existing Conversations -->
+  <div id="existingConversations" class="existing-conversations" style="display: none;">
+    <h3>Your Recent Conversations</h3>
+    <div id="conversationsList"></div>
+    <div style="margin-top: 15px;">
+      <a href="/messenger.html" class="btn btn-primary">Open Full Messenger</a>
+    </div>
+  </div>
+
+  <!-- New Conversation Section -->
+  <div id="newConversationSection">
+    <div class="manager-selection">
+      <h3>Choose a Support Manager</h3>
+      <div id="managersGrid" class="managers-grid">
+        <div class="loading">Loading available managers...</div>
+      </div>
+    </div>
+
+    <div class="message-input-section">
+      <h3>Describe your issue</h3>
+      <textarea
+              id="messageInput"
+              class="message-textarea"
+              placeholder="Please describe your issue or question. Our support team will help you as soon as possible..."
+              maxlength="1000"
+      ></textarea>
+      <div style="text-align: right; margin-top: 5px; color: #666; font-size: 12px;">
+        <span id="charCount">0</span>/1000 characters
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button id="startConversationBtn" class="btn btn-primary" onclick="startConversation()" disabled>
+        Start Conversation
+      </button>
+      <a href="/messenger.html" class="btn btn-secondary">Open Messenger</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  let selectedManagerId = null;
+  let availableManagers = [];
+
+  // Initialize page
+  document.addEventListener('DOMContentLoaded', function() {
+    loadExistingConversations();
+    loadAvailableManagers();
+    setupEventListeners();
+  });
+
+  function setupEventListeners() {
+    const messageInput = document.getElementById('messageInput');
+    const charCount = document.getElementById('charCount');
+
+    messageInput.addEventListener('input', function() {
+      charCount.textContent = this.value.length;
+      updateStartButton();
+    });
+  }
+
+  function loadExistingConversations() {
+    fetch('/api/conversations')
+            .then(response => {
+              if (!response.ok) throw new Error('Failed to load conversations');
+              return response.json();
+            })
+            .then(conversations => {
+              if (conversations.length > 0) {
+                displayExistingConversations(conversations);
+              }
+            })
+            .catch(error => {
+              console.log('No existing conversations or user not logged in');
+            });
+  }
+
+  function displayExistingConversations(conversations) {
+    const container = document.getElementById('conversationsList');
+    const section = document.getElementById('existingConversations');
+
+    container.innerHTML = '';
+
+    conversations.slice(0, 3).forEach(conversation => {
+      const item = document.createElement('div');
+      item.className = 'conversation-item';
+      item.onclick = () => window.location.href = '/messenger.html';
+
+      const managerName = conversation.managerName || 'Support Team';
+      const lastMessage = conversation.lastMessage || 'No messages yet';
+      const avatar = managerName.charAt(0).toUpperCase();
+
+      item.innerHTML = `
+                    <div class="conversation-info">
+                        <div class="conversation-avatar">${avatar}</div>
+                        <div class="conversation-details">
+                            <h4>${managerName}</h4>
+                            <p>${lastMessage.length > 50 ? lastMessage.substring(0, 50) + '...' : lastMessage}</p>
+                        </div>
+                    </div>
+                    ${conversation.unreadCount > 0 ? `<div class="unread-badge">${conversation.unreadCount}</div>` : ''}
+                `;
+
+      container.appendChild(item);
+    });
+
+    section.style.display = 'block';
+  }
+
+  function loadAvailableManagers() {
+    fetch('/api/managers/available')
+            .then(response => {
+              if (!response.ok) throw new Error('Failed to load managers');
+              return response.json();
+            })
+            .then(managers => {
+              availableManagers = managers;
+              displayManagers(managers);
+            })
+            .catch(error => {
+              showError('Unable to load available managers. Please try again later.');
+              console.error('Error loading managers:', error);
+            });
+  }
+
+  function displayManagers(managers) {
+    const container = document.getElementById('managersGrid');
+
+    if (managers.length === 0) {
+      container.innerHTML = '<div class="loading">No managers available at the moment. Please try again later.</div>';
+      return;
+    }
+
+    container.innerHTML = '';
+
+    managers.forEach(manager => {
+      const card = document.createElement('div');
+      card.className = 'manager-card';
+      card.onclick = () => selectManager(manager.id, card);
+
+      const avatar = manager.fullname.charAt(0).toUpperCase();
+      const statusText = manager.isOnline ? 'Online' : 'Available';
+
+      card.innerHTML = `
+                    <div class="manager-avatar">${avatar}</div>
+                    <div class="manager-name">${manager.fullname}</div>
+                    <div class="manager-status">
+                        <div class="status-dot"></div>
+                        ${statusText}
+                    </div>
+                `;
+
+      container.appendChild(card);
+    });
+  }
+
+  function selectManager(managerId, cardElement) {
+    selectedManagerId = managerId;
+
+    // Update UI
+    document.querySelectorAll('.manager-card').forEach(card => {
+      card.classList.remove('selected');
+    });
+    cardElement.classList.add('selected');
+
+    updateStartButton();
+  }
+
+  function updateStartButton() {
+    const btn = document.getElementById('startConversationBtn');
+    const messageInput = document.getElementById('messageInput');
+
+    const hasManager = selectedManagerId !== null;
+    const hasMessage = messageInput.value.trim().length > 0;
+
+    btn.disabled = !(hasManager && hasMessage);
+  }
+
+  function startConversation() {
+    const messageInput = document.getElementById('messageInput');
+    const message = messageInput.value.trim();
+
+    if (!selectedManagerId || !message) {
+      showError('Please select a manager and enter your message.');
+      return;
+    }
+
+    const btn = document.getElementById('startConversationBtn');
+    btn.disabled = true;
+    btn.textContent = 'Starting conversation...';
+
+    const requestData = {
+      managerId: selectedManagerId,
+      initialMessage: message
+    };
+
+    fetch('/api/conversations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData)
+    })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Failed to create conversation');
+              }
+              return response.json();
+            })
+            .then(conversation => {
+              // Redirect to messenger with the new conversation
+              window.location.href = `/messenger.html?conversation=${conversation.id}`;
+            })
+            .catch(error => {
+              showError('Failed to start conversation. Please try again.');
+              console.error('Error creating conversation:', error);
+              btn.disabled = false;
+              btn.textContent = 'Start Conversation';
+            });
+  }
+
+  function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+
+    setTimeout(() => {
+      errorDiv.style.display = 'none';
+    }, 5000);
+  }
+</script>
+</body>
+</html>
