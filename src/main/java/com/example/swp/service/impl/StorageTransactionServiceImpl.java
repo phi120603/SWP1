@@ -62,4 +62,10 @@ public class StorageTransactionServiceImpl implements StorageTransactionService 
 
         return storageTransactionRepository.save(transaction);
     }
+    @Override
+    public StorageTransaction findById(Integer id) {
+        return storageTransactionRepository.findById(id).orElse(null);
+    }
+
+
 }

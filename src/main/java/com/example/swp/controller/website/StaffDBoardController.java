@@ -91,9 +91,22 @@ public class StaffDBoardController {
         model.addAttribute("transactions", transactions);
         return "staff-transaction-list";
     }
+    @PostMapping("/transactions/{id}/update")
+    public String updateTransaction(@PathVariable Integer id,
+                                    @RequestParam String type,
+                                    RedirectAttributes redirectAttributes) {
+        StorageTransaction tran = storageTransactionService.findById(id);
+        if (tran == null) {
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy giao dịch ID: " + id);
+            return "redirect:/SWP/staff/transactions";
+        }
 
+        tran.setType(type);
+        storageTransactionService.save(tran);
 
-
+        redirectAttributes.addFlashAttribute("success", "Cập nhật thành công giao dịch #" + id);
+        return "redirect:/SWP/staff/transactions";
+    }
 
     @GetMapping("/staff-add-storage")
     public String showAddStorageForm(Model model) {

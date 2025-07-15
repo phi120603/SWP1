@@ -6,6 +6,12 @@
     <title>Transaction Management</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/staff-dashboard.css}">
+    <style>
+        .hidden { display: none; }
+        .edit-form {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
 <div class="dashboard-container">
@@ -52,16 +58,25 @@
                                 <td th:text="${#temporals.format(tran.transactionDate, 'dd/MM/yyyy HH:mm')}"></td>
                                 <td th:text="${tran.amount}"></td>
                                 <td>
-                                    <div th:if="${tran.type == 'IMPORT'}">
-                                        <form th:action="@{/SWP/staff/export-storage}" method="post">
-                                            <input type="hidden" name="transactionId" th:value="${tran.id}"/>
-                                            <button type="submit" class="btn btn-danger">Xuất kho</button>
-                                        </form>
-                                    </div>
-                                    <div th:if="${tran.type == 'EXPORT'}">
-                                        <span class="status-badge">Exported</span>
-                                    </div>
+                                    <!-- Nút con mắt để chuyển sang chế độ chỉnh -->
+                                    <button type="button" title="Chỉnh sửa" th:onclick="'showEditForm(' + ${tran.id} + ')'">
+                                        <i class="fas fa-eye text-blue-600"></i>
+                                    </button>
+
+                                    <!-- Thẻ hiển thị loại giao dịch hiện tại -->
+                                    <span th:id="'displayType-' + ${tran.id}" th:text="${tran.type}"></span>
+
+                                    <!-- Form ẩn để chỉnh sửa -->
+                                    <form th:id="'formType-' + ${tran.id}" th:action="@{/SWP/staff/transactions/{id}/update(id=${tran.id})}"
+                                          method="post" style="display:none;">
+                                        <select name="type">
+                                            <option value="IMPORT" th:selected="${tran.type == 'IMPORT'}">IMPORT</option>
+                                            <option value="EXPORT" th:selected="${tran.type == 'EXPORT'}">EXPORT</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-primary">Lưu</button>
+                                    </form>
                                 </td>
+
                             </tr>
                             </tbody>
                         </table>
@@ -71,5 +86,16 @@
         </div>
     </main>
 </div>
+
+<script>
+    function showEditForm(id) {
+        // Ẩn span hiển thị loại giao dịch
+        document.getElementById("displayType-" + id).style.display = "none";
+
+        // Hiện form chọn loại giao dịch
+        document.getElementById("formType-" + id).style.display = "inline";
+    }
+</script>
+
 </body>
 </html>
