@@ -39,7 +39,7 @@ public class StaffAppointmentController {
         }
 
         model.addAttribute("appointment", optionalAppointment.get());
-        return "appointment-detail"; // Bạn có thể tạo sau giao diện này
+        return "appointment-detail";
     }
 
     @PostMapping("/staff/appointments/{id}/handle")

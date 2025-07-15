@@ -50,6 +50,10 @@ public class Order {
         @JoinColumn(name = "storage_id", nullable = true)
         private Storage storage;
 
+        public Order(int id) {
+                this.id = id;
+        }
+
     }
 
 
