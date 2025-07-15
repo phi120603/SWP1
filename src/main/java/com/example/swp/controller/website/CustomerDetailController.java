@@ -104,7 +104,6 @@ public class CustomerDetailController {
             return "redirect:/api/login";
         }
 
-        // Chỉ hiển thị giao dịch có type là IMPORT hoặc EXPORT
         List<StorageTransaction> transactions = storageTransactionService.findByCustomerId(customer.getId())
                 .stream()
                 .filter(t -> "IMPORT".equals(t.getType()) || "EXPORT".equals(t.getType()))
@@ -112,9 +111,9 @@ public class CustomerDetailController {
 
         model.addAttribute("transactions", transactions);
         model.addAttribute("customer", customer);
-
         return "my-transactions";
     }
+
 
 
 

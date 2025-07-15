@@ -67,7 +67,12 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     List<Order> findTop5ByOrderByOrderDateDesc();
     Optional<Order> findByCustomer_IdAndStorage_Storageid(int customerId, int storageId);
-
+    @Query("SELECT COUNT(o) > 0 FROM Order o WHERE o.customer.id = :customerId AND o.storage.storageid = :storageId AND o.status IN :statuses")
+    boolean existsByCustomer_IdAndStorage_StorageidAndStatusIn(
+            @Param("customerId") int customerId,
+            @Param("storageId") int storageId,
+            @Param("statuses") List<String> statuses
+    );
 
 
 

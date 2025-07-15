@@ -749,4 +749,41 @@ body {
     .storage-card {
         margin: 0 0.5rem;
     }
+    .feedback-card {
+        background: #f9fafb;
+        border: 1px solid #e2e8f0;
+        padding: 1.25rem 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease;
+    }
+
+    .feedback-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+    }
+
+    .feedback-card .feedback-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .feedback-card .feedback-name {
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .feedback-card .feedback-stars {
+        color: #facc15;
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .feedback-card .feedback-content {
+        color: #475569;
+        font-size: 0.95rem;
+    }
+
 }

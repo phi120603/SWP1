@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -44,9 +45,19 @@ public class OrderServiceimpl implements OrderService {
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
+    @Override
+    public boolean canCustomerFeedback(int customerId, int storageId) {
+        return orderRepository.existsByCustomer_IdAndStorage_StorageidAndStatusIn(
+                customerId,
+                storageId,
+                List.of("PAID")
+        );
+    }
+
 
     @Override
     public Optional<Order> getOrderById(int id) {return orderRepository.findById(id);}
+
 
     @Override
     public List<Order> findOrdersByCustomer(Customer customer) {
@@ -230,6 +241,7 @@ public class OrderServiceimpl implements OrderService {
 
         return orderRepository.save(order);
     }
+
 
     @Override
     public double getTotalRentedArea(int storageId) {

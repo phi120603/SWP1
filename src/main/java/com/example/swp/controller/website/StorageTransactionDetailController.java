@@ -34,11 +34,12 @@ public class StorageTransactionDetailController {
         Optional<StorageTransaction> optionalTransaction = storageTransactionService.getStorageTransactionById(id);
         if (optionalTransaction.isPresent()) {
             model.addAttribute("transaction", optionalTransaction.get());
+            return "staff-transaction-detail"; //
         } else {
             return "redirect:/SWP/storage-transactions";
         }
-        return "storage-transaction-detail";
     }
+
 
     @PostMapping("/storage-transactions/{id}/mark-import")
     public String markStorageTransactionAsImport(@PathVariable int id, RedirectAttributes redirectAttributes) {

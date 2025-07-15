@@ -34,13 +34,11 @@ public class FeedbackServiceImpl implements FeedbackService {
     public void deleteFeedback(int id) {
         feedbackRepository.deleteById(id);
     }
+
     @Override
-    public boolean existsByCustomerAndStorage(Customer customer, Storage storage) {
-        return feedbackRepository.existsByCustomerAndStorage(customer, storage);
+    public boolean hasCustomerFeedbacked(int customerId, int storageId) {
+        return feedbackRepository.existsByCustomer_IdAndStorage_Storageid(customerId, storageId);
     }
-
-
-
     @Override
     public List<Feedback> getAllFeedbacks() {
         return feedbackRepository.findAll();
@@ -60,24 +58,18 @@ public class FeedbackServiceImpl implements FeedbackService {
     public List<Feedback> findByStorageId(int storageId) {
         return feedbackRepository.findByStorageStorageid(storageId);
     }
-
     @Override
     public Feedback save(Feedback feedback) {
         return feedbackRepository.save(feedback);
     }
-
-    @Override
-    public Feedback createOrUpdateFeedback(int storageId, int customerId, String content, int rating) {
-        return null;
-    }
-
     @Override
     public Feedback createFeedback(int storageId, int customerId, String content, int rating) {
-        return null;
+        Feedback feedback = new Feedback();
+        feedback.setCustomer(customerRepo.findById(customerId).orElseThrow());
+        feedback.setStorage(storageRepo.findById(storageId).orElseThrow());
+        feedback.setContent(content);
+        feedback.setRating(rating);
+        return feedbackRepository.save(feedback);
     }
 
-    @Override
-    public Optional<Feedback> findByCustomerAndStorage(Customer customer, Storage storage) {
-        return Optional.empty();
-    }
 }

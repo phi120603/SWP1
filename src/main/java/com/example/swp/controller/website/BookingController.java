@@ -124,14 +124,19 @@ public class BookingController {
                                   Model model,
                                   @ModelAttribute("successMessage") String successMessage) {
 
+
+        Customer customer = (Customer) session.getAttribute("loggedInCustomer");
+        if (customer == null) {
+            return "redirect:/api/login";
+        }
+
         Optional<Storage> optionalStorage = storageService.findByID(storageId);
         if (optionalStorage.isEmpty()) {
             return "redirect:/SWP/booking/search";
         }
         Storage storage = optionalStorage.get();
-        Customer customer = (Customer) session.getAttribute("loggedInCustomer");
 
-        // Tính diện tích còn lại để truyền xuống form cho khách nhập
+        // Tính diện tích còn lại
         double remainArea = orderService.getRemainArea(storageId, startDate, endDate);
         model.addAttribute("remainArea", remainArea);
 
@@ -152,6 +157,7 @@ public class BookingController {
         return "booking-form";
     }
 
+
     @PostMapping("/{storageId}/booking/save")
     public String processBooking(@PathVariable int storageId,
                                  @RequestParam("name") String name,
@@ -163,6 +169,12 @@ public class BookingController {
                                  @RequestParam("orderToken") String orderToken,
                                  HttpSession session,
                                  RedirectAttributes redirectAttributes) {
+        Customer customer = (Customer) session.getAttribute("loggedInCustomer");
+        if (customer == null) {
+            redirectAttributes.addFlashAttribute("error", "Bạn cần đăng nhập để đặt kho.");
+            return "redirect:/api/login";
+        }
+
 
         // Kiểm tra token
         String sessionToken = (String) session.getAttribute("orderToken");
@@ -211,24 +223,6 @@ public class BookingController {
         }
 
         // Kiểm tra trùng đơn đặt
-        Customer customer = (Customer) session.getAttribute("loggedInCustomer");
-        if (customer == null) {
-            Optional<Customer> existingCustomer = customerService.findByEmail1(email);
-            if (existingCustomer.isPresent()) {
-                customer = existingCustomer.get();
-            } else {
-                customer = new Customer();
-                customer.setFullname(name);
-                customer.setEmail(email);
-                customer.setPhone(phone);
-                customer.setRoleName(RoleName.CUSTOMER);
-                customer.setPassword("default-guest-password");
-                customer.setId_citizen("GUEST-" + UUID.randomUUID().toString().substring(0, 13));
-                customer = customerService.save(customer);
-            }
-            session.setAttribute("loggedInCustomer", customer);
-
-        }
         long overlapCount = orderService.countOverlapOrdersByCustomer(
                 customer.getId(),
                 storageId,
