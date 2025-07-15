@@ -8,7 +8,6 @@ public class StaffLeavePageController {
 
     @GetMapping("/staff/leave-request")
     public String staffLeavePage() {
-        // trả về staff-leave-request.html (bỏ đuôi .html)
         return "staff-leave-request";
     }
 }

@@ -5,6 +5,7 @@ import com.example.swp.entity.Storage;
 import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.swp.entity.Customer;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Integer> {
-
     List<Order> findByStatus(String status);
 
     List<Order> findByCustomer(Customer customer);
@@ -67,6 +67,9 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     List<Order> findTop5ByOrderByOrderDateDesc();
 
+
+    @Query("SELECT o FROM Order o WHERE o.status = 'PAID' AND o.endDate <= :threshold AND o.endDate >= :today")
+    List<Order> findPaidRenewalOrders(LocalDate today, LocalDate threshold);
 
 }
 

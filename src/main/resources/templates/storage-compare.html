@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>So sánh kho</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+<h1>So sánh hai kho bãi</h1>
+<table>
+    <tr>
+        <th>Tiêu chí</th>
+        <th th:text="${storage1.storagename}">Kho 1</th>
+        <th th:text="${storage2.storagename}">Kho 2</th>
+    </tr>
+    <tr>
+        <td>Địa chỉ</td>
+        <td th:text="${storage1.address} + ', ' + ${storage1.city} + ', ' + ${storage1.state}"></td>
+        <td th:text="${storage2.address} + ', ' + ${storage2.city} + ', ' + ${storage2.state}"></td>
+    </tr>
+    <tr>
+        <td>Diện tích (m²)</td>
+        <td th:text="${storage1.area}"></td>
+        <td th:text="${storage2.area}"></td>
+    </tr>
+    <tr>
+        <td>Giá thuê (VND/ngày)</td>
+        <td th:text="${storage1.pricePerDay}"></td>
+        <td th:text="${storage2.pricePerDay}"></td>
+    </tr>
+    <tr>
+        <td>Trạng thái</td>
+        <td th:text="${storage1.status ? 'Còn trống' : 'Đang cho thuê'}"></td>
+        <td th:text="${storage2.status ? 'Còn trống' : 'Đang cho thuê'}"></td>
+    </tr>
+    <tr>
+        <td>Mô tả</td>
+        <td th:text="${storage1.description}"></td>
+        <td th:text="${storage2.description}"></td>
+    </tr>
+</table>
+</body>
+</html>

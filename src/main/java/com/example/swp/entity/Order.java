@@ -66,6 +66,10 @@ public class Order {
 
 
 
-}
+public Order(int id) {
+                this.id = id;
+        }
+
+    }
 
 
