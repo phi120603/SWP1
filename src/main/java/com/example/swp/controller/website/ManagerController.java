@@ -279,6 +279,16 @@ public class ManagerController {
         return "social-chat";
     }
 
+    @GetMapping("/manager-setting")
+    public String managerSetting(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            UserDetails userDetails = (UserDetails) auth.getPrincipal();
+            model.addAttribute("userName", userDetails.getUsername());
+            model.addAttribute("userRole", auth.getAuthorities().iterator().next().getAuthority());
+        }
+        return "manager-setting";
+    }
     
 
 }

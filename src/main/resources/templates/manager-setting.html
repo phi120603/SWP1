@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ Quản lý - Hệ thống Quản lý Kho</title>
+    <link rel="stylesheet" href="manager-setting.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; }
+        .header, .footer { background: #2c3e50; color: white; padding: 10px 0; }
+        .container { width: 90%; max-width: 1200px; margin: auto; }
+        .header-content, .profile-header, .profile-content, .footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+        .logo { font-size: 1.5rem; display: flex; align-items: center; }
+        .logo i { margin-right: 8px; }
+        .nav a { margin: 0 10px; color: white; text-decoration: none; }
+        .nav .active { font-weight: bold; border-bottom: 2px solid white; }
+        .notification-btn, .logout-btn { background: none; color: white; border: none; cursor: pointer; margin-left: 10px; }
+        .main { padding: 30px 0; }
+        .profile-header { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .avatar-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; }
+        .profile-info h1 { margin: 0; }
+        .profile-stats { display: flex; gap: 20px; margin-top: 10px; }
+        .stat-item { text-align: center; }
+        .btn { padding: 10px 15px; margin-left: 10px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-secondary { background: #95a5a6; color: white; }
+        .profile-content { display: flex; gap: 20px; flex-wrap: wrap; }
+        .profile-left, .profile-right { flex: 1; min-width: 300px; }
+        .card { background: white; border-radius: 8px; margin-bottom: 20px; padding: 20px; }
+        .card-title { margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px; }
+        .info-group { margin-bottom: 10px; }
+        .info-label { font-weight: bold; display: block; }
+        .status-badge.active { background: #27ae60; color: white; padding: 3px 10px; border-radius: 12px; display: inline-block; }
+        .level-badge.senior { background: #e67e22; color: white; padding: 3px 10px; border-radius: 12px; }
+        .skill-item { margin-bottom: 15px; }
+        .skill-bar { height: 8px; background: #ecf0f1; border-radius: 5px; margin: 5px 0; }
+        .skill-progress { height: 100%; background: #3498db; border-radius: 5px; }
+        .activity-item { display: flex; margin-bottom: 10px; }
+        .activity-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; }
+        .activity-icon.success { background: #2ecc71; }
+        .activity-icon.info { background: #3498db; }
+        .activity-icon.warning { background: #e74c3c; }
+        .metric-item { display: flex; align-items: center; margin-bottom: 10px; }
+        .metric-icon { margin-right: 10px; font-size: 1.2rem; }
+        .achievement-item { display: flex; margin-bottom: 15px; }
+        .achievement-icon { font-size: 1.5rem; margin-right: 10px; }
+        .achievement-icon.gold { color: gold; }
+        .achievement-icon.silver { color: silver; }
+        .achievement-icon.bronze { color: peru; }
+    </style>
+</head>
+<body>
+<div>
+    <div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
+</div>
+
+<!-- Main Content -->
+<main class="main">
+    <div class="container">
+
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+<!--                <img src="https://i.pravatar.cc/120" alt="Avatar" class="avatar-img">-->
+            </div>
+            <div class="profile-info">
+                <h1 class="profile-name">Nguyễn Văn Minh</h1>
+                <p class="profile-title">Quản lý Kho chính</p>
+                <div class="profile-stats">
+                    <div class="stat-item"><span class="stat-number">5</span><br><span class="stat-label">Năm kinh nghiệm</span></div>
+                    <div class="stat-item"><span class="stat-number">3</span><br><span class="stat-label">Kho quản lý</span></div>
+                    <div class="stat-item"><span class="stat-number">25</span><br><span class="stat-label">Nhân viên</span></div>
+                </div>
+            </div>
+            <div class="profile-actions">
+                <button class="btn btn-primary"><i class="fas fa-edit"></i> Chỉnh sửa hồ sơ</button>
+                <button class="btn btn-secondary"><i class="fas fa-download"></i> Xuất CV</button>
+            </div>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="profile-content">
+            <div class="profile-left">
+                <!-- Thông tin cá nhân -->
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-user"></i> Thông tin cá nhân</h3>
+                    <div class="card-body">
+                        <div class="info-group"><label class="info-label">Họ và tên</label><p class="info-value">Nguyễn Văn Minh</p></div>
+                        <div class="info-group"><label class="info-label">Email</label><p class="info-value">minh.nguyen@company.com</p></div>
+                        <div class="info-group"><label class="info-label">Số điện thoại</label><p class="info-value">+84 123 456 789</p></div>
+                        <div class="info-group"><label class="info-label">Ngày sinh</label><p class="info-value">15/03/1985</p></div>
+                        <div class="info-group"><label class="info-label">Địa chỉ</label><p class="info-value">123 Đường ABC, Quận 1, TP.HCM</p></div>
+                        <div class="info-group"><label class="info-label">Trạng thái</label><span class="status-badge active">Đang hoạt động</span></div>
+                    </div>
+                </div>
+
+                <!-- Thông tin công việc -->
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-briefcase"></i> Thông tin công việc</h3>
+                    <div class="card-body">
+                        <div class="info-group"><label class="info-label">Chức vụ</label><p class="info-value">Quản lý Kho chính</p></div>
+                        <div class="info-group"><label class="info-label">Phòng ban</label><p class="info-value">Phòng Logistics</p></div>
+                        <div class="info-group"><label class="info-label">Ngày bắt đầu</label><p class="info-value">01/06/2019</p></div>
+                        <div class="info-group"><label class="info-label">Mã nhân viên</label><p class="info-value">EMP001</p></div>
+                        <div class="info-group"><label class="info-label">Cấp độ</label><span class="level-badge senior">Senior</span></div>
+                        <div class="info-group"><label class="info-label">Báo cáo cho</label><p class="info-value">Trần Thị Lan - Giám đốc Vận hành</p></div>
+                    </div>
+                </div>
+
+                <!-- Kỹ năng -->
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-star"></i> Kỹ năng chuyên môn</h3>
+                    <div class="card-body">
+                        <div class="skill-item"><span>Quản lý kho hàng</span><div class="skill-bar"><div class="skill-progress" style="width: 95%;"></div></div><span>95%</span></div>
+                        <div class="skill-item"><span>Hệ thống WMS</span><div class="skill-bar"><div class="skill-progress" style="width: 90%;"></div></div><span>90%</span></div>
+                        <div class="skill-item"><span>Quản lý nhân sự</span><div class="skill-bar"><div class="skill-progress" style="width: 85%;"></div></div><span>85%</span></div>
+                        <div class="skill-item"><span>Phân tích dữ liệu</span><div class="skill-bar"><div class="skill-progress" style="width: 80%;"></div></div><span>80%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-right">
+                <!-- Hoạt động gần đây -->
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-clock"></i> Hoạt động gần đây</h3>
+                    <div class="card-body">
+                        <div class="activity-item"><div class="activity-icon success"><i class="fas fa-check"></i></div><div><p>Phê duyệt đơn nhập kho #WH001</p><span>2 giờ trước</span></div></div>
+                        <div class="activity-item"><div class="activity-icon info"><i class="fas fa-file-alt"></i></div><div><p>Tạo báo cáo tồn kho tháng 12</p><span>4 giờ trước</span></div></div>
+                        <div class="activity-item"><div class="activity-icon warning"><i class="fas fa-exclamation-triangle"></i></div><div><p>Xử lý cảnh báo hết hàng sản phẩm A123</p><span>6 giờ trước</span></div></div>
+                        <div class="activity-item"><div class="activity-icon success"><i class="fas fa-users"></i></div><div><p>Họp team hàng tuần</p><span>1 ngày trước</span></div></div>
+                    </div>
+                </div>
+
+                <!-- Hiệu suất -->
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-chart-line"></i> Hiệu suất làm việc</h3>
+                    <div class="card-body">
+                        <div class="metric-item"><div class="metric-icon"><i class="fas fa-target"></i></div><div><span>98%</span><br><small>Độ chính xác</small></div></div>
+                        <div class="metric-item"><div class="metric-icon"><i class="fas fa-clock"></i></div><div><span>95%</span><br><small>Đúng thời hạn</small></div></div>
+                        <div class="metric-item"><div class="metric-icon"><i class="fas fa-thumbs-up"></i></div><div><span>4.8/5</span><br><small>Đánh giá</small></div></div>
+                    </div>
+                </div>
+
+                <!-- Thành tích -->
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-trophy"></i> Thành tích</h3>
+                    <div class="card-body">
+                        <div class="achievement-item"><div class="achievement-icon gold"><i class="fas fa-medal"></i></div><div><h4>Nhân viên xuất sắc 2023</h4><p>Đạt hiệu suất cao nhất trong năm</p></div></div>
+                        <div class="achievement-item"><div class="achievement-icon silver"><i class="fas fa-award"></i></div><div><h4>Cải tiến quy trình</h4><p>Tối ưu hóa quy trình nhập xuất kho</p></div></div>
+                        <div class="achievement-item"><div class="achievement-icon bronze"><i class="fas fa-certificate"></i></div><div><h4>Chứng chỉ WMS Professional</h4><p>Hoàn thành khóa đào tạo chuyên sâu</p></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <p>&copy; 2024 Hệ thống Quản lý Kho. Tất cả quyền được bảo lưu.</p>
+    </div>
+</footer>
+
+</body>
+</html>
