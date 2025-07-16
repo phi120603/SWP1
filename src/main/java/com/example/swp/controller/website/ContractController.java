@@ -83,16 +83,22 @@ public class ContractController {
         context.setVariable("order", contract.getOrder());
 
         // Render HTML bằng Thymeleaf
-        String html = templateEngine.process("view-contract", context); // chính là file .html của bạn
+        String html = templateEngine.process("view-contract", context);
 
         // Gửi về browser như PDF
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=contract-" + contract.getContractCode() + ".pdf");
 
+        OutputStream out = response.getOutputStream();
+
         ITextRenderer renderer = new ITextRenderer();
+
+        // ✅ Thêm dòng dưới để hỗ trợ tiếng Việt:
+        String fontPath = "src/main/resources/fonts/Roboto-Regular.ttf";
+        renderer.getFontResolver().addFont(fontPath, com.lowagie.text.pdf.BaseFont.IDENTITY_H, com.lowagie.text.pdf.BaseFont.EMBEDDED);
+
         renderer.setDocumentFromString(html);
         renderer.layout();
-        OutputStream out = response.getOutputStream();
         renderer.createPDF(out);
         out.close();
     }

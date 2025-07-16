@@ -38,14 +38,15 @@
         </dependency>
         <dependency>
             <groupId>org.xhtmlrenderer</groupId>
-            <artifactId>flying-saucer-core</artifactId>
+            <artifactId>flying-saucer-pdf-openpdf</artifactId>
             <version>9.1.22</version>
         </dependency>
         <dependency>
             <groupId>org.xhtmlrenderer</groupId>
-            <artifactId>flying-saucer-pdf-itext5</artifactId>
-            <version>9.1.22</version>
+            <artifactId>flying-saucer-core</artifactId>
+            <version>9.1.20</version>
         </dependency>
+
 
         <dependency>
             <groupId>org.thymeleaf</groupId>
