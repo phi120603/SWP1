@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý công việc</title>
+    <link rel="stylesheet" th:href="@{/css/task-list.css}">
+</head>
+<body>
+<div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>Quản lý công việc</h1>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="page-content">
+        <div class="page-header">
+            <h2 class="page-title">Danh sách công việc được giao cho nhân viên</h2>
+        </div>
+
+        <!-- Hiển thị thông báo thành công/thất bại nếu cần -->
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <!-- Issue Table -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Danh sách công việc (<span id="totalCount" th:text="${#lists.size()}"></span>)</h3>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tiêu đề</th>
+                        <th>Mô tả</th>
+                        <th>Khách hàng</th>
+                        <th>Nhân viên xử lý</th>
+                        <th>Ngày tạo</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="issue, iterStat : ${issues}">
+                        <td th:text="${iterStat.count}"></td>
+                        <td th:text="${issue.subject}"></td>
+                        <td th:text="${issue.description}"></td>
+                        <td th:text="${issue.customer?.fullname ?: 'Không xác định'}"></td>
+                        <td th:text="${issue.assignedStaff?.fullname ?: 'Chưa gán'}"></td>
+                        <td th:text="${issue.createdDate != null ? #dates.format(issue.createdDate, 'dd/MM/yyyy HH:mm') : ''}"></td>
+                        <td>
+                            <span th:if="${issue.resolved}" class="status-badge active">Đã xử lý</span>
+                            <span th:if="${!issue.resolved}" class="status-badge warning">Chưa xử lý</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(issues)}">
+                        <td colspan="7" class="text-center">Không có issue nào.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+            <div class="pagination"></div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -153,15 +153,6 @@ public class ManagerController {
         }
         return "manager-storage-edit"; // HTML trang sửa
     }
-
-
-    @PostMapping("/storages/{id}/delete")
-    public String deleteStorage(@PathVariable int id, RedirectAttributes redirectAttributes) {
-        storageService.deleteStorageById(id);
-        redirectAttributes.addFlashAttribute("message", "Đã xoá kho thành công!");
-        return "redirect:/admin/manager-dashboard";
-    }
-
     //edit storage
     @PutMapping("/manager-dashboard/storages/{id}")
     public String updateStorage(@PathVariable int id,
@@ -201,7 +192,7 @@ public class ManagerController {
     public String showStaffList(
             Model model,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "10") int size
     ) {
         Page<Staff> staffPage = staffService.getStaffsByPage(page - 1, size);
 
@@ -240,6 +231,7 @@ public class ManagerController {
             existingStaff.setFullname(staff.getFullname());
             existingStaff.setEmail(staff.getEmail());
             existingStaff.setPhone(staff.getPhone());
+            existingStaff.setRoleName(staff.getRoleName());
             existingStaff.setIdCitizenCard(staff.getIdCitizenCard());
 
 
@@ -251,8 +243,3 @@ public class ManagerController {
         return "redirect:/admin/staff-list";
     }
 }
-
-
-
-
-
