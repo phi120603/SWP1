@@ -67,13 +67,12 @@ public class Order {
 
         @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
         private EContract eContract;
+
+        public Order(int id) {
+                this.id = id;
+        }
 }
 
 
-public Order(int id) {
-                this.id = id;
-        }
-
-    }
 
 

@@ -73,7 +73,6 @@ public class LoginRestController {
             // Lưu thông tin vào session
             session.setMaxInactiveInterval(600); // 10 phút
             session.setAttribute("email", loginRequest.getEmail());
-
             Object principal = authentication.getPrincipal();
 
             if (principal instanceof Customer customer) {
@@ -102,14 +101,7 @@ public class LoginRestController {
                         redirectUrl = "/home-page";
                         break;
                 }
-                break; // chỉ dùng role đầu tiên
-            }
-
-            // ✅ Nếu có redirect URL sau khi login thì dùng
-            String sessionRedirectUrl = (String) session.getAttribute("redirectAfterLogin");
-            if (sessionRedirectUrl != null && !sessionRedirectUrl.isBlank()) {
-                redirectUrl = sessionRedirectUrl;
-                session.removeAttribute("redirectAfterLogin");
+                break; // chỉ lấy role đầu tiên
             }
 
             Map<String, String> response = new HashMap<>();
@@ -120,7 +112,7 @@ public class LoginRestController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Email hoặc mật khẩu không chính xác.");
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // in lỗi cho debug
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Đã xảy ra lỗi khi đăng nhập.");
         }
