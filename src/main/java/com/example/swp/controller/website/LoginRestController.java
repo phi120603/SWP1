@@ -51,11 +51,11 @@ public class LoginRestController {
     }
 
 
-
     @PostMapping("/login")
     @ResponseBody
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
+
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getEmail(),
@@ -68,7 +68,9 @@ public class LoginRestController {
                         .body("Tài khoản hoặc mật khẩu không chính xác.");
             }
 
+            // Ghi nhận thông tin đăng nhập vào Spring Security Context
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            // Lưu thông tin vào session
             session.setMaxInactiveInterval(600); // 10 phút
             session.setAttribute("email", loginRequest.getEmail());
 
@@ -80,12 +82,14 @@ public class LoginRestController {
                 session.setAttribute("loggedInCustomer", customer);
             }
 
+            // Gắn context vào session
             session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
-            // Mặc định
-            String redirectUrl = "/home-page";
 
+            // Xác định vai trò để redirect
+            String redirectUrl = "/home-page"; // default
             for (GrantedAuthority authority : authentication.getAuthorities()) {
+
                 String role = authority.getAuthority();
                 switch (role) {
                     case "MANAGER":
@@ -121,7 +125,6 @@ public class LoginRestController {
                     .body("Đã xảy ra lỗi khi đăng nhập.");
         }
     }
-
 
 
     @GetMapping("/logout")
