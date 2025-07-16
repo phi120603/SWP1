@@ -74,11 +74,17 @@
           <div class="form-section">
             <h3 class="section-title"><i class="fas fa-warehouse"></i> Thông tin kho</h3>
             <div class="storage-info">
-              <!-- Ảnh kho mặc định (KHÔNG kiểm tra imageUrl) -->
               <div class="info-card" style="text-align:center;">
-                <img src="https://img.freepik.com/premium-photo/warehouse-with-shelves-filled-with-boxes-storage-facility-ai_97167-3669.jpg"
-                     alt="Ảnh kho" class="storage-img" style="max-width: 100%; height: 140px; object-fit:cover; border-radius:8px; margin-bottom:12px;">
+                <img
+                        th:src="${storage.imUrl != null && !storage.imUrl.isEmpty() ? storage.imUrl : 'https://img.freepik.com/premium-photo/warehouse-with-shelves-filled-with-boxes-storage-facility-ai_97167-3669.jpg'}"
+                        alt="Ảnh kho"
+                        class="storage-img"
+                        style="max-width: 100%; height: 140px; object-fit:cover; border-radius:8px; margin-bottom:10px;">
               </div>
+
+
+
+
               <div class="info-card">
                 <div class="info-label">TÊN KHO</div>
                 <div class="info-value" th:text="${storage.storagename}">Tên kho</div>
@@ -189,5 +195,15 @@
     </div>
   </footer>
 </div>
+<script>
+  function changeMainImage(img) {
+    // Đổi src ảnh chính
+    document.getElementById('mainImage').src = img.src;
+    // Highlight thumbnail
+    document.querySelectorAll('.thumb-img').forEach(e => e.classList.remove('active'));
+    img.classList.add('active');
+  }
+</script>
+
 </body>
 </html>

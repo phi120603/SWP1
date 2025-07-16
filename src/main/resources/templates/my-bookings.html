@@ -110,7 +110,8 @@
                 </span>
             </td>
             <td>
-              <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')}">0</span>
+              <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 2, 'COMMA')} + ' VNĐ'">0</span>
+
               <span class="currency">VNĐ</span>
             </td>
             <td>

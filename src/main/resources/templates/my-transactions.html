@@ -33,7 +33,7 @@
         <div class="hero-content">
             <h1>Lịch sử giao dịch</h1>
             <p th:text="'Xin chào, ' + ${customer.fullname} + '. Đây là tất cả giao dịch của bạn.'">
-                Xin chào, Nguyễn Văn A. Đây là tất cả giao dịch của bạn.
+
             </p>
         </div>
     </div>
@@ -84,9 +84,10 @@
                             <td class="transaction-date">
                                 <div class="date-container">
                                     <span class="date-main"
-                                          th:text="${#dates.format(transaction.transactionDate, 'dd/MM/yyyy')}"></span>
+                                          th:text="${#temporals.format(transaction.transactionDate, 'dd/MM/yyyy')}"></span>
                                     <span class="date-time"
-                                          th:text="${#dates.format(transaction.transactionDate, 'HH:mm')}"></span>
+                                          th:text="${#temporals.format(transaction.transactionDate, 'HH:mm')}"></span>
+
                                 </div>
                             </td>
                             <td class="transaction-type">
@@ -143,7 +144,7 @@
                     <div class="brand-header">
                         <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
                              alt="QVL Storage Logo" class="footer-logo">
-                        <h2 class="brand-name">QVL Storage</h2>
+
                     </div>
                     <p class="brand-description">Hệ thống cho thuê kho hàng chuyên nghiệp trên toàn quốc.</p>
                 </div>
