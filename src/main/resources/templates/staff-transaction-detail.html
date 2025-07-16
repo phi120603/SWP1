@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Giao Dịch - QVL Storage</title>
+    <link rel="stylesheet" href="/css/staff-dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .detail-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            padding: 30px;
+        }
+
+        .detail-header h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            width: 150px;
+            color: #555;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        .field-edit {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-save {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #4a67d6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-button i {
+            margin-right: 5px;
+        }
+
+        .alert {
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        @media (max-width: 768px) {
+            .info-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Sidebar -->
+<div th:replace="taskbar/staff-taskbar :: staffTaskbar"></div>
+
+<main class="main-content">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>Chi Tiết Giao Dịch</h1>
+        </div>
+    </header>
+
+    <div class="page-content">
+        <!-- Alert -->
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+        <a href="/SWP/staff/transactions" class="back-button">
+            <i class="fas fa-arrow-left"></i> Quay lại danh sách giao dịch
+        </a>
+
+        <!-- Transaction Detail Card -->
+        <div class="detail-card">
+            <div class="detail-header">
+                <h2 th:text="'Giao Dịch #' + ${transaction.id}">Giao Dịch #1</h2>
+            </div>
+
+            <!-- View -->
+            <div class="info-row">
+                <div class="detail-label">Khách hàng:</div>
+                <div class="detail-value" th:text="${transaction.customer.fullname}">Nguyễn Văn A</div>
+            </div>
+            <div class="info-row">
+                <div class="detail-label">Kho:</div>
+                <div class="detail-value" th:text="${transaction.storage.storagename}">Kho ABC</div>
+            </div>
+            <div class="info-row">
+                <div class="detail-label">Ngày giao dịch:</div>
+                <div class="detail-value" th:text="${#temporals.format(transaction.transactionDate, 'dd/MM/yyyy HH:mm')}">2025-07-15</div>
+            </div>
+
+            <!-- Form chỉnh sửa -->
+            <form th:action="@{'/SWP/staff/transactions/' + ${transaction.id} + '/update'}" method="post">
+                <label class="detail-label">Loại giao dịch</label>
+                <select name="type" class="field-edit" required>
+                    <option value="PENDING" th:selected="${transaction.type == 'PENDING'}">PENDING</option>
+                    <option value="IMPORT" th:selected="${transaction.type == 'IMPORT'}">IMPORT</option>
+                    <option value="EXPORT" th:selected="${transaction.type == 'EXPORT'}">EXPORT</option>
+                </select>
+
+                <div class="detail-actions">
+                    <button type="submit" class="btn btn-save">
+                        <i class="fas fa-save"></i> Lưu thay đổi
+                    </button>
+                    <a href="/SWP/staff/transactions" class="btn btn-cancel">
+                        <i class="fas fa-times"></i> Hủy
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.querySelector('.sidebar-toggle').addEventListener('click', function () {
+        document.querySelector('.sidebar').classList.toggle('open');
+    });
+
+    // Tự động ẩn thông báo sau 5 giây
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) {
+            alert.style.transition = 'opacity 0.5s';
+            alert.style.opacity = 0;
+            setTimeout(() => alert.remove(), 500);
+        }
+    }, 5000);
+</script>
+</body>
+</html>

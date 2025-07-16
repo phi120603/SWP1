@@ -98,6 +98,7 @@ public class BookingController {
             remainAreas.put(s.getStorageid(), remain);
         }
 
+        // SORT giữ nguyên như cũ
         if (sortOption != null) {
             switch (sortOption) {
                 case "priceAsc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay));
@@ -245,33 +246,20 @@ public class BookingController {
         double remainArea = orderService.getRemainArea(storageId, startDate, endDate);
         if (rentalArea <= 0 || rentalArea > remainArea) {
             redirectAttributes.addFlashAttribute("error",
-                    "Diện tích thuê phải lớn hơn 0 và không vượt quá diện tích còn trống (" + remainArea + " m²).");
+                    "Diện tích thuê phải lớn hơn 0 và không vượt quá diện tích còn trống (" + remainArea + " m²) trong suốt thời gian đặt.");
             return "redirect:/SWP/booking/" + storageId + "/booking?startDate=" + startDate + "&endDate=" + endDate;
         }
 
-        customer = (Customer) session.getAttribute("loggedInCustomer");
-        if (customer == null) {
-            Optional<Customer> existingCustomer = customerService.findByEmail1(email);
-            if (existingCustomer.isPresent()) {
-                customer = existingCustomer.get();
-            } else {
-                customer = new Customer();
-                customer.setFullname(name);
-                customer.setEmail(email);
-                customer.setPhone(phone);
-                customer.setRoleName(RoleName.CUSTOMER);
-                customer.setPassword("default-guest-password");
-                customer.setId_citizen("GUEST-" + UUID.randomUUID().toString().substring(0, 13));
-                customer = customerService.save(customer);
-            }
-            session.setAttribute("loggedInCustomer", customer);
-        }
-
+        // Kiểm tra trùng đơn đặt
         long overlapCount = orderService.countOverlapOrdersByCustomer(
-                customer.getId(), storageId, startDate, endDate);
+                customer.getId(),
+                storageId,
+                startDate,
+                endDate
+        );
         if (overlapCount > 0) {
             redirectAttributes.addFlashAttribute("error",
-                    "Bạn đã từng đặt kho này trong khoảng thời gian này.");
+                    "Bạn đã từng đặt kho này trong khoảng thời gian này. Vui lòng kiểm tra lại đơn hàng hoặc chọn thời gian khác.");
             return "redirect:/SWP/booking/search";
         }
 

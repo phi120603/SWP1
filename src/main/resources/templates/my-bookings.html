@@ -20,7 +20,8 @@
   <ul class="sidebar-menu">
     <li class="menu-item"><a href="/home-page"><i class="fas fa-home"></i><span>Trang chủ</span></a></li>
     <li class="menu-item"><a href="/SWP/storages"><i class="fas fa-warehouse"></i><span>Danh sách kho</span></a></li>
-    <li class="menu-item active"><a href="/SWP/customers/my-bookings"><i class="fas fa-box"></i><span>Đơn hàng</span></a></li>
+    <li class="menu-item"><a href="/SWP/customers/my-bookings"><i class="fas fa-box"></i><span>Đơn hàng</span></a></li>
+    <li class="menu-item"><a href="/SWP/customers/my-transactions"><i class="fas fa-exchange-alt"></i><span>Lịch sử giao dịch</span></a></li>
     <li class="menu-item"><a href="/api/logout"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></a></li>
   </ul>
   <div class="sidebar-footer">
@@ -112,7 +113,8 @@
               </span>
             </td>
             <td>
-              <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')}">0</span>
+              <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 2, 'COMMA')} + ' VNĐ'">0</span>
+
               <span class="currency">VNĐ</span>
             </td>
             <td>
@@ -137,7 +139,7 @@
 </main>
 
 <script>
-  document.querySelector('.sidebar-toggle').addEventListener('click', function () {
+  document.querySelector('.sidebar-toggle').addEventListener('click', function() {
     document.querySelector('.sidebar').classList.toggle('open');
   });
 </script>

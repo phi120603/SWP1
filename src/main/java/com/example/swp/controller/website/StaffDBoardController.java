@@ -3,7 +3,6 @@ package com.example.swp.controller.website;
 import com.cloudinary.Cloudinary;
 import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.*;
-import com.example.swp.enums.VoucherStatus;
 import com.example.swp.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
+
 
 @Controller
 @RequestMapping("/SWP/staff")
@@ -33,6 +33,8 @@ public class StaffDBoardController {
     FeedbackService feedbackService;
     @Autowired
     RecentActivityService recentActivityService;
+    @Autowired
+    StorageTransactionService storageTransactionService;
     @Autowired
     VoucherService voucherService;
 
@@ -114,13 +116,35 @@ public class StaffDBoardController {
     public String showUserList(Model model) {
         List<Customer> customers = customerService.getAll();
         model.addAttribute("customers", customers);
-        return "customer-list";
+        return "customer-list"; // Trang HTML hiển thị danh sách người dùng
+    }
+    @GetMapping("/transactions")
+    public String showTransactionList(Model model) {
+        List<StorageTransaction> transactions = storageTransactionService.getAllStorageTransactions();
+        model.addAttribute("transactions", transactions);
+        return "staff-transaction-list";
+    }
+    @PostMapping("/transactions/{id}/update")
+    public String updateTransaction(@PathVariable Integer id,
+                                    @RequestParam String type,
+                                    RedirectAttributes redirectAttributes) {
+        StorageTransaction tran = storageTransactionService.findById(id);
+        if (tran == null) {
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy giao dịch ID: " + id);
+            return "redirect:/SWP/staff/transactions";
+        }
+
+        tran.setType(type);
+        storageTransactionService.save(tran);
+
+        redirectAttributes.addFlashAttribute("success", "Cập nhật thành công giao dịch #" + id);
+        return "redirect:/SWP/staff/transactions";
     }
 
     @GetMapping("/staff-add-storage")
     public String showAddStorageForm(Model model) {
         model.addAttribute("storage", new Storage());
-        return "/staff-add-storage";
+        return "/staff-add-storage"; // Trang HTML chứa form
     }
 
     @GetMapping("/storages/{id}/detail")
@@ -128,10 +152,10 @@ public class StaffDBoardController {
         Optional<Storage> optionalStorage = storageService.findByID(id);
         if (optionalStorage.isPresent()) {
             model.addAttribute("storage", optionalStorage.get());
-            return "staff-storage-detail";
+            return "staff-storage-detail"; // Tên file Thymeleaf
         } else {
             redirectAttributes.addFlashAttribute("message", "Kho không tồn tại!");
-            return "redirect:/SWP/staff/staff-dashboard";
+            return "redirect:/SWP/staff/staff-dashboard"; // Điều hướng về dashboard nếu không tìm thấy
         }
     }
 
@@ -139,14 +163,14 @@ public class StaffDBoardController {
     public String showAllStorageList(Model model) {
         List<Storage> storages = storageService.getAll();
         model.addAttribute("storages", storages);
-        return "staff-all-storage";
+        return "staff-all-storage"; // Tên file HTML tương ứng
     }
 
     @GetMapping("/all-recent-activity")
     public String showAllRecentActivity(Model model) {
         List<RecentActivity> recentActivities = recentActivityService.getAllActivities();
         model.addAttribute("recentActivities", recentActivities);
-        return "all-recent-activity";
+        return "all-recent-activity"; // Tên file Thymeleaf: all-recent-activity.html
     }
 
     @PostMapping("/staff-add-storage")
@@ -155,16 +179,21 @@ public class StaffDBoardController {
                              @RequestParam("returnUrl") String returnUrl,
                              RedirectAttributes redirectAttributes) {
         try {
+            // Upload ảnh
             if (file != null && !file.isEmpty()) {
                 String imageUrl = cloudinaryService.uploadImage(file);
                 storageRequest.setImUrl(imageUrl);
             }
+
+            // Lưu vào DB
             storageService.createStorage(storageRequest);
             redirectAttributes.addFlashAttribute("message", "Thêm kho thành công!");
         } catch (Exception e) {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("message", "Lỗi khi thêm kho.");
         }
+
+        // Quay lại trang trước
         return "redirect:" + returnUrl;
     }
 
@@ -195,20 +224,27 @@ public class StaffDBoardController {
                 storageRequest.setState(storage.getState());
                 storageRequest.setCity(storage.getCity());
                 storageRequest.setDescription(storage.getDescription());
+
                 storageRequest.setArea(existingStorage.getArea());
                 storageRequest.setPricePerDay(existingStorage.getPricePerDay());
                 storageRequest.setStatus(existingStorage.isStatus());
                 storageRequest.setImUrl(existingStorage.getImUrl());
 
                 storageService.updateStorage(storageRequest, existingStorage);
+
                 redirectAttributes.addFlashAttribute("message", "Cập nhật kho thành công!");
+                redirectAttributes.addFlashAttribute("messageType", "success");
             } else {
                 redirectAttributes.addFlashAttribute("message", "Không tìm thấy kho để cập nhật!");
+                redirectAttributes.addFlashAttribute("messageType", "error");
             }
         } catch (Exception e) {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("message", "Lỗi khi cập nhật kho: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("messageType", "error");
         }
+
+        // Redirect về trang detail của storage vừa chỉnh sửa
         return "redirect:/SWP/staff/storages/" + id + "/detail";
     }
 

@@ -11,6 +11,10 @@ body {
     display: flex;
     flex-direction: column;
 }
+.thumb-img.active {
+    border: 2px solid #72ba2a !important;
+    box-shadow: 0 2px 8px #d9edc6;
+}
 
 .main {
     flex: 1;

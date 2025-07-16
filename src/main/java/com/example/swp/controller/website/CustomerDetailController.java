@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/SWP/customers")
@@ -29,6 +30,8 @@ public class CustomerDetailController {
     private FeedbackRepository feedbackRepository;
     @Autowired
     private StorageTransactionService storageTransactionService;
+
+
 
     @GetMapping("/{id}")
     public String customerDetail(@PathVariable int id, Model model) {
@@ -101,15 +104,16 @@ public class CustomerDetailController {
             return "redirect:/api/login";
         }
 
-        // Gọi đúng method trong service
-        List<StorageTransaction> transactions =
-                storageTransactionService.findByCustomerId(customer.getId());
+        List<StorageTransaction> transactions = storageTransactionService.findByCustomerId(customer.getId())
+                .stream()
+                .filter(t -> "IMPORT".equals(t.getType()) || "EXPORT".equals(t.getType()))
+                .collect(Collectors.toList());
 
         model.addAttribute("transactions", transactions);
         model.addAttribute("customer", customer);
-
         return "my-transactions";
     }
+
 
 
 

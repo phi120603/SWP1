@@ -71,15 +71,14 @@ public class LoginRestController {
             // Ghi nhận thông tin đăng nhập vào Spring Security Context
             SecurityContextHolder.getContext().setAuthentication(authentication);
             // Lưu thông tin vào session
-            session.setMaxInactiveInterval(600); // 10 phút
+            session.setMaxInactiveInterval(6000); // 10 phút
             session.setAttribute("email", loginRequest.getEmail());
-            Object principal = authentication.getPrincipal();
-
-            if (principal instanceof Customer customer) {
-                session.setAttribute("loggedInCustomer", customer);
-            } else if (principal instanceof MyUserDetail myUserDetail && myUserDetail.getUser() instanceof Customer customer) {
+            Customer customer = customerService.findByEmail(loginRequest.getEmail());
+            if (customer != null) {
                 session.setAttribute("loggedInCustomer", customer);
             }
+
+
 
             // Gắn context vào session
             session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
@@ -137,24 +136,4 @@ public class LoginRestController {
             return ResponseEntity.ok("Chưa đăng nhập hoặc session đã hết hạn.");
         }
     }
-
-    @GetMapping("/current-user")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> getCurrentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof MyUserDetail userDetail) {
-            Object user = userDetail.getUser();
-            if (user instanceof Customer customer) {
-                Map<String, Object> data = new HashMap<>();
-                data.put("id", customer.getId());
-                data.put("email", customer.getEmail());
-                data.put("fullName", customer.getFullname());
-                return ResponseEntity.ok(data);
-            }
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-    }
-
 }
-
-

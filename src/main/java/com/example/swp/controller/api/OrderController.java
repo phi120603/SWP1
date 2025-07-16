@@ -3,7 +3,9 @@ package com.example.swp.controller.api;
 import com.example.swp.dto.OrderRequest;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Storage;
+import com.example.swp.entity.StorageTransaction;
 import com.example.swp.repository.StorageRepository;
+import com.example.swp.service.StorageTransactionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +34,9 @@ public class OrderController {
 
     @Autowired
     private StorageRepository storageRepository;
+
+    @Autowired
+    private StorageTransactionService storageTransactionService;
 
     @GetMapping("/orders")
     public List<Order> getAllOrders() {
@@ -54,6 +60,41 @@ public class OrderController {
                     .body(Map.of("error", e.getMessage()));
         }
     }
+    @PostMapping("/orders/{id}/mark-paid")
+    public ResponseEntity<?> markOrderAsPaid(@PathVariable int id) {
+        try {
+            Optional<Order> optionalOrder = orderService.getOrderById(id);
+            if (!optionalOrder.isPresent()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Không tìm thấy đơn hàng."));
+            }
+
+            Order order = optionalOrder.get();
+            if (!"PENDING".equals(order.getStatus()) && !"CONFIRMED".equals(order.getStatus())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "Đơn hàng không ở trạng thái PENDING hoặc CONFIRMED."));
+            }
+
+            orderService.updateOrderStatusToPaid(id);
+
+            // Tạo StorageTransaction
+            StorageTransaction transaction = new StorageTransaction();
+            transaction.setType("PENDING");
+            transaction.setTransactionDate(LocalDateTime.now());
+            transaction.setAmount(order.getTotalAmount());
+            transaction.setStorage(order.getStorage());
+            transaction.setCustomer(order.getCustomer());
+            storageTransactionService.save(transaction);
+
+            return ResponseEntity.ok(Map.of("message", "Đã đánh dấu đơn hàng #" + id + " là PAID và tạo giao dịch kho."));
+        } catch (Exception e) {
+            log.error("Error marking order as paid: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi khi cập nhật trạng thái đơn hàng: " + e.getMessage()));
+        }
+    }
+
+
 
     @PostMapping("/calculate-total")
     public ResponseEntity<Map<String, Object>> calculateTotal(@RequestBody Map<String, Object> request) {

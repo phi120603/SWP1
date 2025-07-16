@@ -13,11 +13,10 @@ public interface FeedbackService {
     List<Feedback> findByCustomerId(int customerId);
     List<Feedback> findByStorageId(int storageId);   // thêm dòng này
     Feedback save(Feedback feedback);
-    Feedback createOrUpdateFeedback(int storageId, int customerId, String content, int rating);
     Feedback createFeedback(int storageId, int customerId, String content, int rating);
-    Optional<Feedback> findByCustomerAndStorage(Customer customer, Storage storage);
-    boolean existsByCustomerAndStorage(Customer customer, Storage storage);
     void deleteFeedback(int id);
+    boolean hasCustomerFeedbacked(int customerId, int storageId);
+
 
 }
 

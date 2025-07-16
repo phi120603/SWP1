@@ -13,5 +13,6 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
     List<Feedback> findByCustomer(Customer customer);
     boolean existsByCustomerAndStorage(Customer customer, Storage storage);
     Optional<Feedback> findByCustomerAndStorage(Customer customer, Storage storage);
+    boolean existsByCustomer_IdAndStorage_Storageid(int customerId, int storageId);
 
 }
