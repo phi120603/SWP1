@@ -42,6 +42,10 @@ public class Order {
         private Customer customer;
 
         @ManyToOne
+        @JoinColumn(name = "voucher_id") // tên cột foreign key trong bảng orders
+        private Voucher voucher;
+
+        @ManyToOne
         @JoinColumn(name = "staff_id")
         @JsonIgnore
         private Staff staff;

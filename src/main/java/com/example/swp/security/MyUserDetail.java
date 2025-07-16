@@ -72,4 +72,12 @@ public class MyUserDetail implements UserDetails {
     @Override public boolean isAccountNonLocked() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }
     @Override public boolean isEnabled() { return true; }
+
+    public Customer getCustomer() {
+        if (user instanceof Customer customer) {
+            return customer;
+        }
+        return null;
+    }
+
 }
