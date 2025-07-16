@@ -7,75 +7,101 @@
     <link rel="stylesheet" th:href="@{/css/staff-list.css}">
 </head>
 <body>
-<div class="container">
-    <div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
-    <header>
-        <h1>Quản lý nhân viên</h1>
-        <p class="subtitle"></p>
+<div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
+<!-- Main Content -->
+<main class="main-content">
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>Quản lý nhân viên</h1>
+        </div>
+
+        <div class="header-right">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Tìm kiếm nhân viên..." id="searchInput">
+            </div>
+        </div>
     </header>
-
-    <div class="stats">
-        <div class="stat-card">
-            <div class="stat-number" th:text="${totalStaff}">0</div>
-            <div class="stat-label">Tổng số nhân viên</div>
+    <!-- Page Content -->
+    <div class="page-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2 class="page-title">Danh sách nhân viên</h2>
+            <div class="page-actions">
+                <a th:href="@{'/admin/manager-dashboard'}" class="btn-secondary btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Home </a>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-number">0</div>
-            <div class="stat-label">Đang làm việc</div>
+
+    <!-- Customer Table -->
+    <div class="card">
+        <div class="card-header">
+            All Customers (<p th:text="${totalStaff}"></p>)
+            <div class="card-actions">
+                <button class="btn-secondary">
+                    <i class="fas fa-download"></i>
+                    Export
+                </button>
+            </div>
         </div>
-        <div class="stat-card">
 
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên nhân viên</th>
+                    <th>Email</th>
+                    <th>SĐT</th>
+                    <th>CCCD</th>
+                    <th>Role</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="staff : ${staffs}">
+                    <td th:text="${staff.staffid}">
+                        <span class="staff-id"></span>
+                    </td>
+                    <td th:text="${staff.fullname}">
+                        <span class="staff-name"></span>
+                    </td>
+                    <td th:text="${staff.email}">
+                        <span class="staff-email"></span>
+                    </td>
+                    <td th:text="${staff.phone}"></td>
+                    <td th:text="${staff.idCitizenCard}"></td>
+                    <td th:text="${staff.roleName}"></td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="#" class="btn-icon" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a th:href="@{'/admin/staff-list/edit/' + ${staff.staffid}}" class="btn-icon" title="Edit Staff">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
-    </div>
 
-    <div class="search-container">
-        <input
-                type="text"
-                class="search-input"
-                placeholder="Tìm kiếm nhân viên bằng tên hoặc email..."
-                id="searchInput"
-        >
-    </div>
 
-    <div class="table-container">
-        <table id="StaffTable">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Tên nhân viên</th>
-                <th>SĐT</th>
-                <th>CCCD</th>
-                <th>Trạng thái</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="staff : ${staffs}">
-                <td th:text="${staff.staffid}"></td>
-                <td>
-                    <div class="staff-name" th:text="${staff.fullname}"></div>
-                    <div class="staff-email" th:text="${staff.email}"></div>
-                </td>
-                <td th:text="${staff.phone}"></td>
-                <td th:text="${staff.idCitizenCard}"></td>
-                <td>
-                    <div class="actions">
-                        <a th:href="@{'/admin/staff-list/edit/' + ${staff.staffid}}" class="btn btn-primary">Chỉnh sửa</a>
-
-                    </div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div>
-        <a th:if="${currentPage > 1}" th:href="@{/SWP/staff-list(page=${currentPage - 1},size=5)}">Trước</a>
+    <!-- Pagination -->
+    <div class="pagination">
+        <a th:if="${currentPage > 1}" th:href="@{/SWP/staff-list(page=${currentPage - 1},size=10)}">Trước</a>
         <span>Page <span th:text="${currentPage}"></span> of <span th:text="${totalPages}"></span></span>
-        <a th:if="${currentPage < totalPages}" th:href="@{/SWP/staff-list(page=${currentPage + 1},size=5)}">Tiếp</a>
+        <a th:if="${currentPage < totalPages}" th:href="@{/SWP/staff-list(page=${currentPage + 1},size=10)}">Tiếp</a>
     </div>
-</div>
-
+    </div>
+    </div>
+</main>
 <script>
     // Search functionality
     document.getElementById('searchInput').addEventListener('input', function(e) {

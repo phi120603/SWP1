@@ -174,6 +174,7 @@ public class ManagerController {
         return "redirect:/admin/manager-dashboard";
     }
 
+    //edit storage
     @PutMapping("/manager-dashboard/storages/{id}")
     public String updateStorage(@PathVariable int id,
                                 RedirectAttributes redirectAttributes,
@@ -183,8 +184,11 @@ public class ManagerController {
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy kho!");
             return "redirect:/admin/manager-dashboard";
         }
+
         storageService.updateStorage(storageRequest, optional.get());
         redirectAttributes.addFlashAttribute("message", "Cập nhật thành công!");
+
+        // ✅ Sau khi cập nhật xong → quay về dashboard
         return "manager-storagedetail";
     }
 
@@ -204,13 +208,15 @@ public class ManagerController {
         return "manager-storagedetail";
     }
 
+    //danh sách staff
     @GetMapping("/staff-list")
     public String showStaffList(
             Model model,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "3") int size
+            @RequestParam(defaultValue = "10") int size
     ) {
         Page<Staff> staffPage = staffService.getStaffsByPage(page - 1, size);
+
         int totalStaff = staffService.countAllStaff();
 
         model.addAttribute("staffPage", staffPage);
@@ -246,6 +252,7 @@ public class ManagerController {
             existingStaff.setFullname(staff.getFullname());
             existingStaff.setEmail(staff.getEmail());
             existingStaff.setPhone(staff.getPhone());
+            existingStaff.setRoleName(staff.getRoleName());
             existingStaff.setIdCitizenCard(staff.getIdCitizenCard());
 
 
@@ -289,6 +296,6 @@ public class ManagerController {
         }
         return "manager-setting";
     }
-    
+
 
 }
