@@ -3,6 +3,7 @@ package com.example.swp.service.impl;
 import com.example.swp.entity.*;
 import com.example.swp.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,7 @@ public class ChatbotServiceImpl implements ChatbotService {
         RestTemplate restTemplate = new RestTemplate();
 
         // 1. Lấy dữ liệu khách hàng
-        List<Customer> customers = customerRepository.findAll();
+        List<Customer> customers = customerRepository.findAll(PageRequest.of(0, 2)).getContent();
         StringBuilder customerInfo = new StringBuilder("Dưới đây là một số khách hàng:\n");
         for (Customer c : customers) {
             customerInfo.append("- Tên: ").append(c.getFullname())
@@ -54,7 +55,7 @@ public class ChatbotServiceImpl implements ChatbotService {
         }
 
         // 2. Lấy dữ liệu kho bãi
-        List<Storage> storages = storageRepository.findAll();
+        List<Storage> storages = storageRepository.findAll(PageRequest.of(0, 2)).getContent();
         StringBuilder storageInfo = new StringBuilder("Danh sách kho bãi:\n");
         for (Storage s : storages) {
             storageInfo.append("- Tên kho: ").append(s.getStoragename())
@@ -63,7 +64,7 @@ public class ChatbotServiceImpl implements ChatbotService {
         }
 
         // 3. Lấy dữ liệu đơn hàng (chỉ lấy một số đơn gần nhất, tránh quá dài)
-        List<Order> orders = orderRepository.findAll();
+        List<Order> orders = orderRepository.findAll(PageRequest.of(0, 2)).getContent();
         StringBuilder orderInfo = new StringBuilder("Một số đơn hàng gần đây:\n");
         int orderCount = 0;
         for (Order o : orders) {
@@ -119,7 +120,7 @@ public class ChatbotServiceImpl implements ChatbotService {
         }
 
         // Lấy danh sách nhân viên
-        List<Staff> staffList = staffReponsitory.findAll();
+        List<Staff> staffList = staffReponsitory.findAll(PageRequest.of(0, 2)).getContent();
         StringBuilder staffInfo = new StringBuilder("Danh sách nhân viên:\n");
         for (Staff s : staffList) {
             staffInfo.append("- Tên: ").append(s.getFullname())
