@@ -51,8 +51,4 @@ public interface OrderService {
     void updateOrderStatusToPaid(int orderId);
     boolean canCustomerFeedback(int customerId, int storageId);
 
-
-
-
-
 }
