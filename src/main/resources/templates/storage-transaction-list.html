@@ -1,165 +1,100 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Transaction Management</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f9;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        .form-section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
-        .form-section label {
-            display: block;
-            margin: 10px 0 5px;
-            color: #555;
-            font-weight: bold;
-        }
-        .form-section input, .form-section select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        .form-section button {
-            width: 100%;
-            padding: 12px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        .form-section button:hover {
-            background-color: #218838;
-        }
-        .table-section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ccc;
-            text-align: center;
-        }
-        th {
-            background-color: #e8f0fe;
-            color: #333;
-            font-weight: bold;
-        }
-        a {
-            text-decoration: none;
-            color: #007BFF;
-            font-weight: bold;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .error {
-            color: red;
-            background-color: #ffe6e6;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-        .success {
-            color: green;
-            background-color: #e6ffe6;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Management - QVL Storage</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-<div class="container">
-    <h2>Transaction Management</h2>
-    <div th:if="${isAdmin}">
+<body class="bg-gray-100 font-sans">
+<header class="bg-blue-600 text-white p-4">
+    <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-2xl font-bold">✅ QVL STORAGE</h1>
+        <nav>
+            <ul class="flex space-x-4">
+                <li><a href="/home-page" class="hover:underline">Trang chủ</a></li>
+                <li><a href="/SWP/orders" class="hover:underline">Đơn hàng</a></li>
+                <li><a href="/SWP/storage-transactions" class="hover:underline">Lịch sử giao dịch</a></li>
+                <li><a href="/SWP/logout" class="hover:underline">Đăng xuất</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
 
-    <div class="form-section">
-        <h3>Add New Transaction</h3>
+<main class="container mx-auto py-8">
+    <h2 class="text-3xl font-bold mb-6">Quản lý giao dịch</h2>
 
-
-        <div th:if="${error}" class="error" th:text="${error}"></div>
-
-
+    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h3 class="text-xl font-semibold mb-4">Thêm giao dịch mới</h3>
         <form th:action="@{/SWP/createStorageTransaction}" method="post">
-            <label for="type">Type (IMPORT/EXPORT):</label>
-            <select id="type" name="type" required>
-                <option value="IMPORT">IMPORT</option>
-                <option value="EXPORT">EXPORT</option>
-            </select>
-
-            <label for="transactionDate">Transaction Date (YYYY-MM-DD HH:MM):</label>
-            <input type="datetime-local" id="transactionDate" name="transactionDate" required>
-
-            <label for="storageId">Storage ID:</label>
-            <input type="number" id="storageId" name="storageId" required>
-
-            <label for="customerId">Customer ID:</label>
-            <input type="number" id="customerId" name="customerId" required>
-
-            <button type="submit">Add Transaction</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Type (PENDING/IMPORT/EXPORT):</label>
+                    <select name="type" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option value="PENDING">PENDING</option>
+                        <option value="IMPORT">IMPORT</option>
+                        <option value="EXPORT">EXPORT</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Transaction Date (YYYY-MM-DD HH:MM):</label>
+                    <input type="datetime-local" name="transactionDate" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Storage ID:</label>
+                    <input type="number" name="storageId" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Customer ID:</label>
+                    <input type="number" name="customerId" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                    Add Transaction
+                </button>
+            </div>
         </form>
     </div>
-    </div>
 
-    <div class="table-section">
-        <h3>Transaction List</h3>
-        <table>
-            <thead>
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-xl font-semibold mb-4">Danh sách giao dịch</h3>
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
             <tr>
-                <th>ID</th>
-                <th>Type</th>
-                <th>Transaction Date</th>
-                <th>Storage ID</th>
-                <th>Customer ID</th>
-                <th>Actions</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaction Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Storage</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody class="bg-white divide-y divide-gray-200">
             <tr th:each="transaction : ${transactions}">
-                <td th:text="${transaction.id}"></td>
-                <td th:text="${transaction.type}"></td>
-                <td th:text="${transaction.transactionDate}"></td>
-                <td th:text="${transaction.storage != null ? transaction.storage.storageid : 'N/A'}"></td>
-                <td th:text="${transaction.customer != null ? transaction.customer.id : 'N/A'}"></td>
-                <td>
-                    <a th:href="@{/SWP/storage-transactions/{id}(id=${transaction.id})}">View Details</a>
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${transaction.id}"></td>
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${transaction.type}"></td>
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${transaction.transactionDate}"></td>
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${transaction.storage.storagename}"></td>
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${transaction.customer.fullname}"></td>
+                <td class="px-6 py-4 whitespace-nowrap" th:text="${transaction.amount} + ' VNĐ'"></td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <a th:href="@{/SWP/storage-transactions/{id}(id=${transaction.id})}" class="text-blue-600 hover:underline">View Details</a>
+                </td>
+            </tr>
+            <tr th:if="${transactions.isEmpty}">
+                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                    Không có giao dịch nào.
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
-</div>
+</main>
+
+<footer class="bg-gray-800 text-white text-center p-4">
+    <p>© 2025 QVL STORAGE. All rights reserved.</p>
+</footer>
 </body>
 </html>

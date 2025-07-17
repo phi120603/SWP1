@@ -518,8 +518,9 @@
   </style>
 </head>
 <body>
-<div class="manager-header">
-  <h1>📨 Manager Inbox</h1>
+<!--<div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>-->
+<div class="manager-header" style="margin-left: 260px; width: calc(100% - 260px);">
+  <h1>Manager Inbox</h1>
   <div class="header-stats">
     <div class="stat-item">
       <div class="stat-number" id="totalConversations">0</div>
@@ -581,7 +582,7 @@
         <h3>Select a conversation</h3>
         <p>Choose a conversation from the sidebar to start helping customers</p>
         <div style="margin-top: 24px;">
-          <button onclick="window.location.href='/messenger.html'" style="padding: 12px 24px; background: #1877f2; color: white; border: none; border-radius: 6px; cursor: pointer;">
+          <button onclick="window.location.href='/social-chat.html'" style="padding: 12px 24px; background: #1877f2; color: white; border: none; border-radius: 6px; cursor: pointer;">
             Open Full Messenger
           </button>
         </div>

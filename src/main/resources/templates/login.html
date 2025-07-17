@@ -107,38 +107,40 @@
 </div>
 
 <script>
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
         e.preventDefault();
 
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
 
         try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
+            const response = await fetch("/api/login", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 },
-                credentials: 'include', // Cho phép Spring Security dùng session
                 body: JSON.stringify({ email, password })
             });
 
             if (response.ok) {
                 const data = await response.json();
+                const sessionRedirect = sessionStorage.getItem("redirectAfterLogin");
 
-                if (data.redirect) {
+                if (sessionRedirect) {
+                    sessionStorage.removeItem("redirectAfterLogin");
+                    window.location.href = sessionRedirect;
+                } else if (data.redirect) {
                     window.location.href = data.redirect;
                 } else {
-                    document.getElementById('error').textContent = "Đăng nhập thành công nhưng không tìm thấy đường dẫn.";
+                    window.location.href = "/home-page";
                 }
             } else {
-                const errorText = await response.text();
-                document.getElementById('error').textContent = errorText || "Tài khoản hoặc mật khẩu không chính xác.";
+                const error = await response.text();
+                document.getElementById("error").innerText = error;
             }
-
-        } catch (error) {
-            document.getElementById('error').textContent = 'Lỗi kết nối đến máy chủ.';
-            console.error(error);
+        } catch (err) {
+            document.getElementById("error").innerText = "Lỗi kết nối tới máy chủ.";
+            console.error(err);
         }
     });
 </script>

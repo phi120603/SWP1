@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface StorageTransactionRepository extends JpaRepository<StorageTransaction, Integer> {
     List<StorageTransaction> findByCustomerId(Integer customerId);
+
 }

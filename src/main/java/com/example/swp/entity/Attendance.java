@@ -1,5 +1,6 @@
 package com.example.swp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,6 +18,7 @@ public class Attendance {
 
     @ManyToOne
     @JoinColumn(name = "staff_id")
+    @JsonIgnore
     private Staff staff;
 
     private LocalDateTime checkInTime;

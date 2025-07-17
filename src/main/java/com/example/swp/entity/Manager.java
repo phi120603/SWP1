@@ -26,7 +26,7 @@ public class Manager implements UserDetails {
     private String email;
     private String password;
     private String phone;
-    private boolean onDuty;
+    private Boolean onDuty;
 
     // Online status tracking
     @Column(name = "is_online", nullable = true)
@@ -44,6 +44,10 @@ public class Manager implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("MANAGER"));
     }
+    public boolean isOnDuty() {
+        return Boolean.TRUE.equals(onDuty);
+    }
+
 
     @Override
     public String getPassword() {

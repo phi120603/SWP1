@@ -7,6 +7,7 @@ import com.example.swp.service.VoucherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,5 +52,13 @@ public class VoucherServiceImpl implements VoucherService {
     @Override
     public long countByStatus(VoucherStatus status) {
         return voucherRepository.countByStatus(status);
+    }
+
+    @Override
+    public Optional<Voucher> getBestEligibleVoucher(int customerPoint) {
+        List<Voucher> eligibleVouchers = getAvailableVouchersForCustomer(customerPoint);
+        return eligibleVouchers.stream()
+                .sorted(Comparator.comparing(Voucher::getDiscountAmount).reversed())
+                .findFirst(); // Ưu tiên giảm giá nhiều nhất
     }
 }

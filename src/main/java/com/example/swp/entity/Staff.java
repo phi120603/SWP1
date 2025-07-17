@@ -1,6 +1,7 @@
 package com.example.swp.entity;
 
 import com.example.swp.enums.RoleName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,6 +43,10 @@ public class Staff implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("STAFF"));
     }
+
+    @OneToMany(mappedBy = "staff")
+    @JsonIgnore  // ✅ Ngăn JSON vòng lặp
+    private List<Attendance> attendances;
 
     @Override
     public String getPassword() {

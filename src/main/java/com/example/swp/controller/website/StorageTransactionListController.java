@@ -4,6 +4,7 @@ import com.example.swp.entity.Customer;
 import com.example.swp.entity.Storage;
 import com.example.swp.entity.StorageTransaction;
 import com.example.swp.service.StorageTransactionService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -53,5 +54,19 @@ public class StorageTransactionListController {
             return "redirect:/SWP/storage-transactions";
         }
     }
+    @GetMapping("/SWP/storage-transactions")
+    public String viewTransactionList(HttpSession session, Model model) {
+        Object principal = session.getAttribute("loggedInCustomer");
+
+        // Nếu là customer thì chặn
+        if (principal instanceof com.example.swp.entity.Customer) {
+            return "redirect:/home-page"; // hoặc trả về lỗi 403
+        }
+
+        List<StorageTransaction> transactions = storageTransactionService.getAllStorageTransactions();
+        model.addAttribute("transactions", transactions);
+        return "storage-transaction-list";
+    }
+
 
 }

@@ -82,6 +82,8 @@ public class ManagerController {
         List<Staff> staff = staffService.getAllStaff();
         int totalStaff = staff.size();
 
+        List<Order> last5orders = orderService.getLast5orders();
+
         // Chỗ này sửa lại để không lỗi null khi chưa có doanh thu
         Double totalRevenueRaw = orderRepository.calculateTotalRevenue();
         double totalRevenue = (totalRevenueRaw != null) ? totalRevenueRaw : 0.0;
@@ -93,6 +95,7 @@ public class ManagerController {
         model.addAttribute("staff", staff);
         model.addAttribute("totalStaff", totalStaff);
         model.addAttribute("totalRevenue", totalRevenue);
+        model.addAttribute("latestOrders", last5orders);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
@@ -171,6 +174,7 @@ public class ManagerController {
         return "redirect:/admin/manager-dashboard";
     }
 
+    //edit storage
     @PutMapping("/manager-dashboard/storages/{id}")
     public String updateStorage(@PathVariable int id,
                                 RedirectAttributes redirectAttributes,
@@ -180,8 +184,11 @@ public class ManagerController {
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy kho!");
             return "redirect:/admin/manager-dashboard";
         }
+
         storageService.updateStorage(storageRequest, optional.get());
         redirectAttributes.addFlashAttribute("message", "Cập nhật thành công!");
+
+        // ✅ Sau khi cập nhật xong → quay về dashboard
         return "manager-storagedetail";
     }
 
@@ -201,13 +208,15 @@ public class ManagerController {
         return "manager-storagedetail";
     }
 
+    //danh sách staff
     @GetMapping("/staff-list")
     public String showStaffList(
             Model model,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "3") int size
+            @RequestParam(defaultValue = "10") int size
     ) {
         Page<Staff> staffPage = staffService.getStaffsByPage(page - 1, size);
+
         int totalStaff = staffService.countAllStaff();
 
         model.addAttribute("staffPage", staffPage);
@@ -243,6 +252,7 @@ public class ManagerController {
             existingStaff.setFullname(staff.getFullname());
             existingStaff.setEmail(staff.getEmail());
             existingStaff.setPhone(staff.getPhone());
+            existingStaff.setRoleName(staff.getRoleName());
             existingStaff.setIdCitizenCard(staff.getIdCitizenCard());
 
 
@@ -266,9 +276,26 @@ public class ManagerController {
         return ResponseEntity.ok(threads);
     }
 
-    @GetMapping("/chat-manager")
-    public String chatPage() {
-        return "chat-manager";
+    @GetMapping("/manager-inbox")
+    public String managerInbox() {
+        return "manager-inbox";
     }
+
+    @GetMapping("/social-chat")
+    public String socialChat(){
+        return "social-chat";
+    }
+
+    @GetMapping("/manager-setting")
+    public String managerSetting(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            UserDetails userDetails = (UserDetails) auth.getPrincipal();
+            model.addAttribute("userName", userDetails.getUsername());
+            model.addAttribute("userRole", auth.getAuthorities().iterator().next().getAuthority());
+        }
+        return "manager-setting";
+    }
+
 
 }

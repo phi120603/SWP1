@@ -7,6 +7,24 @@
 
 </head>
 <body>
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <div class="navbar-content">
+        <div class="navbar-brand">
+            <a href="/home-page">
+                <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
+                     alt="QVL Storage Logo" class="navbar-logo">
+            </a>
+        </div>
+        <ul class="navbar-nav">
+            <li><a href="/home-page">Trang chủ</a></li>
+            <li><a href="/admin/manager-dashboard" class="active">Danh sách</a></li>
+
+        </ul>
+
+    </div>
+</nav>
+
 <div class="edit-card">
     <div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
     <h2>Chỉnh sửa thông tin nhân viên</h2>
