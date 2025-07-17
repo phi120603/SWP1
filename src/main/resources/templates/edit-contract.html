@@ -1,48 +1,48 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Chỉnh sửa hợp đồng</title>
-    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
-</head>
-<body>
-<div class="container mt-4">
-    <h2>✏ Chỉnh sửa hợp đồng</h2>
-    <form th:action="@{/manager/contracts/edit}" method="post">
-        <input type="hidden" name="id" th:value="${contract.id}"/>
-        <div class="mb-3">
-            <label class="form-label">Mã hợp đồng</label>
-            <input type="text" class="form-control" name="contractCode" th:value="${contract.contractCode}" readonly/>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Tên kho</label>
-            <input type="text" class="form-control" name="storageName" th:value="${contract.storageName}"/>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Diện tích (m²)</label>
-            <input type="number" class="form-control" name="rentalArea" th:value="${contract.rentalArea}"/>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Đơn giá / ngày</label>
-            <input type="number" class="form-control" name="pricePerDay" th:value="${contract.pricePerDay}"/>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Tổng tiền</label>
-            <input type="number" class="form-control" name="totalAmount" th:value="${contract.totalAmount}"/>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Trạng thái</label>
-            <select class="form-control" name="status">
-                <option th:each="s : ${statuses}"
-                        th:value="${s}"
-                        th:text="${s}"
-                        th:selected="${s} == ${contract.status}">
-                </option>
-            </select>
-        </div>
-        <button type="submit" class="btn btn-success">💾 Lưu</button>
-        <a th:href="@{/manager/contracts}" class="btn btn-secondary">🔙 Quay lại</a>
-    </form>
-</div>
-</body>
-</html>
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Chỉnh sửa hợp đồng</title>-->
+<!--    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">-->
+<!--</head>-->
+<!--<body>-->
+<!--<div class="container mt-4">-->
+<!--    <h2>✏ Chỉnh sửa hợp đồng</h2>-->
+<!--    <form th:action="@{/manager/contracts/edit}" method="post">-->
+<!--        <input type="hidden" name="id" th:value="${contract.id}"/>-->
+<!--        <div class="mb-3">-->
+<!--            <label class="form-label">Mã hợp đồng</label>-->
+<!--            <input type="text" class="form-control" name="contractCode" th:value="${contract.contractCode}" readonly/>-->
+<!--        </div>-->
+<!--        <div class="mb-3">-->
+<!--            <label class="form-label">Tên kho</label>-->
+<!--            <input type="text" class="form-control" name="storageName" th:value="${contract.storageName}"/>-->
+<!--        </div>-->
+<!--        <div class="mb-3">-->
+<!--            <label class="form-label">Diện tích (m²)</label>-->
+<!--            <input type="number" class="form-control" name="rentalArea" th:value="${contract.rentalArea}"/>-->
+<!--        </div>-->
+<!--        <div class="mb-3">-->
+<!--            <label class="form-label">Đơn giá / ngày</label>-->
+<!--            <input type="number" class="form-control" name="pricePerDay" th:value="${contract.pricePerDay}"/>-->
+<!--        </div>-->
+<!--        <div class="mb-3">-->
+<!--            <label class="form-label">Tổng tiền</label>-->
+<!--            <input type="number" class="form-control" name="totalAmount" th:value="${contract.totalAmount}"/>-->
+<!--        </div>-->
+<!--        <div class="mb-3">-->
+<!--            <label class="form-label">Trạng thái</label>-->
+<!--            <select class="form-control" name="status">-->
+<!--                <option th:each="s : ${statuses}"-->
+<!--                        th:value="${s}"-->
+<!--                        th:text="${s}"-->
+<!--                        th:selected="${s} == ${contract.status}">-->
+<!--                </option>-->
+<!--            </select>-->
+<!--        </div>-->
+<!--        <button type="submit" class="btn btn-success">💾 Lưu</button>-->
+<!--        <a th:href="@{/manager/contracts}" class="btn btn-secondary">🔙 Quay lại</a>-->
+<!--    </form>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->
