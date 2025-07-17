@@ -39,6 +39,12 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
+    public Issue getIssueByIdOrThrow(int id) {
+        return issueRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Issue với id " + id));
+    }
+
+    @Override
     public Issue createIssue(IssueRequest issueRequest) {
         Customer customer = customerRepository.findById(issueRequest.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với id " + issueRequest.getCustomerId()));
@@ -52,44 +58,12 @@ public class IssueServiceImpl implements IssueService {
         issue.setAssignedStaff(staff);
         issue.setCreatedDate(new Date());
         issue.setResolved(false);
+        issue.setStatus(IssueStatus.Pending);
 
         return issueRepository.save(issue);
     }
 
-    @Override
-    public List<Issue> getIssuesByCustomerId(int customerId) {
-        return List.of();
-    }
 
-    @Override
-    public Issue getIssueByIdOrThrow(int id) {
-        return null;
-    }
-
-    @Override
-    public Issue saveIssue(Issue issue) {
-        return null;
-    }
-
-    @Override
-    public void deleteIssueById(int id) {
-
-    }
-
-    @Override
-    public long countAll() {
-        return 0;
-    }
-
-    @Override
-    public long countByStatus(IssueStatus status) {
-        return 0;
-    }
-
-    @Override
-    public List<Issue> searchAndFilterIssues(String search, String status) {
-        return List.of();
-    }
 
     @Override
     public void updateAssignedStaffAndStatus(int id, int staffId, Boolean resolved) {
@@ -104,6 +78,51 @@ public class IssueServiceImpl implements IssueService {
 
     @Override
     public void save(Issue issue) {
-
+        issueRepository.save(issue);
     }
+
+    @Override
+    public List<Issue> getIssuesByCustomerId(int customerId) {
+        return issueRepository.findByCustomerId(customerId);
+    }
+
+    @Override
+    public Issue saveIssue(Issue issue) {
+        return issueRepository.save(issue);
+    }
+
+    @Override
+    public void deleteIssueById(int id) {
+        issueRepository.deleteById(id);
+    }
+
+    @Override
+    public long countAll() {
+        return issueRepository.count();
+    }
+
+    @Override
+    public long countByStatus(IssueStatus status) {
+        return issueRepository.countByStatus(status);
+    }
+    @Override
+    public List<Issue> searchAndFilterIssues(String search, String status) {
+        if ((search == null || search.isBlank()) && (status == null || status.isBlank()))
+            return issueRepository.findAll();
+
+        IssueStatus st = null;
+        if (status != null && !status.isBlank()) {
+            try { st = IssueStatus.valueOf(status); } catch (Exception ignored) {}
+        }
+
+        if (search != null && !search.isBlank() && st != null)
+            return issueRepository.searchByKeywordAndStatus(search, st);
+        if (search != null && !search.isBlank())
+            return issueRepository.searchByKeyword(search);
+        if (st != null)
+            return issueRepository.findByStatus(st);
+
+        return issueRepository.findAll();
+    }
+
 }
