@@ -11,6 +11,18 @@ body {
     color: #333;
     line-height: 1.6;
 }
+.status-badge.requested {
+    background: linear-gradient(135deg, #ffe6e6 0%, #ffc2c2 100%);
+    color: #b30000;
+}
+.status-badge.approved {
+    background: linear-gradient(135deg, #d4edda 0%, #b3e6c3 100%);
+    color: #155724;
+}
+.status-badge.denied {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #721c24;
+}
 
 /* Sidebar Styles */
 .sidebar {

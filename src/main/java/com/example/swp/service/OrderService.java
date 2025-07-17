@@ -48,8 +48,9 @@ public interface OrderService {
 
     List<Order> getLast5orders();
     Optional<Order> findOrderByCustomerAndStorage(int customerId, int storageId);
-    void updateOrderStatusToPaid(int orderId);
+
     boolean canCustomerFeedback(int customerId, int storageId);
+    void markOrderAsPaid(int orderId);
 
 
 

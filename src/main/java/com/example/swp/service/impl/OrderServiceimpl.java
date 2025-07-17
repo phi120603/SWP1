@@ -6,6 +6,7 @@ import com.example.swp.entity.Customer;
 import com.example.swp.entity.Order;
 import com.example.swp.entity.Storage;
 import com.example.swp.entity.StorageTransaction;
+import com.example.swp.enums.TransactionType;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.OrderRepository;
 import com.example.swp.repository.StorageRepository;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.Arrays;
@@ -183,15 +185,17 @@ public class OrderServiceimpl implements OrderService {
 
         orderRepository.updateOrderStatusToPaid(orderId);
 
-        // Tạo StorageTransaction khi đơn hàng được đánh dấu là PAID
         StorageTransaction transaction = new StorageTransaction();
-        transaction.setType("PENDING");
-        transaction.setTransactionDate(LocalDate.now().atStartOfDay());
+        transaction.setType(TransactionType.PAID);
+        transaction.setTransactionDate(LocalDateTime.now()); // sửa thành LocalDateTime.now()
         transaction.setAmount(order.getTotalAmount());
         transaction.setStorage(order.getStorage());
         transaction.setCustomer(order.getCustomer());
+        transaction.setOrder(order); // Liên kết đến order đầy đủ hơn
+
         storageTransactionService.save(transaction);
     }
+
 
     // Trong OrderServiceImpl
     @Override
@@ -245,10 +249,7 @@ public class OrderServiceimpl implements OrderService {
     public double getTotalRentedArea(int storageId) {
         return 0;
     }
-    @Transactional
-    public void updateOrderStatusToPaid(int orderId) {
-        orderRepository.updateOrderStatusToPaid(orderId);
-    }
+
 
     @Override
     public double getRemainArea(int storageId, LocalDate startDate, LocalDate endDate) {

@@ -2,188 +2,524 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi Tiết Giao Dịch - QVL Storage</title>
     <link rel="stylesheet" href="/css/staff-dashboard.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .detail-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-top: 30px;
-            padding: 30px;
+        /* Enhanced styles for transaction detail page */
+        .detail-container {
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
-        .detail-header h2 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 20px;
+        .breadcrumb {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #667eea;
+        }
+
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb a:hover {
+            color: #4c63d2;
+        }
+
+        .breadcrumb .separator {
+            margin: 0 8px;
+            color: #a0aec0;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .back-button {
+            margin-bottom: 24px;
+        }
+
+        .detail-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.12);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .detail-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .detail-card h2 {
+            color: #2d3748;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .detail-card h2::before {
+            content: '\f0f6';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #667eea;
+            font-size: 24px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
         }
 
         .info-row {
-            display: flex;
-            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        .detail-label {
+        .info-row:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+
+        .info-row .label {
+            font-size: 14px;
             font-weight: 600;
-            width: 150px;
-            color: #555;
-        }
-
-        .detail-value {
-            color: #333;
-        }
-
-        .field-edit {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
-
-        .detail-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
+            color: #667eea;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .btn-save {
-            background-color: #28a745;
-            color: white;
+        .info-row .value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            line-height: 1.4;
         }
 
-        .btn-cancel {
-            background-color: #6c757d;
-            color: white;
+        /* Icons for different info types */
+        .info-row.customer .label::before {
+            content: '\f007';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #667eea;
         }
 
-        .back-button {
+        .info-row.storage .label::before {
+            content: '\f1b2';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #667eea;
+        }
+
+        .info-row.amount .label::before {
+            content: '\f155';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #667eea;
+        }
+
+        .info-row.date .label::before {
+            content: '\f017';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #667eea;
+        }
+
+        .info-row.status .label::before {
+            content: '\f06a';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #667eea;
+        }
+
+        .amount-value {
+            color: #28a745;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .status-badge {
             display: inline-flex;
             align-items: center;
-            margin-bottom: 15px;
-            color: #4a67d6;
-            text-decoration: none;
-            font-weight: 500;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .back-button i {
-            margin-right: 5px;
-        }
-
-        .alert {
-            padding: 10px 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            font-size: 0.95rem;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
+        .status-badge.paid {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
             color: #155724;
         }
 
+        .status-badge.refund {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
+            color: #856404;
+        }
+
+        .status-badge.pending {
+            background: linear-gradient(135deg, #cce5ff 0%, #b3d9ff 100%);
+            color: #004085;
+        }
+
+        .actions {
+            background: rgba(102, 126, 234, 0.05);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .actions::before {
+            content: '\f0ad';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .actions h3 {
+            color: #2d3748;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+            flex: 1;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(220, 53, 69, 0.4);
+            background: linear-gradient(135deg, #c82333 0%, #b21e2f 100%);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .detail-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
         @media (max-width: 768px) {
-            .info-row {
+            .detail-card {
+                padding: 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .actions {
                 flex-direction: column;
+                align-items: stretch;
+            }
+
+            .actions .btn-primary,
+            .actions .btn-danger {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
+
 <!-- Sidebar -->
 <div th:replace="taskbar/staff-taskbar :: staffTaskbar"></div>
 
 <main class="main-content">
-    <!-- Header -->
     <header class="header">
         <div class="header-left">
-            <button class="sidebar-toggle">
-                <i class="fas fa-bars"></i>
-            </button>
+            <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
             <h1>Chi Tiết Giao Dịch</h1>
+        </div>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Tìm kiếm giao dịch...">
         </div>
     </header>
 
     <div class="page-content">
-        <!-- Alert -->
-        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div class="detail-container">
+            <!-- Breadcrumb -->
+            <div class="breadcrumb">
+                <a href="http://localhost:8080/SWP/staff/transactions">
+                    <i class="fas fa-list"></i> Danh sách giao dịch
+                </a>
+                <span class="separator">></span>
+                <span>Chi tiết giao dịch</span>
+            </div>
 
-        <a href="/SWP/staff/transactions" class="back-button">
-            <i class="fas fa-arrow-left"></i> Quay lại danh sách giao dịch
-        </a>
+            <!-- Alert Messages -->
+            <div th:if="${message}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${message}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${error}"></span>
+            </div>
+            <div th:if="${warning}" class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span th:text="${warning}"></span>
+            </div>
 
-        <!-- Transaction Detail Card -->
-        <div class="detail-card">
-            <div class="detail-header">
+            <!-- Back Button -->
+            <div class="back-button">
+                <a href="http://localhost:8080/SWP/staff/transactions" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                </a>
+            </div>
+
+            <!-- Transaction Detail Card -->
+            <div class="card detail-card">
                 <h2 th:text="'Giao Dịch #' + ${transaction.id}">Giao Dịch #1</h2>
-            </div>
 
-            <!-- View -->
-            <div class="info-row">
-                <div class="detail-label">Khách hàng:</div>
-                <div class="detail-value" th:text="${transaction.customer.fullname}">Nguyễn Văn A</div>
-            </div>
-            <div class="info-row">
-                <div class="detail-label">Kho:</div>
-                <div class="detail-value" th:text="${transaction.storage.storagename}">Kho ABC</div>
-            </div>
-            <div class="info-row">
-                <div class="detail-label">Ngày giao dịch:</div>
-                <div class="detail-value" th:text="${#temporals.format(transaction.transactionDate, 'dd/MM/yyyy HH:mm')}">2025-07-15</div>
-            </div>
+                <div class="info-grid">
+                    <div class="info-row customer">
+                        <div class="label">Khách hàng</div>
+                        <div class="value" th:text="'#' + ${transaction.customer.id} + ' - ' + ${transaction.customer.fullname}">
+                            #1 - Nguyễn Văn A
+                        </div>
+                    </div>
 
-            <!-- Form chỉnh sửa -->
-            <form th:action="@{'/SWP/staff/transactions/' + ${transaction.id} + '/update'}" method="post">
-                <label class="detail-label">Loại giao dịch</label>
-                <select name="type" class="field-edit" required>
-                    <option value="PENDING" th:selected="${transaction.type == 'PENDING'}">PENDING</option>
-                    <option value="IMPORT" th:selected="${transaction.type == 'IMPORT'}">IMPORT</option>
-                    <option value="EXPORT" th:selected="${transaction.type == 'EXPORT'}">EXPORT</option>
-                </select>
+                    <div class="info-row storage">
+                        <div class="label">Kho lưu trữ</div>
+                        <div class="value" th:text="${transaction.storage.storagename}">
+                            Kho A - Tầng 1
+                        </div>
+                    </div>
 
-                <div class="detail-actions">
-                    <button type="submit" class="btn btn-save">
-                        <i class="fas fa-save"></i> Lưu thay đổi
-                    </button>
-                    <a href="/SWP/staff/transactions" class="btn btn-cancel">
-                        <i class="fas fa-times"></i> Hủy
-                    </a>
+                    <div class="info-row amount">
+                        <div class="label">Số tiền</div>
+                        <div class="value amount-value" th:text="${#numbers.formatDecimal(transaction.amount, 0, 'POINT', 2, 'COMMA')} + ' VNĐ'">
+                            1,500,000 VNĐ
+                        </div>
+                    </div>
+
+                    <div class="info-row date">
+                        <div class="label">Thời gian giao dịch</div>
+                        <div class="value" th:text="${#temporals.format(transaction.transactionDate, 'dd/MM/yyyy HH:mm')}">
+                            15/01/2024 14:30
+                        </div>
+                    </div>
+
+                    <div class="info-row status">
+                        <div class="label">Trạng thái</div>
+                        <div class="value">
+                            <span class="status-badge paid" th:classappend="${transaction.type.name().toLowerCase()}" th:text="${transaction.type}">
+                                PAID
+                            </span>
+                        </div>
+                    </div>
                 </div>
-            </form>
+                <div class="info-row" th:if="${transaction.refundReason}">
+                    <div class="label">Lý do hoàn tiền</div>
+                    <div class="value" th:text="${transaction.refundReason}">Khách yêu cầu vì không sử dụng dịch vụ</div>
+                </div>
+                <div class="actions" th:if="${transaction.type.name() == 'REQUESTED'}">
+                    <h3>Phê duyệt yêu cầu hoàn tiền</h3>
+
+                    <form th:action="@{'/SWP/storage-transactions/' + ${transaction.id} + '/approve-refund'}" method="post">
+                        <button class="btn btn-primary" type="submit"
+                                onclick="return confirm('Bạn có chắc chắn muốn duyệt hoàn tiền?')">
+                            <i class="fas fa-check-circle"></i> Duyệt hoàn tiền
+                        </button>
+                    </form>
+
+                    <form th:action="@{'/SWP/storage-transactions/' + ${transaction.id} + '/deny-refund'}" method="post">
+                        <button class="btn btn-danger" type="submit"
+                                onclick="return confirm('Bạn có chắc chắn muốn từ chối hoàn tiền?')">
+                            <i class="fas fa-times-circle"></i> Từ chối hoàn tiền
+                        </button>
+                    </form>
+                </div>
+
+
+
+                <!-- Action Buttons -->
+                <div class="actions" th:if="${transaction.type.name() == 'PAID' or transaction.type.name() == 'REFUND'}">
+                    <h3>Thao tác</h3>
+
+                    <!-- Refund Button -->
+                    <form th:if="${transaction.type.name() == 'PAID'}"
+                          th:action="@{'/SWP/storage-transactions/' + ${transaction.id} + '/mark-refund'}"
+                          method="post">
+                        <button class="btn btn-danger" type="submit" onclick="return confirm('Bạn có chắc chắn muốn hoàn tiền cho giao dịch này?')">
+                            <i class="fas fa-undo-alt"></i> Hoàn tiền
+                        </button>
+                    </form>
+
+                    <!-- Restore to Paid Button -->
+                    <form th:if="${transaction.type.name() == 'REFUND'}"
+                          th:action="@{'/SWP/storage-transactions/' + ${transaction.id} + '/mark-paid'}"
+                          method="post">
+                        <button class="btn btn-primary" type="submit" onclick="return confirm('Bạn có chắc chắn muốn khôi phục giao dịch này về trạng thái PAID?')">
+                            <i class="fas fa-check-circle"></i> Khôi phục thanh toán
+                        </button>
+                    </form>
+                </div>
+                <div class="actions" th:if="${transaction.type.name() == 'REQUESTED'}">
+                    <h3>Phê duyệt yêu cầu hoàn tiền</h3>
+
+                    <form th:action="@{'/SWP/storage-transactions/' + ${transaction.id} + '/approve-refund'}" method="post">
+                        <button class="btn btn-primary" type="submit"
+                                onclick="return confirm('Bạn có chắc chắn muốn duyệt hoàn tiền?')">
+                            <i class="fas fa-check-circle"></i> Duyệt hoàn tiền
+                        </button>
+                    </form>
+
+                    <form th:action="@{'/SWP/storage-transactions/' + ${transaction.id} + '/deny-refund'}" method="post">
+                        <button class="btn btn-danger" type="submit"
+                                onclick="return confirm('Bạn có chắc chắn muốn từ chối hoàn tiền?')">
+                            <i class="fas fa-times-circle"></i> Từ chối hoàn tiền
+                        </button>
+                    </form>
+                </div>
+
+            </div>
         </div>
     </div>
 </main>
 
 <script>
-    document.querySelector('.sidebar-toggle').addEventListener('click', function () {
-        document.querySelector('.sidebar').classList.toggle('open');
+    // Sidebar toggle functionality
+    document.querySelector('.sidebar-toggle')?.addEventListener('click', () => {
+        document.querySelector('.sidebar')?.classList.toggle('active');
     });
 
-    // Tự động ẩn thông báo sau 5 giây
+    // Add smooth scrolling for back button
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
+    // Auto-hide alerts after 5 seconds
     setTimeout(() => {
-        const alert = document.querySelector('.alert');
-        if (alert) {
-            alert.style.transition = 'opacity 0.5s';
-            alert.style.opacity = 0;
-            setTimeout(() => alert.remove(), 500);
-        }
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateY(-20px)';
+            setTimeout(() => alert.remove(), 300);
+        });
     }, 5000);
 </script>
+
 </body>
 </html>
