@@ -9,7 +9,12 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.example.swp.service.ChatbotService;
-
+import org.springframework.web.multipart.MultipartFile;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.Graphics2D;
+import java.awt.Color;
+import java.io.*;
 import java.util.*;
 
 @Service
@@ -17,33 +22,36 @@ public class ChatbotServiceImpl implements ChatbotService {
 
     @Autowired
     private CustomerRepository customerRepository;
-
     @Autowired
     private StorageReponsitory storageRepository;
-
     @Autowired
     private OrderRepository orderRepository;
-
     @Autowired
     private FeedbackRepository feedbackRepository;
-
     @Autowired
     private LeaveRequestRepository leaveRequestRepository;
-
     @Autowired
     private AttendanceRepository attendanceRepository;
-
     @Autowired
     private StaffReponsitory staffReponsitory;
 
     private static final String API_KEY = "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";
     private static final String OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
+    static {
+        // Tải file native OpenCV từ src/main/resources/lib
+        String nativeLibraryPath = "src/main/resources/lib/opencv_java455.dll";
+        File nativeFile = new File(nativeLibraryPath);
+        if (!nativeFile.exists()) {
+            throw new RuntimeException("Không tìm thấy file native OpenCV: " + nativeLibraryPath);
+        }
+        System.load(nativeFile.getAbsolutePath());
+    }
+
     @Override
     public String askAI(String message) {
         RestTemplate restTemplate = new RestTemplate();
 
-        // 1. Lấy dữ liệu khách hàng
         List<Customer> customers = customerRepository.findAll(PageRequest.of(0, 2)).getContent();
         StringBuilder customerInfo = new StringBuilder("Dưới đây là một số khách hàng:\n");
         for (Customer c : customers) {
@@ -54,7 +62,6 @@ public class ChatbotServiceImpl implements ChatbotService {
                     .append("\n");
         }
 
-        // 2. Lấy dữ liệu kho bãi
         List<Storage> storages = storageRepository.findAll(PageRequest.of(0, 2)).getContent();
         StringBuilder storageInfo = new StringBuilder("Danh sách kho bãi:\n");
         for (Storage s : storages) {
@@ -63,19 +70,15 @@ public class ChatbotServiceImpl implements ChatbotService {
                     .append("\n");
         }
 
-        // 3. Lấy dữ liệu đơn hàng (chỉ lấy một số đơn gần nhất, tránh quá dài)
         List<Order> orders = orderRepository.findAll(PageRequest.of(0, 2)).getContent();
         StringBuilder orderInfo = new StringBuilder("Một số đơn hàng gần đây:\n");
-        int orderCount = 0;
         for (Order o : orders) {
-            if (orderCount++ >= 5) break; // Chỉ lấy 5 đơn gần nhất (nếu muốn)
             orderInfo.append("- Mã đơn: ").append(o.getId())
                     .append(", Khách: ").append(o.getCustomer().getFullname())
                     .append(", Ngày: ").append(o.getOrderDate())
                     .append("\n");
         }
 
-        // Lấy feedback gần đây nhất
         List<Feedback> feedbacks = feedbackRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
         StringBuilder feedbackInfo = new StringBuilder("Một số phản hồi gần đây:\n");
         int count = 0;
@@ -87,8 +90,6 @@ public class ChatbotServiceImpl implements ChatbotService {
                     .append(", Nội dung: ").append(f.getContent()).append("\n");
         }
 
-
-        // Lấy 3 đơn xin nghỉ phép gần nhất
         List<LeaveRequest> leaveRequests = leaveRequestRepository.findAll(
                 Sort.by(Sort.Direction.DESC, "fromDate")
         );
@@ -104,11 +105,9 @@ public class ChatbotServiceImpl implements ChatbotService {
                     .append("\n");
         }
 
-        // Lấy 3 lần chấm công gần nhất
         List<Attendance> attendances = attendanceRepository.findAll(
                 Sort.by(Sort.Direction.DESC, "checkInTime")
         );
-
         StringBuilder attendanceInfo = new StringBuilder("Chấm công gần đây:\n");
         int countAttendance = 0;
         for (Attendance a : attendances) {
@@ -119,7 +118,6 @@ public class ChatbotServiceImpl implements ChatbotService {
                     .append("\n");
         }
 
-        // Lấy danh sách nhân viên
         List<Staff> staffList = staffReponsitory.findAll(PageRequest.of(0, 2)).getContent();
         StringBuilder staffInfo = new StringBuilder("Danh sách nhân viên:\n");
         for (Staff s : staffList) {
@@ -129,7 +127,6 @@ public class ChatbotServiceImpl implements ChatbotService {
                     .append("\n");
         }
 
-        // 4. Ghép thành prompt cho AI
         String prompt = customerInfo
                 + "\n" + storageInfo
                 + "\n" + orderInfo
@@ -140,14 +137,12 @@ public class ChatbotServiceImpl implements ChatbotService {
                 + "\nDựa vào các thông tin trên, hãy hỗ trợ/trả lời khách hàng với câu hỏi sau:\n"
                 + message;
 
-        // 5. Build messages list
         List<Map<String, String>> messages = new ArrayList<>();
         Map<String, String> msg = new HashMap<>();
         msg.put("role", "user");
         msg.put("content", prompt);
         messages.add(msg);
 
-        // 6. Build body giữ nguyên
         Map<String, Object> body = new HashMap<>();
         body.put("model", "openai/gpt-4o");
         body.put("messages", messages);
