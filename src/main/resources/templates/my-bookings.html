@@ -126,8 +126,10 @@
               </a>
               <a th:if="${order.eContract != null}"
                  th:href="@{'/econtract/view/' + ${order.eContract.id}}"
-                 class="btn btn-sm btn-primary">
-                Xem hợp đồng
+                 class="btn-action view"
+                 title="Xem hợp đồng"
+                 style="color: #4a6fa5; font-size: 18px; margin-left: 15px;">
+                <i class="fas fa-file-alt me-1"></i>
               </a>
             </td>
           </tr>
