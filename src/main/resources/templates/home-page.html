@@ -44,15 +44,19 @@
         <li><a th:href="@{/profile(tab='info')}"><i class="fa fa-id-card"></i> Thông tin cá nhân</a></li>
         <li><a th:href="@{/profile(tab='update')}"><i class="fa fa-edit"></i> Cập nhật thông tin</a></li>
         <li><a th:href="@{/profile(tab='forgot')}"><i class="fa fa-unlock-alt"></i> Quên mật khẩu</a></li>
+        <!-- thêm mục Nhật ký hoạt động ở đây -->
+        <li><a th:href="@{/my-activity}"><i class="fa fa-history"></i> Nhật ký hoạt động</a></li>
         <li>
           <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" style="background:none;border:none;padding:10px 22px;width:100%;text-align:left;cursor:pointer;">
+            <button type="submit"
+                    style="background:none;border:none;padding:10px 22px;width:100%;text-align:left;cursor:pointer;">
               <i class="fa fa-sign-out-alt"></i> Đăng xuất
             </button>
           </form>
         </li>
       </ul>
     </li>
+
     </ul>
   </div>
 </nav>

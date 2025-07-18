@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/SWP/booking")
-public class BookingController {
+public class    BookingController {
     @Autowired
     private ContractService contractService;
 
@@ -35,6 +35,8 @@ public class BookingController {
 
     @Autowired
     private CustomerService customerService;
+
+
 
     @GetMapping("/search")
     public String showBookingSearchForm(Model model, HttpSession session) {
@@ -247,6 +249,7 @@ public class BookingController {
 
         Order savedOrder = orderService.save(order);
         contractService.createContractForOrder(savedOrder);
+        
 
         redirectAttributes.addFlashAttribute("successMessage",
                 "Đặt kho thành công! Mã đơn #" + savedOrder.getId());
