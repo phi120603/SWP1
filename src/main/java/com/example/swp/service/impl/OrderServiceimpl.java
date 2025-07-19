@@ -10,6 +10,7 @@ import com.example.swp.enums.TransactionType;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.OrderRepository;
 import com.example.swp.repository.StorageRepository;
+import com.example.swp.service.ActivityLogService;
 import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageService;
 import com.example.swp.service.StorageTransactionService;
@@ -40,6 +41,8 @@ public class OrderServiceimpl implements OrderService {
     private StorageRequest storageRequest;
     @Autowired
     private CustomerRepository customerRepository;
+    @Autowired
+    private ActivityLogService activityLogService;
 
     @Autowired
     private StorageTransactionService storageTransactionService;
@@ -102,7 +105,21 @@ public class OrderServiceimpl implements OrderService {
         order.setStatus(orderRequest.getStatus());
         order.setCustomer(customer);
         order.setStorage(storage);
-        return orderRepository.save(order);
+
+        Order savedOrder = orderRepository.save(order);
+        activityLogService.logActivity(
+                "Tạo đơn hàng",
+                "Khách hàng " + customer.getFullname() + " đã tạo đơn hàng #" + savedOrder.getId(),
+                customer,
+                savedOrder,
+                null, null, null, null
+        );
+        // -----------------------------------------
+
+        return savedOrder;
+
+
+
     }
 
     @Override
@@ -194,6 +211,16 @@ public class OrderServiceimpl implements OrderService {
         transaction.setOrder(order); // Liên kết đến order đầy đủ hơn
 
         storageTransactionService.save(transaction);
+
+        // ---------- GHI LOG HOẠT ĐỘNG ----------
+        activityLogService.logActivity(
+                "Thanh toán đơn hàng",
+                "Khách hàng " + order.getCustomer().getFullname() + " đã thanh toán đơn hàng #" + order.getId(),
+                order.getCustomer(),
+                order,
+                transaction,
+                null, null, null
+        );
     }
 
 
@@ -241,7 +268,19 @@ public class OrderServiceimpl implements OrderService {
         // Cần setRentalArea từ controller truyền vào!
         // order.setRentalArea(rentalArea);
 
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+
+        // ----------- GHI LOG HOẠT ĐỘNG -----------
+        activityLogService.logActivity(
+                "Tạo đơn booking",
+                "Khách hàng " + customer.getFullname() + " tạo đơn booking #" + savedOrder.getId(),
+                customer,
+                savedOrder,
+                null, null, null, null
+        );
+        // -----------------------------------------
+
+        return savedOrder;
     }
 
 

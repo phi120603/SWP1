@@ -7,6 +7,7 @@ import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.FeedbackRepository;
 import com.example.swp.repository.OrderRepository;
 import com.example.swp.repository.StorageRepository;
+import com.example.swp.service.ActivityLogService;
 import com.example.swp.service.FeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,8 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Autowired
     private StorageRepository storageRepo;
+    @Autowired
+    private ActivityLogService activityLogService;
 
 
     @Override
@@ -69,7 +72,21 @@ public class FeedbackServiceImpl implements FeedbackService {
         feedback.setStorage(storageRepo.findById(storageId).orElseThrow());
         feedback.setContent(content);
         feedback.setRating(rating);
-        return feedbackRepository.save(feedback);
+        Feedback savedFeedback = feedbackRepository.save(feedback);
+
+        // Ghi nhật ký hoạt động
+        activityLogService.logActivity(
+                "Gửi phản hồi",
+                "Khách hàng " + savedFeedback.getCustomer().getFullname()
+                        + " gửi feedback cho kho #" + savedFeedback.getStorage().getStorageid()
+                        + " với nội dung: " + savedFeedback.getContent()
+                        + " - Đánh giá: " + savedFeedback.getRating() + "/5 sao",
+                savedFeedback.getCustomer(),
+                null, null, null, savedFeedback, null
+        );
+
+        return savedFeedback;
     }
+
 
 }

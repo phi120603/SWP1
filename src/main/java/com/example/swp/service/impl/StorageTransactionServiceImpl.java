@@ -52,7 +52,7 @@ public class StorageTransactionServiceImpl implements StorageTransactionService 
     @Override
     public StorageTransaction save(StorageTransaction transaction) {
         // Validate type hợp lệ
-        if (transaction.getType() != TransactionType.PAID && transaction.getType() != TransactionType.REFUND) {
+        if (transaction.getType() != TransactionType.PAID && transaction.getType() != TransactionType.REFUND && transaction.getType() != TransactionType.REQUESTED) {
             throw new IllegalArgumentException("Chỉ cho phép PAID hoặc REFUND.");
         }
         return storageTransactionRepository.save(transaction);

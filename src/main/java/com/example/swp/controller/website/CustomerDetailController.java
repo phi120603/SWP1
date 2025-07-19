@@ -114,7 +114,8 @@ public class CustomerDetailController {
 
         return "my-transactions"; //
     }
-    @PostMapping("/customers/transactions/{id}/request-refund")
+    @PostMapping("/transactions/{id}/request-refund")
+
     public String requestRefund(@PathVariable int id,
                                 @RequestParam("refundReason") String reason,
                                 RedirectAttributes redirectAttributes) {

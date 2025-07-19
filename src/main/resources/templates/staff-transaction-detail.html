@@ -429,23 +429,7 @@
                     <div class="label">Lý do hoàn tiền</div>
                     <div class="value" th:text="${transaction.refundReason}">Khách yêu cầu vì không sử dụng dịch vụ</div>
                 </div>
-                <div class="actions" th:if="${transaction.type.name() == 'REQUESTED'}">
-                    <h3>Phê duyệt yêu cầu hoàn tiền</h3>
 
-                    <form th:action="@{'/SWP/storage-transactions/' + ${transaction.id} + '/approve-refund'}" method="post">
-                        <button class="btn btn-primary" type="submit"
-                                onclick="return confirm('Bạn có chắc chắn muốn duyệt hoàn tiền?')">
-                            <i class="fas fa-check-circle"></i> Duyệt hoàn tiền
-                        </button>
-                    </form>
-
-                    <form th:action="@{'/SWP/storage-transactions/' + ${transaction.id} + '/deny-refund'}" method="post">
-                        <button class="btn btn-danger" type="submit"
-                                onclick="return confirm('Bạn có chắc chắn muốn từ chối hoàn tiền?')">
-                            <i class="fas fa-times-circle"></i> Từ chối hoàn tiền
-                        </button>
-                    </form>
-                </div>
 
 
 
