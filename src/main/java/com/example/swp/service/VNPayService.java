@@ -9,7 +9,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
-@Service
 public interface VNPayService {
     public String createVNPayUrl(HttpServletRequest req, long amount, int orderId) throws UnsupportedEncodingException;
 

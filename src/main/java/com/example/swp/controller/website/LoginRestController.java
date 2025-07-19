@@ -40,15 +40,16 @@ public class LoginRestController {
     private CustomerService customerService;
 
 
-    @GetMapping("/login")
+    @GetMapping({"/login", "/api/login"})
     public String returnLoginPage(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            return "redirect:/home-page"; // Đã login → về home
+            return "redirect:/home-page";
         }
         model.addAttribute("sessionId", session.getId());
         return "login";
-    }
+
+}
 
 
     @PostMapping("/login")
