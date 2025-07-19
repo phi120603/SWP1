@@ -97,7 +97,7 @@ public class OrderServiceimpl implements OrderService {
          dailyRate =storage.getPricePerDay(); // hoặc giá cố định
          totalAmount = rentalDays * dailyRate;
         order.setTotalAmount(totalAmount);
-        order.setStatus(orderRequest.getStatus());
+        order.setStatus(orderRequest.getStatus().toUpperCase());
         order.setCustomer(customer);
         order.setStorage(storage);
         return orderRepository.save(order);
@@ -105,12 +105,13 @@ public class OrderServiceimpl implements OrderService {
 
     @Override
     public List<Order> findOrdersByStatus(String status) {
-        return orderRepository.findByStatus(status);
+        return orderRepository.findByStatus(status.toUpperCase());
     }
     @Override
     public void deleteById(int id) {
         orderRepository.deleteById(id);
     }
+
 
 
 
@@ -132,7 +133,7 @@ public class OrderServiceimpl implements OrderService {
     public double getTotalRevenueAll() {
         return orderRepository.findAll()
                 .stream()
-                .filter(order -> !"Rejected".equalsIgnoreCase(order.getStatus()))
+                .filter(order -> !"REJECTED".equalsIgnoreCase(order.getStatus()))
                 .mapToDouble(Order::getTotalAmount)
                 .sum();
     }
@@ -141,7 +142,7 @@ public class OrderServiceimpl implements OrderService {
     public double getRevenuePaid() {
         return orderRepository.findAll()
                 .stream()
-                .filter(order -> "Paid".equalsIgnoreCase(order.getStatus()))
+                .filter(order -> order.getStatus() != null && order.getStatus().equals("PAID"))
                 .mapToDouble(Order::getTotalAmount)
                 .sum();
     }

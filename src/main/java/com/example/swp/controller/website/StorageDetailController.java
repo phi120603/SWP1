@@ -1,5 +1,6 @@
 package com.example.swp.controller.website;
 
+import com.example.swp.entity.Feedback;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Order;
 import com.example.swp.entity.Storage;
@@ -20,11 +21,14 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
 @RequestMapping("/SWP")
 public class StorageDetailController {
+    @Autowired
+    private FeedbackService feedbackService;
 
     @Autowired
     private StorageService storageService;
@@ -32,8 +36,7 @@ public class StorageDetailController {
     @Autowired
     private OrderService orderService;
 
-    @Autowired
-    private FeedbackService feedbackService;
+
 
     @Autowired
     private ViewingAppointmentService viewingAppointmentService;
@@ -116,21 +119,40 @@ public class StorageDetailController {
     }
 
     @GetMapping("/storages/compare")
-    public String compareStorages(@RequestParam("id1") int id1,
-                                  @RequestParam("id2") int id2,
-                                  Model model) {
-        Optional<Storage> s1 = storageService.findByID(id1);
-        Optional<Storage> s2 = storageService.findByID(id2);
+    public String compareStorages(
+            @RequestParam(value = "id1", required = false) Integer id1,
+            @RequestParam(value = "id2", required = false) Integer id2,
+            Model model) {
 
-        if (s1.isEmpty() || s2.isEmpty()) {
-            return "redirect:/SWP/storages"; // hoặc hiển thị lỗi
+        List<Storage> storageList = storageService.getAll();
+        model.addAttribute("storageList", storageList);
+
+        Storage storage1 = null;
+        Storage storage2 = null;
+        List<Feedback> feedbacks1 = List.of();
+        List<Feedback> feedbacks2 = List.of();
+
+        if (id1 != null) {
+            storage1 = storageService.findByID(id1).orElse(null);
+            if (storage1 != null) {
+                feedbacks1 = feedbackService.findByStorageId(id1);
+            }
+        }
+        if (id2 != null) {
+            storage2 = storageService.findByID(id2).orElse(null);
+            if (storage2 != null) {
+                feedbacks2 = feedbackService.findByStorageId(id2);
+            }
         }
 
-        model.addAttribute("storage1", s1.get());
-        model.addAttribute("storage2", s2.get());
+        model.addAttribute("storage1", storage1);
+        model.addAttribute("storage2", storage2);
+        model.addAttribute("feedbacks1", feedbacks1);
+        model.addAttribute("feedbacks2", feedbacks2);
 
-        return "storage-compare"; // tên file html sẽ tạo bên dưới
+        return "storage-compare";
     }
+
 
     @GetMapping("/storages/{id}/appointment")
     public String showAppointmentForm(@PathVariable int id, Model model) {
