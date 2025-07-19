@@ -247,7 +247,22 @@ public class OrderServiceimpl implements OrderService {
     }
     @Transactional
     public void updateOrderStatusToPaid(int orderId) {
-        orderRepository.updateOrderStatusToPaid(orderId);
+        Optional<Order> optionalOrder = orderRepository.findById(orderId);
+        if (optionalOrder.isPresent()) {
+            Order order = optionalOrder.get();
+            if (!"PAID".equals(order.getStatus())) {
+                order.setStatus("PAID");
+
+                // ✅ Cộng điểm cho khách hàng
+                Customer customer = order.getCustomer();
+                if (customer != null) {
+                    customer.setPoints(customer.getPoints() + 5); // cộng 5 điểm
+                    customerRepository.save(customer); // lưu lại customer
+                }
+
+                orderRepository.updateOrderStatusToPaid(orderId);
+            }
+        }
     }
 
     @Override

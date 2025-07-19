@@ -10,22 +10,7 @@
 <body>
 <div class="page-wrapper">
     <!-- Navigation -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <div class="navbar-brand">
-                <a href="/home-page">
-                    <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
-                         alt="QVL Storage Logo" class="navbar-logo">
-                </a>
-            </div>
-            <ul class="navbar-nav">
-                <li><a href="/SWP/home">Trang chủ</a></li>
-                <li><a href="/SWP/customers/my-bookings" class="active">Đơn hàng của tôi</a></li>
-                <li><a href="/SWP/customers/my-transactions">Lịch sử giao dịch</a></li>
-                <li><a href="/SWP/logout">Đăng xuất</a></li>
-            </ul>
-        </div>
-    </nav>
+    <div th:replace="taskbar/customer-navbar :: customerNavbar"></div>
 
     <!-- Hero section -->
     <div class="hero-section">

@@ -1,16 +1,10 @@
 package com.example.swp.controller.website;
 
-import com.example.swp.entity.Customer;
-import com.example.swp.entity.Order;
-import com.example.swp.entity.Storage;
-import com.example.swp.entity.Voucher;
+import com.example.swp.entity.*;
 import com.example.swp.enums.RoleName;
 import com.example.swp.service.ContractService;
 import com.example.swp.enums.VoucherStatus;
-import com.example.swp.service.CustomerService;
-import com.example.swp.service.OrderService;
-import com.example.swp.service.StorageService;
-import com.example.swp.service.VoucherService;
+import com.example.swp.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -43,6 +37,10 @@ public class BookingController {
 
     @Autowired
     private VoucherService voucherService;
+
+    @Autowired
+    private VoucherUsageService voucherUsageService;
+
 
     @GetMapping("/search")
     public String showBookingSearchForm(Model model, HttpSession session) {
@@ -322,6 +320,19 @@ public class BookingController {
 
         Order savedOrder = orderService.save(order);
         contractService.createContractForOrder(savedOrder);
+
+        // Ghi log lịch sử sử dụng voucher
+        if (voucher != null) {
+            VoucherUsage history = new VoucherUsage();
+            history.setCustomer(customer);
+            history.setVoucher(voucher);
+            history.setOrder(savedOrder);
+            history.setUsedAt(LocalDateTime.now());
+            history.setDiscountAmount(BigDecimal.valueOf(voucher.getDiscountAmount().doubleValue())); // hoặc totalAmount - finalAmount
+
+            voucherUsageService.save(history);
+        }
+
 
         redirectAttributes.addFlashAttribute("successMessage",
                 "Đặt kho thành công! Mã đơn #" + savedOrder.getId());
