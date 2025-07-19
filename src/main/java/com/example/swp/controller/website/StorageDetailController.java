@@ -36,8 +36,6 @@ public class StorageDetailController {
     @Autowired
     private OrderService orderService;
 
-
-
     @Autowired
     private ViewingAppointmentService viewingAppointmentService;
 

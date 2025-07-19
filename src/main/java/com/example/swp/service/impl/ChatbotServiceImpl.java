@@ -23,7 +23,7 @@ public class ChatbotServiceImpl implements ChatbotService {
     @Autowired
     private CustomerRepository customerRepository;
     @Autowired
-    private StorageReponsitory storageRepository;
+    private StorageRepository storageRepository;
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
@@ -33,7 +33,7 @@ public class ChatbotServiceImpl implements ChatbotService {
     @Autowired
     private AttendanceRepository attendanceRepository;
     @Autowired
-    private StaffReponsitory staffReponsitory;
+    private StaffRepository staffReponsitory;
 
     private static final String API_KEY = "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";
     private static final String OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
