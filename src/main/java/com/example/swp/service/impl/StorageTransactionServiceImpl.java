@@ -9,6 +9,7 @@ import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.OrderRepository;
 import com.example.swp.repository.StorageRepository;
 import com.example.swp.repository.StorageTransactionRepository;
+import com.example.swp.service.ActivityLogService;
 import com.example.swp.service.StorageTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,8 @@ public class StorageTransactionServiceImpl implements StorageTransactionService 
     private StorageRepository storageRepository;
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private ActivityLogService activityLogService;
 
     @Override
     public List<StorageTransaction> getAllStorageTransactions() {
@@ -79,7 +82,25 @@ public class StorageTransactionServiceImpl implements StorageTransactionService 
         transaction.setCustomer(customer);
         transaction.setOrder(order);
 
-        return storageTransactionRepository.save(transaction);
+        StorageTransaction savedTransaction = storageTransactionRepository.save(transaction);
+
+        // Ghi log transaction
+        String action = (type == TransactionType.PAID) ? "Thanh toán" : "Hoàn tiền";
+        String description = "Khách hàng " + customer.getFullname()
+                + " " + (type == TransactionType.PAID ? "thanh toán" : "được hoàn tiền")
+                + " số tiền: " + String.format("%,.0f", amount) + "đ"
+                + " cho kho " + storage.getStoragename()
+                + " - Đơn hàng #" + order.getId()
+                + " - Mã giao dịch: " + savedTransaction.getId();
+
+        activityLogService.logActivity(
+                action,
+                description,
+                customer,
+                order, savedTransaction, null, null, null
+        );
+
+        return savedTransaction;
     }
     @Override
     public List<StorageTransaction> findByType(TransactionType type) {

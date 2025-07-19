@@ -151,7 +151,7 @@ public class StaffDBoardController {
     public String showAllRecentActivity(Model model) {
         List<RecentActivity> recentActivities = recentActivityService.getAllActivities();
         model.addAttribute("recentActivities", recentActivities);
-        return "all-recent-activity"; // Tên file Thymeleaf: all-recent-activity.html
+        return "all-recent-activity"; // Tên file Thymeleaf: all-customer-recent-activity-list.html
     }
 
     @PostMapping("/staff-add-storage")

@@ -1,8 +1,10 @@
 package com.example.swp.entity;
 
+import com.example.swp.enums.ActivityType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -20,7 +22,7 @@ public class ActivityLog {
 
     @Column(length = 1000)
     private String description; // Nội dung chi tiết
-
+    @CreationTimestamp
     private LocalDateTime timestamp;
 
     @ManyToOne
@@ -59,5 +61,10 @@ public class ActivityLog {
         this.customer = customer;
         this.timestamp = LocalDateTime.now();
     }
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private ActivityType type;
+
+
 
 }

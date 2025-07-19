@@ -49,7 +49,6 @@
                             <select name="type" class="filter-select" onchange="this.form.submit()">
                                 <option value="">Tất cả loại giao dịch</option>
                                 <option value="PAID" th:selected="${type == 'PAID'}">Thanh toán</option>
-                                <option value="REFUND" th:selected="${type == 'REFUND'}">Hoàn tiền</option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-secondary">
@@ -84,7 +83,6 @@
                             <td>
                                 <span th:switch="${transaction.type.name()}">
                                     <span th:case="'PAID'" class="type-badge type-payment">Thanh toán</span>
-                                    <span th:case="'REFUND'" class="type-badge type-refund">Hoàn tiền</span>
                                     <span th:case="*" class="type-badge">Không xác định</span>
                                 </span>
                             </td>
@@ -98,16 +96,8 @@
                                 <span class="amount" th:text="${#numbers.formatDecimal(transaction.amount, 1, 2)} + ' VND'"></span>
                             </td>
                             <td>
-                                <span th:if="${transaction.type.name() == 'PAID'}">
-                                    <button class="btn btn-danger" type="button"
-                                            th:onclick="|showRefundForm('${transaction.id}')|">
-                                        Hoàn tiền
-                                    </button>
-                                </span>
-                                <span th:if="${transaction.type.name() == 'REQUESTED'}" class="badge badge-warning">Chờ duyệt</span>
-                                <span th:if="${transaction.type.name() == 'REFUND'}" class="badge badge-success">Đã hoàn</span>
-                                <span th:if="${transaction.type.name() == 'DENIED'}" class="badge badge-danger">Từ chối</span>
-                                <span th:if="${transaction.type.name() == 'APPROVED'}" class="badge badge-info">Đã duyệt hoàn</span>
+                                <!-- Không còn thao tác hoàn tiền hoặc trạng thái liên quan -->
+                                <span class="badge badge-default">-</span>
                             </td>
                         </tr>
                         </tbody>
@@ -125,7 +115,6 @@
         </div>
     </div>
 
-
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -134,7 +123,6 @@
                     <div class="brand-header">
                         <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
                              alt="QVL Storage Logo" class="footer-logo">
-
                     </div>
                     <p class="brand-description">Hệ thống cho thuê kho hàng chuyên nghiệp trên toàn quốc.</p>
                 </div>
@@ -174,32 +162,5 @@
         </div>
     </footer>
 </div>
-<!-- Modal yêu cầu hoàn tiền -->
-<div id="refundModal" style="display:none;" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="refundTitle">
-    <div class="modal-content">
-        <h3 id="refundTitle">Lý do hoàn tiền</h3>
-        <form id="refundForm" method="post">
-            <input type="hidden" name="transactionId" id="modalTransactionId">
-            <textarea name="refundReason" rows="4" placeholder="Nhập lý do..." required></textarea>
-            <div class="modal-actions">
-                <button type="submit" class="btn btn-primary">Gửi yêu cầu</button>
-                <button type="button" class="btn btn-secondary" onclick="closeRefundForm()">Hủy</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script>
-    function showRefundForm(transactionId) {
-        document.getElementById('modalTransactionId').value = transactionId;
-        document.getElementById('refundForm').action = '/SWP/customers/transactions/' + transactionId + '/request-refund';
-        document.getElementById('refundModal').style.display = 'flex';
-    }
-
-    function closeRefundForm() {
-        document.getElementById('refundModal').style.display = 'none';
-    }
-</script>
-
 </body>
 </html>

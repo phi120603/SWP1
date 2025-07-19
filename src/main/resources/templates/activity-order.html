@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhật ký đơn hàng</title>
+    <link rel="stylesheet" th:href="@{/css/my-transaction.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="page-wrapper">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                <a href="/home-page">
+                    <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
+                         alt="QVL Storage Logo" class="navbar-logo">
+                </a>
+            </div>
+            <ul class="navbar-nav">
+                <li><a href="/home-page">Trang chủ</a></li>
+                <li><a href="/SWP/activity/order" class="active">Nhật ký đơn hàng</a></li>
+                <li><a href="/SWP/customers/my-transactions">Lịch sử giao dịch</a></li>
+                <li><a href="/api/logout">Đăng xuất</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1>Nhật ký đơn hàng</h1>
+            <p th:if="${customer != null}" th:text="'Xin chào, ' + ${customer.fullname} + '. Đây là các hoạt động của bạn.'"></p>
+            <p th:if="${customer == null}">Xin chào, vui lòng đăng nhập để xem hoạt động.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="content-section">
+            <div class="section-header">
+                <h2><i class="fas fa-history"></i> Danh sách hoạt động đặt hàng</h2>
+            </div>
+
+            <div class="table-container">
+                <table class="transaction-table">
+                    <thead>
+                    <tr>
+                        <th><i class="fas fa-clock"></i> Thời gian</th>
+                        <th><i class="fas fa-bolt"></i> Hành động</th>
+                        <th><i class="fas fa-hashtag"></i> Mã đơn</th>
+                        <th><i class="fas fa-warehouse"></i> Tên kho</th>
+                        <th><i class="fas fa-vector-square"></i> Diện tích</th>
+                        <th><i class="fas fa-money-bill-wave"></i> Giá/ngày</th>
+                        <th><i class="fas fa-sack-dollar"></i> Tổng tiền</th>
+                        <th><i class="fas fa-info-circle"></i> Trạng thái</th>
+                        <th><i class="fas fa-eye"></i> Xem</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="log : ${activityLogs}">
+                        <td th:text="${#temporals.format(log.timestamp, 'dd/MM/yyyy HH:mm')}">--</td>
+                        <td th:text="${log.action}">Action</td>
+                        <td th:text="${log.order != null ? '#' + log.order.id : '—'}"></td>
+                        <td th:text="${log.order != null ? log.order.storage.storagename : '—'}"></td>
+                        <td th:text="${log.order != null ? log.order.rentalArea + ' m²' : '—'}"></td>
+                        <td th:text="${log.order != null ? #numbers.formatDecimal(log.order.storage.pricePerDay, 0, 'COMMA', 2, 'POINT') + 'đ/ngày' : '—'}"></td>
+                        <td th:text="${log.order != null ? #numbers.formatDecimal(log.order.totalAmount, 0, 'COMMA', 2, 'POINT') + 'đ' : '—'}"></td>
+                        <td>
+            <span th:if="${log.order != null}" th:switch="${log.order.status}">
+                <span th:case="'PENDING'" class="badge badge-warning">Chờ duyệt</span>
+                <span th:case="'APPROVED'" class="badge badge-info">Đã duyệt</span>
+                <span th:case="'REJECTED'" class="badge badge-danger">Từ chối</span>
+                <span th:case="'PAID'" class="badge badge-success">Đã thanh toán</span>
+                <span th:case="*" class="badge">Không xác định</span>
+            </span>
+                            <span th:if="${log.order == null}">—</span>
+                        </td>
+                        <td>
+                            <a th:if="${log.order != null}"
+                               th:href="@{'/SWP/booking/detail(orderId=' + ${log.order.id} + ')'}"
+                               class="btn btn-primary btn-sm">
+                                Xem đơn hàng
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+
+                <!-- Empty -->
+                <div th:if="${activityLogs == null or activityLogs.isEmpty()}" class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-file-alt"></i></div>
+                    <h3>Chưa có hoạt động nào</h3>
+                    <p>Hệ thống chưa ghi nhận hoạt động nào của bạn liên quan đến đặt hàng.</p>
+                    <a href="/SWP/storages" class="btn btn-primary"><i class="fas fa-plus"></i> Bắt đầu đặt kho</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="brand-header">
+                        <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
+                             alt="QVL Storage Logo" class="footer-logo">
+                    </div>
+                    <p class="brand-description">Hệ thống cho thuê kho hàng chuyên nghiệp trên toàn quốc.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Về chúng tôi</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Dịch vụ</a></li>
+                        <li><a href="#">Tin tức</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Hỗ trợ</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Trung tâm trợ giúp</a></li>
+                        <li><a href="#">Chat trực tuyến</a></li>
+                        <li><a href="#">Hotline 24/7</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Sản phẩm</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Kho nhỏ</a></li>
+                        <li><a href="#">Kho vừa</a></li>
+                        <li><a href="#">Kho lớn</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-divider"></div>
+            <div class="footer-bottom">
+                <p class="copyright">© 2025 QVL STORAGE. All rights reserved.</p>
+                <ul class="footer-bottom-links">
+                    <li><a href="#">Điều khoản & Điều kiện</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+</div>
+</body>
+</html>
