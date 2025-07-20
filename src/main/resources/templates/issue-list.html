@@ -32,25 +32,6 @@
             color: #333;
             margin: 0;
         }
-        .btn-back {
-            background-color: #6c757d;       /* Màu xám */
-            color: white;
-            padding: 10px 18px;
-            font-weight: 500;
-            border: none;
-            border-radius: 8px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-back:hover {
-            background-color: #5a6268;
-            text-decoration: none;
-            color: white;
-        }
         .table-container {
             background: white;
             border-radius: 8px;
@@ -160,12 +141,8 @@
 </head>
 <body>
     <div th:replace="~{taskbar/manager-taskbar :: managerTaskbar}"></div>
-
+    
     <div class="main-content">
-        <div class="page-actions">
-            <a th:href="@{'/admin/manager-dashboard'}" class="btn-secondary btn-back">
-                <i class="fas fa-arrow-left"></i> Trở về trang chính </a>
-        </div>
         <div class="page-header">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h1 class="page-title">Quản lý Issue</h1>
