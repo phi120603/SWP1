@@ -13,6 +13,7 @@ import com.example.swp.service.*;
 import com.example.swp.service.impl.ChatService;
 import com.example.swp.service.impl.CustomerServiceImpl;
 import com.example.swp.service.impl.StaffServiceimpl;
+import jakarta.servlet.http.HttpSession;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -296,6 +297,16 @@ public class ManagerController {
         }
         return "manager-setting";
     }
+
+    @GetMapping("/manager/profile")
+    public String managerProfilePage(HttpSession session, Model model) {
+        Manager loggedInManager = (Manager) session.getAttribute("loggedInManager");
+        if (loggedInManager != null) {
+            model.addAttribute("user", loggedInManager); // -> biến 'user' trong HTML
+        }
+        return "manager-setting";
+    }
+
 
 
 }

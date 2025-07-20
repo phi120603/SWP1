@@ -83,17 +83,64 @@
         <div class="profile-content">
             <div class="profile-left">
                 <!-- Thông tin cá nhân -->
-                <div class="card">
-                    <h3 class="card-title"><i class="fas fa-user"></i> Thông tin cá nhân</h3>
-                    <div class="card-body">
-                        <div class="info-group"><label class="info-label">Họ và tên</label><p class="info-value">Nguyễn Văn Minh</p></div>
-                        <div class="info-group"><label class="info-label">Email</label><p class="info-value">minh.nguyen@company.com</p></div>
-                        <div class="info-group"><label class="info-label">Số điện thoại</label><p class="info-value">+84 123 456 789</p></div>
-                        <div class="info-group"><label class="info-label">Ngày sinh</label><p class="info-value">15/03/1985</p></div>
-                        <div class="info-group"><label class="info-label">Địa chỉ</label><p class="info-value">123 Đường ABC, Quận 1, TP.HCM</p></div>
-                        <div class="info-group"><label class="info-label">Trạng thái</label><span class="status-badge active">Đang hoạt động</span></div>
+                <!-- Profile Header -->
+                <div class="profile-header">
+                    <div class="profile-avatar">
+<!--                        <img src="https://i.pravatar.cc/120" alt="Avatar" class="avatar-img">-->
+                    </div>
+                    <div class="profile-info">
+                        <h1 class="profile-name" th:text="${user.getFullname()}">Tên quản lý</h1>
+                        <p class="profile-title">Quản lý Kho chính</p>
+                        <div class="profile-stats">
+                            <div class="stat-item"><span class="stat-number">5</span><br><span class="stat-label">Năm kinh nghiệm</span></div>
+                            <div class="stat-item"><span class="stat-number">3</span><br><span class="stat-label">Kho quản lý</span></div>
+                            <div class="stat-item"><span class="stat-number">25</span><br><span class="stat-label">Nhân viên</span></div>
+                        </div>
+                    </div>
+                    <div class="profile-actions">
+                        <button class="btn btn-primary"><i class="fas fa-edit"></i> Chỉnh sửa hồ sơ</button>
+                        <button class="btn btn-secondary"><i class="fas fa-download"></i> Xuất CV</button>
                     </div>
                 </div>
+
+                <!-- Profile Content -->
+                <div class="profile-content">
+                    <div class="profile-left">
+                        <!-- Thông tin cá nhân -->
+                        <div class="card">
+                            <h3 class="card-title"><i class="fas fa-user"></i> Thông tin cá nhân</h3>
+                            <div class="card-body">
+                                <div class="info-group">
+                                    <label class="info-label">Họ và tên</label>
+                                    <p class="info-value" th:text="${user.getFullname()}">Tên</p>
+                                </div>
+                                <div class="info-group">
+                                    <label class="info-label">Email</label>
+                                    <p class="info-value" th:text="${user.email}">Email</p>
+                                </div>
+                                <div class="info-group">
+                                    <label class="info-label">Số điện thoại</label>
+                                    <p class="info-value" th:text="${user.phone}">SĐT</p>
+                                </div>
+                                <div class="info-group">
+                                    <label class="info-label">Số căn cước công dân</label>
+                                    <p class="info-value" th:text="${user.id_citizen}">Số CCCD</p>
+                                </div>
+                                <div class="info-group">
+                                    <label class="info-label">Địa chỉ</label>
+                                    <p class="info-value" th:text="${user.address}">Địa chỉ</p>
+                                </div>
+                                <div class="info-group">
+                                    <label class="info-label">Trạng thái</label>
+                                    <span class="status-badge active" th:if="${user.isOnline}" th:text="'Đang hoạt động'">Đang hoạt động</span>
+                                    <span class="status-badge" th:if="${!user.isOnline}" th:text="'Ngưng hoạt động'">Ngưng hoạt động</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
 
                 <!-- Thông tin công việc -->
                 <div class="card">
