@@ -177,16 +177,9 @@
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <a th:href="@{'/SWP/issues/' + ${issue.id} + '/detail'}" class="btn-icon" title="Xem chi tiết">
+                                <a th:href="@{'/SWP/staffdb/van-de/view/' + ${issue.id}}" class="btn-icon" title="Xem chi tiết">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <form th:action="@{'/SWP/issues/' + ${issue.id} + '/toggle-status'}" method="post"
-                                      onsubmit="return confirm('Bạn có chắc muốn chuyển trạng thái của vấn đề này?');"
-                                      style="display: inline;">
-                                    <button type="submit" class="btn-icon" title="Chuyển trạng thái">
-                                        <i class="fas fa-exchange-alt"></i>
-                                    </button>
-                                </form>
                             </div>
                         </td>
                     </tr>

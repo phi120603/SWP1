@@ -104,6 +104,6 @@ public class IssueServiceImpl implements IssueService {
 
     @Override
     public void save(Issue issue) {
-
+        issueRepository.save(issue);
     }
 }
