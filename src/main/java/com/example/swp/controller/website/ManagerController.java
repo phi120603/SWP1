@@ -228,6 +228,17 @@ public class ManagerController {
         return "staff-list";
     }
 
+    @GetMapping("/staff-list/detail/{id}")
+    public String viewStaffDetail(@PathVariable int id, Model model) {
+        Optional<Staff> optionalStaff = staffService.findById(id);
+        if (optionalStaff.isPresent()) {
+            model.addAttribute("staff", optionalStaff.get());
+        } else {
+            return "redirect:/admin/staff-list";
+        }
+        return "staff-detail";
+    }
+
     @GetMapping("/staff-list/edit/{id}")
     public String showEditStaffForm(@PathVariable int id, Model model, RedirectAttributes redirectAttributes) {
         Optional<Staff> staffOpt = staffService.findById(id);
