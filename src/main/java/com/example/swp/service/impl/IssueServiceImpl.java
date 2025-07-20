@@ -51,18 +51,24 @@ public class IssueServiceImpl implements IssueService {
 
     @Override
     public Issue createIssue(IssueRequest issueRequest) {
-        Customer customer = customerRepository.findById(issueRequest.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với id " + issueRequest.getCustomerId()));
+        Customer customer = null;
+        if (issueRequest.getCustomerId() != null) {
+            customer = customerRepository.findById(issueRequest.getCustomerId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với id " + issueRequest.getCustomerId()));
+        }
+
         Staff staff = staffRepository.findById(issueRequest.getAssignedStaffId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy staff với id " + issueRequest.getAssignedStaffId()));
 
         Issue issue = new Issue();
         issue.setSubject(issueRequest.getSubject());
         issue.setDescription(issueRequest.getDescription());
-        issue.setCustomer(customer);
+        issue.setCustomer(customer); // có thể null cho vấn đề nội bộ
         issue.setAssignedStaff(staff);
         issue.setCreatedDate(new Date());
         issue.setResolved(false);
+        issue.setCreatedByType("CUSTOMER");
+//        issue.setStatus(IssueStatus.Pending);
         issue.setStatus(IssueStatus.Pending);
 
         Issue savedIssue = issueRepository.save(issue);

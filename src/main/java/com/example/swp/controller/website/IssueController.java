@@ -125,6 +125,10 @@ public class IssueController {
         if (issues == null) {
             issues = new ArrayList<>();
         }
+        // Chỉ hiển thị issues được tạo bởi khách hàng
+        issues = issues.stream()
+                .filter(issue -> "CUSTOMER".equals(issue.getCreatedByType()))
+                .collect(Collectors.toList());
         model.addAttribute("issues", issues);
         return "staff-report";
     }
@@ -260,6 +264,8 @@ public class IssueController {
     public String showSendReportForm(Model model) {
         List<Issue> issues = issueService.getAllIssues();
         model.addAttribute("issues", issues);
+        model.addAttribute("customers", customerRepository.findAll());
+        model.addAttribute("staffs", staffRepository.findAll());
         return "staff-send-report";
     }
 
@@ -267,18 +273,35 @@ public class IssueController {
     public String sendReport(
             @RequestParam(required = false) List<Long> issueIds,
             @RequestParam(required = false) String customReport,
+            @RequestParam(required = false) Integer customerId,
+            @RequestParam(required = false) Integer assignedStaffId,
             Model model
     ) {
         try {
+            if (customReport != null && !customReport.trim().isEmpty() && assignedStaffId != null) {
+                IssueRequest issueRequest = new IssueRequest();
+                issueRequest.setSubject("Báo cáo từ nhân viên");
+                issueRequest.setDescription(customReport);
+                issueRequest.setCustomerId(customerId); // có thể null cho vấn đề nội bộ
+                issueRequest.setAssignedStaffId(assignedStaffId);
+
+                Issue issue = issueService.createIssue(issueRequest);
+                issue.setCreatedByType("STAFF");
+                issueService.save(issue);
+            }
+
             model.addAttribute("success", "Gửi báo cáo thành công!");
-            // Reset form:
             model.addAttribute("issues", issueService.getAllIssues());
-            model.addAttribute("customReport", ""); // hoặc model.addAttribute("customReport", null);
+            model.addAttribute("customReport", "");
+            model.addAttribute("customers", customerRepository.findAll());
+            model.addAttribute("staffs", staffRepository.findAll());
 
             return "staff-send-report";
         } catch (Exception e) {
             model.addAttribute("error", "Gửi báo cáo thất bại: " + e.getMessage());
             model.addAttribute("issues", issueService.getAllIssues());
+            model.addAttribute("customers", customerRepository.findAll());
+            model.addAttribute("staffs", staffRepository.findAll());
             return "staff-send-report";
         }
     }
@@ -307,5 +330,7 @@ public class IssueController {
         model.addAttribute("success", "Cập nhật thành công!");
         return "staff-report-detail";
     }
+
+
 
 }
