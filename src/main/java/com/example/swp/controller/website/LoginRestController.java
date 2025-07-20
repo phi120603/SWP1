@@ -40,14 +40,15 @@ public class LoginRestController {
     private CustomerService customerService;
 
 
-    @GetMapping("/login")
+    @GetMapping({"/login", "/api/login"})
     public String returnLoginPage(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            return "redirect:/home-page"; // Đã login → về home
+            return "redirect:/home-page";
         }
         model.addAttribute("sessionId", session.getId());
         return "login";
+
     }
 
 
@@ -71,13 +72,15 @@ public class LoginRestController {
             // Ghi nhận thông tin đăng nhập vào Spring Security Context
             SecurityContextHolder.getContext().setAuthentication(authentication);
             // Lưu thông tin vào session
-            session.setMaxInactiveInterval(6000); // 10 phút
+            session.setMaxInactiveInterval(600); // 10 phút
             session.setAttribute("email", loginRequest.getEmail());
-            Customer customer = customerService.findByEmail(loginRequest.getEmail());
-            if (customer != null) {
-                session.setAttribute("loggedInCustomer", customer);
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof MyUserDetail userDetail) {
+                Object user = userDetail.getUser();
+                if (user instanceof Customer customer) {
+                    session.setAttribute("loggedInCustomer", customer); // đúng rồi!
+                }
             }
-
 
 
             // Gắn context vào session
@@ -136,4 +139,24 @@ public class LoginRestController {
             return ResponseEntity.ok("Chưa đăng nhập hoặc session đã hết hạn.");
         }
     }
+
+    @GetMapping("/current-user")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof MyUserDetail userDetail) {
+            Object user = userDetail.getUser();
+            if (user instanceof Customer customer) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("id", customer.getId());
+                data.put("email", customer.getEmail());
+                data.put("fullName", customer.getFullname());
+                return ResponseEntity.ok(data);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+    }
+
 }
+
+

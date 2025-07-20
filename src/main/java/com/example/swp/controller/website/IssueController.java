@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -49,23 +50,30 @@ public class IssueController {
     @GetMapping
     public String listAllIssues(
             Model model,
+            HttpSession session,
             @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "status", required = false) String status
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size
     ) {
-        List<Issue> issues = issueService.searchAndFilterIssues(search, status);
+        String email = (String) session.getAttribute("email");
+        if (email != null && customerRepository.findByEmail(email).isPresent()) {
+            return "redirect:/SWP/issues/my-issues"; // chặn customer
+        }
 
-        long pendingCount = issueService.countByStatus(IssueStatus.Pending);
-        long progressCount = issueService.countByStatus(IssueStatus.In_Progress);
-        long resolvedCount = issueService.countByStatus(IssueStatus.Resolved);
-        long closedCount = issueService.countByStatus(IssueStatus.Closed);
-        long totalCount = issueService.countAll();
+        Page<Issue> issuePage = issueService.searchAndFilterIssuesPaginated(search, status, page, size);
 
-        model.addAttribute("issues", issues);
-        model.addAttribute("pendingCount", pendingCount);
-        model.addAttribute("progressCount", progressCount);
-        model.addAttribute("resolvedCount", resolvedCount);
-        model.addAttribute("closedCount", closedCount);
-        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("issuePage", issuePage);
+        model.addAttribute("issues", issuePage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("totalPages", issuePage.getTotalPages());
+
+        model.addAttribute("pendingCount", issueService.countByStatus(IssueStatus.Pending));
+        model.addAttribute("progressCount", issueService.countByStatus(IssueStatus.In_Progress));
+        model.addAttribute("resolvedCount", issueService.countByStatus(IssueStatus.Resolved));
+        model.addAttribute("closedCount", issueService.countByStatus(IssueStatus.Closed));
+        model.addAttribute("totalCount", issueService.countAll());
 
         model.addAttribute("search", search);
         model.addAttribute("status", status);
@@ -73,49 +81,46 @@ public class IssueController {
         return "customer-issue-list";
     }
 
+
     // ----------- Tạo mới Issue -----------
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        model.addAttribute("issueRequest", new com.example.swp.dto.IssueRequest());
+        model.addAttribute("issueRequest", new IssueRequest());
         model.addAttribute("customers", customerRepository.findAll());
-        model.addAttribute("staffs", staffRepository.findAll());
-        return "create-issue";
+        return "create-issue"; // Đã loại bỏ staffs
     }
+
 
     // Nhận form submit
     @PostMapping("/create")
     public String createIssue(
-            @ModelAttribute("issueRequest") @Valid com.example.swp.dto.IssueRequest issueRequest,
+            @ModelAttribute("issueRequest") @Valid IssueRequest issueRequest,
             BindingResult bindingResult,
             Model model,
             HttpSession session
     ) {
         model.addAttribute("customers", customerRepository.findAll());
-        model.addAttribute("staffs", staffRepository.findAll());
 
         if (bindingResult.hasErrors()) {
-            // Có lỗi validate: trả lại form và hiển thị lỗi cạnh trường nhập!
             return "create-issue";
         }
 
         try {
             issueService.createIssue(issueRequest);
             model.addAttribute("success", "Tạo Issue thành công!");
-            model.addAttribute("issueRequest", new com.example.swp.dto.IssueRequest());
+            model.addAttribute("issueRequest", new IssueRequest());
 
-            // Thông báo cho customer (nếu đang đăng nhập)
+            // Thông báo cho customer (nếu có đăng nhập)
             String email = (String) session.getAttribute("email");
             if (email != null) {
-                Optional<Customer> customerOpt = customerRepository.findByEmail(email);
-                customerOpt.ifPresent(c ->
-                        notificationService.createNotification("Bạn vừa gửi yêu cầu hỗ trợ (Issue) thành công!", c)
-                );
+                customerRepository.findByEmail(email)
+                        .ifPresent(c -> notificationService.createNotification("Bạn vừa gửi yêu cầu hỗ trợ (Issue) thành công!", c));
             }
+
         } catch (Exception e) {
             model.addAttribute("error", "Tạo Issue thất bại: " + e.getMessage());
         }
-        model.addAttribute("customers", customerRepository.findAll());
-        model.addAttribute("staffs", staffRepository.findAll());
+
         return "create-issue";
     }
 
@@ -132,64 +137,49 @@ public class IssueController {
     public String viewCustomerIssues(
             Model model,
             HttpSession session,
-            @RequestParam(value = "status", required = false) String status
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size
     ) {
         String email = (String) session.getAttribute("email");
         if (email == null) {
             model.addAttribute("error", "Bạn chưa đăng nhập.");
-            model.addAttribute("issues", Collections.emptyList());
-            model.addAttribute("pendingCount", 0);
-            model.addAttribute("progressCount", 0);
-            model.addAttribute("resolvedCount", 0);
-            model.addAttribute("closedCount", 0);
-            model.addAttribute("totalCount", 0);
-            model.addAttribute("status", status);
             return "customer-issue-list";
         }
+
         Optional<Customer> customer = customerRepository.findByEmail(email);
         if (customer.isEmpty()) {
             model.addAttribute("error", "Không tìm thấy khách hàng!");
-            model.addAttribute("issues", Collections.emptyList());
-            model.addAttribute("pendingCount", 0);
-            model.addAttribute("progressCount", 0);
-            model.addAttribute("resolvedCount", 0);
-            model.addAttribute("closedCount", 0);
-            model.addAttribute("totalCount", 0);
-            model.addAttribute("status", status);
             return "customer-issue-list";
         }
 
-        List<Issue> issuesAll = issueService.getIssuesByCustomerId(customer.get().getId());
+        Page<Issue> issuePage = issueService.getCustomerIssuesPaginated(
+                customer.get().getId(), status, page, size);
 
-        // Đếm trạng thái
-        long pendingCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.Pending).count();
-        long progressCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.In_Progress).count();
-        long resolvedCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.Resolved).count();
-        long closedCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.Closed).count();
+        List<Issue> allIssues = issueService.getIssuesByCustomerId(customer.get().getId());
 
-        // Lọc theo trạng thái nếu có
-        List<Issue> issues = issuesAll;
-        if (status != null && !status.isEmpty()) {
-            try {
-                IssueStatus st = IssueStatus.valueOf(status);
-                issues = issuesAll.stream()
-                        .filter(i -> i.getStatus() == st)
-                        .collect(Collectors.toList());
-            } catch (Exception e) {
-                // ignore nếu status không hợp lệ
-            }
-        }
+        model.addAttribute("issuePage", issuePage);
+        model.addAttribute("issues", issuePage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("totalPages", issuePage.getTotalPages());
 
-        model.addAttribute("issues", issues);
+        // 🧠 Thêm lại thống kê
+        long pendingCount = allIssues.stream().filter(i -> i.getStatus() == IssueStatus.Pending).count();
+        long progressCount = allIssues.stream().filter(i -> i.getStatus() == IssueStatus.In_Progress).count();
+        long resolvedCount = allIssues.stream().filter(i -> i.getStatus() == IssueStatus.Resolved).count();
+        long closedCount = allIssues.stream().filter(i -> i.getStatus() == IssueStatus.Closed).count();
+
         model.addAttribute("pendingCount", pendingCount);
         model.addAttribute("progressCount", progressCount);
         model.addAttribute("resolvedCount", resolvedCount);
         model.addAttribute("closedCount", closedCount);
-        model.addAttribute("totalCount", issuesAll.size());
-        model.addAttribute("status", status);
+        model.addAttribute("totalCount", allIssues.size());
 
+        model.addAttribute("status", status);
         return "customer-issue-list";
     }
+
 
     // ----------- Xem chi tiết Issue -----------
     @GetMapping("/view")

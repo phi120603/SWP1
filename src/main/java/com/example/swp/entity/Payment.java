@@ -17,9 +17,13 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "status")
     private boolean status;
+
     private Date date;
+    @Column(name = "payment_method")
     private boolean paymentMethod;
+
 
     @ManyToOne
     @JoinColumn(name = "customer_id")

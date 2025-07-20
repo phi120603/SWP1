@@ -21,5 +21,5 @@ public class IssueRequest {
     private String description;
 
     private Integer customerId;        // Wrapper type
-    private Integer assignedStaffId;   // Wrapper type
+   // private Integer assignedStaffId;   // Wrapper type
 }

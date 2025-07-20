@@ -539,7 +539,30 @@
             </div>
         </div>
     </div>
+    <!-- PHÂN TRANG -->
+    <div th:if="${totalPages > 1}" style="margin-top: 30px; text-align: center;">
+        <ul style="list-style: none; display: inline-flex; gap: 10px; padding: 0;">
+            <li th:if="${currentPage > 0}">
+                <a th:href="@{/SWP/issues/my-issues(page=${currentPage - 1}, size=${pageSize}, status=${status})}"
+                   style="padding: 8px 12px; background: #e2e8f0; border-radius: 6px; text-decoration: none;">« Trước</a>
+            </li>
+            <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                th:classappend="${i == currentPage} ? 'active'">
+                <a th:href="@{/SWP/issues/my-issues(page=${i}, size=${pageSize}, status=${status})}"
+                   th:text="${i + 1}"
+                   style="padding: 8px 12px; background: #edf2f7; border-radius: 6px; text-decoration: none; font-weight: bold;"
+                   th:styleappend="${i == currentPage} ? ';background: #667eea; color: white;'">1</a>
+            </li>
+            <li th:if="${currentPage < totalPages - 1}">
+                <a th:href="@{/SWP/issues/my-issues(page=${currentPage + 1}, size=${pageSize}, status=${status})}"
+                   style="padding: 8px 12px; background: #e2e8f0; border-radius: 6px; text-decoration: none;">Tiếp »</a>
+            </li>
+        </ul>
+    </div>
+
+
 </div>
+
 
 <script>
     // Auto submit filter form when select changes

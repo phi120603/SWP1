@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <title>Ký hợp đồng thành công</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"/>
     <style>
         /* Common styles */
         :root {
@@ -310,7 +311,7 @@
 
         .secondary-button:hover {
             background: var(--gray-50);
-
+            border-color: var(--gray-400);
             transform: translateY(-2px);
             text-decoration: none;
             color: var(--gray-700);
@@ -449,12 +450,10 @@
     </style>
 </head>
 <body>
-<!-- Floating decorative elements -->
+<!-- Floating elements & confetti -->
 <div class="floating-element">🎉</div>
 <div class="floating-element">✅</div>
 <div class="floating-element">📄</div>
-
-<!-- Confetti container -->
 <div class="confetti" id="confetti"></div>
 
 <div class="success-page">
@@ -479,17 +478,23 @@
             </p>
 
             <div class="success-actions">
+                <!-- Quay về danh sách đơn hàng -->
                 <a th:href="@{/SWP/customers/my-bookings}" class="return-button">
                     🏠 Quay lại đơn hàng của tôi
                 </a>
 
                 <div class="secondary-actions">
-                    <a href="#" class="secondary-button">
+                    <!-- Xem lại hợp đồng -->
+                    <!-- … trong <div class="secondary-actions"> … -->
+                    <a th:href="@{/SWP/econtract/view/{id}(id=${contract.id})}"
+                       class="secondary-button">
                         📄 Xem hợp đồng
                     </a>
-                    <a href="#" class="secondary-button">
-                        📞 Liên hệ hỗ trợ
+                    <a th:href="@{/SWP/econtract/export-pdf/{id}(id=${contract.id})}"
+                       class="secondary-button">
+                        📥 Tải PDF hợp đồng
                     </a>
+
                 </div>
             </div>
         </div>

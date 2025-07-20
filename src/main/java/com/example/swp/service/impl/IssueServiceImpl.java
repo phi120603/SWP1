@@ -1,5 +1,5 @@
 package com.example.swp.service.impl;
-
+import org.springframework.data.domain.Page;
 import com.example.swp.dto.IssueRequest;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Issue;
@@ -10,7 +10,13 @@ import com.example.swp.repository.IssueRepository;
 import com.example.swp.repository.StaffRepository;
 import com.example.swp.service.IssueService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import com.example.swp.entity.Issue;
+
 
 import java.util.Date;
 import java.util.List;
@@ -48,20 +54,20 @@ public class IssueServiceImpl implements IssueService {
     public Issue createIssue(IssueRequest issueRequest) {
         Customer customer = customerRepository.findById(issueRequest.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với id " + issueRequest.getCustomerId()));
-        Staff staff = staffRepository.findById(issueRequest.getAssignedStaffId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy staff với id " + issueRequest.getAssignedStaffId()));
 
+        // Không cần staff
         Issue issue = new Issue();
         issue.setSubject(issueRequest.getSubject());
         issue.setDescription(issueRequest.getDescription());
         issue.setCustomer(customer);
-        issue.setAssignedStaff(staff);
+        issue.setAssignedStaff(null); // hoặc để mặc định nếu có
         issue.setCreatedDate(new Date());
         issue.setResolved(false);
         issue.setStatus(IssueStatus.Pending);
 
         return issueRepository.save(issue);
     }
+
 
 
 
@@ -124,5 +130,36 @@ public class IssueServiceImpl implements IssueService {
 
         return issueRepository.findAll();
     }
+    @Override
+    public Page<Issue> getCustomerIssuesPaginated(int customerId, String status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+
+        if (status != null && !status.isBlank()) {
+            try {
+                IssueStatus issueStatus = IssueStatus.valueOf(status);
+                return issueRepository.findByCustomerIdAndStatus(customerId, issueStatus, pageable);
+            } catch (Exception ignored) {}
+        }
+        return issueRepository.findByCustomerId(customerId, pageable);
+    }
+    @Override
+    public Page<Issue> searchAndFilterIssuesPaginated(String search, String status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+        IssueStatus st = null;
+
+        if (status != null && !status.isBlank()) {
+            try { st = IssueStatus.valueOf(status); } catch (Exception ignored) {}
+        }
+
+        if (search != null && !search.isBlank() && st != null)
+            return issueRepository.searchByKeywordAndStatus(search, st, pageable);
+        if (search != null && !search.isBlank())
+            return issueRepository.searchByKeyword(search, pageable);
+        if (st != null)
+            return issueRepository.findByStatus(st, pageable);
+
+        return issueRepository.findAll(pageable);
+    }
+
 
 }
