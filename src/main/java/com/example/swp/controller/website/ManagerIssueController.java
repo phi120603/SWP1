@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -23,8 +24,26 @@ public class ManagerIssueController {
     private IssueService issueService;
 
     @GetMapping("/issue-list")
-    public String showIssueList(@RequestParam(defaultValue = "0") int page, Model model) {
+    public String showIssueList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String createdBy,
+            Model model) {
         List<Issue> allIssues = issueService.getAllIssues();
+
+        // Lọc theo createdBy nếu có
+        if (createdBy != null && !createdBy.isEmpty()) {
+            allIssues = allIssues.stream()
+                    .filter(issue -> createdBy.equals(issue.getCreatedByType()))
+                    .collect(Collectors.toList());
+        }
+
+        // Lọc theo status nếu có
+        if (status != null && !status.isEmpty()) {
+            allIssues = allIssues.stream()
+                    .filter(issue -> issue.getStatus() != null && status.equals(issue.getStatus().name()))
+                    .collect(Collectors.toList());
+        }
 
         int pageSize = 5;
         int totalIssues = allIssues.size();
@@ -40,6 +59,8 @@ public class ManagerIssueController {
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("totalIssues", totalIssues);
         model.addAttribute("issueStatuses", IssueStatus.values());
+        model.addAttribute("selectedStatus", status);
+        model.addAttribute("selectedCreatedBy", createdBy);
         return "issue-list";
     }
 

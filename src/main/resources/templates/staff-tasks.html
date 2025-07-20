@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/css/staff.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -215,26 +216,18 @@
                     <a href="/staff/dashboard">← Quay lại Dashboard</a>
                 </div>
 
-                <!-- <div class="filter-section" >
+                <div class="filter-section">
                     <div class="filter-group">
-                        <label>▼ Lọc trạng thái:</label>
-                        <select class="filter-select">
+                        <label>Lọc trạng thái:</label>
+                        <select id="statusFilter" class="filter-select" onchange="filterTasks()">
                             <option value="">Tất cả</option>
-                            <option value="PENDING">Chờ xử lý</option>
-                            <option value="IN_PROGRESS">Đang thực hiện</option>
-                            <option value="COMPLETED">Đã hoàn thành</option>
+                            <option value="PENDING">Đã giao</option>
+                            <option value="RESOLVED">Đã hoàn thành</option>
+                            <option value="CANCELLED">Đã hủy</option>
                         </select>
                     </div>
-                    <div class="filter-group">
-                        <label>▼ Sắp xếp:</label>
-                        <select class="filter-select">
-                            <option value="">Mặc định</option>
-                            <option value="date">Theo ngày</option>
-                            <option value="status">Theo trạng thái</option>
-                        </select>
-                    </div>
-                    <button class="export-btn">📊 Xuất báo cáo</button>
-                </div> -->
+                    <button onclick="exportTasksExcel()" class="export-btn">Xuất Excel</button>
+                </div>
 
                 <div class="task-count">
                     <span>Danh Sách Công Việc (<span th:text="${totalTasks}">0</span>)</span>
@@ -244,7 +237,6 @@
             <table class="task-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Tiêu đề</th>
                         <th>Mô tả</th>
                         <th>Người giao</th>
@@ -255,32 +247,19 @@
                 </thead>
                 <tbody>
                     <tr th:each="task : ${tasks}">
-                        <td th:text="${task.id}"></td>
                         <td th:text="${task.title}"></td>
                         <td th:text="${task.description}"></td>
                         <td th:text="${task.assignedManager != null ? task.assignedManager.fullname : 'Không xác định'}"></td>
                         <td th:text="${#dates.format(task.dueDate, 'dd/MM/yyyy')}"></td>
                         <td>
                             <span th:class="'status-badge status-' + ${task.status.name().toLowerCase()}"
-                                  th:text="${task.status.name()}"></span>
+                                  th:text="${task.status.name() == 'PENDING' ? 'Đã giao' :
+                                           (task.status.name() == 'RESOLVED' ? 'Đã hoàn thành' : 'Đã hủy')}"></span>
                         </td>
                         <td>
                             <a th:href="@{/staff/tasks/view/{id}(id=${task.id})}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i> Xem
                             </a>
-                            <button th:if="${task.status.name() == 'PENDING'}"
-                                    class="btn btn-success btn-sm"
-                                    th:onclick="'updateStatus(' + ${task.id} + ', \'RESOLVED\')'">
-                                Hoàn thành
-                            </button>
-                            <span th:if="${task.status.name() == 'RESOLVED'}"
-                                  class="btn btn-success btn-sm" style="cursor: default;">
-                                Đã hoàn thành
-                            </span>
-                            <span th:if="${task.status.name() == 'REJECTED'}"
-                                  class="btn btn-danger btn-sm" style="cursor: default;">
-                                Đã hủy
-                            </span>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(tasks)}">
@@ -315,25 +294,63 @@
     </div>
 
     <script>
-        function updateStatus(taskId, status) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/staff/tasks/update-status';
-            
-            const taskIdInput = document.createElement('input');
-            taskIdInput.type = 'hidden';
-            taskIdInput.name = 'taskId';
-            taskIdInput.value = taskId;
-            
-            const statusInput = document.createElement('input');
-            statusInput.type = 'hidden';
-            statusInput.name = 'status';
-            statusInput.value = status;
-            
-            form.appendChild(taskIdInput);
-            form.appendChild(statusInput);
-            document.body.appendChild(form);
-            form.submit();
+        function filterTasks() {
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            if (statusFilter === '') {
+                window.location.href = '/staff/tasks?page=0';
+            } else {
+                window.location.href = '/staff/tasks?page=0&status=' + statusFilter;
+            }
+        }
+
+        function sortTasks() {
+            const sortValue = document.getElementById('sortFilter').value;
+            const tbody = document.querySelector('.task-table tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            if (sortValue === 'date') {
+                rows.sort((a, b) => {
+                    const dateA = new Date(a.cells[4].textContent);
+                    const dateB = new Date(b.cells[4].textContent);
+                    return dateB - dateA;
+                });
+            } else if (sortValue === 'status') {
+                rows.sort((a, b) => {
+                    const statusA = a.querySelector('.status-badge').textContent.trim();
+                    const statusB = b.querySelector('.status-badge').textContent.trim();
+                    return statusA.localeCompare(statusB);
+                });
+            }
+
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function exportTasksExcel() {
+            const table = document.querySelector('.task-table');
+            const visibleRows = Array.from(table.querySelectorAll('tbody tr')).filter(row => row.style.display !== 'none');
+
+            const data = [];
+            data.push(['Tiêu đề', 'Mô tả', 'Người giao', 'Hạn hoàn thành', 'Trạng thái']);
+
+            visibleRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const rowData = [
+                    cells[0].textContent.trim(),
+                    cells[1].textContent.trim(),
+                    cells[2].textContent.trim(),
+                    cells[3].textContent.trim(),
+                    cells[4].textContent.trim()
+                ];
+                data.push(rowData);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Tasks');
+
+            const fileName = 'danh_sach_cong_viec_duoc_giao' + new Date().toISOString().slice(0, 10) + '.xlsx';
+            XLSX.writeFile(wb, fileName);
         }
     </script>
 </body>

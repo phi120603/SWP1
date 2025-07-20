@@ -219,6 +219,31 @@ body {
     gap: 10px;
 }
 
+.staff-count {
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+}
+
+.export-excel-btn {
+    background-color: #28a745;        /* Màu xanh lá */
+    color: white;                     /* Chữ trắng */
+    border: none;
+    border-radius: 5px;               /* Bo góc */
+    padding: 8px 16px;                /* Padding ngang dọc */
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.export-excel-btn:hover {
+    background-color: #218838;        /* Màu khi hover */
+}
+
 /* Table */
 .table-container {
     overflow-x: auto;

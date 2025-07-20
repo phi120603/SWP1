@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh sách nhân viên</title>
     <link rel="stylesheet" th:href="@{/css/staff-list.css}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 </head>
 <body>
 <div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
@@ -21,10 +23,7 @@
         </div>
 
         <div class="header-right">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Tìm kiếm nhân viên..." id="searchInput">
-            </div>
+
         </div>
     </header>
     <!-- Page Content -->
@@ -38,14 +37,15 @@
             </div>
         </div>
 
-    <!-- Customer Table -->
+    <!-- Staff Table -->
     <div class="card">
         <div class="card-header">
-            All Customers (<p th:text="${totalStaff}"></p>)
+            <div class="staff-count">
+                Số nhân viên (<span th:text="${totalStaff}"></span>)
+            </div>
             <div class="card-actions">
-                <button class="btn-secondary">
-                    <i class="fas fa-download"></i>
-                    Export
+                <button onclick="exportStaffExcel()" class="export-excel-btn">
+                    <i class="fas fa-download"></i> Xuất Excel
                 </button>
             </div>
         </div>
@@ -54,7 +54,6 @@
             <table class="data-table">
                 <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Tên nhân viên</th>
                     <th>Email</th>
                     <th>SĐT</th>
@@ -65,9 +64,6 @@
                 </thead>
                 <tbody>
                 <tr th:each="staff : ${staffs}">
-                    <td th:text="${staff.staffid}">
-                        <span class="staff-id"></span>
-                    </td>
                     <td th:text="${staff.fullname}">
                         <span class="staff-name"></span>
                     </td>
@@ -95,9 +91,9 @@
 
     <!-- Pagination -->
     <div class="pagination">
-        <a th:if="${currentPage > 1}" th:href="@{/SWP/staff-list(page=${currentPage - 1},size=10)}">Trước</a>
+        <a th:if="${currentPage > 1}" th:href="@{staff-list(page=${currentPage - 1},size=10)}">Trước</a>
         <span>Page <span th:text="${currentPage}"></span> of <span th:text="${totalPages}"></span></span>
-        <a th:if="${currentPage < totalPages}" th:href="@{/SWP/staff-list(page=${currentPage + 1},size=10)}">Tiếp</a>
+        <a th:if="${currentPage < totalPages}" th:href="@{staff-list(page=${currentPage + 1},size=10)}">Tiếp</a>
     </div>
     </div>
     </div>
@@ -141,6 +137,34 @@
             }
         });
     });
+
+    // Export to Excel
+    function exportStaffExcel() {
+        const table = document.querySelector('.data-table');
+        const visibleRows = Array.from(table.querySelectorAll('tbody tr')).filter(row => row.style.display !== 'none');
+
+        const data = [];
+        data.push(['Tên nhân viên', 'Email', 'SĐT', 'CCCD', 'Role']);
+
+        visibleRows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const rowData = [
+                cells[0].textContent.trim(),
+                cells[1].textContent.trim(),
+                cells[2].textContent.trim(),
+                cells[3].textContent.trim(),
+                cells[4].textContent.trim()
+            ];
+            data.push(rowData);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Tasks');
+
+        const fileName = 'danh_sach_nhan_vien' + new Date().toISOString().slice(0, 10) + '.xlsx';
+        XLSX.writeFile(wb, fileName);
+    }
 </script>
 </body>
 </html>

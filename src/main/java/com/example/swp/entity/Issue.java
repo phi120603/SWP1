@@ -37,6 +37,9 @@ import java.util.Date;
         @ManyToOne
         @JoinColumn(name = "staff_id")
         private Staff assignedStaff;
+
+        @Column(name = "created_by_type", length = 20)
+        private String createdByType;
     }
 
 

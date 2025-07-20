@@ -252,7 +252,6 @@ public class ManagerController {
             existingStaff.setFullname(staff.getFullname());
             existingStaff.setEmail(staff.getEmail());
             existingStaff.setPhone(staff.getPhone());
-            existingStaff.setRoleName(staff.getRoleName());
             existingStaff.setIdCitizenCard(staff.getIdCitizenCard());
 
 

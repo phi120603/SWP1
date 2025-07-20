@@ -143,10 +143,6 @@
                 <h1 class="task-title" th:text="${task.title}"></h1>
                 <div class="task-meta">
                     <div class="meta-item">
-                        <i class="fas fa-hashtag"></i>
-                        <span>ID: <strong th:text="${task.id}"></strong></span>
-                    </div>
-                    <div class="meta-item">
                         <i class="fas fa-calendar"></i>
                         <span>Hạn: <strong th:text="${#dates.format(task.dueDate, 'dd/MM/yyyy')}"></strong></span>
                     </div>
