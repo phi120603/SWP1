@@ -62,7 +62,7 @@ public class Order {
         @Column(length = 500) // Tùy nhu cầu, có thể dài/ngắn hơn
         private String cancelReason;
 
-        @Column(nullable = false)
+        @Column(nullable = true)
         private Double rentalArea;
 
         @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)

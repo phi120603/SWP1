@@ -1,117 +1,132 @@
 package com.example.swp.controller.website;
 
-import com.example.swp.entity.Order;
 import com.example.swp.entity.StorageTransaction;
+import com.example.swp.enums.TransactionType;
 import com.example.swp.service.EmailService;
-import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageTransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/SWP")
+@RequestMapping("/SWP/storage-transactions")
 public class StorageTransactionDetailController {
 
     @Autowired
     private StorageTransactionService storageTransactionService;
 
     @Autowired
-    private OrderService orderService;
-
-    @Autowired
     private EmailService emailService;
 
-    @GetMapping("/storage-transactions/{id}")
-    public String viewStorageTransactionDetail(@PathVariable int id, Model model) {
-        Optional<StorageTransaction> optionalTransaction = storageTransactionService.getStorageTransactionById(id);
-        if (optionalTransaction.isPresent()) {
-            model.addAttribute("transaction", optionalTransaction.get());
-            return "staff-transaction-detail"; //
-        } else {
+    // Hiển thị chi tiết giao dịch
+    @GetMapping("/{id}")
+    public String viewTransactionDetail(@PathVariable int id, Model model) {
+        Optional<StorageTransaction> opt = storageTransactionService.getStorageTransactionById(id);
+        if (opt.isEmpty()) {
             return "redirect:/SWP/storage-transactions";
         }
+
+        model.addAttribute("transaction", opt.get());
+        return "staff-transaction-detail";
     }
 
+    // Đánh dấu hoàn tiền (chuyển từ PAID -> REFUND)
+    @PostMapping("/{id}/mark-refund")
+    public String markAsRefund(@PathVariable int id, RedirectAttributes redirectAttributes) {
+        Optional<StorageTransaction> opt = storageTransactionService.getStorageTransactionById(id);
+        if (opt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy giao dịch.");
+            return "redirect:/SWP/storage-transactions";
+        }
 
-    @PostMapping("/storage-transactions/{id}/mark-import")
-    public String markStorageTransactionAsImport(@PathVariable int id, RedirectAttributes redirectAttributes) {
-        Optional<StorageTransaction> optionalTransaction = storageTransactionService.getStorageTransactionById(id);
-        if (optionalTransaction.isPresent()) {
-            StorageTransaction transaction = optionalTransaction.get();
-            if (!"PENDING".equals(transaction.getType())) {
-                redirectAttributes.addFlashAttribute("error", "Giao dịch không ở trạng thái PENDING.");
-                return "redirect:/SWP/storage-transactions/" + id;
-            }
-            transaction.setType("IMPORT");
-            storageTransactionService.save(transaction);
-
-            String customerEmail = transaction.getCustomer().getEmail();
-            String storageInfo = transaction.getStorage().getStoragename();
-            String subject = "Xác nhận giao dịch kho #" + id + " - Nhập kho";
-            String body = "Kính gửi khách hàng,\n\n" +
-                    "Giao dịch kho #" + id + " của bạn đã được đánh dấu là Nhập kho.\n" +
-                    "Kho: " + storageInfo + "\n" +
-                    "Loại giao dịch: " + transaction.getType() + "\n\n" +
-                    "Cảm ơn bạn đã sử dụng dịch vụ!";
-
-            emailService.sendEmail(customerEmail, subject, body);
-
-            redirectAttributes.addFlashAttribute("message", "Đã đánh dấu giao dịch kho #" + id + " là IMPORT.");
+        StorageTransaction transaction = opt.get();
+        if (transaction.getType() != TransactionType.PAID) {
+            redirectAttributes.addFlashAttribute("error", "Chỉ có thể hoàn tiền cho giao dịch PAID.");
             return "redirect:/SWP/storage-transactions/" + id;
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Không tìm thấy giao dịch kho.");
-            return "redirect:/SWP/storage-transactions";
         }
+
+        transaction.setType(TransactionType.REFUND);
+        storageTransactionService.save(transaction);
+
+        // Gửi email
+        String email = transaction.getCustomer().getEmail();
+        String subject = "Xác nhận hoàn tiền giao dịch #" + id;
+        String body = "Kính gửi khách hàng,\n\n"
+                + "Chúng tôi xác nhận đã hoàn tiền cho giao dịch #" + id + " liên quan đến kho "
+                + transaction.getStorage().getStoragename() + ".\n\n"
+                + "Trân trọng,\nQVL Storage";
+
+        emailService.sendEmail(email, subject, body);
+
+        redirectAttributes.addFlashAttribute("message", "Giao dịch #" + id + " đã được hoàn tiền.");
+        return "redirect:/SWP/storage-transactions/" + id;
     }
 
-    @PostMapping("/storage-transactions/{id}/mark-export")
-    public String markStorageTransactionAsExport(@PathVariable int id, RedirectAttributes redirectAttributes) {
-        Optional<StorageTransaction> optionalTransaction = storageTransactionService.getStorageTransactionById(id);
-        if (optionalTransaction.isPresent()) {
-            StorageTransaction transaction = optionalTransaction.get();
-            if (!"IMPORT".equals(transaction.getType())) {
-                redirectAttributes.addFlashAttribute("error", "Giao dịch phải ở trạng thái IMPORT trước khi EXPORT.");
-                return "redirect:/SWP/storage-transactions/" + id;
-            }
-            transaction.setType("EXPORT");
-            storageTransactionService.save(transaction);
+    // (Tuỳ chọn) Đánh dấu lại là đã thanh toán (REFUND -> PAID)
+    @PostMapping("/{id}/mark-paid")
+    public String markAsPaid(@PathVariable int id, RedirectAttributes redirectAttributes) {
+        Optional<StorageTransaction> opt = storageTransactionService.getStorageTransactionById(id);
+        if (opt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy giao dịch.");
+            return "redirect:/SWP/storage-transactions";
+        }
 
-            // Cập nhật trạng thái Order thành COMPLETED
-            Optional<Order> optionalOrder = orderService.findOrderByCustomerAndStorage(
-                    transaction.getCustomer().getId(), transaction.getStorage().getStorageid());
-            if (optionalOrder.isPresent()) {
-                Order order = optionalOrder.get();
-                order.setStatus("COMPLETED");
-                orderService.save(order);
-            } else {
-                redirectAttributes.addFlashAttribute("warning", "Không tìm thấy đơn hàng liên quan để cập nhật trạng thái.");
-            }
-
-            String customerEmail = transaction.getCustomer().getEmail();
-            String storageInfo = transaction.getStorage().getStoragename();
-            String subject = "Xác nhận giao dịch kho #" + id + " - Xuất kho";
-            String body = "Kính gửi khách hàng,\n\n" +
-                    "Giao dịch kho #" + id + " của bạn đã được đánh dấu là Xuất kho.\n" +
-                    "Kho: " + storageInfo + "\n" +
-                    "Loại giao dịch: " + transaction.getType() + "\n" +
-                    "Đơn hàng của bạn đã hoàn thành.\n\n" +
-                    "Cảm ơn bạn đã sử dụng dịch vụ!";
-
-            emailService.sendEmail(customerEmail, subject, body);
-
-            redirectAttributes.addFlashAttribute("message", "Đã đánh dấu giao dịch kho #" + id + " là EXPORT và cập nhật đơn hàng.");
+        StorageTransaction transaction = opt.get();
+        if (transaction.getType() != TransactionType.REFUND) {
+            redirectAttributes.addFlashAttribute("error", "Chỉ có thể chuyển từ REFUND về PAID nếu cần.");
             return "redirect:/SWP/storage-transactions/" + id;
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Không tìm thấy giao dịch kho.");
+        }
+
+        transaction.setType(TransactionType.PAID);
+        storageTransactionService.save(transaction);
+
+        redirectAttributes.addFlashAttribute("message", "Giao dịch #" + id + " đã được đánh dấu là PAID lại.");
+        return "redirect:/SWP/storage-transactions/" + id;
+    }
+    @PostMapping("/storage-transactions/{id}/approve-refund")
+    public String approveRefund(@PathVariable int id, RedirectAttributes redirect) {
+        var transaction = storageTransactionService.getStorageTransactionById(id);
+        if (transaction.isEmpty() || transaction.get().getType() != TransactionType.REQUESTED) {
+            redirect.addFlashAttribute("error", "Giao dịch không hợp lệ hoặc không ở trạng thái REQUESTED.");
             return "redirect:/SWP/storage-transactions";
         }
+        StorageTransaction tx = transaction.get();
+        tx.setType(TransactionType.REFUND);
+        storageTransactionService.save(tx);
+
+        // Gửi email
+        emailService.sendEmail(
+                tx.getCustomer().getEmail(),
+                "Hoàn tiền được chấp nhận",
+                "Yêu cầu hoàn tiền của bạn đã được chấp thuận cho giao dịch #" + id + "."
+        );
+        redirect.addFlashAttribute("message", "Đã duyệt hoàn tiền giao dịch #" + id);
+        return "redirect:/SWP/storage-transactions/" + id;
     }
+
+    @PostMapping("/storage-transactions/{id}/deny-refund")
+    public String denyRefund(@PathVariable int id, RedirectAttributes redirect) {
+        var transaction = storageTransactionService.getStorageTransactionById(id);
+        if (transaction.isEmpty() || transaction.get().getType() != TransactionType.REQUESTED) {
+            redirect.addFlashAttribute("error", "Giao dịch không hợp lệ hoặc không ở trạng thái REQUESTED.");
+            return "redirect:/SWP/storage-transactions";
+        }
+        StorageTransaction tx = transaction.get();
+        tx.setType(TransactionType.DENIED);
+        storageTransactionService.save(tx);
+
+        // Gửi email
+        emailService.sendEmail(
+                tx.getCustomer().getEmail(),
+                "Hoàn tiền bị từ chối",
+                "Yêu cầu hoàn tiền của bạn cho giao dịch #" + id + " đã bị từ chối."
+        );
+        redirect.addFlashAttribute("message", "Đã từ chối hoàn tiền giao dịch #" + id);
+        return "redirect:/SWP/storage-transactions/" + id;
+    }
+
 }

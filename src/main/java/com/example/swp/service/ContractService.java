@@ -12,14 +12,9 @@ public interface ContractService {
     Optional<EContract> getContractById(Long id);
     void signContract(EContract contract);
     void approveContract(EContract contract);
-
     List<EContract> getAllContracts();
-
     void updateStatus(Long contractId, EContractStatus newStatus);
-
     void updateContractStatus(Long id, String status);
-
     void updateContract(EContract contract);
-
     void deleteContract(Long id);
 }

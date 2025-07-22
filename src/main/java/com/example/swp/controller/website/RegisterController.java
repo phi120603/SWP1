@@ -1,5 +1,6 @@
 package com.example.swp.controller.website;
 
+import com.example.swp.annotation.LogActivity;
 import com.example.swp.entity.Customer;
 import com.example.swp.enums.RoleName;
 import com.example.swp.service.CustomerService;
@@ -27,6 +28,7 @@ public class RegisterController {
         return "register";
     }
 
+    @LogActivity(action = "Người dùng đăng ký tài khoản mới")
     @PostMapping("/register")
     public String processRegister(@Valid @ModelAttribute("customer") Customer customer,
                                   BindingResult bindingResult,

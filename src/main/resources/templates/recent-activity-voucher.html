@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nhật ký đăng nhập</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f5;
+            margin: 30px;
+        }
+
+        .container {
+            margin-left: 250px; /* sidebar width */
+            padding: 40px;
+            width: calc(100% - 250px);
+            box-sizing: border-box;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        .activity-card {
+            background-color: #fdfdfd;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            align-items: center;
+        }
+
+        .activity-card div {
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .activity-card:hover {
+            background-color: #f0f8ff;
+            transition: background-color 0.2s;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            background-color: #2c3e50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
+
+<div class="container">
+    <h2>Nhật ký quản lý mã giảm giá</h2>
+
+    <div class="table-header">
+        <div>Người dùng</div>
+        <div>Hành động</div>
+        <div>Loại người dùng</div>
+        <div>Thời gian</div>
+    </div>
+
+    <div th:each="activity : ${activities}" class="activity-card">
+        <div th:text="${activity.actor}"></div>
+        <div th:text="${activity.action}"></div>
+        <div th:text="${activity.staff != null ? activity.staff.roleName : 'Không xác định'}"></div>
+        <div th:text="${activity.timestamp}"></div>
+    </div>
+</div>
+</body>
+</html>

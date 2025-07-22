@@ -28,4 +28,30 @@ public class RecentActivityServiceImpl implements RecentActivityService {
     public void deleteById(Integer id) {
         recentActivityRepository.deleteById(id);
     }
+
+    @Override
+    public void logActivity(RecentActivity activity) {
+        recentActivityRepository.save(activity);
+    }
+
+    @Override
+    public List<RecentActivity> getLoginActivities() {
+        return recentActivityRepository.findByActionOrderByTimestampDesc("Người dùng đăng nhập vào hệ thống");
+
+    }
+
+    @Override
+    public List<RecentActivity> getVoucherActivities() {
+        return recentActivityRepository.findByActionOrderByTimestampDesc("Tạo voucher mới");
+    }
+
+    @Override
+    public List<RecentActivity> getStorageActivities() {
+        return recentActivityRepository.findByActionOrderByTimestampDesc("Thêm kho hàng");
+    }
+
+    @Override
+    public List<RecentActivity> getOrderActivities() {
+        return recentActivityRepository.findByActionOrderByTimestampDesc("Đơn hàng được thêm mới");
+    }
 }

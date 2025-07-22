@@ -10,30 +10,7 @@
 <body>
 
 <!-- Sidebar -->
-<nav class="sidebar">
-  <div class="sidebar-header">
-    <div class="logo">
-      <i class="fas fa-database"></i>
-      <span>QVL Storage</span>
-    </div>
-  </div>
-  <ul class="sidebar-menu">
-    <li class="menu-item"><a href="/home-page"><i class="fas fa-home"></i><span>Trang chủ</span></a></li>
-    <li class="menu-item"><a href="/SWP/storages"><i class="fas fa-warehouse"></i><span>Danh sách kho</span></a></li>
-    <li class="menu-item"><a href="/SWP/customers/my-bookings"><i class="fas fa-box"></i><span>Đơn hàng</span></a></li>
-    <li class="menu-item"><a href="/SWP/customers/my-transactions"><i class="fas fa-exchange-alt"></i><span>Lịch sử giao dịch</span></a></li>
-    <li class="menu-item"><a href="/api/logout"><i class="fas fa-sign-out-alt"></i><span>Đăng xuất</span></a></li>
-  </ul>
-  <div class="sidebar-footer">
-    <div class="user-info">
-      <div class="user-avatar"><i class="fas fa-user"></i></div>
-      <div class="user-details">
-        <span class="user-name" th:text="${customer.fullname}">User Name</span>
-        <span class="user-role">Customer</span>
-      </div>
-    </div>
-  </div>
-</nav>
+<div th:replace="taskbar/customer-taskbar :: customerSidebar(${customer})"></div>
 
 <!-- Main Content -->
 <main class="main-content">
@@ -124,8 +101,8 @@
                  style="color: #4a6fa5; font-size: 18px;">
                 <i class="fas fa-eye"></i>
               </a>
-              <a th:if="${order.eContract != null}"
-                 th:href="@{'/econtract/view/' + ${order.eContract.id}}"
+               <a th:if="${order.eContract != null}"
+                      th:href="@{/econtract/view/{id}(id=${order.eContract.id})}"
                  class="btn-action view"
                  title="Xem hợp đồng"
                  style="color: #4a6fa5; font-size: 18px; margin-left: 15px;">

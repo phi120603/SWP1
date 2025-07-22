@@ -8,6 +8,7 @@ import com.example.swp.enums.IssueStatus;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.IssueRepository;
 import com.example.swp.repository.StaffRepository;
+import com.example.swp.service.ActivityLogService;
 import com.example.swp.service.IssueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 public class IssueServiceImpl implements IssueService {
@@ -27,6 +29,9 @@ public class IssueServiceImpl implements IssueService {
 
     @Autowired
     private StaffRepository staffRepository;
+
+    @Autowired
+    private ActivityLogService activityLogService;
 
     @Override
     public List<Issue> getAllIssues() {
@@ -46,21 +51,40 @@ public class IssueServiceImpl implements IssueService {
 
     @Override
     public Issue createIssue(IssueRequest issueRequest) {
-        Customer customer = customerRepository.findById(issueRequest.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với id " + issueRequest.getCustomerId()));
+        Customer customer = null;
+        if (issueRequest.getCustomerId() != null) {
+            customer = customerRepository.findById(issueRequest.getCustomerId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với id " + issueRequest.getCustomerId()));
+        }
+
         Staff staff = staffRepository.findById(issueRequest.getAssignedStaffId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy staff với id " + issueRequest.getAssignedStaffId()));
 
         Issue issue = new Issue();
         issue.setSubject(issueRequest.getSubject());
         issue.setDescription(issueRequest.getDescription());
-        issue.setCustomer(customer);
+        issue.setCustomer(customer); // có thể null cho vấn đề nội bộ
         issue.setAssignedStaff(staff);
         issue.setCreatedDate(new Date());
         issue.setResolved(false);
+        issue.setCreatedByType("CUSTOMER");
+//        issue.setStatus(IssueStatus.Pending);
         issue.setStatus(IssueStatus.Pending);
 
-        return issueRepository.save(issue);
+        Issue savedIssue = issueRepository.save(issue);
+
+        // Ghi lại activity log
+        activityLogService.logActivity(
+                "Gửi yêu cầu hỗ trợ",
+                "Khách hàng " + customer.getFullname()
+                        + " gửi yêu cầu hỗ trợ: " + savedIssue.getSubject()
+                        + " - Mô tả: " + savedIssue.getDescription()
+                        + " - Được phân công cho: " + staff.getFullname(),
+                customer,
+                null, null, null, null,
+                savedIssue
+        );
+        return savedIssue;
     }
 
 

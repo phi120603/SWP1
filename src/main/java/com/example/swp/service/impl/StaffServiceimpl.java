@@ -51,6 +51,12 @@ private StaffRepository staffRepository;
     }
 
     @Override
+    public Optional<Staff> findByEmail(String email) {
+        return staffRepository.findByEmail(email);
+    }
+
+
+    @Override
     public Optional<Staff> findById(int id) {
         return staffRepository.findById(id);
     }

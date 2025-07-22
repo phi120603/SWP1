@@ -43,6 +43,7 @@ public class CustomerStorageItemController {
         model.addAttribute("totalUsedVolume", totalUsedVolume);
         model.addAttribute("emptyVolume", emptyVolume);
         model.addAttribute("percentEmpty", percentEmpty);
+        model.addAttribute("storage", order.getStorage());
 
         return "customer-storage-item-list";
     }

@@ -4,6 +4,7 @@ import com.example.swp.entity.ViewingAppointment;
 import com.example.swp.service.EmailService;
 import com.example.swp.service.ViewingAppointmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,13 +23,28 @@ public class StaffAppointmentController {
     private final ViewingAppointmentService viewingAppointmentService;
     private final EmailService emailService;
 
-    // Hiển thị danh sách tất cả lịch hẹn cho staff
     @GetMapping("/staff/appointments")
-    public String listAppointments(Model model) {
-        List<ViewingAppointment> appointments = viewingAppointmentService.findAll();
-        model.addAttribute("appointments", appointments);
-        return "staff-appointment-list"; // Đây là tên file JSP hoặc Thymeleaf template
+    public String listAppointments(Model model,
+                                   @RequestParam Optional<String> status,
+                                   @RequestParam Optional<String> warehouse,
+                                   @RequestParam Optional<String> fromDate,
+                                   @RequestParam Optional<String> toDate,
+                                   @RequestParam(defaultValue = "0") int page,
+                                   @RequestParam(defaultValue = "5") int size) {
+
+        Page<ViewingAppointment> appointmentsPage = viewingAppointmentService
+                .findFilteredPaginated(status.orElse(null), warehouse.orElse(null),
+                        fromDate.orElse(null), toDate.orElse(null),
+                        page, size);
+
+        model.addAttribute("appointmentsPage", appointmentsPage);
+        model.addAttribute("currentStatus", status.orElse(""));
+        model.addAttribute("currentWarehouse", warehouse.orElse(""));
+        model.addAttribute("currentFromDate", fromDate.orElse(""));
+        model.addAttribute("currentToDate", toDate.orElse(""));
+        return "staff-appointment-list";
     }
+
 
     // Xem chi tiết 1 lịch hẹn (chưa cần xử lý logic nhiều, để mẫu trước)
     @GetMapping("/staff/appointments/{id}")

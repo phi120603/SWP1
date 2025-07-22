@@ -1,5 +1,6 @@
 package com.example.swp.entity;
 
+import com.example.swp.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +21,8 @@ public class StorageTransaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String type; // "IMPORT", "EXPORT"
+    @Enumerated(EnumType.STRING)
+    private TransactionType type;
 
     private LocalDateTime transactionDate;
     private Double amount;
@@ -32,4 +34,11 @@ public class StorageTransaction {
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
+    @Column(length = 500)
+    private String refundReason; // Lưu lý do do khách nhập
+
+
 }

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nhật ký hoạt động - QVL Storage</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/customer-detail.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- Sidebar -->
+<div th:replace="taskbar/customer-taskbar :: customerSidebar(${customer})"></div>
+
+<!-- Main Content -->
+<main class="main-content">
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <h1>Nhật ký hoạt động</h1>
+        </div>
+        <div class="header-right">
+            <div class="breadcrumb">
+                <a href="/SWP">Home</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Nhật ký hoạt động</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-content">
+        <div class="page-header">
+            <div class="page-header-left">
+                <div class="customer-avatar-large"><i class="fas fa-user"></i></div>
+                <div class="customer-title">
+                    <h2 class="page-title" th:text="'Nhật ký hoạt động của ' + ${customer.fullname}">Tên khách hàng</h2>
+                    <div class="customer-subtitle">
+                        <span><i class="fas fa-envelope"></i> <span th:text="${customer.email}">email@example.com</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-list"></i> Danh sách các loại nhật ký</h3>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tên nhật ký</th>
+                        <th>Chi tiết</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Nhật ký đặt kho</td>
+                        <td>
+                            <a href="/SWP/activity/order" class="btn-action view" title="Xem chi tiết" style="color: #4a6fa5; font-size: 18px;">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Nhật ký phản hồi</td>
+                        <td>
+                            <a href="/SWP/activity/issue" class="btn-action view" title="Xem chi tiết" style="color: #4a6fa5; font-size: 18px;">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Nhật ký tài khoản</td>
+                        <td>
+                            <a href="/SWP/activity/account" class="btn-action view" title="Xem chi tiết" style="color: #4a6fa5; font-size: 18px;">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Nhật ký đánh giá</td>
+                        <td>
+                            <a href="/SWP/activity/feedback" class="btn-action view" title="Xem chi tiết" style="color: #4a6fa5; font-size: 18px;">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.querySelector('.sidebar-toggle').addEventListener('click', function () {
+        document.querySelector('.sidebar').classList.toggle('open');
+    });
+</script>
+</body>
+</html>

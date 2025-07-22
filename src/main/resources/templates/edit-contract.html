@@ -1,727 +1,727 @@
-<!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Chỉnh sửa hợp đồng</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" th:href="@{/css/bootstrap.css}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* Common styles */
-        :root {
-            --primary-color: #2563eb;
-            --primary-hover: #1d4ed8;
-            --success-color: #059669;
-            --success-hover: #047857;
-            --secondary-color: #6b7280;
-            --secondary-hover: #4b5563;
-            --warning-color: #d97706;
-            --danger-color: #dc2626;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-400: #9ca3af;
-            --gray-500: #6b7280;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --gray-900: #111827;
-            --border-radius: 12px;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.6;
-            color: var(--gray-800);
-            background: linear-gradient(135deg, var(--gray-50) 0%, #ffffff 50%, var(--gray-50) 100%);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
-
-        /* Page header */
-        .page-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
-            color: white;
-            padding: 2.5rem 2rem;
-            margin: -2rem -1rem 3rem -1rem;
-            border-radius: 0 0 1.5rem 1.5rem;
-            box-shadow: var(--shadow-xl);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .page-header::before {
-            content: "";
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            animation: shimmer 4s ease-in-out infinite;
-        }
-
-        @keyframes shimmer {
-            0%, 100% {
-                transform: translateX(-100%) translateY(-100%) rotate(0deg);
-            }
-            50% {
-                transform: translateX(0%) translateY(0%) rotate(180deg);
-            }
-        }
-
-        .page-header h2 {
-            color: white;
-            margin: 0;
-            font-size: 2.25rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            position: relative;
-            z-index: 1;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .page-subtitle {
-            opacity: 0.9;
-            font-size: 1.125rem;
-            margin-top: 0.5rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Form container */
-        .form-container {
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
-            padding: 3rem 2.5rem;
-            border: 1px solid var(--gray-200);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .form-container::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary-color), var(--success-color), var(--primary-color));
-            animation: gradientShift 3s ease-in-out infinite;
-        }
-
-        @keyframes gradientShift {
-            0%, 100% { transform: translateX(-100%); }
-            50% { transform: translateX(100%); }
-        }
-
-        /* Form groups */
-        .form-group {
-            margin-bottom: 2rem;
-            position: relative;
-        }
-
-        .form-group:last-of-type {
-            margin-bottom: 3rem;
-        }
-
-        /* Labels */
-        .form-label {
-            display: block;
-            font-size: 0.9375rem;
-            font-weight: 600;
-            color: var(--gray-700);
-            margin-bottom: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.025em;
-            position: relative;
-        }
-
-        .form-label::after {
-            content: "";
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 30px;
-            height: 2px;
-            background: var(--primary-color);
-            border-radius: 1px;
-        }
-
-        .required .form-label::before {
-            content: "*";
-            color: var(--danger-color);
-            margin-right: 0.25rem;
-            font-weight: 700;
-        }
-
-        /* Form controls */
-        .form-control {
-            width: 100%;
-            padding: 1rem 1.25rem;
-            font-size: 1rem;
-            font-weight: 500;
-            border: 2px solid var(--gray-300);
-            border-radius: var(--border-radius);
-            background-color: white;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgb(37 99 235 / 0.1);
-            transform: translateY(-1px);
-        }
-
-        .form-control:hover:not(:focus) {
-            border-color: var(--gray-400);
-        }
-
-        .form-control[readonly] {
-            background-color: var(--gray-100);
-            color: var(--gray-600);
-            cursor: not-allowed;
-            border-style: dashed;
-        }
-
-        .form-control[readonly]:focus {
-            box-shadow: none;
-            transform: none;
-        }
-
-        /* Select styling */
-        select.form-control {
-            cursor: pointer;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.75rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
-            padding-right: 3rem;
-        }
-
-        /* Input groups for currency */
-        .input-group {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .input-group .form-control {
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
-        }
-
-        .input-group-text {
-            background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
-            border: 2px solid var(--gray-300);
-            border-right: none;
-            padding: 1rem 1.25rem;
-            font-weight: 600;
-            color: var(--gray-700);
-            border-top-left-radius: var(--border-radius);
-            border-bottom-left-radius: var(--border-radius);
-            white-space: nowrap;
-        }
-
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            padding: 1rem 2rem;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: var(--border-radius);
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            white-space: nowrap;
-            text-transform: uppercase;
-            letter-spacing: 0.025em;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-            text-decoration: none;
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--success-color) 0%, var(--success-hover) 100%);
-            color: white;
-            border-color: var(--success-color);
-        }
-
-        .btn-success:hover {
-            background: linear-gradient(135deg, var(--success-hover) 0%, #065f46 100%);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-hover) 100%);
-            color: white;
-            border-color: var(--secondary-color);
-        }
-
-        .btn-secondary:hover {
-            background: linear-gradient(135deg, var(--secondary-hover) 0%, var(--gray-700) 100%);
-            color: white;
-        }
-
-        /* Button group */
-        .button-group {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 2px solid var(--gray-200);
-        }
-
-        /* Form validation */
-        .form-control.is-invalid {
-            border-color: var(--danger-color);
-            box-shadow: 0 0 0 4px rgb(220 38 38 / 0.1);
-        }
-
-        .invalid-feedback {
-            display: block;
-            color: var(--danger-color);
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-top: 0.5rem;
-        }
-
-        /* Loading state */
-        .btn.loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-
-        .btn.loading::after {
-            content: "";
-            width: 1rem;
-            height: 1rem;
-            border: 2px solid transparent;
-            border-top: 2px solid currentColor;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 0.5rem;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Success message */
-        .success-message {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            background: var(--success-color);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-            font-weight: 600;
-        }
-
-        .success-message.show {
-            transform: translateX(0);
-        }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem 0.75rem;
-            }
-
-            .page-header {
-                margin: -1rem -0.75rem 2rem -0.75rem;
-                padding: 2rem 1.5rem;
-            }
-
-            .page-header h2 {
-                font-size: 1.75rem;
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .form-container {
-                padding: 2rem 1.5rem;
-            }
-
-            .button-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .input-group {
-                flex-direction: column;
-            }
-
-            .input-group .form-control {
-                border-radius: var(--border-radius);
-                border-top-left-radius: var(--border-radius);
-                border-bottom-left-radius: var(--border-radius);
-            }
-
-            .input-group-text {
-                border-right: 2px solid var(--gray-300);
-                border-bottom: none;
-                border-top-left-radius: var(--border-radius);
-                border-top-right-radius: var(--border-radius);
-                border-bottom-left-radius: 0;
-                border-bottom-right-radius: 0;
-                width: 100%;
-                justify-content: center;
-            }
-        }
-
-        /* Auto-calculation indicator */
-        .auto-calc {
-            position: relative;
-        }
-
-        .auto-calc::after {
-            content: "🔄";
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.25rem;
-            opacity: 0.6;
-            pointer-events: none;
-        }
-
-        /* Floating labels effect */
-        .floating-label {
-            position: relative;
-        }
-
-        .floating-label .form-control:focus + .form-label,
-        .floating-label .form-control:not(:placeholder-shown) + .form-label {
-            transform: translateY(-2.5rem) scale(0.85);
-            color: var(--primary-color);
-        }
-
-        .floating-label .form-label {
-            position: absolute;
-            top: 1rem;
-            left: 1.25rem;
-            transition: all 0.3s ease;
-            pointer-events: none;
-            background: white;
-            padding: 0 0.5rem;
-            margin: 0;
-        }
-
-        /* Tooltip */
-        .tooltip-container {
-            position: relative;
-            display: inline-block;
-        }
-
-        .tooltip-text {
-            visibility: hidden;
-            width: 200px;
-            background-color: var(--gray-900);
-            color: white;
-            text-align: center;
-            border-radius: 6px;
-            padding: 0.5rem;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -100px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.875rem;
-        }
-
-        .tooltip-container:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div class="page-header">
-        <h2>✏️ Chỉnh sửa hợp đồng</h2>
-        <p class="page-subtitle">Cập nhật thông tin hợp đồng thuê kho</p>
-    </div>
-
-    <div class="form-container">
-        <form th:action="@{/manager/contracts/edit}" method="post" id="editForm">
-            <input type="hidden" name="id" th:value="${contract.id}"/>
-
-            <div class="form-group">
-                <label class="form-label">Mã hợp đồng</label>
-                <input type="text" class="form-control" name="contractCode" th:value="${contract.contractCode}" readonly/>
-                <small class="text-muted">Mã hợp đồng không thể thay đổi</small>
-            </div>
-
-            <div class="form-group required">
-                <label class="form-label">Tên kho</label>
-                <input type="text" class="form-control" name="storageName" th:value="${contract.storageName}" required/>
-                <div class="invalid-feedback">Vui lòng nhập tên kho</div>
-            </div>
-
-            <div class="form-group required">
-                <label class="form-label">Diện tích</label>
-                <div class="input-group">
-                    <input type="number" class="form-control" name="rentalArea" th:value="${contract.rentalArea}" min="1" step="0.1" required id="rentalArea"/>
-                    <span class="input-group-text">m²</span>
-                </div>
-                <div class="invalid-feedback">Vui lòng nhập diện tích hợp lệ</div>
-            </div>
-
-            <div class="form-group required">
-                <label class="form-label">Đơn giá / ngày</label>
-                <div class="input-group">
-                    <span class="input-group-text">💰</span>
-                    <input type="number" class="form-control" name="pricePerDay" th:value="${contract.pricePerDay}" min="1000" step="1000" required id="pricePerDay"/>
-                    <span class="input-group-text">VNĐ</span>
-                </div>
-                <div class="invalid-feedback">Vui lòng nhập đơn giá hợp lệ</div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">
-                    Tổng tiền
-                    <span class="tooltip-container">
-                            ℹ️
-                            <span class="tooltip-text">Tự động tính toán dựa trên diện tích và đơn giá</span>
-                        </span>
-                </label>
-                <div class="input-group">
-                    <span class="input-group-text">💵</span>
-                    <input type="number" class="form-control auto-calc" name="totalAmount" th:value="${contract.totalAmount}" readonly id="totalAmount"/>
-                    <span class="input-group-text">VNĐ</span>
-                </div>
-            </div>
-
-            <div class="form-group required">
-                <label class="form-label">Trạng thái</label>
-                <select class="form-control" name="status" required>
-                    <option value="">-- Chọn trạng thái --</option>
-                    <option th:each="s : ${statuses}"
-                            th:value="${s}"
-                            th:text="${s}"
-                            th:selected="${s} == ${contract.status}">
-                    </option>
-                </select>
-                <div class="invalid-feedback">Vui lòng chọn trạng thái</div>
-            </div>
-
-            <div class="button-group">
-                <button type="submit" class="btn btn-success" id="saveBtn">
-                    💾 Lưu thay đổi
-                </button>
-                <a th:href="@{/manager/contracts}" class="btn btn-secondary">
-                    🔙 Quay lại
-                </a>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Success message -->
-<div id="successMessage" class="success-message">
-    ✅ Cập nhật hợp đồng thành công!
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('editForm');
-        const saveBtn = document.getElementById('saveBtn');
-        const successMessage = document.getElementById('successMessage');
-        const rentalAreaInput = document.getElementById('rentalArea');
-        const pricePerDayInput = document.getElementById('pricePerDay');
-        const totalAmountInput = document.getElementById('totalAmount');
-
-        // Auto-calculate total amount
-        function calculateTotal() {
-            const area = parseFloat(rentalAreaInput.value) || 0;
-            const pricePerDay = parseFloat(pricePerDayInput.value) || 0;
-            const daysInMonth = 30; // Assuming monthly calculation
-            const total = area * pricePerDay * daysInMonth;
-            totalAmountInput.value = total.toFixed(0);
-
-            // Add animation effect
-            totalAmountInput.style.background = '#ecfdf5';
-            setTimeout(() => {
-                totalAmountInput.style.background = '#f3f4f6';
-            }, 500);
-        }
-
-        // Add event listeners for auto-calculation
-        rentalAreaInput.addEventListener('input', calculateTotal);
-        pricePerDayInput.addEventListener('input', calculateTotal);
-
-        // Form validation
-        function validateForm() {
-            let isValid = true;
-            const requiredFields = form.querySelectorAll('[required]');
-
-            requiredFields.forEach(field => {
-                const value = field.value.trim();
-                const isFieldValid = value !== '' && (field.type !== 'number' || !isNaN(value));
-
-                if (!isFieldValid) {
-                    field.classList.add('is-invalid');
-                    isValid = false;
-                } else {
-                    field.classList.remove('is-invalid');
-                }
-            });
-
-            return isValid;
-        }
-
-        // Real-time validation
-        form.addEventListener('input', function(e) {
-            if (e.target.hasAttribute('required')) {
-                const value = e.target.value.trim();
-                const isValid = value !== '' && (e.target.type !== 'number' || !isNaN(value));
-
-                if (isValid) {
-                    e.target.classList.remove('is-invalid');
-                }
-            }
-        });
-
-        // Form submission
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            if (!validateForm()) {
-                // Scroll to first invalid field
-                const firstInvalid = form.querySelector('.is-invalid');
-                if (firstInvalid) {
-                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    firstInvalid.focus();
-                }
-                return;
-            }
-
-            // Add loading state
-            saveBtn.classList.add('loading');
-            saveBtn.innerHTML = '⏳ Đang lưu...';
-
-            // Simulate API call
-            setTimeout(() => {
-                // Show success message
-                successMessage.classList.add('show');
-
-                // Remove loading state
-                saveBtn.classList.remove('loading');
-                saveBtn.innerHTML = '💾 Lưu thay đổi';
-
-                // Hide success message after 3 seconds
-                setTimeout(() => {
-                    successMessage.classList.remove('show');
-                }, 3000);
-
-                // Actually submit the form (uncomment in real implementation)
-                // form.submit();
-            }, 1500);
-        });
-
-        // Add smooth focus effects
-        const inputs = form.querySelectorAll('.form-control');
-        inputs.forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.style.transform = 'scale(1.02)';
-            });
-
-            input.addEventListener('blur', function() {
-                this.parentElement.style.transform = 'scale(1)';
-            });
-        });
-
-        // Format number inputs
-        function formatNumber(input) {
-            const value = input.value.replace(/\D/g, '');
-            input.value = new Intl.NumberFormat('vi-VN').format(value);
-        }
-
-        // Add number formatting for price inputs
-        const numberInputs = form.querySelectorAll('input[name="pricePerDay"], input[name="totalAmount"]');
-        numberInputs.forEach(input => {
-            input.addEventListener('blur', function() {
-                if (this.value) {
-                    const numValue = this.value.replace(/\D/g, '');
-                    this.value = new Intl.NumberFormat('vi-VN').format(numValue);
-                }
-            });
-
-            input.addEventListener('focus', function() {
-                this.value = this.value.replace(/\D/g, '');
-            });
-        });
-
-        // Initial calculation
-        calculateTotal();
-    });
-</script>
-</body>
-</html>
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Chỉnh sửa hợp đồng</title>-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">-->
+<!--    <link rel="preconnect" href="https://fonts.googleapis.com">-->
+<!--    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>-->
+<!--    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">-->
+<!--    <style>-->
+<!--        /* Common styles */-->
+<!--        :root {-->
+<!--            &#45;&#45;primary-color: #2563eb;-->
+<!--            &#45;&#45;primary-hover: #1d4ed8;-->
+<!--            &#45;&#45;success-color: #059669;-->
+<!--            &#45;&#45;success-hover: #047857;-->
+<!--            &#45;&#45;secondary-color: #6b7280;-->
+<!--            &#45;&#45;secondary-hover: #4b5563;-->
+<!--            &#45;&#45;warning-color: #d97706;-->
+<!--            &#45;&#45;danger-color: #dc2626;-->
+<!--            &#45;&#45;gray-50: #f9fafb;-->
+<!--            &#45;&#45;gray-100: #f3f4f6;-->
+<!--            &#45;&#45;gray-200: #e5e7eb;-->
+<!--            &#45;&#45;gray-300: #d1d5db;-->
+<!--            &#45;&#45;gray-400: #9ca3af;-->
+<!--            &#45;&#45;gray-500: #6b7280;-->
+<!--            &#45;&#45;gray-600: #4b5563;-->
+<!--            &#45;&#45;gray-700: #374151;-->
+<!--            &#45;&#45;gray-800: #1f2937;-->
+<!--            &#45;&#45;gray-900: #111827;-->
+<!--            &#45;&#45;border-radius: 12px;-->
+<!--            &#45;&#45;shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);-->
+<!--            &#45;&#45;shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);-->
+<!--            &#45;&#45;shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);-->
+<!--            &#45;&#45;shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);-->
+<!--        }-->
+
+<!--        * {-->
+<!--            box-sizing: border-box;-->
+<!--        }-->
+
+<!--        body {-->
+<!--            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;-->
+<!--            line-height: 1.6;-->
+<!--            color: var(&#45;&#45;gray-800);-->
+<!--            background: linear-gradient(135deg, var(&#45;&#45;gray-50) 0%, #ffffff 50%, var(&#45;&#45;gray-50) 100%);-->
+<!--            margin: 0;-->
+<!--            padding: 0;-->
+<!--            min-height: 100vh;-->
+<!--        }-->
+
+<!--        .container {-->
+<!--            max-width: 800px;-->
+<!--            margin: 0 auto;-->
+<!--            padding: 2rem 1rem;-->
+<!--        }-->
+
+<!--        /* Page header */-->
+<!--        .page-header {-->
+<!--            background: linear-gradient(135deg, var(&#45;&#45;primary-color) 0%, var(&#45;&#45;primary-hover) 100%);-->
+<!--            color: white;-->
+<!--            padding: 2.5rem 2rem;-->
+<!--            margin: -2rem -1rem 3rem -1rem;-->
+<!--            border-radius: 0 0 1.5rem 1.5rem;-->
+<!--            box-shadow: var(&#45;&#45;shadow-xl);-->
+<!--            text-align: center;-->
+<!--            position: relative;-->
+<!--            overflow: hidden;-->
+<!--        }-->
+
+<!--        .page-header::before {-->
+<!--            content: "";-->
+<!--            position: absolute;-->
+<!--            top: -50%;-->
+<!--            left: -50%;-->
+<!--            width: 200%;-->
+<!--            height: 200%;-->
+<!--            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);-->
+<!--            animation: shimmer 4s ease-in-out infinite;-->
+<!--        }-->
+
+<!--        @keyframes shimmer {-->
+<!--            0%, 100% {-->
+<!--                transform: translateX(-100%) translateY(-100%) rotate(0deg);-->
+<!--            }-->
+<!--            50% {-->
+<!--                transform: translateX(0%) translateY(0%) rotate(180deg);-->
+<!--            }-->
+<!--        }-->
+
+<!--        .page-header h2 {-->
+<!--            color: white;-->
+<!--            margin: 0;-->
+<!--            font-size: 2.25rem;-->
+<!--            font-weight: 700;-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--            justify-content: center;-->
+<!--            gap: 0.75rem;-->
+<!--            position: relative;-->
+<!--            z-index: 1;-->
+<!--            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);-->
+<!--        }-->
+
+<!--        .page-subtitle {-->
+<!--            opacity: 0.9;-->
+<!--            font-size: 1.125rem;-->
+<!--            margin-top: 0.5rem;-->
+<!--            position: relative;-->
+<!--            z-index: 1;-->
+<!--        }-->
+
+<!--        /* Form container */-->
+<!--        .form-container {-->
+<!--            background: white;-->
+<!--            border-radius: var(&#45;&#45;border-radius);-->
+<!--            box-shadow: var(&#45;&#45;shadow-lg);-->
+<!--            padding: 3rem 2.5rem;-->
+<!--            border: 1px solid var(&#45;&#45;gray-200);-->
+<!--            position: relative;-->
+<!--            overflow: hidden;-->
+<!--        }-->
+
+<!--        .form-container::before {-->
+<!--            content: "";-->
+<!--            position: absolute;-->
+<!--            top: 0;-->
+<!--            left: 0;-->
+<!--            right: 0;-->
+<!--            height: 4px;-->
+<!--            background: linear-gradient(90deg, var(&#45;&#45;primary-color), var(&#45;&#45;success-color), var(&#45;&#45;primary-color));-->
+<!--            animation: gradientShift 3s ease-in-out infinite;-->
+<!--        }-->
+
+<!--        @keyframes gradientShift {-->
+<!--            0%, 100% { transform: translateX(-100%); }-->
+<!--            50% { transform: translateX(100%); }-->
+<!--        }-->
+
+<!--        /* Form groups */-->
+<!--        .form-group {-->
+<!--            margin-bottom: 2rem;-->
+<!--            position: relative;-->
+<!--        }-->
+
+<!--        .form-group:last-of-type {-->
+<!--            margin-bottom: 3rem;-->
+<!--        }-->
+
+<!--        /* Labels */-->
+<!--        .form-label {-->
+<!--            display: block;-->
+<!--            font-size: 0.9375rem;-->
+<!--            font-weight: 600;-->
+<!--            color: var(&#45;&#45;gray-700);-->
+<!--            margin-bottom: 0.75rem;-->
+<!--            text-transform: uppercase;-->
+<!--            letter-spacing: 0.025em;-->
+<!--            position: relative;-->
+<!--        }-->
+
+<!--        .form-label::after {-->
+<!--            content: "";-->
+<!--            position: absolute;-->
+<!--            bottom: -4px;-->
+<!--            left: 0;-->
+<!--            width: 30px;-->
+<!--            height: 2px;-->
+<!--            background: var(&#45;&#45;primary-color);-->
+<!--            border-radius: 1px;-->
+<!--        }-->
+
+<!--        .required .form-label::before {-->
+<!--            content: "*";-->
+<!--            color: var(&#45;&#45;danger-color);-->
+<!--            margin-right: 0.25rem;-->
+<!--            font-weight: 700;-->
+<!--        }-->
+
+<!--        /* Form controls */-->
+<!--        .form-control {-->
+<!--            width: 100%;-->
+<!--            padding: 1rem 1.25rem;-->
+<!--            font-size: 1rem;-->
+<!--            font-weight: 500;-->
+<!--            border: 2px solid var(&#45;&#45;gray-300);-->
+<!--            border-radius: var(&#45;&#45;border-radius);-->
+<!--            background-color: white;-->
+<!--            transition: all 0.3s ease;-->
+<!--            position: relative;-->
+<!--        }-->
+
+<!--        .form-control:focus {-->
+<!--            outline: none;-->
+<!--            border-color: var(&#45;&#45;primary-color);-->
+<!--            box-shadow: 0 0 0 4px rgb(37 99 235 / 0.1);-->
+<!--            transform: translateY(-1px);-->
+<!--        }-->
+
+<!--        .form-control:hover:not(:focus) {-->
+<!--            border-color: var(&#45;&#45;gray-400);-->
+<!--        }-->
+
+<!--        .form-control[readonly] {-->
+<!--            background-color: var(&#45;&#45;gray-100);-->
+<!--            color: var(&#45;&#45;gray-600);-->
+<!--            cursor: not-allowed;-->
+<!--            border-style: dashed;-->
+<!--        }-->
+
+<!--        .form-control[readonly]:focus {-->
+<!--            box-shadow: none;-->
+<!--            transform: none;-->
+<!--        }-->
+
+<!--        /* Select styling */-->
+<!--        select.form-control {-->
+<!--            cursor: pointer;-->
+<!--            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");-->
+<!--            background-position: right 0.75rem center;-->
+<!--            background-repeat: no-repeat;-->
+<!--            background-size: 1.5em 1.5em;-->
+<!--            padding-right: 3rem;-->
+<!--        }-->
+
+<!--        /* Input groups for currency */-->
+<!--        .input-group {-->
+<!--            position: relative;-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--        }-->
+
+<!--        .input-group .form-control {-->
+<!--            border-top-left-radius: 0;-->
+<!--            border-bottom-left-radius: 0;-->
+<!--        }-->
+
+<!--        .input-group-text {-->
+<!--            background: linear-gradient(135deg, var(&#45;&#45;gray-100) 0%, var(&#45;&#45;gray-200) 100%);-->
+<!--            border: 2px solid var(&#45;&#45;gray-300);-->
+<!--            border-right: none;-->
+<!--            padding: 1rem 1.25rem;-->
+<!--            font-weight: 600;-->
+<!--            color: var(&#45;&#45;gray-700);-->
+<!--            border-top-left-radius: var(&#45;&#45;border-radius);-->
+<!--            border-bottom-left-radius: var(&#45;&#45;border-radius);-->
+<!--            white-space: nowrap;-->
+<!--        }-->
+
+<!--        /* Buttons */-->
+<!--        .btn {-->
+<!--            display: inline-flex;-->
+<!--            align-items: center;-->
+<!--            justify-content: center;-->
+<!--            gap: 0.75rem;-->
+<!--            padding: 1rem 2rem;-->
+<!--            font-size: 1rem;-->
+<!--            font-weight: 600;-->
+<!--            border-radius: var(&#45;&#45;border-radius);-->
+<!--            border: 2px solid transparent;-->
+<!--            cursor: pointer;-->
+<!--            transition: all 0.3s ease;-->
+<!--            text-decoration: none;-->
+<!--            white-space: nowrap;-->
+<!--            text-transform: uppercase;-->
+<!--            letter-spacing: 0.025em;-->
+<!--            position: relative;-->
+<!--            overflow: hidden;-->
+<!--        }-->
+
+<!--        .btn::before {-->
+<!--            content: "";-->
+<!--            position: absolute;-->
+<!--            top: 0;-->
+<!--            left: -100%;-->
+<!--            width: 100%;-->
+<!--            height: 100%;-->
+<!--            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);-->
+<!--            transition: left 0.5s;-->
+<!--        }-->
+
+<!--        .btn:hover::before {-->
+<!--            left: 100%;-->
+<!--        }-->
+
+<!--        .btn:hover {-->
+<!--            transform: translateY(-2px);-->
+<!--            box-shadow: var(&#45;&#45;shadow-lg);-->
+<!--            text-decoration: none;-->
+<!--        }-->
+
+<!--        .btn:active {-->
+<!--            transform: translateY(0);-->
+<!--        }-->
+
+<!--        .btn-success {-->
+<!--            background: linear-gradient(135deg, var(&#45;&#45;success-color) 0%, var(&#45;&#45;success-hover) 100%);-->
+<!--            color: white;-->
+<!--            border-color: var(&#45;&#45;success-color);-->
+<!--        }-->
+
+<!--        .btn-success:hover {-->
+<!--            background: linear-gradient(135deg, var(&#45;&#45;success-hover) 0%, #065f46 100%);-->
+<!--            color: white;-->
+<!--        }-->
+
+<!--        .btn-secondary {-->
+<!--            background: linear-gradient(135deg, var(&#45;&#45;secondary-color) 0%, var(&#45;&#45;secondary-hover) 100%);-->
+<!--            color: white;-->
+<!--            border-color: var(&#45;&#45;secondary-color);-->
+<!--        }-->
+
+<!--        .btn-secondary:hover {-->
+<!--            background: linear-gradient(135deg, var(&#45;&#45;secondary-hover) 0%, var(&#45;&#45;gray-700) 100%);-->
+<!--            color: white;-->
+<!--        }-->
+
+<!--        /* Button group */-->
+<!--        .button-group {-->
+<!--            display: flex;-->
+<!--            gap: 1rem;-->
+<!--            justify-content: center;-->
+<!--            margin-top: 2rem;-->
+<!--            padding-top: 2rem;-->
+<!--            border-top: 2px solid var(&#45;&#45;gray-200);-->
+<!--        }-->
+
+<!--        /* Form validation */-->
+<!--        .form-control.is-invalid {-->
+<!--            border-color: var(&#45;&#45;danger-color);-->
+<!--            box-shadow: 0 0 0 4px rgb(220 38 38 / 0.1);-->
+<!--        }-->
+
+<!--        .invalid-feedback {-->
+<!--            display: block;-->
+<!--            color: var(&#45;&#45;danger-color);-->
+<!--            font-size: 0.875rem;-->
+<!--            font-weight: 500;-->
+<!--            margin-top: 0.5rem;-->
+<!--        }-->
+
+<!--        /* Loading state */-->
+<!--        .btn.loading {-->
+<!--            opacity: 0.7;-->
+<!--            pointer-events: none;-->
+<!--        }-->
+
+<!--        .btn.loading::after {-->
+<!--            content: "";-->
+<!--            width: 1rem;-->
+<!--            height: 1rem;-->
+<!--            border: 2px solid transparent;-->
+<!--            border-top: 2px solid currentColor;-->
+<!--            border-radius: 50%;-->
+<!--            animation: spin 1s linear infinite;-->
+<!--            margin-left: 0.5rem;-->
+<!--        }-->
+
+<!--        @keyframes spin {-->
+<!--            to { transform: rotate(360deg); }-->
+<!--        }-->
+
+<!--        /* Success message */-->
+<!--        .success-message {-->
+<!--            position: fixed;-->
+<!--            top: 2rem;-->
+<!--            right: 2rem;-->
+<!--            background: var(&#45;&#45;success-color);-->
+<!--            color: white;-->
+<!--            padding: 1rem 1.5rem;-->
+<!--            border-radius: var(&#45;&#45;border-radius);-->
+<!--            box-shadow: var(&#45;&#45;shadow-lg);-->
+<!--            transform: translateX(100%);-->
+<!--            transition: transform 0.3s ease;-->
+<!--            z-index: 1000;-->
+<!--            font-weight: 600;-->
+<!--        }-->
+
+<!--        .success-message.show {-->
+<!--            transform: translateX(0);-->
+<!--        }-->
+
+<!--        /* Responsive design */-->
+<!--        @media (max-width: 768px) {-->
+<!--            .container {-->
+<!--                padding: 1rem 0.75rem;-->
+<!--            }-->
+
+<!--            .page-header {-->
+<!--                margin: -1rem -0.75rem 2rem -0.75rem;-->
+<!--                padding: 2rem 1.5rem;-->
+<!--            }-->
+
+<!--            .page-header h2 {-->
+<!--                font-size: 1.75rem;-->
+<!--                flex-direction: column;-->
+<!--                gap: 0.5rem;-->
+<!--            }-->
+
+<!--            .form-container {-->
+<!--                padding: 2rem 1.5rem;-->
+<!--            }-->
+
+<!--            .button-group {-->
+<!--                flex-direction: column;-->
+<!--                align-items: stretch;-->
+<!--            }-->
+
+<!--            .btn {-->
+<!--                width: 100%;-->
+<!--                justify-content: center;-->
+<!--            }-->
+
+<!--            .input-group {-->
+<!--                flex-direction: column;-->
+<!--            }-->
+
+<!--            .input-group .form-control {-->
+<!--                border-radius: var(&#45;&#45;border-radius);-->
+<!--                border-top-left-radius: var(&#45;&#45;border-radius);-->
+<!--                border-bottom-left-radius: var(&#45;&#45;border-radius);-->
+<!--            }-->
+
+<!--            .input-group-text {-->
+<!--                border-right: 2px solid var(&#45;&#45;gray-300);-->
+<!--                border-bottom: none;-->
+<!--                border-top-left-radius: var(&#45;&#45;border-radius);-->
+<!--                border-top-right-radius: var(&#45;&#45;border-radius);-->
+<!--                border-bottom-left-radius: 0;-->
+<!--                border-bottom-right-radius: 0;-->
+<!--                width: 100%;-->
+<!--                justify-content: center;-->
+<!--            }-->
+<!--        }-->
+
+<!--        /* Auto-calculation indicator */-->
+<!--        .auto-calc {-->
+<!--            position: relative;-->
+<!--        }-->
+
+<!--        .auto-calc::after {-->
+<!--            content: "🔄";-->
+<!--            position: absolute;-->
+<!--            right: 1rem;-->
+<!--            top: 50%;-->
+<!--            transform: translateY(-50%);-->
+<!--            font-size: 1.25rem;-->
+<!--            opacity: 0.6;-->
+<!--            pointer-events: none;-->
+<!--        }-->
+
+<!--        /* Floating labels effect */-->
+<!--        .floating-label {-->
+<!--            position: relative;-->
+<!--        }-->
+
+<!--        .floating-label .form-control:focus + .form-label,-->
+<!--        .floating-label .form-control:not(:placeholder-shown) + .form-label {-->
+<!--            transform: translateY(-2.5rem) scale(0.85);-->
+<!--            color: var(&#45;&#45;primary-color);-->
+<!--        }-->
+
+<!--        .floating-label .form-label {-->
+<!--            position: absolute;-->
+<!--            top: 1rem;-->
+<!--            left: 1.25rem;-->
+<!--            transition: all 0.3s ease;-->
+<!--            pointer-events: none;-->
+<!--            background: white;-->
+<!--            padding: 0 0.5rem;-->
+<!--            margin: 0;-->
+<!--        }-->
+
+<!--        /* Tooltip */-->
+<!--        .tooltip-container {-->
+<!--            position: relative;-->
+<!--            display: inline-block;-->
+<!--        }-->
+
+<!--        .tooltip-text {-->
+<!--            visibility: hidden;-->
+<!--            width: 200px;-->
+<!--            background-color: var(&#45;&#45;gray-900);-->
+<!--            color: white;-->
+<!--            text-align: center;-->
+<!--            border-radius: 6px;-->
+<!--            padding: 0.5rem;-->
+<!--            position: absolute;-->
+<!--            z-index: 1;-->
+<!--            bottom: 125%;-->
+<!--            left: 50%;-->
+<!--            margin-left: -100px;-->
+<!--            opacity: 0;-->
+<!--            transition: opacity 0.3s;-->
+<!--            font-size: 0.875rem;-->
+<!--        }-->
+
+<!--        .tooltip-container:hover .tooltip-text {-->
+<!--            visibility: visible;-->
+<!--            opacity: 1;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--<div class="container">-->
+<!--    <div class="page-header">-->
+<!--        <h2>✏️ Chỉnh sửa hợp đồng</h2>-->
+<!--        <p class="page-subtitle">Cập nhật thông tin hợp đồng thuê kho</p>-->
+<!--    </div>-->
+
+<!--    <div class="form-container">-->
+<!--        <form th:action="@{/manager/contracts/edit}" method="post" id="editForm">-->
+<!--            <input type="hidden" name="id" th:value="${contract.id}"/>-->
+
+<!--            <div class="form-group">-->
+<!--                <label class="form-label">Mã hợp đồng</label>-->
+<!--                <input type="text" class="form-control" name="contractCode" th:value="${contract.contractCode}" readonly/>-->
+<!--                <small class="text-muted">Mã hợp đồng không thể thay đổi</small>-->
+<!--            </div>-->
+
+<!--            <div class="form-group required">-->
+<!--                <label class="form-label">Tên kho</label>-->
+<!--                <input type="text" class="form-control" name="storageName" th:value="${contract.storageName}" required/>-->
+<!--                <div class="invalid-feedback">Vui lòng nhập tên kho</div>-->
+<!--            </div>-->
+
+<!--            <div class="form-group required">-->
+<!--                <label class="form-label">Diện tích</label>-->
+<!--                <div class="input-group">-->
+<!--                    <input type="number" class="form-control" name="rentalArea" th:value="${contract.rentalArea}" min="1" step="0.1" required id="rentalArea"/>-->
+<!--                    <span class="input-group-text">m²</span>-->
+<!--                </div>-->
+<!--                <div class="invalid-feedback">Vui lòng nhập diện tích hợp lệ</div>-->
+<!--            </div>-->
+
+<!--            <div class="form-group required">-->
+<!--                <label class="form-label">Đơn giá / ngày</label>-->
+<!--                <div class="input-group">-->
+<!--                    <span class="input-group-text">💰</span>-->
+<!--                    <input type="number" class="form-control" name="pricePerDay" th:value="${contract.pricePerDay}" min="1000" step="1000" required id="pricePerDay"/>-->
+<!--                    <span class="input-group-text">VNĐ</span>-->
+<!--                </div>-->
+<!--                <div class="invalid-feedback">Vui lòng nhập đơn giá hợp lệ</div>-->
+<!--            </div>-->
+
+<!--            <div class="form-group">-->
+<!--                <label class="form-label">-->
+<!--                    Tổng tiền-->
+<!--                    <span class="tooltip-container">-->
+<!--                            ℹ️-->
+<!--                            <span class="tooltip-text">Tự động tính toán dựa trên diện tích và đơn giá</span>-->
+<!--                        </span>-->
+<!--                </label>-->
+<!--                <div class="input-group">-->
+<!--                    <span class="input-group-text">💵</span>-->
+<!--                    <input type="number" class="form-control auto-calc" name="totalAmount" th:value="${contract.totalAmount}" readonly id="totalAmount"/>-->
+<!--                    <span class="input-group-text">VNĐ</span>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <div class="form-group required">-->
+<!--                <label class="form-label">Trạng thái</label>-->
+<!--                <select class="form-control" name="status" required>-->
+<!--                    <option value="">&#45;&#45; Chọn trạng thái &#45;&#45;</option>-->
+<!--                    <option th:each="s : ${statuses}"-->
+<!--                            th:value="${s}"-->
+<!--                            th:text="${s}"-->
+<!--                            th:selected="${s} == ${contract.status}">-->
+<!--                    </option>-->
+<!--                </select>-->
+<!--                <div class="invalid-feedback">Vui lòng chọn trạng thái</div>-->
+<!--            </div>-->
+
+<!--            <div class="button-group">-->
+<!--                <button type="submit" class="btn btn-success" id="saveBtn">-->
+<!--                    💾 Lưu thay đổi-->
+<!--                </button>-->
+<!--                <a th:href="@{/manager/contracts}" class="btn btn-secondary">-->
+<!--                    🔙 Quay lại-->
+<!--                </a>-->
+<!--            </div>-->
+<!--        </form>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--&lt;!&ndash; Success message &ndash;&gt;-->
+<!--<div id="successMessage" class="success-message">-->
+<!--    ✅ Cập nhật hợp đồng thành công!-->
+<!--</div>-->
+
+<!--<script>-->
+<!--    document.addEventListener('DOMContentLoaded', function() {-->
+<!--        const form = document.getElementById('editForm');-->
+<!--        const saveBtn = document.getElementById('saveBtn');-->
+<!--        const successMessage = document.getElementById('successMessage');-->
+<!--        const rentalAreaInput = document.getElementById('rentalArea');-->
+<!--        const pricePerDayInput = document.getElementById('pricePerDay');-->
+<!--        const totalAmountInput = document.getElementById('totalAmount');-->
+
+<!--        // Auto-calculate total amount-->
+<!--        function calculateTotal() {-->
+<!--            const area = parseFloat(rentalAreaInput.value) || 0;-->
+<!--            const pricePerDay = parseFloat(pricePerDayInput.value) || 0;-->
+<!--            const daysInMonth = 30; // Assuming monthly calculation-->
+<!--            const total = area * pricePerDay * daysInMonth;-->
+<!--            totalAmountInput.value = total.toFixed(0);-->
+
+<!--            // Add animation effect-->
+<!--            totalAmountInput.style.background = '#ecfdf5';-->
+<!--            setTimeout(() => {-->
+<!--                totalAmountInput.style.background = '#f3f4f6';-->
+<!--            }, 500);-->
+<!--        }-->
+
+<!--        // Add event listeners for auto-calculation-->
+<!--        rentalAreaInput.addEventListener('input', calculateTotal);-->
+<!--        pricePerDayInput.addEventListener('input', calculateTotal);-->
+
+<!--        // Form validation-->
+<!--        function validateForm() {-->
+<!--            let isValid = true;-->
+<!--            const requiredFields = form.querySelectorAll('[required]');-->
+
+<!--            requiredFields.forEach(field => {-->
+<!--                const value = field.value.trim();-->
+<!--                const isFieldValid = value !== '' && (field.type !== 'number' || !isNaN(value));-->
+
+<!--                if (!isFieldValid) {-->
+<!--                    field.classList.add('is-invalid');-->
+<!--                    isValid = false;-->
+<!--                } else {-->
+<!--                    field.classList.remove('is-invalid');-->
+<!--                }-->
+<!--            });-->
+
+<!--            return isValid;-->
+<!--        }-->
+
+<!--        // Real-time validation-->
+<!--        form.addEventListener('input', function(e) {-->
+<!--            if (e.target.hasAttribute('required')) {-->
+<!--                const value = e.target.value.trim();-->
+<!--                const isValid = value !== '' && (e.target.type !== 'number' || !isNaN(value));-->
+
+<!--                if (isValid) {-->
+<!--                    e.target.classList.remove('is-invalid');-->
+<!--                }-->
+<!--            }-->
+<!--        });-->
+
+<!--        // Form submission-->
+<!--        form.addEventListener('submit', function(e) {-->
+<!--            e.preventDefault();-->
+
+<!--            if (!validateForm()) {-->
+<!--                // Scroll to first invalid field-->
+<!--                const firstInvalid = form.querySelector('.is-invalid');-->
+<!--                if (firstInvalid) {-->
+<!--                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });-->
+<!--                    firstInvalid.focus();-->
+<!--                }-->
+<!--                return;-->
+<!--            }-->
+
+<!--            // Add loading state-->
+<!--            saveBtn.classList.add('loading');-->
+<!--            saveBtn.innerHTML = '⏳ Đang lưu...';-->
+
+<!--            // Simulate API call-->
+<!--            setTimeout(() => {-->
+<!--                // Show success message-->
+<!--                successMessage.classList.add('show');-->
+
+<!--                // Remove loading state-->
+<!--                saveBtn.classList.remove('loading');-->
+<!--                saveBtn.innerHTML = '💾 Lưu thay đổi';-->
+
+<!--                // Hide success message after 3 seconds-->
+<!--                setTimeout(() => {-->
+<!--                    successMessage.classList.remove('show');-->
+<!--                }, 3000);-->
+
+<!--                // Actually submit the form (uncomment in real implementation)-->
+<!--                // form.submit();-->
+<!--            }, 1500);-->
+<!--        });-->
+
+<!--        // Add smooth focus effects-->
+<!--        const inputs = form.querySelectorAll('.form-control');-->
+<!--        inputs.forEach(input => {-->
+<!--            input.addEventListener('focus', function() {-->
+<!--                this.parentElement.style.transform = 'scale(1.02)';-->
+<!--            });-->
+
+<!--            input.addEventListener('blur', function() {-->
+<!--                this.parentElement.style.transform = 'scale(1)';-->
+<!--            });-->
+<!--        });-->
+
+<!--        // Format number inputs-->
+<!--        function formatNumber(input) {-->
+<!--            const value = input.value.replace(/\D/g, '');-->
+<!--            input.value = new Intl.NumberFormat('vi-VN').format(value);-->
+<!--        }-->
+
+<!--        // Add number formatting for price inputs-->
+<!--        const numberInputs = form.querySelectorAll('input[name="pricePerDay"], input[name="totalAmount"]');-->
+<!--        numberInputs.forEach(input => {-->
+<!--            input.addEventListener('blur', function() {-->
+<!--                if (this.value) {-->
+<!--                    const numValue = this.value.replace(/\D/g, '');-->
+<!--                    this.value = new Intl.NumberFormat('vi-VN').format(numValue);-->
+<!--                }-->
+<!--            });-->
+
+<!--            input.addEventListener('focus', function() {-->
+<!--                this.value = this.value.replace(/\D/g, '');-->
+<!--            });-->
+<!--        });-->
+
+<!--        // Initial calculation-->
+<!--        calculateTotal();-->
+<!--    });-->
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->
