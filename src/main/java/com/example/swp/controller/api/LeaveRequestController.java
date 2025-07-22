@@ -21,17 +21,17 @@ public class LeaveRequestController {
     @Autowired
     private StaffRepository staffReponsitory;
 
-//    private Staff getCurrentStaff(Principal principal) {
-//        String email = principal.getName();
-//        return staffReponsitory.findByEmail(email)
-//                .orElseThrow(() -> new RuntimeException("Không tìm thấy staff"));
-//    }
-
     private Staff getCurrentStaff(Principal principal) {
-        // Tạm test: lấy staff có email cố định
-        return staffReponsitory.findByEmail("hongquanvjp@gmail.com")
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy staff test"));
+        String email = principal.getName();
+        return staffReponsitory.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy staff"));
     }
+
+//    private Staff getCurrentStaff(Principal principal) {
+//        // Tạm test: lấy staff có email cố định
+//        return staffReponsitory.findByEmail("hongquanvjp@gmail.com")
+//                .orElseThrow(() -> new RuntimeException("Không tìm thấy staff test"));
+//    }
 
     // Staff gửi đơn nghỉ phép
     @PostMapping
