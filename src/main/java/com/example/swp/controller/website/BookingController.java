@@ -41,6 +41,8 @@ public class BookingController {
     @Autowired
     private VoucherUsageService voucherUsageService;
 
+    @Autowired
+    private GeocodingService geocodingService;
 
     @GetMapping("/search")
     public String showBookingSearchForm(Model model, HttpSession session) {
@@ -54,7 +56,6 @@ public class BookingController {
         return "booking-search";
     }
 
-
     @GetMapping("/search/result")
     public String processBookingSearch(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -65,6 +66,7 @@ public class BookingController {
             @RequestParam(value = "maxPrice", required = false) Double maxPrice,
             @RequestParam(value = "city", required = false) String city,
             @RequestParam(value = "sortOption", required = false) String sortOption,
+            @RequestParam(value = "userAddress", required = false) String userAddress,
             Model model,
             HttpSession session) {
 
@@ -80,24 +82,33 @@ public class BookingController {
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
         if (customer != null) {
             storages = storages.stream()
-                    .filter(storage ->
-                            orderService.countOverlapOrdersByCustomer(
-                                    customer.getId(),
-                                    storage.getStorageid(),
-                                    startDate,
-                                    endDate
-                            ) == 0
-                    )
+                    .filter(storage -> orderService.countOverlapOrdersByCustomer(
+                            customer.getId(),
+                            storage.getStorageid(),
+                            startDate,
+                            endDate
+                    ) == 0)
                     .collect(Collectors.toList());
         }
+
         Map<Integer, Double> remainAreas = new HashMap<>();
         for (Storage s : storages) {
             double remain = orderService.getRemainArea(s.getStorageid(), startDate, endDate);
             remainAreas.put(s.getStorageid(), remain);
         }
 
-        // SORT giữ nguyên như cũ
-        if (sortOption != null) {
+        // Sort theo địa chỉ nếu có
+        if (userAddress != null && !userAddress.isBlank()) {
+            Optional<double[]> userCoordinatesOpt = geocodingService.geocode(userAddress);
+            if (userCoordinatesOpt.isPresent()) {
+                double[] coords = userCoordinatesOpt.get();
+                storages.sort(Comparator.comparingDouble(s ->
+                        haversine(coords[0], coords[1], s.getLatitude(), s.getLongitude())
+                ));
+            } else {
+                model.addAttribute("error", "Không thể định vị địa chỉ bạn nhập.");
+            }
+        } else if (sortOption != null) {
             switch (sortOption) {
                 case "priceAsc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay));
                 case "priceDesc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay).reversed());
@@ -119,11 +130,10 @@ public class BookingController {
         model.addAttribute("sortOption", sortOption);
         model.addAttribute("citySelected", city);
         model.addAttribute("cities", storageService.findAllCities());
+        model.addAttribute("userAddress", userAddress);
 
         return "booking-list";
     }
-
-
 
     @GetMapping("/{storageId}/booking")
     public String showBookingForm(@PathVariable int storageId,
@@ -361,5 +371,16 @@ public class BookingController {
         model.addAttribute("orders", orders);
         model.addAttribute("customer", customer);
         return "my-bookings";
+    }
+
+    private double haversine(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
     }
 }

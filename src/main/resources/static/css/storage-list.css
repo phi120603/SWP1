@@ -129,7 +129,7 @@ body {
 
 /* Container */
 .container {
-    max-width: 1400px;
+    max-width: 1500px;
     margin: 0 auto;
     padding: 0 2rem;
     flex: 1;
@@ -149,6 +149,8 @@ body {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(20px);
+    max-width: 1500px;
+    margin: 0 auto;
 }
 
 .search-form {
@@ -157,12 +159,10 @@ body {
 
 .search-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
+    grid-template-columns: 1fr auto 1fr 1fr;
     gap: 1.5rem;
     align-items: end;
 }
-
-
 
 .form-group {
     display: flex;
@@ -180,6 +180,8 @@ body {
 
 .input-with-icon {
     position: relative;
+    display: flex;
+    align-items: center;
 }
 
 .input-with-icon i {
@@ -246,6 +248,11 @@ body {
 .form-actions {
     display: flex;
     gap: 0.75rem;
+    justify-content: flex-start;
+    grid-column: 1 / -1;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
 }
 
 /* Buttons */
@@ -384,12 +391,14 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.5rem;
+    max-width: 1500px;
 }
 
 .storage-list {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1rem;
+    max-width: 1500px;
 }
 
 .storage-card {
@@ -754,4 +763,29 @@ body {
     .storage-card {
         margin: 0 0.5rem;
     }
+}
+
+input[name="userAddress"] {
+    border: 1px solid #d1d5db; /* Similar border as other inputs */
+    border-radius: 8px; /* Common border-radius (e.g., 6px) */
+    padding: 0.75rem 1rem; /* Adjust padding to match other inputs */
+    font-size: 1rem; /* Standard font size */
+    line-height: 1.5rem; /* Standard line height */
+    color: #1f2937; /* Text color */
+    background-color: #ffffff; /* White background */
+    width: 325%; /* Ensure it takes full width of its container */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Subtle shadow if others have it */
+
+    &::placeholder {
+        color: #6b7280; /* Placeholder text color */
+        opacity: 1; /* Ensure placeholder is not transparent */
+    }
+
+    &:focus {
+        outline: none; /* Remove default outline */
+        border-color: #3b82f6; /* A common focus border color (e.g., blue) */
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* Focus ring */
+    }
+
+    min-height: 2.75rem; /* Example: adjust based on other inputs' height */
 }

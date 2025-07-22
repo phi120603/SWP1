@@ -18,9 +18,7 @@ public interface IssueService {
     long countAll();
     long countByStatus(IssueStatus status);
 
-    // *** THÊM DÒNG NÀY ***
     List<Issue> searchAndFilterIssues(String search, String status);
-
 
     void updateAssignedStaffAndStatus(int id, int staffId, Boolean resolved);
 
