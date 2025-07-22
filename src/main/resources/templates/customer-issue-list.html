@@ -512,10 +512,6 @@
                     <span>KH: <span th:text="${issue.customer.fullname}">Tên khách hàng</span></span>
                 </div>
                 <div class="meta-item">
-                    <span>👨‍💼</span>
-                    <span>Staff: <span th:text="${issue.assignedStaff.fullname}">Tên staff</span></span>
-                </div>
-                <div class="meta-item">
                     <span>📅</span>
                     <span th:text="${#dates.format(issue.createdDate, 'dd/MM/yyyy')}">15/01/2024</span>
                 </div>
@@ -537,8 +533,43 @@
                     </button>
                 </form>
             </div>
+
         </div>
+
     </div>
+    <!-- Pagination -->
+    <div class="pagination-container" th:if="${totalPages > 1}" style="margin-top: 30px; text-align: center;">
+        <ul class="pagination" style="display: inline-flex; list-style: none; padding-left: 0;">
+            <!-- Previous -->
+            <li th:classappend="${currentPage == 0} ? 'disabled'" style="margin: 0 5px;">
+                <a th:href="@{/SWP/issues(page=${currentPage - 1}, size=${pageSize}, search=${search}, status=${status})}"
+                   style="padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e0; background: white; color: #4a5568; text-decoration: none;">
+                    « Trước
+                </a>
+            </li>
+
+            <!-- Page numbers -->
+            <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" style="margin: 0 3px;">
+            <span th:if="${i == currentPage}" th:text="${i + 1}"
+                  style="padding:8px 12px; background:#667eea; color:white; border-radius:8px; border:none; font-weight:600;">
+            </span>
+                <a th:if="${i != currentPage}"
+                   th:href="@{/SWP/issues(page=${i}, size=${pageSize}, search=${search}, status=${status})}"
+                   th:text="${i + 1}"
+                   style="padding:8px 12px; border-radius:8px; border: 1.5px solid #cbd5e0; background: white; color: #4a5568; text-decoration: none;">
+                </a>
+            </li>
+
+            <!-- Next -->
+            <li th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'" style="margin: 0 5px;">
+                <a th:href="@{/SWP/issues(page=${currentPage + 1}, size=${pageSize}, search=${search}, status=${status})}"
+                   style="padding: 8px 12px; border-radius: 8px; border: 1.5px solid #cbd5e0; background: white; color: #4a5568; text-decoration: none;">
+                    Tiếp »
+                </a>
+            </li>
+        </ul>
+    </div>
+
 </div>
 
 <script>

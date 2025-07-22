@@ -13,6 +13,9 @@ import com.example.swp.service.NotificationService;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -50,28 +53,30 @@ public class IssueController {
     public String listAllIssues(
             Model model,
             @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "status", required = false) String status
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
     ) {
-        List<Issue> issues = issueService.searchAndFilterIssues(search, status);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Issue> issuesPage = issueService.searchAndFilterIssues(search, status, pageable);
 
-        long pendingCount = issueService.countByStatus(IssueStatus.Pending);
-        long progressCount = issueService.countByStatus(IssueStatus.In_Progress);
-        long resolvedCount = issueService.countByStatus(IssueStatus.Resolved);
-        long closedCount = issueService.countByStatus(IssueStatus.Closed);
-        long totalCount = issueService.countAll();
-
-        model.addAttribute("issues", issues);
-        model.addAttribute("pendingCount", pendingCount);
-        model.addAttribute("progressCount", progressCount);
-        model.addAttribute("resolvedCount", resolvedCount);
-        model.addAttribute("closedCount", closedCount);
-        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("issues", issuesPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", issuesPage.getTotalPages());
+        model.addAttribute("pageSize", size);
 
         model.addAttribute("search", search);
         model.addAttribute("status", status);
 
+        model.addAttribute("pendingCount", issueService.countByStatus(IssueStatus.Pending));
+        model.addAttribute("progressCount", issueService.countByStatus(IssueStatus.In_Progress));
+        model.addAttribute("resolvedCount", issueService.countByStatus(IssueStatus.Resolved));
+        model.addAttribute("closedCount", issueService.countByStatus(IssueStatus.Closed));
+        model.addAttribute("totalCount", issueService.countAll());
+
         return "customer-issue-list";
     }
+
 
     // ----------- Tạo mới Issue -----------
     @GetMapping("/create")
@@ -136,61 +141,40 @@ public class IssueController {
     public String viewCustomerIssues(
             Model model,
             HttpSession session,
-            @RequestParam(value = "status", required = false) String status
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
     ) {
         String email = (String) session.getAttribute("email");
         if (email == null) {
             model.addAttribute("error", "Bạn chưa đăng nhập.");
             model.addAttribute("issues", Collections.emptyList());
-            model.addAttribute("pendingCount", 0);
-            model.addAttribute("progressCount", 0);
-            model.addAttribute("resolvedCount", 0);
-            model.addAttribute("closedCount", 0);
-            model.addAttribute("totalCount", 0);
-            model.addAttribute("status", status);
             return "customer-issue-list";
         }
+
         Optional<Customer> customer = customerRepository.findByEmail(email);
         if (customer.isEmpty()) {
             model.addAttribute("error", "Không tìm thấy khách hàng!");
             model.addAttribute("issues", Collections.emptyList());
-            model.addAttribute("pendingCount", 0);
-            model.addAttribute("progressCount", 0);
-            model.addAttribute("resolvedCount", 0);
-            model.addAttribute("closedCount", 0);
-            model.addAttribute("totalCount", 0);
-            model.addAttribute("status", status);
             return "customer-issue-list";
         }
 
-        List<Issue> issuesAll = issueService.getIssuesByCustomerId(customer.get().getId());
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Issue> issuesPage = issueService.getIssuesByCustomerId(customer.get().getId(), pageable);
 
-        // Đếm trạng thái
-        long pendingCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.Pending).count();
-        long progressCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.In_Progress).count();
-        long resolvedCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.Resolved).count();
-        long closedCount = issuesAll.stream().filter(i -> i.getStatus() == IssueStatus.Closed).count();
-
-        // Lọc theo trạng thái nếu có
-        List<Issue> issues = issuesAll;
-        if (status != null && !status.isEmpty()) {
-            try {
-                IssueStatus st = IssueStatus.valueOf(status);
-                issues = issuesAll.stream()
-                        .filter(i -> i.getStatus() == st)
-                        .collect(Collectors.toList());
-            } catch (Exception e) {
-                // ignore nếu status không hợp lệ
-            }
-        }
-
-        model.addAttribute("issues", issues);
-        model.addAttribute("pendingCount", pendingCount);
-        model.addAttribute("progressCount", progressCount);
-        model.addAttribute("resolvedCount", resolvedCount);
-        model.addAttribute("closedCount", closedCount);
-        model.addAttribute("totalCount", issuesAll.size());
+        model.addAttribute("issues", issuesPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", issuesPage.getTotalPages());
+        model.addAttribute("pageSize", size);
         model.addAttribute("status", status);
+
+        // Đếm theo trạng thái
+        List<Issue> allIssues = issueService.getIssuesByCustomerId(customer.get().getId());
+        model.addAttribute("pendingCount", allIssues.stream().filter(i -> i.getStatus() == IssueStatus.Pending).count());
+        model.addAttribute("progressCount", allIssues.stream().filter(i -> i.getStatus() == IssueStatus.In_Progress).count());
+        model.addAttribute("resolvedCount", allIssues.stream().filter(i -> i.getStatus() == IssueStatus.Resolved).count());
+        model.addAttribute("closedCount", allIssues.stream().filter(i -> i.getStatus() == IssueStatus.Closed).count());
+        model.addAttribute("totalCount", allIssues.size());
 
         return "customer-issue-list";
     }

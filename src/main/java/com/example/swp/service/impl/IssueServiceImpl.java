@@ -12,11 +12,13 @@ import com.example.swp.service.ActivityLogService;
 import com.example.swp.service.IssueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class IssueServiceImpl implements IssueService {
@@ -130,9 +132,13 @@ public class IssueServiceImpl implements IssueService {
         return issueRepository.countByStatus(status);
     }
     @Override
-    public List<Issue> searchAndFilterIssues(String search, String status) {
+
+
+
+
+    public Page<Issue> searchAndFilterIssues(String search, String status, Pageable pageable) {
         if ((search == null || search.isBlank()) && (status == null || status.isBlank()))
-            return issueRepository.findAll();
+            return issueRepository.findAll(pageable);
 
         IssueStatus st = null;
         if (status != null && !status.isBlank()) {
@@ -140,13 +146,19 @@ public class IssueServiceImpl implements IssueService {
         }
 
         if (search != null && !search.isBlank() && st != null)
-            return issueRepository.searchByKeywordAndStatus(search, st);
+            return issueRepository.searchByKeywordAndStatusPaged(search, st, pageable);
         if (search != null && !search.isBlank())
-            return issueRepository.searchByKeyword(search);
+            return issueRepository.searchByKeywordPaged(search, pageable);
         if (st != null)
-            return issueRepository.findByStatus(st);
+            return issueRepository.findByStatus(st, pageable);
 
-        return issueRepository.findAll();
+        return issueRepository.findAll(pageable);
     }
+
+    @Override
+    public Page<Issue> getIssuesByCustomerId(int customerId, Pageable pageable) {
+        return issueRepository.findByCustomerId(customerId, pageable);
+    }
+
 
 }

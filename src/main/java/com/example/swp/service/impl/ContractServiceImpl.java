@@ -8,6 +8,8 @@ import com.example.swp.service.ContractService;
 import com.example.swp.service.ActivityLogService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -150,6 +152,13 @@ public class ContractServiceImpl implements ContractService {
 
         eContractRepository.save(contract);
     }
+
+    @Override
+    public Page<EContract> getContractsPage(Pageable pageable) {
+        return eContractRepository.findAll(pageable);
+    }
+
+
 
     @Override
     public void deleteContract(Long id) {
