@@ -1,67 +1,243 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
-    <title>Danh sách đơn hàng sắp hết hạn (Nhân viên)</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Những đơn hàng sắp hết hạn</title>
+    <link rel="stylesheet" href="/staff-pending-renewal-orders.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Danh sách đơn hàng sắp hết hạn</h2>
-        <a th:href="@{/staff-dashboard}" class="btn btn-secondary">Quay lại Dashboard</a>
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-database"></i>
+            <span>Staff Dashboard</span>
+        </div>
     </div>
-
-    <form th:action="@{/staff/pending-renewal-orders}" method="get" class="form-inline mb-3">
-        <label class="mr-2" for="days">Lọc theo số ngày còn lại:</label>
-        <select name="days" id="days" class="form-control mr-2" onchange="this.form.submit()">
-            <option th:value="7" th:selected="${selectedDays == 7}">7 ngày</option>
-            <option th:value="5" th:selected="${selectedDays == 5}">5 ngày</option>
-            <option th:value="3" th:selected="${selectedDays == 3}">3 ngày</option>
-            <option th:value="1" th:selected="${selectedDays == 1}">1 ngày</option>
-        </select>
-    </form>
-
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover">
-            <thead class="thead-light">
-            <tr>
-                <th>ID Đơn hàng</th>
-                <th>Khách hàng</th>
-                <th>Ngày tạo</th>
-                <th>Ngày hết hạn</th>
-                <th>Tổng tiền (VNĐ)</th>
-                <th>Trạng thái</th>
-                <th>Ngày còn lại</th>
-                <th>Hành động</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="order : ${orders}">
-                <td th:text="${order.id}"></td>
-                <td>
-                    <span th:if="${order.customer != null}" th:text="${order.customer.fullname}"></span>
-                    <span th:if="${order.customer == null}">Không có khách</span>
-                </td>
-                <td th:text="${order.orderDate}"></td>
-                <td th:text="${order.endDate}"></td>
-                <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 2, 'POINT')}"></td>
-                <td th:text="${order.status}"></td>
-                <td th:text="${remainingDays[order.id]}"></td>
-                <td>
-                    <form th:action="@{/staff/pending-renewal-orders/send-warning}" method="post" th:object="${order}">
-                        <input type="hidden" name="orderId" th:value="${order.id}">
-                        <input type="hidden" name="days" th:value="${selectedDays}">
-                        <button type="submit" class="btn btn-warning btn-sm">Gửi email cảnh báo</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <ul class="sidebar-menu">
+        <li class="menu-item" id="dashboard-menu">
+            <a href="/SWP/staff/staff-dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li class="menu-item" id="addstorage-menu">
+            <a href="addstorage">
+                <i class="fas fa-hdd"></i>
+                <span>Add Storage</span>
+            </a>
+        </li>
+        <li class="menu-item" id="storagelist-menu">
+            <a href="/SWP/storages">
+                <i class="fas fa-warehouse"></i>
+                <span>Storage List</span>
+            </a>
+        </li>
+        <li class="menu-item active" id="orderlist-menu">
+            <a href="/SWP/orders">
+                <i class="fas fa-chart-bar"></i>
+                <span>Order List</span>
+            </a>
+        </li>
+        <li class="menu-item" id="feedback-menu">
+            <a href="/SWP/feedbacks">
+                <i class="fas fa-boxes"></i>
+                <span>Feedback</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/issues/report">
+                <i class="fas fa-file-alt"></i>
+                <span>Reports</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/statistics">
+                <i class="fas fa-chart-bar"></i>
+                <span>Revenue Statistics</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/support">
+                <i class="fas fa-headset"></i>
+                <span>Customer Support</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="customer-list">
+                <i class="fas fa-users"></i>
+                <span>Users List</span>
+            </a>
+        </li>
+    </ul>
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details">
+                <span class="user-name">John Staff</span>
+                <span class="user-role">Staff</span>
+            </div>
+        </div>
     </div>
+</nav>
 
-    <div th:if="${param.emailSent}" class="alert alert-success">
-        Email cảnh báo đã được gửi thành công!
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Header -->
+<!--    <header class="header">-->
+<!--        <div class="header-left">-->
+<!--            <button class="sidebar-toggle">-->
+<!--                <i class="fas fa-bars"></i>-->
+<!--            </button>-->
+<!--            <h1>Pending Renewal Orders</h1>-->
+<!--        </div>-->
+<!--        <div class="header-right">-->
+<!--            <div class="search-box">-->
+<!--                <i class="fas fa-search"></i>-->
+<!--                <input type="text" placeholder="Search orders..." id="searchInput">-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </header>-->
+
+    <!-- Page Content -->
+    <div class="page-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2 class="page-title">Danh sách đơn hàng sắp hết hạn</h2>
+            <div class="page-actions">
+                <button class="btn-secondary btn-back" onclick="window.history.back()">
+                    <i class="fas fa-arrow-left"></i>
+                    Quay lại
+                </button>
+                <button class="btn-secondary">
+                    <i class="fas fa-download"></i>
+                    Xuất dữ liệu
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-group">
+                <form th:action="@{/staff/pending-renewal-orders}" method="get" class="mb-3">
+                    <label for="days">Lọc theo số ngày còn lại:</label>
+                    <select name="days" id="days" onchange="this.form.submit()">
+                        <option th:value="7" th:selected="${selectedDays == 7}">7 ngày</option>
+                        <option th:value="5" th:selected="${selectedDays == 5}">5 ngày</option>
+                        <option th:value="3" th:selected="${selectedDays == 3}">3 ngày</option>
+                        <option th:value="1" th:selected="${selectedDays == 1}">1 ngày</option>
+                    </select>
+                </form>
+            </div>
+<!--            <div class="filter-group">-->
+<!--                <label for="customerIdFilter">Tìm theo ID:</label>-->
+<!--                <input type="number" id="customerIdFilter" placeholder="Nhập ID đơn hàng..." class="filter-select">-->
+<!--                <button class="btn-secondary" id="searchByIdButton">-->
+<!--                    <i class="fas fa-search"></i>-->
+<!--                </button>-->
+<!--            </div>-->
+        </div>
+
+        <!-- Orders Content -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Tất cả đơn hàng sắp hết hạn (<span id="totalOrdersCount">0</span>)</h3>
+                <div class="card-actions">
+                    <button class="btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Xuất
+                    </button>
+                    <button class="btn-secondary">
+                        <i class="fas fa-print"></i>
+                        In
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-content">
+                    <i class="fas fa-box-open"></i>
+                    <h3>Chưa có đơn hàng sắp hết hạn nào</h3>
+                    <p>Đơn hàng sắp hết hạn sẽ hiển thị ở đây</p>
+                </div>
+            </div>
+
+            <!-- Orders List Table -->
+            <div class="table-responsive">
+                <table class="table" id="ordersTable">
+                    <thead class="thead-light">
+                    <tr>
+                        <th>ID Đơn hàng</th>
+                        <th>Khách hàng</th>
+                        <th>Ngày tạo</th>
+                        <th>Ngày hết hạn</th>
+                        <th>Tổng tiền (VNĐ)</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày còn lại</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td><span class="id-badge">#<span th:text="${order.id}"></span></span></td>
+                        <td th:text="${order.customer != null ? order.customer.fullname : 'Không có khách'}"></td>
+                        <td th:text="${order.orderDate}"></td>
+                        <td th:text="${order.endDate}"></td>
+                        <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 2, 'POINT')}"></td>
+                        <td th:text="${order.status}"></td>
+                        <td th:text="${remainingDays[order.id]}"></td>
+                        <td>
+                            <form th:action="@{/staff/pending-renewal-orders/send-warning}" method="post">
+                                <input type="hidden" name="orderId" th:value="${order.id}">
+                                <input type="hidden" name="days" th:value="${selectedDays}">
+                                <button type="submit" class="btn-warning">
+                                    <i class="fas fa-envelope-open-text"></i> Gửi email cảnh báo
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination" style="display: none;">
+                <button><i class="fas fa-chevron-left"></i></button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
     </div>
-</div>
+</main>
+
+<script>
+    const daysFilterSelect = document.getElementById('days');
+
+    // Sidebar toggle
+    document.querySelector('.sidebar-toggle')?.addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('open');
+    });
+
+    window.onload = function() {
+        const pathname = window.location.pathname;
+        const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
+        menuItems.forEach(item => {
+            const link = item.querySelector('a');
+            if (link && pathname.includes(link.getAttribute('href').split('?')[0])) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    };
+</script>
 </body>
 </html>

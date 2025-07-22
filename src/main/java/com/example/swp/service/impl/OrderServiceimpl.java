@@ -47,6 +47,10 @@ public class OrderServiceimpl implements OrderService {
         return orderRepository.findByCustomer(customer);
     }
 
+    @Override
+    public Optional<Order> findOrderById(Integer id) {
+        return orderRepository.findById(id);
+    }
 
     @Override
     public Order createOrder(OrderRequest orderRequest) {
@@ -89,6 +93,8 @@ public class OrderServiceimpl implements OrderService {
         }
         return pricePerDay.multiply(BigDecimal.valueOf(days));
     }
+
+
 
     @Override
     public double getTotalRevenueAll() {
