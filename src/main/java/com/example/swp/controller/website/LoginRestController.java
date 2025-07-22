@@ -1,12 +1,15 @@
 package com.example.swp.controller.website;
 
+import com.example.swp.annotation.LogActivity;
 import com.example.swp.dto.LoginRequest;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Manager;
+import com.example.swp.entity.Staff;
 import com.example.swp.security.MyUserDetail;
 import com.example.swp.service.CustomerService;
 import com.example.swp.service.EmailService;
 import com.example.swp.service.ManagerService;
+import com.example.swp.service.StaffService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,6 +47,9 @@ public class LoginRestController {
     @Autowired
     private ManagerService managerService;
 
+    @Autowired
+    protected StaffService staffService;
+
     @GetMapping({"/login", "/api/login"})
     public String returnLoginPage(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -55,7 +61,7 @@ public class LoginRestController {
 
 }
 
-
+    @LogActivity(action = "Người dùng đăng nhập vào hệ thống")
     @PostMapping("/login")
     @ResponseBody
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
@@ -99,6 +105,11 @@ public class LoginRestController {
                     redirectUrl = "/home-page";
                     break;
                 case "STAFF":
+                    String email = loginRequest.getEmail();
+                    Staff staff = staffService.findByEmail(email).orElse(null);
+                        if(staff != null) {
+                        session.setAttribute("loggedInStaff", staff);
+                        }
                     redirectUrl = "/staff/dashboard";
                     break;
                 default:
@@ -124,7 +135,7 @@ public class LoginRestController {
     }
 
 
-
+    @LogActivity(action = "Người dùng đăng xuất khỏi hệ thống")
     @GetMapping("/logout")
     public String logout() {
         SecurityContextHolder.clearContext();

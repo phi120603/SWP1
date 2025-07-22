@@ -1,5 +1,6 @@
 package com.example.swp.controller.website;
 
+import com.example.swp.annotation.LogActivity;
 import com.example.swp.entity.Task;
 import com.example.swp.entity.Staff;
 import com.example.swp.entity.Manager;
@@ -67,6 +68,7 @@ public class TaskController {
         return "task-list";
     }
 
+    @LogActivity(action = "Tạo mới công việc")
     @PostMapping("/task-list/create")
     public String createTask(@RequestParam("title") String title,
                            @RequestParam("description") String description,
@@ -112,6 +114,7 @@ public class TaskController {
         return "redirect:/admin/task-list";
     }
 
+    @LogActivity(action = "Chỉnh sửa công việc")
     @GetMapping("/task-list/edit/{id}")
     public String editTaskForm(@PathVariable int id, Model model) {
         Optional<Task> taskOpt = taskService.getTaskById(id);

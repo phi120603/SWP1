@@ -2,6 +2,7 @@ package com.example.swp.controller.website;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.example.swp.annotation.LogActivity;
 import com.example.swp.config.CloudinaryConfig;
 import com.example.swp.dto.ChatThreadResponse;
 import com.example.swp.dto.StorageRequest;
@@ -63,8 +64,15 @@ public class ManagerController {
     @Autowired
     private ChatService chatService;
 
+
     @GetMapping("/manager-dashboard")
-    public String showDashboard(Model model) {
+    public String showDashboard(Model model, HttpSession session) {
+        Manager loggedInManager = (Manager) session.getAttribute("loggedInManager");
+        if (loggedInManager != null) {
+            model.addAttribute("user", loggedInManager.getFullname());
+            model.addAttribute("userName", loggedInManager.getEmail());
+            model.addAttribute("userRole", "Manager");
+        }
 
         // Doanh thu
         double totalRevenueAll = orderService.getTotalRevenueAll();
@@ -124,6 +132,7 @@ public class ManagerController {
         return "addstorage";
     }
 
+    @LogActivity(action = "Thêm kho hàng")
     @PostMapping("/addstorage")
     public String addStorage(@ModelAttribute StorageRequest storageRequest,
                              @RequestParam("image") MultipartFile file,
@@ -167,7 +176,7 @@ public class ManagerController {
         return "manager-storage-edit";
     }
 
-
+    @LogActivity(action = "Xoá kho")
     @PostMapping("/storages/{id}/delete")
     public String deleteStorage(@PathVariable int id, RedirectAttributes redirectAttributes) {
         storageService.deleteStorageById(id);
@@ -175,7 +184,7 @@ public class ManagerController {
         return "redirect:/admin/manager-dashboard";
     }
 
-    //edit storage
+    @LogActivity(action = "Cập nhật kho")
     @PutMapping("/manager-dashboard/storages/{id}")
     public String updateStorage(@PathVariable int id,
                                 RedirectAttributes redirectAttributes,
@@ -189,7 +198,6 @@ public class ManagerController {
         storageService.updateStorage(storageRequest, optional.get());
         redirectAttributes.addFlashAttribute("message", "Cập nhật thành công!");
 
-        // ✅ Sau khi cập nhật xong → quay về dashboard
         return "manager-storagedetail";
     }
 
@@ -298,24 +306,36 @@ public class ManagerController {
     }
 
     @GetMapping("/manager-setting")
-    public String managerSetting(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
-            UserDetails userDetails = (UserDetails) auth.getPrincipal();
-            model.addAttribute("userName", userDetails.getUsername());
-            model.addAttribute("userRole", auth.getAuthorities().iterator().next().getAuthority());
+    public String managerSetting(Model model, HttpSession session) {
+        // Lấy Manager từ session
+        Manager loggedInManager = (Manager) session.getAttribute("loggedInManager");
+
+        if (loggedInManager != null) {
+            model.addAttribute("user", loggedInManager.getFullname());     // Tên người dùng
+            model.addAttribute("userName", loggedInManager.getEmail());    // Email
+            model.addAttribute("userRole", "MANAGER");                     // Vai trò
+        } else {
+            // Phòng trường hợp null, fallback từ SecurityContext
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+                UserDetails userDetails = (UserDetails) auth.getPrincipal();
+                model.addAttribute("userName", userDetails.getUsername());
+                model.addAttribute("userRole", auth.getAuthorities().iterator().next().getAuthority());
+            }
         }
+
         return "manager-setting";
     }
 
-    @GetMapping("/manager/profile")
-    public String managerProfilePage(HttpSession session, Model model) {
-        Manager loggedInManager = (Manager) session.getAttribute("loggedInManager");
-        if (loggedInManager != null) {
-            model.addAttribute("user", loggedInManager); // -> biến 'user' trong HTML
-        }
-        return "manager-setting";
-    }
+
+//    @GetMapping("/manager/profile")
+//    public String managerProfilePage(HttpSession session, Model model) {
+//        Manager loggedInManager = (Manager) session.getAttribute("loggedInManager");
+//        if (loggedInManager != null) {
+//            model.addAttribute("user", loggedInManager); // -> biến 'user' trong HTML
+//        }
+//        return "manager-setting";
+//    }
 
 
 
