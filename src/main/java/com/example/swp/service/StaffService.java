@@ -1,6 +1,7 @@
 package com.example.swp.service;
 
 import com.example.swp.dto.StaffRequest;
+import com.example.swp.entity.Customer;
 import com.example.swp.entity.Staff;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import java.util.Optional;
 
 @Service
 public interface StaffService {
+
      List<Staff> getAllStaff();
      public Staff getStaff(int id);
 
@@ -19,6 +21,7 @@ public interface StaffService {
      Page<Staff> getStaffsByPage(int page, int size);
      int countAllStaff();
 
+     Optional<Staff> findByEmail(String email);
      Optional<Staff> findById(int id);
      Staff save(Staff staff);
 }

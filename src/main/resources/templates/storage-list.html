@@ -1,5 +1,5 @@
     <!DOCTYPE html>
-    <html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <html lang="vi" xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="UTF-8">
         <title>Danh sách kho</title>
@@ -12,25 +12,7 @@
     <body>
     <div class="page-wrapper">
         <!-- Navigation Bar -->
-        <nav class="navbar">
-            <div class="navbar-content">
-                <div class="navbar-brand">
-                    <a href="/home-page">
-                        <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
-                             alt="QVL Storage Logo" class="navbar-logo">
-                    </a>
-                </div>
-                <ul class="navbar-nav">
-                    <li><a href="/home-page">Trang chủ</a></li>
-                    <li><a href="/SWP/storages" class="active">Danh sách</a></li>
-
-                </ul>
-                <button class="cart-icon" onclick="goToWishlist()" title="Xem wishlist">
-                    🛒
-                    <span class="cart-count" id="cartCount">0</span>
-                </button>
-            </div>
-        </nav>
+        <div th:replace="taskbar/customer-navbar :: customerNavbar"></div>
 
         <!-- Hero Section -->
         <div class="hero-section">
@@ -363,5 +345,6 @@
             }
         }
     </script>
+
     </body>
     </html>

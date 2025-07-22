@@ -1,10 +1,15 @@
 package com.example.swp.controller.website;
 
+import com.example.swp.annotation.LogActivity;
 import com.example.swp.dto.LoginRequest;
 import com.example.swp.entity.Customer;
+import com.example.swp.entity.Manager;
+import com.example.swp.entity.Staff;
 import com.example.swp.security.MyUserDetail;
 import com.example.swp.service.CustomerService;
 import com.example.swp.service.EmailService;
+import com.example.swp.service.ManagerService;
+import com.example.swp.service.StaffService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,23 +44,28 @@ public class LoginRestController {
     @Autowired
     private CustomerService customerService;
 
+    @Autowired
+    private ManagerService managerService;
 
-    @GetMapping("/login")
+    @Autowired
+    protected StaffService staffService;
+
+    @GetMapping({"/login", "/api/login"})
     public String returnLoginPage(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            return "redirect:/home-page"; // Đã login → về home
+            return "redirect:/home-page";
         }
         model.addAttribute("sessionId", session.getId());
         return "login";
-    }
 
+}
 
+    @LogActivity(action = "Người dùng đăng nhập vào hệ thống")
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
         try {
-
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getEmail(),
@@ -68,40 +78,48 @@ public class LoginRestController {
                         .body("Tài khoản hoặc mật khẩu không chính xác.");
             }
 
-            // Ghi nhận thông tin đăng nhập vào Spring Security Context
+            // Ghi nhận vào Spring Security Context
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            // Lưu thông tin vào session
-            session.setMaxInactiveInterval(600); // 10 phút
+
+            // Thiết lập session
+            session.setMaxInactiveInterval(6000); // 10 phút
             session.setAttribute("email", loginRequest.getEmail());
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof Customer) {
-                session.setAttribute("loggedInCustomer", principal); // dùng được cho wishlist
+
+            // Lấy role của người dùng
+            String role = authentication.getAuthorities().iterator().next().getAuthority();
+            String redirectUrl = "/home-page"; // mặc định
+
+            switch (role) {
+                case "MANAGER":
+                    Manager manager = managerService.findByEmail(loginRequest.getEmail());
+                    if (manager != null) {
+                        session.setAttribute("loggedInManager", manager);
+                    }
+                    redirectUrl = "/admin/manager-dashboard";
+                    break;
+                case "CUSTOMER":
+                    Customer customer = customerService.findByEmail(loginRequest.getEmail());
+                    if (customer != null) {
+                        session.setAttribute("loggedInCustomer", customer);
+                    }
+                    redirectUrl = "/home-page";
+                    break;
+                case "STAFF":
+                    String email = loginRequest.getEmail();
+                    Staff staff = staffService.findByEmail(email).orElse(null);
+                        if(staff != null) {
+                        session.setAttribute("loggedInStaff", staff);
+                        }
+                    redirectUrl = "/staff/dashboard";
+                    break;
+                default:
+                    break;
             }
 
-
-            // Gắn context vào session
+            // Lưu context vào session
             session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
-
-            // Xác định vai trò để redirect
-            String redirectUrl = "/home-page"; // default
-            for (GrantedAuthority authority : authentication.getAuthorities()) {
-
-                String role = authority.getAuthority();
-                switch (role) {
-                    case "MANAGER":
-                        redirectUrl = "/admin/manager-dashboard";
-                        break;
-                    case "STAFF":
-                        redirectUrl = "/staff/dashboard";
-                        break;
-                    case "CUSTOMER":
-                        redirectUrl = "/home-page";
-                        break;
-                }
-                break; // chỉ lấy role đầu tiên
-            }
-
+            // Trả về URL để redirect
             Map<String, String> response = new HashMap<>();
             response.put("redirect", redirectUrl);
             return ResponseEntity.ok(response);
@@ -110,13 +128,14 @@ public class LoginRestController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Email hoặc mật khẩu không chính xác.");
         } catch (Exception e) {
-            e.printStackTrace(); // in lỗi cho debug
+            e.printStackTrace(); // debug
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Đã xảy ra lỗi khi đăng nhập.");
         }
     }
 
 
+    @LogActivity(action = "Người dùng đăng xuất khỏi hệ thống")
     @GetMapping("/logout")
     public String logout() {
         SecurityContextHolder.clearContext();
@@ -135,24 +154,4 @@ public class LoginRestController {
             return ResponseEntity.ok("Chưa đăng nhập hoặc session đã hết hạn.");
         }
     }
-
-    @GetMapping("/current-user")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> getCurrentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof MyUserDetail userDetail) {
-            Object user = userDetail.getUser();
-            if (user instanceof Customer customer) {
-                Map<String, Object> data = new HashMap<>();
-                data.put("id", customer.getId());
-                data.put("email", customer.getEmail());
-                data.put("fullName", customer.getFullname());
-                return ResponseEntity.ok(data);
-            }
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-    }
-
 }
-
-

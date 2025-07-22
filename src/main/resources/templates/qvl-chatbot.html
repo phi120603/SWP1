@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QVL Chatbot - QVL Storage</title>
-    <link rel="stylesheet" href="qvl-chatbot.css">
+    <link rel="stylesheet" th:href="@{/css/qvl-chatbot.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -151,20 +151,24 @@
                 </div>
 
                 <!-- Chat Input -->
-                <div class="chat-input-container">
-                    <div class="chat-input-wrapper">
-                        <input
-                                type="text"
-                                id="messageInput"
-                                placeholder="Nhập tin nhắn của bạn..."
-                                class="chat-input"
-                                onkeypress="handleKeyPress(event)"
-                        >
-                        <button class="send-button" onclick="sendMessage()" id="sendButton">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                    <div class="input-suggestions">
+                <div class="chat-input-wrapper">
+                    <input
+                            type="text"
+                            id="messageInput"
+                            placeholder="Nhập tin nhắn của bạn..."
+                            class="chat-input"
+                            onkeypress="handleKeyPress(event)"
+                    >
+                    <button class="voice-button" onclick="startVoice()" id="voiceButton" title="Nhấn để nói">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="send-button" onclick="sendMessage()" id="sendButton">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                    <div id="voiceStatus" style="margin-left: 10px; color: red; display: none;">Đang nghe...</div>
+                </div>
+
+                <div class="input-suggestions">
                         <button class="suggestion-btn" onclick="sendSuggestion('Làm thế nào để đặt kho?')">
                             Làm thế nào để đặt kho?
                         </button>
@@ -319,6 +323,50 @@
 
     // Auto-focus on input
     document.getElementById('messageInput').focus();
+
+    // Voice Recognition using Web Speech API
+    let recognition;
+    let recognizing = false;
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'vi-VN'; // Chỉnh thành 'en-US' nếu cần
+        recognition.interimResults = false;
+
+        recognition.onstart = function() {
+            recognizing = true;
+            document.getElementById('voiceButton').classList.add('listening');
+            document.getElementById('voiceButton').setAttribute('title', 'Đang ghi âm...');
+        };
+
+        recognition.onend = function() {
+            recognizing = false;
+            document.getElementById('voiceButton').classList.remove('listening');
+            document.getElementById('voiceButton').setAttribute('title', 'Nhấn để nói');
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('messageInput').value = transcript;
+            sendMessage();
+        };
+
+    } else {
+        document.getElementById('voiceButton').disabled = true;
+        document.getElementById('voiceButton').setAttribute('title', 'Trình duyệt không hỗ trợ');
+    }
+
+    function startVoice() {
+        if (recognition) {
+            if (!recognizing) {
+                recognition.start();
+            } else {
+                recognition.stop();
+            }
+        }
+    }
+
 </script>
 </body>
 </html>

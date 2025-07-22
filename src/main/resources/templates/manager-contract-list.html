@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý hợp đồng - QVL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Base styles & Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #e0e7ff 100%);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.9);
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1),0 8px 10px -6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+
+        h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            padding: 1.5rem 2rem;
+            background: linear-gradient(to right, #f9fafb 0%, #f3f4f6 100%);
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        h2 svg { width: 1.75rem; height: 1.75rem; color: #2563eb; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead { background-color: #f9fafb; }
+        th {
+            padding: 1.25rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+            font-size: 0.9375rem;
+            color: #374151;
+            white-space: nowrap;
+        }
+
+        tbody tr { transition: background-color .2s ease, transform .2s ease; }
+        tbody tr:hover {
+            background-color: #eff6ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -2px rgba(0,0,0,0.1);
+        }
+
+        .contract-code { font-family: Monaco, Menlo, Ubuntu Mono, monospace; font-size: .875rem;
+            background: #e0e7ff; color: #1d4ed8; padding:.3rem .6rem; border-radius:.375rem;
+            font-weight:600; border:1px solid #93c5fd; display:inline-block;
+        }
+
+        .amount { font-weight:700; color:#059669; font-size:1rem; }
+        .status-text { font-weight:600; color:#2563eb; }
+
+        form.status-form { display:flex; align-items:center; gap:.5rem; }
+        form.status-form input[type=hidden] { display:none; }
+
+        select {
+            padding:.5rem .75rem; border:1px solid #d1d5db; border-radius:.375rem;
+            font-size:.875rem; font-weight:500; background:white;
+            min-width:120px; transition:all .2s ease; appearance:none;
+            background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23374151' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat:no-repeat; background-position:right .75rem center;
+            background-size:.625rem .625rem;
+        }
+
+        select:focus { outline:none; border-color:#2563eb;
+            box-shadow:0 0 0 3px rgba(37,99,235,0.1);
+        }
+
+        button[type=submit] {
+            display:inline-flex; align-items:center; justify-content:center;
+            padding:.5rem 1rem; font-size:.875rem; font-weight:600;
+            border-radius:.375rem; border:none; cursor:pointer;
+            background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);
+            color:#fff; transition:all .2s ease; text-transform:uppercase;
+            letter-spacing:.025em;
+        }
+
+        button[type=submit]:hover { opacity:.9; transform:translateY(-1px);
+            box-shadow:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -2px rgba(0,0,0,0.1);
+        }
+
+        button.loading { opacity:.6; pointer-events:none; }
+        button.loading::after {
+            content:""; width:1rem; height:1rem;
+            border:2px solid transparent; border-top:2px solid #fff;
+            border-radius:50%; animation:spin 1s linear infinite;
+            margin-left:.5rem;
+            display:inline-block; vertical-align:middle;
+        }
+
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        /* Responsive */
+        @media (max-width:1024px) { .container { overflow-x:auto; } table { min-width:900px; } }
+        @media (max-width:768px) {
+            body { padding:1rem; }
+            h2 { font-size:1.5rem; padding:1rem 1.25rem; }
+            th, td { padding:.75rem 1rem; font-size:.8125rem; }
+            form.status-form { flex-direction:column; align-items:stretch; gap:.25rem; }
+            select, button { width:100%; min-width:unset; }
+        }
+
+        .success-notification {
+            position:fixed; top:2rem; right:2rem;
+            background:#059669; color:#fff; padding:1rem 1.5rem;
+            border-radius:.5rem; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);
+            transform:translateX(100%); transition:transform .3s ease-out; z-index:1000;
+            font-weight:600;
+        }
+        .success-notification.show { transform:translateX(0); }
+        .pagination {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .page-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            background-color: white;
+            color: #2d3748;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .page-link:hover:not(.active):not(.disabled) {
+            background-color: #4c51bf;
+            color: white;
+            border-color: #4c51bf;
+            transform: translateY(-2px);
+        }
+
+        .page-link.active {
+            background-color: #4c51bf;
+            color: white;
+            border-color: #4c51bf;
+        }
+
+        .page-link.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+            background-color: #edf2f7;
+            color: #a0aec0;
+            border-color: #e2e8f0;
+        }
+
+
+
+    </style>
+</head>
+<body>
+<div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
+<div class="container">
+    <h2>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-signature"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M10 14.5c.3.3.6.5.9.7c.3.2.7.3 1.1.3c.4 0 .8-.1 1.1-.3c.3-.2.6-.4.9-.7"/><path d="M12 17v-2.5s1.5-1.5 3-3"/><path d="M12 17v-2.5s-1.5-1.5-3-3"/></svg>
+        Danh sách hợp đồng
+    </h2>
+    <div style="overflow-x:auto;">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Mã hợp đồng</th>
+                <th>Kho</th>
+                <th>Diện tích</th>
+                <th>Tổng tiền</th>
+                <th>Khách hàng</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${contracts}">
+                <td th:text="${c.id}">1</td>
+                <td><span class="contract-code" th:text="${c.contractCode}">HD123</span></td>
+                <td th:text="${c.storageName}">Kho A</td>
+                <td th:text="${c.rentalArea + ' m²'}">50 m²</td>
+                <td><span class="amount" th:text="${#numbers.formatDecimal(c.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">1,000,000 VND</span></td>
+                <td th:text="${c.order != null && c.order.customer != null ? c.order.customer.fullname : 'N/A'}">Nguyễn Văn A</td>
+                <td class="status-text" th:text="${c.status}">PENDING</td>
+                <td>
+                    <form th:action="@{'/admin/contracts/change-status/' + ${c.id}}" method="post" class="status-form">
+                        <input type="hidden" name="id" th:value="${c.id}" />
+                        <select name="status" th:attr="data-current-status=${c.status}">
+                            <option th:each="status : ${statuses}"
+                                    th:value="${status}"
+                                    th:text="${status}"
+                                    th:selected="${status == c.status}">
+                            </option>
+                        </select>
+                        <button type="submit">Cập nhật</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <!-- Pagination -->
+        <div class="pagination">
+            <!-- Mũi tên quay về -->
+            <a th:if="${currentPage > 0}"
+               th:href="@{/admin/contracts(page=${currentPage - 1}, size=${pageSize})}"
+               class="page-link arrow">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            <a th:if="${currentPage == 0}" class="page-link arrow disabled">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+
+            <!-- Số trang -->
+            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+        <a th:href="@{/admin/contracts(page=${i}, size=${pageSize})}"
+           th:text="${i + 1}"
+           th:classappend="${i == currentPage} ? ' active' : ''"
+           class="page-link"></a>
+    </span>
+
+            <!-- Mũi tên tới -->
+            <a th:if="${currentPage + 1 < totalPages}"
+               th:href="@{/admin/contracts(page=${currentPage + 1}, size=${pageSize})}"
+               class="page-link arrow">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            <a th:if="${currentPage + 1 >= totalPages}" class="page-link arrow disabled">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+
+
+
+    </div>
+</div>
+
+<div id="successNotification" class="success-notification">✅ Cập nhật thành công!</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', ()=>{
+        // Format currency
+        const formatCurrency = amt=>{
+            const num = parseFloat(String(amt).replace(/[^\d]/g, ''));
+            return isNaN(num)? amt : new Intl.NumberFormat('vi-VN',{ style:'currency', currency:'VND' }).format(num);
+        };
+        document.querySelectorAll('.amount').forEach(span=> span.textContent = formatCurrency(span.textContent));
+
+        const showNotification = (msg='Thành công!', success=true)=>{
+            const notif = document.getElementById('successNotification');
+            notif.textContent = (success? '✅ ' : '❌ ') + msg;
+            notif.style.backgroundColor = success? '#059669' : '#dc2626';
+            notif.classList.add('show');
+            setTimeout(()=> notif.classList.remove('show'), 3000);
+        };
+
+        document.querySelectorAll('form.status-form').forEach(form=>{
+            form.addEventListener('submit', e=>{
+                e.preventDefault();
+                const btn = form.querySelector('button');
+                const select = form.querySelector('select[name="status"]');
+                const id = form.querySelector('input[name="id"]').value;
+                const newStatus = select.value;
+
+                btn.classList.add('loading'); select.disabled = true;
+                setTimeout(()=>{
+                    select.dataset.currentStatus = newStatus;
+                    // Update status cell
+                    const row = btn.closest('tr');
+                    row.querySelector('td.status-text').textContent = newStatus;
+
+                    btn.classList.remove('loading'); select.disabled = false;
+                    showNotification(`Cập nhật trạng thái hợp đồng ID ${id} thành ${newStatus} thành công!`);
+                },1000);
+            });
+        });
+    });
+</script>
+</body>
+</html>

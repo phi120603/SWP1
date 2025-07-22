@@ -4,6 +4,7 @@ import com.example.swp.entity.Customer;
 import com.example.swp.entity.Order;
 import com.example.swp.entity.Feedback;
 import com.example.swp.entity.StorageTransaction;
+import com.example.swp.enums.TransactionType;
 import com.example.swp.service.CustomerService;
 import com.example.swp.service.OrderService;
 import com.example.swp.repository.FeedbackRepository;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/SWP/customers")
@@ -29,6 +31,8 @@ public class CustomerDetailController {
     private FeedbackRepository feedbackRepository;
     @Autowired
     private StorageTransactionService storageTransactionService;
+
+
 
     @GetMapping("/{id}")
     public String customerDetail(@PathVariable int id, Model model) {
@@ -95,21 +99,47 @@ public class CustomerDetailController {
 
 
     @GetMapping("/my-transactions")
-    public String viewMyTransactions(HttpSession session, Model model) {
+    public String viewMyTransactions(Model model, HttpSession session) {
+        // Lấy customer đang đăng nhập từ session
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
         if (customer == null) {
-            return "redirect:/api/login";
+            return "redirect:/login"; // hoặc trả về lỗi truy cập
         }
 
-        // Gọi đúng method trong service
-        List<StorageTransaction> transactions =
-                storageTransactionService.findByCustomerId(customer.getId());
+        // Lấy danh sách transaction theo customerId
+        List<StorageTransaction> transactions = storageTransactionService.findByCustomerId(customer.getId());
 
         model.addAttribute("transactions", transactions);
-        model.addAttribute("customer", customer);
+        model.addAttribute("customer", customer); // nếu cần hiển thị tên ở giao diện
 
-        return "my-transactions";
+        return "my-transactions"; //
     }
+    @PostMapping("/transactions/{id}/request-refund")
+
+    public String requestRefund(@PathVariable int id,
+                                @RequestParam("refundReason") String reason,
+                                RedirectAttributes redirectAttributes) {
+        Optional<StorageTransaction> optional = storageTransactionService.getStorageTransactionById(id);
+        if (optional.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy giao dịch.");
+            return "redirect:/SWP/customers/my-transactions";
+        }
+
+        StorageTransaction transaction = optional.get();
+        if (transaction.getType() != TransactionType.PAID) {
+            redirectAttributes.addFlashAttribute("error", "Chỉ có thể yêu cầu hoàn tiền cho giao dịch PAID.");
+            return "redirect:/SWP/customers/my-transactions";
+        }
+
+        transaction.setType(TransactionType.REQUESTED);
+        transaction.setRefundReason(reason);
+        storageTransactionService.save(transaction);
+
+        redirectAttributes.addFlashAttribute("message", "Yêu cầu hoàn tiền đã được gửi. Vui lòng chờ xác nhận.");
+        return "redirect:/SWP/customers/my-transactions";
+    }
+
+
 
 
 

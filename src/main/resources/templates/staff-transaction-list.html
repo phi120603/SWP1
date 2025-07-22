@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction List - Staff Manager</title>
+    <link rel="stylesheet" th:href="@{/css/staff-dashboard.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- Sidebar -->
+<div th:replace="taskbar/staff-taskbar :: staffTaskbar"></div>
+<main class="main-content">
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <h1>Quản Lý Giao Dịch</h1>
+        </div>
+        <div class="header-right">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Tìm giao dịch...">
+            </div>
+        </div>
+    </header>
+    <div class="page-content">
+        <div class="page-header">
+            <h2 class="page-title">Danh sách giao dịch</h2>
+            <div class="page-actions">
+                <a href="/SWP/staff/staff-dashboard" class="btn-secondary btn-back">
+                    <i class="fas fa-arrow-left"></i> Trở về Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-section">
+            <div class="filter-group">
+                <label>Loại giao dịch:</label>
+                <select id="typeFilter" class="filter-select">
+                    <option value="">Tất cả</option>
+                    <option value="PENDING">PENDING</option>
+                    <option value="IMPORT">IMPORT</option>
+                    <option value="EXPORT">EXPORT</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Khách hàng:</label>
+                <input type="text" id="customerFilter" class="filter-select" placeholder="Tên khách hàng">
+            </div>
+            <div class="filter-group">
+                <label>Kho:</label>
+                <input type="text" id="storageFilter" class="filter-select" placeholder="Tên kho">
+            </div>
+            <button class="btn-primary" type="button" onclick="applyFilters()">
+                <i class="fas fa-filter"></i> Lọc
+            </button>
+            <button class="btn-secondary" onclick="clearFilters()">
+                <i class="fas fa-times"></i> Xóa Filter
+            </button>
+        </div>
+
+        <!-- Transaction Table -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Tổng giao dịch (<span th:text="${#lists.size(transactions)}"></span>)</h3>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Loại giao dịch</th>
+                        <th>ID Khách hàng</th>
+                        <th>Kho</th>
+                        <th>Ngày giao dịch</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="tran : ${transactions}">
+                        <td th:text="${tran.id}"></td>
+                        <td th:text="${tran.type}"></td>
+                        <td th:text="${tran.customer.id}"></td>
+                        <td th:text="${tran.storage.storagename}"></td>
+                        <td th:text="${#temporals.format(tran.transactionDate, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a th:href="@{'/SWP/storage-transactions/' + ${tran.id}}" class="btn-icon" title="Chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    function applyFilters() {
+        const type = document.getElementById("typeFilter").value.toLowerCase();
+        const customer = document.getElementById("customerFilter").value.toLowerCase();
+        const storage = document.getElementById("storageFilter").value.toLowerCase();
+        const rows = document.querySelectorAll(".data-table tbody tr");
+
+        rows.forEach(row => {
+            const tType = row.children[1].textContent.toLowerCase();
+            const tCustomer = row.children[2].textContent.toLowerCase();
+            const tStorage = row.children[3].textContent.toLowerCase();
+
+            let match = true;
+            if (type && !tType.includes(type)) match = false;
+            if (customer && !tCustomer.includes(customer)) match = false;
+            if (storage && !tStorage.includes(storage)) match = false;
+
+            row.style.display = match ? "" : "none";
+        });
+    }
+
+    function clearFilters() {
+        document.getElementById("typeFilter").value = "";
+        document.getElementById("customerFilter").value = "";
+        document.getElementById("storageFilter").value = "";
+        applyFilters();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('.data-table tbody tr');
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+</script>
+</body>
+</html>

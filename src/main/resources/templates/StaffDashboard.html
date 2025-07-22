@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - Modern</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/staff-dashboard.css}">
+</head>
+<body>
+<div class="dashboard-container">
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-database"></i>
+                <span>Staff Dashboard</span>
+            </div>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="menu-item" id="dashboard-menu">
+                <a th:href="@{/staff/dashboard}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item" id="addstorage-menu">
+                <a th:href="@{/staff/addstorage}">
+                    <i class="fas fa-hdd"></i>
+                    <span>Add Storage</span>
+                </a>
+            </li>
+            <li class="menu-item" id="storagelist-menu">
+                <a th:href="@{/staff/all-storage}">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Storage List</span>
+                </a>
+            </li>
+            <li class="menu-item" id="orderlist-menu">
+                <a th:href="@{/staff/orders}">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Order List</span>
+                </a>
+            </li>
+            <li class="menu-item" id="transactionlist-menu">
+                <a th:href="@{/SWP/staff/transactions}">
+
+                <i class="fas fa-exchange-alt"></i>
+                    <span>Transaction List</span>
+                </a>
+            </li>
+
+            <li class="menu-item">
+                <a th:href="@{/staff/feedbacks}">
+                    <i class="fas fa-boxes"></i>
+                    <span>Feedback</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a th:href="@{/staff/issues/report}">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a th:href="@{/staff/customer-list}">
+                    <i class="fas fa-users"></i>
+                    <span>Users List</span>
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <span class="user-name" th:text="${userName}">John Staff</span>
+                    <span class="user-role" th:text="${userRole}">Staff</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="header-title">Staff Dashboard</h1>
+            </div>
+
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search storage units, items...">
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-info">
+                            <h3>Total Storage Units</h3>
+                            <div th:text="${totalStorages}"></div>
+                        </div>
+                        <div class="stat-icon storage">
+                            <i class="fas fa-warehouse"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-info">
+                            <h3>Total Users</h3>
+                            <div th:text="${totalUser}"></div>
+                        </div>
+                        <div class="stat-icon users">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-info">
+                            <h3>Total Orders</h3>
+                            <div th:text="${totalOrders}"></div>
+                        </div>
+                        <div class="stat-icon feedback">
+                            <i class="fas fa-comment"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-info">
+                            <h3>Monthly Revenue</h3>
+                            <div th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' VND'"></div>
+                        </div>
+                        <div class="stat-icon revenue">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Storage Units Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Storage Units Overview</h3>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <select class="select">
+                            <option value="">Filter By</option>
+                            <option value="name">Lọc theo tên</option>
+                            <option value="area">Lọc theo diện tích</option>
+                            <option value="price">Lọc theo giá</option>
+                            <option value="status">Lọc theo tình trạng</option>
+                            <option value="city">Lọc theo thành phố</option>
+                        </select>
+                        <a th:href="@{/staff/all-storage}" class="btn btn-secondary">View All</a>
+                        <a th:href="@{/staff/addstorage}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Add Unit
+                        </a>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Storage ID</th>
+                                <th>Tên Kho</th>
+                                <th>Giá thuê theo ngày</th>
+                                <th>Tình Trạng Kho</th>
+                                <th>Hành Động</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="storage : ${storages}">
+                                <td th:text="${storage.storageid}"></td>
+                                <td th:text="${storage.storagename}"></td>
+                                <td th:text="${storage.pricePerDay}"></td>
+                                <td th:text="${storage.status} ? 'Còn trống' : 'Đang thuê'"></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a th:href="@{/staff/storage-detail/{id}(id=${storage.storageid})}" class="btn-icon" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <form th:action="@{/staff/storages/{id}/delete(id=${storage.storageid})}" method="post" style="display:inline;">
+                                            <button type="submit" class="btn-icon danger" title="Delete" onclick="return confirm('Bạn chắc chắn muốn xoá?');">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Orders Overview</h3>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <select class="select">
+                            <option value="">Filter By</option>
+                            <option value="status">Lọc theo trạng thái</option>
+                            <option value="amount">Lọc theo tổng tiền</option>
+                            <option value="date">Lọc theo ngày</option>
+                            <option value="customer">Lọc theo khách hàng</option>
+                        </select>
+                        <a th:href="@{/staff/orders}" class="btn btn-secondary">View All</a>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Mã đơn hàng</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="order : ${orders}">
+                                <td th:text="${order.id}"></td>
+                                <td th:text="${order.totalAmount}"></td>
+                                <td th:text="${order.status}"></td>
+                                <td>
+                                    <a th:href="@{/staff/orders/{id}(id=${order.id})}" class="btn-icon" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Transaction Overview -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Giao Dịch Gần Đây</h3>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <select class="select">
+                        <option value="">Lọc theo</option>
+                        <option value="type">Loại giao dịch</option>
+                        <option value="date">Ngày</option>
+                        <option value="amount">Số tiền</option>
+                        <option value="storage">Kho</option>
+                    </select>
+                    <a th:href="@{/staff/transactions}" class="btn btn-secondary">Xem Tất Cả</a>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Loại</th>
+                            <th>Ngày giao dịch</th>
+                            <th>Số tiền</th>
+                            <th>Kho</th>
+                            <th>Khách hàng</th>
+                            <th>Hành động</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="trans : ${transactions}" th:if="${iterStat.index < 5}">
+                            <td th:text="${trans.id}"></td>
+                            <td th:text="${trans.type}"></td>
+                            <td th:text="${#temporals.format(trans.transactionDate, 'dd/MM/yyyy')}"></td>
+                            <td th:text="${#numbers.formatDecimal(trans.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+                            <td th:text="${trans.storage.storagename}"></td>
+                            <td th:text="${trans.customer.fullname}"></td>
+                            <td>
+                                <a th:href="@{/staff/transactions/detail/{id}(id=${trans.id})}" class="btn-icon" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+
+<script>
+    // Sidebar toggle functionality
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('collapsed');
+    }
+</script>
+</body>
+</html>

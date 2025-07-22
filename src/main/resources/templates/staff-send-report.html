@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -192,6 +192,24 @@
                           th:text="${customReport}"></textarea>
                 <div id="customReportError" class="error-message" style="display:none;"></div>
             </div>
+
+            <!-- Chọn khách hàng và staff cho issue mới -->
+            <div class="form-group">
+                <label for="customerId">Chọn khách hàng liên quan (tùy chọn):</label>
+                <select name="customerId" id="customerId">
+                    <option value="">-- Không có khách hàng (vấn đề nội bộ) --</option>
+                    <option th:each="customer : ${customers}" th:value="${customer.id}" th:text="${customer.fullname}"></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="assignedStaffId">Gán cho nhân viên:</label>
+                <select name="assignedStaffId" id="assignedStaffId">
+                    <option value="">-- Chọn nhân viên --</option>
+                    <option th:each="staff : ${staffs}" th:value="${staff.staffid}" th:text="${staff.fullname}"></option>
+                </select>
+            </div>
+
             <div class="report-hint">Có thể chọn cả hai: chọn vấn đề khách + nhập nội dung thêm.</div>
             <!-- Actions -->
             <div class="form-actions">

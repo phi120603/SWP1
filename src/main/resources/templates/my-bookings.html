@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,29 +10,7 @@
 <body>
 
 <!-- Sidebar -->
-<nav class="sidebar">
-  <div class="sidebar-header">
-    <div class="logo">
-      <i class="fas fa-database"></i>
-      <span>QVL Storage</span>
-    </div>
-  </div>
-  <ul class="sidebar-menu">
-    <li class="menu-item"><a href="/home-page"><i class="fas fa-home"></i><span>Trang chủ</span></a></li>
-    <li class="menu-item"><a href="/SWP/storages"><i class="fas fa-warehouse"></i><span>Danh sách kho</span></a></li>
-    <li class="menu-item active"><a href="/SWP/customers/my-bookings"><i class="fas fa-box"></i><span>Đơn hàng</span></a></li>
-    <li class="menu-item"><a href="/api/logout"><i class="fas fa-sign-out-alt"></i><span>Dăng xuất</span></a></li>
-  </ul>
-  <div class="sidebar-footer">
-    <div class="user-info">
-      <div class="user-avatar"><i class="fas fa-user"></i></div>
-      <div class="user-details">
-        <span class="user-name" th:text="${customer.fullname}">User Name</span>
-        <span class="user-role">Customer</span>
-      </div>
-    </div>
-  </div>
-</nav>
+<div th:replace="taskbar/customer-taskbar :: customerSidebar(${customer})"></div>
 
 <!-- Main Content -->
 <main class="main-content">
@@ -92,7 +70,7 @@
             <td th:text="${order.orderDate}"></td>
             <td>
               <div class="date-range">
-                <span th:text="'Bắt đầu: ' + ${order.startDate}"></span>
+                <span th:text="'Bắt đầu: ' + ${order.startDate}"></span><br/>
                 <span th:text="'Kết thúc: ' + ${order.endDate}"></span>
               </div>
             </td>
@@ -103,13 +81,17 @@
               </div>
             </td>
             <td>
-                <span class="status-badge"
-                      th:classappend="${order.status == 'PENDING' ? ' pending' : (order.status == 'CONFIRMED' ? ' confirmed' : (order.status == 'ACTIVE' ? ' active' : (order.status == 'COMPLETED' ? ' completed' : ' cancelled')))}"
-                      th:text="${order.status}">t
-                </span>
+              <span class="status-badge"
+                    th:classappend="${order.status == 'PENDING' ? ' pending' :
+                                     (order.status == 'CONFIRMED' ? ' confirmed' :
+                                     (order.status == 'ACTIVE' ? ' active' :
+                                     (order.status == 'COMPLETED' ? ' completed' : ' cancelled')))}"
+                    th:text="${order.status}">
+              </span>
             </td>
             <td>
-              <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')}">0</span>
+              <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 2, 'COMMA')} + ' VNĐ'">0</span>
+
               <span class="currency">VNĐ</span>
             </td>
             <td>
@@ -118,6 +100,13 @@
                  title="Xem chi tiết"
                  style="color: #4a6fa5; font-size: 18px;">
                 <i class="fas fa-eye"></i>
+              </a>
+               <a th:if="${order.eContract != null}"
+                      th:href="@{/econtract/view/{id}(id=${order.eContract.id})}"
+                 class="btn-action view"
+                 title="Xem hợp đồng"
+                 style="color: #4a6fa5; font-size: 18px; margin-left: 15px;">
+                <i class="fas fa-file-alt me-1"></i>
               </a>
             </td>
           </tr>

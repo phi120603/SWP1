@@ -1,8 +1,11 @@
 package com.example.swp.controller.website;
 
+import com.example.swp.annotation.LogActivity;
 import com.example.swp.entity.Voucher;
+import com.example.swp.entity.VoucherUsage;
 import com.example.swp.service.VoucherService;
 import com.example.swp.enums.VoucherStatus;
+import com.example.swp.service.VoucherUsageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +23,9 @@ public class VoucherController {
     @Autowired
     private VoucherService voucherService;
 
+    @Autowired
+    private VoucherUsageService voucherUsageService;
+
     @GetMapping("/staff/vouchers")
     public String showAllVoucherList(Model model) {
         List<Voucher> vouchers = voucherService.getAllVouchers();
@@ -33,6 +39,7 @@ public class VoucherController {
         return "add-voucher";
     }
 
+    @LogActivity(action = "Tạo voucher mới")
     @PostMapping("/staff/addvoucher")
     public String addVoucher(@ModelAttribute Voucher voucher, RedirectAttributes redirectAttributes) {
         try {
@@ -67,6 +74,7 @@ public class VoucherController {
         }
     }
 
+    @LogActivity(action = "Cập nhật voucher")
     @PostMapping("/staff/vouchers/{id}/edit")
     public String editVoucher(@PathVariable Integer id,
                               @ModelAttribute Voucher voucher,
@@ -96,6 +104,7 @@ public class VoucherController {
         return "redirect:/SWP/staff/vouchers";
     }
 
+    @LogActivity(action = "Xóa voucher")
     @PostMapping("/staff/vouchers/{id}/delete")
     public String deleteVoucher(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         try {
@@ -107,7 +116,7 @@ public class VoucherController {
         return "redirect:/SWP/staff/vouchers";
     }
 
-    @PostMapping("/vouchers/{id}/toggle-status")
+    @PostMapping("/staff/vouchers/{id}/toggle-status")
     public String toggleVoucherStatus(@PathVariable Integer id,
                                       @RequestParam(required = false) String returnUrl,
                                       RedirectAttributes redirectAttributes) {
@@ -128,4 +137,12 @@ public class VoucherController {
 
         return "redirect:" + (returnUrl != null ? returnUrl : "/SWP/staff/vouchers");
     }
+
+    @GetMapping("/staff/voucher-usage")
+    public String showVoucherUsageHistory(Model model) {
+        List<VoucherUsage> usageHistories = voucherUsageService.findAll();
+        model.addAttribute("usageHistories", usageHistories);
+        return "staff-voucher-usage";
+    }
+
 }

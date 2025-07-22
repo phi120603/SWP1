@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Chỉnh sửa nhân viên</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +7,22 @@
 
 </head>
 <body>
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <div class="navbar-content">
+        <div class="navbar-brand">
+            <a href="/home-page">
+                <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
+                     alt="QVL Storage Logo" class="navbar-logo">
+            </a>
+        </div>
+    </div>
+</nav>
+
 <div class="edit-card">
     <div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
     <h2>Chỉnh sửa thông tin nhân viên</h2>
-    <form th:action="@{'/SWP/staff-list/edit/' + ${staff.staffid}}" th:object="${staff}" method="post" class="edit-form">
+    <form th:action="@{'/admin/staff-list/edit/' + ${staff.staffid}}" th:object="${staff}" method="post" class="edit-form">
         <label for="fullname">Họ tên</label>
         <input type="text" th:field="*{fullname}" id="fullname" required/>
 
@@ -23,12 +35,12 @@
         <label for="idCitizenCard">CCCD</label>
         <input type="text" th:field="*{idCitizenCard}" id="idCitizenCard" required/>
 
-        <label for="roleName">Trạng thái</label>
-        <input type="text" id="roleName" required/>
+        <label for="roleName">Chức vụ</label>
+        <input type="text" th:field="*{roleName}" id="roleName" readonly />
 
         <div class="form-actions">
             <button type="submit">Lưu</button>
-            <a th:href="@{/SWP/staff-list}" class="cancel-link">Hủy</a>
+            <a th:href="@{/admin/staff-list}" class="cancel-link">Hủy</a>
         </div>
     </form>
 </div>

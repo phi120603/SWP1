@@ -7,6 +7,7 @@ import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.FeedbackRepository;
 import com.example.swp.repository.OrderRepository;
 import com.example.swp.repository.StorageRepository;
+import com.example.swp.service.ActivityLogService;
 import com.example.swp.service.FeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,19 +29,19 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Autowired
     private StorageRepository storageRepo;
+    @Autowired
+    private ActivityLogService activityLogService;
 
 
     @Override
     public void deleteFeedback(int id) {
         feedbackRepository.deleteById(id);
     }
+
     @Override
-    public boolean existsByCustomerAndStorage(Customer customer, Storage storage) {
-        return feedbackRepository.existsByCustomerAndStorage(customer, storage);
+    public boolean hasCustomerFeedbacked(int customerId, int storageId) {
+        return feedbackRepository.existsByCustomer_IdAndStorage_Storageid(customerId, storageId);
     }
-
-
-
     @Override
     public List<Feedback> getAllFeedbacks() {
         return feedbackRepository.findAll();
@@ -60,24 +61,32 @@ public class FeedbackServiceImpl implements FeedbackService {
     public List<Feedback> findByStorageId(int storageId) {
         return feedbackRepository.findByStorageStorageid(storageId);
     }
-
     @Override
     public Feedback save(Feedback feedback) {
         return feedbackRepository.save(feedback);
     }
-
-    @Override
-    public Feedback createOrUpdateFeedback(int storageId, int customerId, String content, int rating) {
-        return null;
-    }
-
     @Override
     public Feedback createFeedback(int storageId, int customerId, String content, int rating) {
-        return null;
+        Feedback feedback = new Feedback();
+        feedback.setCustomer(customerRepo.findById(customerId).orElseThrow());
+        feedback.setStorage(storageRepo.findById(storageId).orElseThrow());
+        feedback.setContent(content);
+        feedback.setRating(rating);
+        Feedback savedFeedback = feedbackRepository.save(feedback);
+
+        // Ghi nhật ký hoạt động
+        activityLogService.logActivity(
+                "Gửi phản hồi",
+                "Khách hàng " + savedFeedback.getCustomer().getFullname()
+                        + " gửi feedback cho kho #" + savedFeedback.getStorage().getStorageid()
+                        + " với nội dung: " + savedFeedback.getContent()
+                        + " - Đánh giá: " + savedFeedback.getRating() + "/5 sao",
+                savedFeedback.getCustomer(),
+                null, null, null, savedFeedback, null
+        );
+
+        return savedFeedback;
     }
 
-    @Override
-    public Optional<Feedback> findByCustomerAndStorage(Customer customer, Storage storage) {
-        return Optional.empty();
-    }
+
 }

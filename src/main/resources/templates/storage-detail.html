@@ -5,23 +5,12 @@
     <title>Chi tiết kho</title>
     <link rel="stylesheet" th:href="@{/css/storage-detail.css}">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 </head>
 <body>
 <!-- Navigation Bar -->
-<nav class="navbar">
-    <div class="navbar-content">
-        <div class="navbar-brand">
-            <a href="/home-page">
-                <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
-                     alt="QVL Storage Logo" class="navbar-logo">
-            </a>
-        </div>
-        <ul class="navbar-nav">
-            <li><a href="/home-page">Trang chủ</a></li>
-            <li><a href="/SWP/storages" class="active">Danh sách</a></li>
-        </ul>
-    </div>
-</nav>
+<div th:replace="taskbar/customer-navbar :: customerNavbar"></div>
 
 <div class="container">
     <!-- Hiển thị thông báo thành công -->
@@ -156,6 +145,7 @@
                 </p>
             </div>
 
+
             <div class="action-buttons">
                 <button type="button" class="booking-btn" onclick="openModal()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -170,7 +160,7 @@
         </div>
     </div>
 </div>
-!-- Booking Date Modal -->
+<!-- Booking Date Modal -->
 <div id="dateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md">
         <h2 class="text-xl font-semibold mb-4 text-gray-800">Chọn ngày thuê</h2>
@@ -190,6 +180,84 @@
         </form>
     </div>
 </div>
+<!-- ==== FEEDBACK FORM ==== -->
+<section class="mt-12 bg-white p-6 rounded shadow border border-gray-200">
+    <h2 class="text-xl font-semibold text-green-700 mb-4">Đánh giá kho</h2>
+
+    <!-- Thông báo -->
+    <div th:if="${message}" class="bg-green-100 text-green-800 px-4 py-2 rounded mb-4">
+        <span th:text="${message}"></span>
+    </div>
+    <div th:if="${error}" class="bg-red-100 text-red-800 px-4 py-2 rounded mb-4">
+        <span th:text="${error}"></span>
+    </div>
+
+    <!-- Nếu khách đủ điều kiện đánh giá -->
+    <div th:if="${canFeedback}">
+        <!-- Nếu chưa đánh giá -->
+        <div th:if="${!hasFeedbacked}">
+            <form th:action="@{/SWP/feedbacks/submit}" method="post" class="space-y-4">
+                <input type="hidden" name="storageId" th:value="${storage.storageid}" />
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Nội dung</label>
+                    <textarea name="content" rows="3" required
+                              class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-green-500 focus:border-green-500"
+                              placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Số sao</label>
+                    <select name="rating" required class="border border-gray-300 rounded px-3 py-2">
+                        <option value="" disabled selected>-- Chọn --</option>
+                        <option th:each="i : ${#numbers.sequence(1,5)}"
+                                th:value="${i}"
+                                th:text="${i} + ' sao'"></option>
+                    </select>
+                </div>
+
+                <button type="submit"
+                        class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded font-semibold">
+                    Gửi đánh giá
+                </button>
+            </form>
+        </div>
+
+        <!-- Nếu đã đánh giá -->
+        <div th:if="${hasFeedbacked}" class="text-green-700 italic mt-2">
+            Bạn đã gửi đánh giá cho kho này. Xin cảm ơn!
+        </div>
+    </div>
+
+    <!-- Nếu không đủ điều kiện đánh giá -->
+    <div th:unless="${canFeedback}" class="text-sm text-gray-500 italic mt-2">
+        Bạn cần hoàn tất đơn hàng với kho này để gửi đánh giá.
+    </div>
+</section>
+
+
+<!-- ==== FEEDBACK LIST ==== -->
+<section class="mt-10">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Đánh giá từ khách hàng khác</h3>
+
+    <div th:if="${feedbacks != null and !feedbacks.isEmpty()}" class="space-y-4">
+        <div th:each="fb : ${feedbacks}" class="bg-gray-50 p-4 rounded shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between mb-2">
+                <span class="font-semibold text-gray-700" th:text="${fb.customer.fullname}">Tên khách</span>
+                <!-- Sao hiển thị đúng số lượng -->
+                <div class="flex text-yellow-400 text-sm">
+                    <i class="fas fa-star mr-1" th:each="i : ${#numbers.sequence(1, fb.rating)}"></i>
+                </div>
+            </div>
+            <p class="text-gray-600 text-sm" th:text="${fb.content}">Nội dung đánh giá</p>
+        </div>
+    </div>
+
+    <div th:if="${feedbacks == null or feedbacks.isEmpty()}" class="text-gray-500 italic">
+        Chưa có đánh giá nào cho kho này.
+    </div>
+</section>
+
 
 <!-- Footer -->
 <footer class="footer">
@@ -273,5 +341,20 @@
         window.location.href = url;
     });
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const today = new Date().toISOString().split('T')[0];
+        const startInput = document.getElementById('startDate');
+        const endInput = document.getElementById('endDate');
+
+        startInput.setAttribute('min', today);
+        endInput.setAttribute('min', today);
+
+        startInput.addEventListener('change', function () {
+            endInput.setAttribute('min', startInput.value);
+        });
+    });
+</script>
+
 </body>
 </html>

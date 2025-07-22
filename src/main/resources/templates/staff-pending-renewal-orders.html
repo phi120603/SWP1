@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Danh sách đơn hàng sắp hết hạn (Nhân viên)</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Danh sách đơn hàng sắp hết hạn</h2>
+        <a th:href="@{/staff-dashboard}" class="btn btn-secondary">Quay lại Dashboard</a>
+    </div>
+
+    <form th:action="@{/staff/pending-renewal-orders}" method="get" class="form-inline mb-3">
+        <label class="mr-2" for="days">Lọc theo số ngày còn lại:</label>
+        <select name="days" id="days" class="form-control mr-2" onchange="this.form.submit()">
+            <option th:value="7" th:selected="${selectedDays == 7}">7 ngày</option>
+            <option th:value="5" th:selected="${selectedDays == 5}">5 ngày</option>
+            <option th:value="3" th:selected="${selectedDays == 3}">3 ngày</option>
+            <option th:value="1" th:selected="${selectedDays == 1}">1 ngày</option>
+        </select>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="thead-light">
+            <tr>
+                <th>ID Đơn hàng</th>
+                <th>Khách hàng</th>
+                <th>Ngày tạo</th>
+                <th>Ngày hết hạn</th>
+                <th>Tổng tiền (VNĐ)</th>
+                <th>Trạng thái</th>
+                <th>Ngày còn lại</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}">
+                <td th:text="${order.id}"></td>
+                <td>
+                    <span th:if="${order.customer != null}" th:text="${order.customer.fullname}"></span>
+                    <span th:if="${order.customer == null}">Không có khách</span>
+                </td>
+                <td th:text="${order.orderDate}"></td>
+                <td th:text="${order.endDate}"></td>
+                <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 2, 'POINT')}"></td>
+                <td th:text="${order.status}"></td>
+                <td th:text="${remainingDays[order.id]}"></td>
+                <td>
+                    <form th:action="@{/staff/pending-renewal-orders/send-warning}" method="post" th:object="${order}">
+                        <input type="hidden" name="orderId" th:value="${order.id}">
+                        <input type="hidden" name="days" th:value="${selectedDays}">
+                        <button type="submit" class="btn btn-warning btn-sm">Gửi email cảnh báo</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${param.emailSent}" class="alert alert-success">
+        Email cảnh báo đã được gửi thành công!
+    </div>
+</div>
+</body>
+</html>

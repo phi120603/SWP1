@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nhật ký hoạt động</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/manager-setting.css}">
+
+</head>
+<body>
+<div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
+
+<div class="container">
+
+    <div class="section user-info">
+        <h1>Thông tin người dùng</h1>
+
+        <div class="info-row">
+            <div class="label">Tên người dùng:</div>
+            <div class="value" th:text="${user}">Nguyễn Văn A</div>
+        </div>
+
+        <div class="info-row">
+            <div class="label">Email:</div>
+            <div class="value" th:text="${userName}">longsuper@gmail.com</div>
+        </div>
+
+        <div class="info-row">
+            <div class="label">Vai trò:</div>
+            <div class="value" th:text="${userRole}">MANAGER</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h1>Nhật ký hoạt động hệ thống</h1>
+        <div class="activity-list">
+            <a class="activity-card" th:href="@{/recent-activity/login}">
+                <div class="activity-icon"><i class="fas fa-sign-in-alt"></i></div>
+                <div class="activity-title">Đăng nhập gần đây</div>
+            </a>
+
+            <a class="activity-card" th:href="@{/recent-activity/voucher}">
+                <div class="activity-icon"><i class="fas fa-gift"></i></div>
+                <div class="activity-title">Lịch sử quản lý Voucher</div>
+            </a>
+
+            <a class="activity-card" th:href="@{/recent-activity/storage}">
+                <div class="activity-icon"><i class="fas fa-user-edit"></i></div>
+                <div class="activity-title">Lịch sử quản lý kho</div>
+            </a>
+
+            <a class="activity-card" th:href="@{/recent-activity/order}">
+                <div class="activity-icon"><i class="fas fa-shopping-cart"></i></div>
+                <div class="activity-title">Lịch sử quản lý đơn hàng</div>
+            </a>
+
+            <a class="activity-card" th:href="@{/recent-activity/general}">
+                <div class="activity-icon"><i class="fas fa-list"></i></div>
+                <div class="activity-title">Tất cả hoạt động</div>
+            </a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

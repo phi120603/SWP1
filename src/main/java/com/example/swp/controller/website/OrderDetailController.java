@@ -64,13 +64,7 @@ public class OrderDetailController {
             order.setStatus("Approved");
             orderService.save(order);
 
-            StorageTransaction transaction = new StorageTransaction();
-            transaction.setCustomer(order.getCustomer());
-            transaction.setStorage(order.getStorage());
-            transaction.setType("RENT"); // hoặc “EXPORT” tùy loại
-            transaction.setTransactionDate(LocalDateTime.now());
 
-            storageTransactionRepository.save(transaction);
 
 
             // Gửi email xác nhận cho khách hàng

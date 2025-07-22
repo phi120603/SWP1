@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ký hợp đồng thành công</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"/>
+    <style>
+        /* Common styles */
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success-color: #059669;
+            --success-light: #ecfdf5;
+            --success-border: #a7f3d0;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --border-radius: 16px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 25%, #dcfce7 50%, #bbf7d0 75%, #a7f3d0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background elements */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                    radial-gradient(circle at 20% 80%, rgba(5, 150, 105, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 40%, rgba(5, 150, 105, 0.05) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { transform: translateX(0px) translateY(0px); }
+            33% { transform: translateX(-20px) translateY(-10px); }
+            66% { transform: translateX(20px) translateY(10px); }
+        }
+
+        .success-page {
+            padding: 2rem 1rem;
+            width: 100%;
+            max-width: 700px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .success-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+            animation: slideUp 0.8s ease-out;
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .success-header {
+            background: linear-gradient(135deg, var(--success-color) 0%, #047857 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .success-header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+            animation: shimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% {
+                transform: translateX(-100%) translateY(-100%) rotate(0deg);
+            }
+            50% {
+                transform: translateX(0%) translateY(0%) rotate(180deg);
+            }
+        }
+
+        .success-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            display: block;
+            animation: bounce 2s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-15px) scale(1.1); }
+        }
+
+        .success-title {
+            color: white;
+            margin: 0;
+            font-size: 2.25rem;
+            font-weight: 800;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .success-body {
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .contract-details {
+            background: linear-gradient(135deg, var(--success-light) 0%, #f0fdf4 100%);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 2px solid var(--success-border);
+            border-left: 6px solid var(--success-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contract-details::before {
+            content: "✅";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 3rem;
+            opacity: 0.1;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .contract-details h4 {
+            color: var(--success-color);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .contract-code-display {
+            font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            border: 3px solid var(--primary-color);
+            display: inline-block;
+            margin: 1rem 0;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contract-code-display::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.1), transparent);
+            animation: slideCode 3s ease-in-out infinite;
+        }
+
+        @keyframes slideCode {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: -100%; }
+        }
+
+        .success-message {
+            font-size: 1.25rem;
+            color: var(--gray-700);
+            line-height: 1.7;
+            margin: 2rem 0;
+            font-weight: 500;
+        }
+
+        .success-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .return-button {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            color: white;
+            border: none;
+            padding: 1.25rem 3rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: var(--shadow-lg);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .return-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .return-button:hover::before {
+            left: 100%;
+        }
+
+        .return-button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+            text-decoration: none;
+            color: white;
+        }
+
+        .secondary-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .secondary-button {
+            background: white;
+            color: var(--gray-700);
+            border: 2px solid var(--gray-300);
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .secondary-button:hover {
+            background: var(--gray-50);
+
+            transform: translateY(-2px);
+            text-decoration: none;
+            color: var(--gray-700);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Confetti animation */
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--success-color);
+            animation: confetti-fall 4s linear infinite;
+        }
+
+        .confetti-piece:nth-child(odd) {
+            background: var(--primary-color);
+            animation-delay: -1s;
+        }
+
+        .confetti-piece:nth-child(3n) {
+            background: #fbbf24;
+            animation-delay: -2s;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Floating elements */
+        .floating-element {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-element:nth-child(1) {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-element:nth-child(2) {
+            top: 20%;
+            right: 10%;
+            animation-delay: -2s;
+        }
+
+        .floating-element:nth-child(3) {
+            bottom: 20%;
+            left: 15%;
+            animation-delay: -4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .success-page {
+                padding: 1rem 0.75rem;
+            }
+
+            .success-header {
+                padding: 2rem 1.5rem;
+            }
+
+            .success-title {
+                font-size: 1.75rem;
+            }
+
+            .success-icon {
+                font-size: 4rem;
+            }
+
+            .success-body {
+                padding: 2rem 1.5rem;
+            }
+
+            .contract-code-display {
+                font-size: 1.25rem;
+                padding: 0.75rem 1rem;
+            }
+
+            .secondary-actions {
+                flex-direction: column;
+            }
+
+            .return-button,
+            .secondary-button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .success-message {
+                font-size: 1.125rem;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .confetti,
+            .floating-element {
+                display: none;
+            }
+
+            .success-card {
+                box-shadow: none;
+                border: 1px solid var(--gray-300);
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Floating decorative elements -->
+<div class="floating-element">🎉</div>
+<div class="floating-element">✅</div>
+<div class="floating-element">📄</div>
+
+<!-- Confetti container -->
+<div class="confetti" id="confetti"></div>
+
+<div class="success-page">
+    <div class="success-card">
+        <div class="success-header">
+            <span class="success-icon">🎉</span>
+            <h1 class="success-title">Ký hợp đồng thành công!</h1>
+        </div>
+
+        <div class="success-body">
+            <div class="contract-details">
+                <h4>Thông tin hợp đồng</h4>
+                <div class="contract-code-display" th:text="${contract.contractCode}">HD-XXXXXX</div>
+            </div>
+
+            <p class="success-message">
+                🎊 Chúc mừng! Bạn đã hoàn tất việc ký hợp đồng thuê kho thành công.
+                <br><br>
+                📞 Chúng tôi sẽ liên hệ lại với bạn trong vòng <strong>24 giờ</strong> để xác nhận và hướng dẫn các bước tiếp theo.
+                <br><br>
+                📧 Email xác nhận đã được gửi đến hộp thư của bạn.
+            </p>
+
+            <div class="success-actions">
+                <a th:href="@{/SWP/customers/my-bookings}" class="return-button">
+                    🏠 Quay lại đơn hàng của tôi
+                </a>
+
+                <div class="secondary-actions">
+                    <a href="#" class="secondary-button">
+                        📄 Xem hợp đồng
+                    </a>
+                    <a href="#" class="secondary-button">
+                        📞 Liên hệ hỗ trợ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Create confetti effect
+        function createConfetti() {
+            const confettiContainer = document.getElementById('confetti');
+            const colors = ['#059669', '#2563eb', '#fbbf24', '#ef4444', '#8b5cf6'];
+
+            for (let i = 0; i < 50; i++) {
+                const confettiPiece = document.createElement('div');
+                confettiPiece.className = 'confetti-piece';
+                confettiPiece.style.left = Math.random() * 100 + '%';
+                confettiPiece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confettiPiece.style.animationDelay = Math.random() * 3 + 's';
+                confettiPiece.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confettiContainer.appendChild(confettiPiece);
+            }
+
+            // Remove confetti after animation
+            setTimeout(() => {
+                confettiContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        // Start confetti animation
+        createConfetti();
+
+        // Add click effects to buttons
+        const buttons = document.querySelectorAll('.return-button, .secondary-button');
+        buttons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(255, 255, 255, 0.3)';
+                ripple.style.transform = 'scale(0)';
+                ripple.style.animation = 'ripple 0.6s linear';
+                ripple.style.pointerEvents = 'none';
+
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Add CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+                @keyframes ripple {
+                    to {
+                        transform: scale(4);
+                        opacity: 0;
+                    }
+                }
+            `;
+        document.head.appendChild(style);
+    });
+</script>
+</body>
+</html>

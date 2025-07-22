@@ -80,6 +80,9 @@ public class Customer implements UserDetails {
     @OneToMany
     private List<WishList> wishLists;
 
+    @Column(name = "points")
+    private Integer points = 5;
+
     // UserDetails methods
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

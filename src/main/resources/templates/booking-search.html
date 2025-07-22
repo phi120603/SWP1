@@ -10,22 +10,7 @@
 <body>
 <div class="page-wrapper">
     <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <div class="navbar-brand">
-                <a href="/home-page">
-                    <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
-                         alt="QVL Storage Logo" class="navbar-logo">
-                </a>
-            </div>
-            <ul class="navbar-nav">
-                <li><a href="/home-page">Trang chủ</a></li>
-                <li><a href="/SWP/storages">Danh sách</a></li>
-                <li><a href="/SWP/booking/search" class="active">Đặt kho</a></li>
-            </ul>
-
-        </div>
-    </nav>
+    <div th:replace="taskbar/customer-navbar :: customerNavbar"></div>
 
     <!-- Hero Section -->
     <div class="hero-section">
@@ -36,7 +21,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="container">
+    <div class="container" style="width: 1500px;">
         <div class="search-section">
             <div class="search-card">
                 <form th:action="@{/SWP/booking/search/result}" method="get" th:object="${order}" class="search-form">
@@ -102,11 +87,8 @@
                     <div class="brand-header">
                         <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
                              alt="QVL Storage Logo" class="footer-logo">
-                        <h2 class="brand-name">QVL Storage</h2>
                     </div>
-                    <p class="brand-description">
-                        Hệ thống cho thuê kho hàng chuyên nghiệp trên toàn quốc. Chúng tôi cung cấp giải pháp lưu trữ an toàn, tiện lợi và hiệu quả cho mọi nhu cầu kinh doanh.
-                    </p>
+                    <p class="brand-description">Hệ thống cho thuê kho hàng chuyên nghiệp trên toàn quốc.</p>
                 </div>
                 <div class="footer-column">
                     <h3>Về chúng tôi</h3>
@@ -135,5 +117,14 @@
             </div>
             <div class="footer-divider"></div>
             <div class="footer-bottom">
-                <p class="copyright">Bản quyền ©2024. Tất cả quyền được bảo lưu. — QVL Storage System</p>
+                <p class="copyright">© 2025 QVL STORAGE. All rights reserved.</p>
                 <ul class="footer-bottom-links">
+                    <li><a href="#">Điều khoản & Điều kiện</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

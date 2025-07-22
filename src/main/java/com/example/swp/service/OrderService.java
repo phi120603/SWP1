@@ -45,7 +45,11 @@ public interface OrderService {
 
     double getRemainArea(int storageId, LocalDate startDate, LocalDate endDate);
 
-    // ✅ Sửa lỗi tại đây
+
     List<Order> getLast5orders();
+    Optional<Order> findOrderByCustomerAndStorage(int customerId, int storageId);
+
+    boolean canCustomerFeedback(int customerId, int storageId);
+    void markOrderAsPaid(int orderId);
 
 }

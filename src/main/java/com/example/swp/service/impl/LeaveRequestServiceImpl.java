@@ -57,6 +57,23 @@ public class LeaveRequestServiceImpl implements LeaveRequestService {
     }
 
     @Override
+    public List<LeaveRequest> getAllRequests() {
+        return leaveRequestRepository.findAll();  // ✅ Load tất cả đơn nghỉ phép
+    }
+
+    @Override
+    public List<LeaveRequest> getRequestsByStatus(String status) {
+        LeaveRequest.Status enumStatus;
+        try {
+            enumStatus = LeaveRequest.Status.valueOf(status);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Trạng thái không hợp lệ: " + status);
+        }
+        return leaveRequestRepository.findByStatus(enumStatus);
+    }
+
+
+    @Override
     public LeaveRequest approveRequest(Long id, String managerNote) {
         LeaveRequest req = leaveRequestRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn nghỉ phép"));

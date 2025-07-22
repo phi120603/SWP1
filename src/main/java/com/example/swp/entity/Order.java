@@ -42,6 +42,10 @@ public class Order {
         private Customer customer;
 
         @ManyToOne
+        @JoinColumn(name = "voucher_id") // tên cột foreign key trong bảng orders
+        private Voucher voucher;
+
+        @ManyToOne
         @JoinColumn(name = "staff_id")
         @JsonIgnore
         private Staff staff;
@@ -58,14 +62,17 @@ public class Order {
         @Column(length = 500) // Tùy nhu cầu, có thể dài/ngắn hơn
         private String cancelReason;
 
-        @Column(nullable = false)
-        private Double rentalArea; // diện tích khách muốn thuê
+        @Column(nullable = true)
+        private Double rentalArea;
 
+        @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+        private EContract eContract;
 
-
-
-
-
+        public Order(int id) {
+                this.id = id;
+        }
 }
+
+
 
 

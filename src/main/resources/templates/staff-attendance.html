@@ -1,122 +1,574 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Staff Attendance</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 30px;
-        }
-
-        button {
-            margin: 5px 0 15px 0;
-            padding: 8px 18px;
-            font-size: 16px;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 70%;
-            margin-top: 15px;
-        }
-
-        th, td {
-            border: 1px solid #aaa;
-            padding: 8px 12px;
-            text-align: center;
-        }
-
-        th {
-            background: #eee;
-        }
-
-        #msg {
-            color: green;
-            margin: 8px 0;
-        }
-
-        .error {
-            color: red;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhân viên chấm công</title>
+    <link rel="stylesheet" href="/staff-attendance.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-<h2>Chấm Công Nhân Viên</h2>
-<button onclick="checkIn()">Check-in</button>
-<button onclick="checkOut()">Check-out</button>
-<div id="msg"></div>
-<h3>Lịch Sử Chấm Công</h3>
-<table>
-    <thead>
-    <tr>
-        <th>Ngày</th>
-        <th>Giờ vào</th>
-        <th>Giờ ra</th>
-    </tr>
-    </thead>
-    <tbody id="attendance-body">
-    </tbody>
-</table>
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-database"></i>
+            <span>QVL Storage</span>
+        </div>
+    </div>
+    <ul class="sidebar-menu">
+        <li class="menu-item">
+            <a href="/SWP"><i class="fas fa-home"></i><span>Trang chủ</span></a>
+        </li>
+        <li class="menu-item active">
+            <a href="/SWP/attendance"><i class="fas fa-clock"></i><span>Chấm công</span></a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/leave-request"><i class="fas fa-calendar-alt"></i><span>Xin nghỉ phép</span></a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/profile"><i class="fas fa-user"></i><span>Hồ sơ</span></a>
+        </li>
+    </ul>
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar"><i class="fas fa-user"></i></div>
+            <div class="user-details">
+                <span class="user-name">Nhân viên</span>
+                <span class="user-role">Employee</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <h1>Chấm công bảo mật</h1>
+        </div>
+        <div class="header-right">
+            <div class="current-time">
+                <i class="fas fa-clock"></i>
+                <span id="currentTime">--:--:--</span>
+            </div>
+            <div class="security-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span>OTP Secured</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="page-content">
+        <!-- Page Header -->
+        <div class="page-header">
+        </div>
+
+        <!-- Status Cards -->
+        <div class="status-container">
+            <div class="status-card">
+                <div class="status-icon today"><i class="fas fa-calendar-day"></i></div>
+                <div class="status-info">
+                    <h3>Hôm nay</h3>
+                    <p id="todayStatus">Chưa check-in</p>
+                </div>
+            </div>
+            <div class="status-card">
+                <div class="status-icon checkin"><i class="fas fa-sign-in-alt"></i></div>
+                <div class="status-info">
+                    <h3>Giờ vào</h3>
+                    <p id="checkinTime">--:--</p>
+                </div>
+            </div>
+            <div class="status-card">
+                <div class="status-icon checkout"><i class="fas fa-sign-out-alt"></i></div>
+                <div class="status-info">
+                    <h3>Giờ ra</h3>
+                    <p id="checkoutTime">--:--</p>
+                </div>
+            </div>
+            <div class="status-card">
+                <div class="status-icon hours"><i class="fas fa-hourglass-half"></i></div>
+                <div class="status-info">
+                    <h3>Giờ làm việc</h3>
+                    <p id="workingHours">0h 0m</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Actions -->
+        <div class="attendance-card">
+            <div class="attendance-header">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Chấm công với OTP</h3>
+                <p>Sử dụng mã OTP để xác thực chấm công an toàn</p>
+            </div>
+
+            <div class="attendance-actions">
+                <!-- Check-in Button -->
+                <button class="btn-checkin" onclick="requestOtp()" id="requestOtpBtn">
+                    <i class="fas fa-key"></i>
+                    <span>Gửi mã OTP Check-in</span>
+                </button>
+
+                <!-- OTP Form -->
+                <div class="otp-form" id="otp-form" style="display:none;">
+                    <div class="otp-header">
+                        <i class="fas fa-envelope"></i>
+                        <h4>Nhập mã OTP</h4>
+                        <p>Mã xác thực đã được gửi đến email của bạn</p>
+                    </div>
+                    <div class="otp-input-container">
+                        <input type="text" id="otp-input" placeholder="Nhập mã OTP 6 số" maxlength="6" class="otp-input">
+                        <div class="otp-timer">
+                            <i class="fas fa-clock"></i>
+                            <span id="otpTimer">Mã có hiệu lực trong <strong>5:00</strong></span>
+                        </div>
+                    </div>
+                    <div class="otp-actions">
+                        <button class="btn-confirm" onclick="confirmOtp()" id="confirmOtpBtn">
+                            <i class="fas fa-check"></i> Xác nhận Check-in
+                        </button>
+                        <button class="btn-cancel" onclick="cancelOtp()">
+                            <i class="fas fa-times"></i> Hủy
+                        </button>
+                    </div>
+                    <button class="btn-resend" onclick="resendOtp()" id="resendBtn" disabled>
+                        <i class="fas fa-redo"></i> Gửi lại mã OTP
+                    </button>
+                </div>
+
+                <!-- Check-out Button -->
+                <button class="btn-checkout" onclick="checkOut()" id="checkoutBtn" disabled>
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Check-out</span>
+                </button>
+            </div>
+
+            <!-- Message Display -->
+            <div id="messageContainer" class="message-container" style="display: none;">
+                <div id="msg" class="message"></div>
+            </div>
+        </div>
+
+        <!-- Attendance History -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-history"></i> Lịch sử chấm công</h3>
+                <div class="card-actions">
+                    <select id="monthFilter" class="filter-select" onchange="filterByMonth()">
+                        <option value="">Tất cả tháng</option>
+                    </select>
+                    <button class="btn-secondary" onclick="exportHistory()">
+                        <i class="fas fa-download"></i> Xuất
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading-state" id="loadingState" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Đang tải lịch sử chấm công...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="fas fa-calendar-times"></i>
+                <h3>Chưa có dữ liệu chấm công</h3>
+                <p>Lịch sử chấm công sẽ hiển thị ở đây sau khi bạn check-in</p>
+            </div>
+
+            <!-- History Table -->
+            <div class="table-container" id="tableContainer">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Ngày</th>
+                        <th>Giờ vào</th>
+                        <th>Giờ ra</th>
+                        <th>Tổng giờ</th>
+                        <th>Trạng thái</th>
+                        <th>Xác thực</th>
+                    </tr>
+                    </thead>
+                    <tbody id="attendance-body">
+                    <tr><td colspan="6" class="loading-cell">Đang tải...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="summary-stats" id="summaryStats" style="display: none;">
+                <div class="summary-item">
+                    <span class="summary-label">Tổng ngày làm việc:</span>
+                    <span class="summary-value" id="totalWorkDays">0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Tổng giờ làm việc:</span>
+                    <span class="summary-value" id="totalWorkHours">0h 0m</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
 <script>
-    function showMsg(text, error = false) {
-        let msg = document.getElementById("msg");
-        msg.textContent = text;
-        msg.className = error ? "error" : "";
-        setTimeout(() => msg.textContent = "", 3000);
+    let attendanceHistory = [];
+    let otpTimer = null;
+    let otpTimeLeft = 300;
+    let todayAttendance = null;
+
+    // Update current time
+    function updateCurrentTime() {
+        const now = new Date();
+        document.getElementById('currentTime').textContent = now.toLocaleTimeString('vi-VN', {
+            hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+    }
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 1000);
+
+    // Populate month filter
+    function populateMonthFilter() {
+        const monthFilter = document.getElementById('monthFilter');
+        const currentDate = new Date();
+        for (let i = 0; i < 6; i++) {
+            const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+            const option = document.createElement('option');
+            option.value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            option.textContent = date.toLocaleDateString('vi-VN', { year: 'numeric', month: 'long' });
+            monthFilter.appendChild(option);
+        }
     }
 
-    function checkIn() {
-        fetch('/api/attendance/checkin', {method: 'POST'})
+    function showMsg(text, error = false) {
+        const messageContainer = document.getElementById('messageContainer');
+        const msg = document.getElementById('msg');
+        msg.className = `message ${error ? 'error' : 'success'}`;
+        msg.innerHTML = `<i class="fas ${error ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${text}`;
+        messageContainer.style.display = 'block';
+        setTimeout(() => messageContainer.style.display = 'none', 5000);
+    }
+
+    function updateStatusCards() {
+        const todayStatusEl = document.getElementById('todayStatus');
+        const checkinTimeEl = document.getElementById('checkinTime');
+        const checkoutTimeEl = document.getElementById('checkoutTime');
+        const workingHoursEl = document.getElementById('workingHours');
+
+        if (todayAttendance) {
+            if (todayAttendance.checkInTime && todayAttendance.checkOutTime) {
+                todayStatusEl.textContent = 'Đã hoàn thành';
+            } else if (todayAttendance.checkInTime) {
+                todayStatusEl.textContent = 'Đang làm việc';
+            }
+            checkinTimeEl.textContent = todayAttendance.checkInTime ? formatTime(todayAttendance.checkInTime) : '--:--';
+            checkoutTimeEl.textContent = todayAttendance.checkOutTime ? formatTime(todayAttendance.checkOutTime) : '--:--';
+            if (todayAttendance.checkInTime) {
+                workingHoursEl.textContent = calculateWorkingHours(todayAttendance.checkInTime, todayAttendance.checkOutTime);
+            }
+        } else {
+            todayStatusEl.textContent = 'Chưa check-in';
+            checkinTimeEl.textContent = '--:--';
+            checkoutTimeEl.textContent = '--:--';
+            workingHoursEl.textContent = '0h 0m';
+        }
+    }
+
+    function requestOtp() {
+        const btn = document.getElementById('requestOtpBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+
+        fetch('/api/attendance/request-checkin-otp', {method: 'POST'})
             .then(r => {
-                if (!r.ok) throw new Error("Không thể check-in.");
+                if (!r.ok) throw new Error("Không thể gửi mã OTP.");
+                return r.text();
+            })
+            .then(() => {
+                showMsg("Đã gửi mã OTP, vui lòng kiểm tra email.");
+                document.getElementById("otp-form").style.display = "block";
+                startOtpTimer();
+                btn.style.display = 'none';
+            })
+            .catch(e => {
+                showMsg(e.message, true);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-key"></i> Gửi mã OTP Check-in';
+            });
+    }
+
+    function startOtpTimer() {
+        otpTimeLeft = 300;
+        const timerElement = document.getElementById('otpTimer');
+        const resendBtn = document.getElementById('resendBtn');
+        resendBtn.disabled = true;
+
+        otpTimer = setInterval(() => {
+            const minutes = Math.floor(otpTimeLeft / 60);
+            const seconds = otpTimeLeft % 60;
+            timerElement.innerHTML = `Mã có hiệu lực trong <strong>${minutes}:${seconds.toString().padStart(2, '0')}</strong>`;
+
+            if (otpTimeLeft <= 0) {
+                clearInterval(otpTimer);
+                timerElement.innerHTML = 'Mã OTP đã hết hạn';
+                resendBtn.disabled = false;
+                document.getElementById('confirmOtpBtn').disabled = true;
+            }
+            otpTimeLeft--;
+        }, 1000);
+    }
+
+    function confirmOtp() {
+        let otp = document.getElementById("otp-input").value.trim();
+        if (!otp) {
+            showMsg("Vui lòng nhập mã OTP.", true);
+            return;
+        }
+
+        const btn = document.getElementById('confirmOtpBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xác thực...';
+
+        fetch('/api/attendance/confirm-checkin-otp?otp=' + encodeURIComponent(otp), {method: 'POST'})
+            .then(r => {
+                if (!r.ok) throw new Error("OTP không đúng hoặc đã hết hạn.");
                 return r.json();
             })
             .then(() => {
-                showMsg("Check-in thành công!");
+                showMsg("Check-in thành công! Chúc bạn một ngày làm việc hiệu quả.");
+                cancelOtp();
                 loadHistory();
             })
-            .catch(e => showMsg(e.message, true));
+            .catch(e => {
+                showMsg(e.message, true);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> Xác nhận Check-in';
+            });
     }
 
+    function cancelOtp() {
+        document.getElementById("otp-form").style.display = "none";
+        document.getElementById('requestOtpBtn').style.display = 'block';
+        document.getElementById('requestOtpBtn').disabled = false;
+        document.getElementById("otp-input").value = '';
+        clearInterval(otpTimer);
+    }
+
+    function resendOtp() { requestOtp(); }
+
     function checkOut() {
+        const btn = document.getElementById('checkoutBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+
         fetch('/api/attendance/checkout', {method: 'POST'})
             .then(r => {
                 if (!r.ok) throw new Error("Không thể check-out.");
                 return r.json();
             })
             .then(() => {
-                showMsg("Check-out thành công!");
+                showMsg("Check-out thành công! Cảm ơn bạn đã hoàn thành công việc hôm nay.");
                 loadHistory();
             })
-            .catch(e => showMsg(e.message, true));
+            .catch(e => {
+                showMsg(e.message, true);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Check-out';
+            });
     }
 
     function loadHistory() {
+        document.getElementById('loadingState').style.display = 'block';
+        document.getElementById('tableContainer').style.display = 'none';
+
         fetch('/api/attendance/history')
             .then(r => {
                 if (!r.ok) throw new Error("Không thể tải lịch sử chấm công.");
                 return r.json();
             })
             .then(list => {
-                let html = "";
-                for (let att of list) {
-                    let inTime = att.checkInTime ? att.checkInTime.replace('T', ' ').substring(0, 16) : "";
-                    let outTime = att.checkOutTime ? att.checkOutTime.replace('T', ' ').substring(0, 16) : "";
-                    let date = inTime ? inTime.substring(0, 10) : "";
-                    html += `<tr>
-                            <td>${date}</td>
-                            <td>${inTime.substring(11)}</td>
-                            <td>${outTime.substring(11)}</td>
-                        </tr>`;
-                }
-                document.getElementById("attendance-body").innerHTML = html;
+                attendanceHistory = list;
+                renderAttendanceTable(list);
+                updateTodayAttendance(list);
+                updateStatusCards();
+                updateAttendanceButtons();
+                calculateSummaryStats(list);
             })
-            .catch(e => showMsg(e.message, true));
+            .catch(e => {
+                showMsg(e.message, true);
+                document.getElementById("attendance-body").innerHTML = "<tr><td colspan='6' class='error-cell'>Không thể tải dữ liệu</td></tr>";
+            })
+            .finally(() => {
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('tableContainer').style.display = 'block';
+            });
     }
 
-    // Tải lịch sử khi vào trang
-    window.onload = loadHistory;
+    function updateTodayAttendance(list) {
+        const today = new Date().toLocaleDateString('vi-VN');
+        todayAttendance = list.find(att => {
+            if (!att.checkInTime) return false;
+            const date = new Date(att.checkInTime).toLocaleDateString('vi-VN');
+            return date === today;
+        });
+    }
+
+
+    function updateAttendanceButtons() {
+        const requestBtn = document.getElementById('requestOtpBtn');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+
+        if (todayAttendance) {
+            if (todayAttendance.checkInTime && !todayAttendance.checkOutTime) {
+                requestBtn.disabled = true;
+                checkoutBtn.disabled = false;
+            } else if (todayAttendance.checkInTime && todayAttendance.checkOutTime) {
+                requestBtn.disabled = true;
+                checkoutBtn.disabled = true;
+            }
+        } else {
+            requestBtn.disabled = false;
+            checkoutBtn.disabled = true;
+        }
+    }
+
+    function renderAttendanceTable(list) {
+        const tbody = document.getElementById("attendance-body");
+
+        if (list.length === 0) {
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('tableContainer').style.display = 'none';
+            return;
+        }
+
+        document.getElementById('emptyState').style.display = 'none';
+        let html = "";
+        list.forEach(att => {
+            const date = att.checkInTime ? att.checkInTime.split('T')[0] : '';
+            const inTime = att.checkInTime ? formatTime(att.checkInTime) : '--:--';
+            const outTime = att.checkOutTime ? formatTime(att.checkOutTime) : '--:--';
+            const totalHours = calculateWorkingHours(att.checkInTime, att.checkOutTime);
+            const status = getAttendanceStatus(att);
+
+            html += `
+                <tr>
+                    <td>${formatDate(date)}</td>
+                    <td><span class="time-badge checkin">${inTime}</span></td>
+                    <td><span class="time-badge ${att.checkOutTime ? 'checkout' : 'pending'}">${outTime}</span></td>
+                    <td><span class="hours-badge">${totalHours}</span></td>
+                    <td>${status}</td>
+                    <td><span class="security-badge"><i class="fas fa-shield-alt"></i> OTP</span></td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function formatTime(dateTimeString) {
+        if (!dateTimeString) return '--:--';
+        return new Date(dateTimeString).toLocaleTimeString('vi-VN', { hour12: false, hour: '2-digit', minute: '2-digit' });
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return '--/--/----';
+        return new Date(dateString).toLocaleDateString('vi-VN');
+    }
+
+    function calculateWorkingHours(checkIn, checkOut) {
+        if (!checkIn) return '0h 0m';
+        const inTime = new Date(checkIn);
+        const outTime = checkOut ? new Date(checkOut) : new Date();
+        const diffMs = outTime - inTime;
+        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        return `${hours}h ${minutes}m`;
+    }
+
+    function getAttendanceStatus(att) {
+        if (att.checkInTime && att.checkOutTime) {
+            return '<span class="status-badge completed"><i class="fas fa-check"></i> Hoàn thành</span>';
+        } else if (att.checkInTime) {
+            return '<span class="status-badge working"><i class="fas fa-clock"></i> Đang làm việc</span>';
+        } else {
+            return '<span class="status-badge absent"><i class="fas fa-times"></i> Vắng mặt</span>';
+        }
+    }
+
+    function calculateSummaryStats(list) {
+        const summaryStats = document.getElementById('summaryStats');
+        if (list.length === 0) {
+            summaryStats.style.display = 'none';
+            return;
+        }
+
+        const completedDays = list.filter(att => att.checkInTime && att.checkOutTime);
+        let totalMinutes = 0;
+        completedDays.forEach(att => {
+            const diffMs = new Date(att.checkOutTime) - new Date(att.checkInTime);
+            totalMinutes += Math.floor(diffMs / (1000 * 60));
+        });
+
+        const totalHours = Math.floor(totalMinutes / 60);
+        const remainingMinutes = totalMinutes % 60;
+
+        document.getElementById('totalWorkDays').textContent = completedDays.length;
+        document.getElementById('totalWorkHours').textContent = `${totalHours}h ${remainingMinutes}m`;
+        summaryStats.style.display = 'flex';
+    }
+
+    function filterByMonth() {
+        const selectedMonth = document.getElementById('monthFilter').value;
+        if (!selectedMonth) {
+            renderAttendanceTable(attendanceHistory);
+            calculateSummaryStats(attendanceHistory);
+            return;
+        }
+        const filteredHistory = attendanceHistory.filter(att =>
+            att.checkInTime && att.checkInTime.substring(0, 7) === selectedMonth
+        );
+        renderAttendanceTable(filteredHistory);
+        calculateSummaryStats(filteredHistory);
+    }
+
+    function exportHistory() {
+        let csv = 'Ngày,Giờ vào,Giờ ra,Tổng giờ,Trạng thái,Xác thực\n';
+        attendanceHistory.forEach(att => {
+            const date = att.checkInTime ? att.checkInTime.split('T')[0] : '';
+            const inTime = att.checkInTime ? formatTime(att.checkInTime) : '';
+            const outTime = att.checkOutTime ? formatTime(att.checkOutTime) : '';
+            const totalHours = calculateWorkingHours(att.checkInTime, att.checkOutTime);
+            const status = att.checkInTime && att.checkOutTime ? 'Hoàn thành' :
+                att.checkInTime ? 'Đang làm việc' : 'Vắng mặt';
+            csv += `${formatDate(date)},${inTime},${outTime},${totalHours},${status},OTP Verified\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'cham-cong-otp.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+
+    // OTP input formatting
+    document.getElementById('otp-input').addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        document.getElementById('confirmOtpBtn').disabled = this.value.length !== 6;
+    });
+
+    // Sidebar toggle
+    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('open');
+    });
+
+    // Initialize
+    populateMonthFilter();
+    loadHistory();
 </script>
 </body>
 </html>

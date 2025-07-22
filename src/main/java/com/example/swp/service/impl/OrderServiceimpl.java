@@ -5,19 +5,25 @@ import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Customer;
 import com.example.swp.entity.Order;
 import com.example.swp.entity.Storage;
+import com.example.swp.entity.StorageTransaction;
+import com.example.swp.enums.TransactionType;
 import com.example.swp.repository.CustomerRepository;
 import com.example.swp.repository.OrderRepository;
 import com.example.swp.repository.StorageRepository;
+import com.example.swp.service.ActivityLogService;
 import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageService;
+import com.example.swp.service.StorageTransactionService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,13 +41,28 @@ public class OrderServiceimpl implements OrderService {
     private StorageRequest storageRequest;
     @Autowired
     private CustomerRepository customerRepository;
+    @Autowired
+    private ActivityLogService activityLogService;
+
+    @Autowired
+    private StorageTransactionService storageTransactionService;
     @Override
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
+    @Override
+    public boolean canCustomerFeedback(int customerId, int storageId) {
+        return orderRepository.existsByCustomer_IdAndStorage_StorageidAndStatusIn(
+                customerId,
+                storageId,
+                List.of("PAID")
+        );
+    }
+
 
     @Override
     public Optional<Order> getOrderById(int id) {return orderRepository.findById(id);}
+
 
     @Override
     public List<Order> findOrdersByCustomer(Customer customer) {
@@ -81,15 +102,29 @@ public class OrderServiceimpl implements OrderService {
          dailyRate =storage.getPricePerDay(); // hoặc giá cố định
          totalAmount = rentalDays * dailyRate;
         order.setTotalAmount(totalAmount);
-        order.setStatus(orderRequest.getStatus());
+        order.setStatus(orderRequest.getStatus().toUpperCase());
         order.setCustomer(customer);
         order.setStorage(storage);
-        return orderRepository.save(order);
+
+        Order savedOrder = orderRepository.save(order);
+        activityLogService.logActivity(
+                "Tạo đơn hàng",
+                "Khách hàng " + customer.getFullname() + " đã tạo đơn hàng #" + savedOrder.getId(),
+                customer,
+                savedOrder,
+                null, null, null, null
+        );
+        // -----------------------------------------
+
+        return savedOrder;
+
+
+
     }
 
     @Override
     public List<Order> findOrdersByStatus(String status) {
-        return orderRepository.findByStatus(status);
+        return orderRepository.findByStatus(status.toUpperCase());
     }
     @Override
     public void deleteById(int id) {
@@ -116,7 +151,7 @@ public class OrderServiceimpl implements OrderService {
     public double getTotalRevenueAll() {
         return orderRepository.findAll()
                 .stream()
-                .filter(order -> !"Rejected".equalsIgnoreCase(order.getStatus()))
+                .filter(order -> !"REJECTED".equalsIgnoreCase(order.getStatus()))
                 .mapToDouble(Order::getTotalAmount)
                 .sum();
     }
@@ -125,7 +160,7 @@ public class OrderServiceimpl implements OrderService {
     public double getRevenuePaid() {
         return orderRepository.findAll()
                 .stream()
-                .filter(order -> "Paid".equalsIgnoreCase(order.getStatus()))
+                .filter(order -> order.getStatus() != null && order.getStatus().equals("PAID"))
                 .mapToDouble(Order::getTotalAmount)
                 .sum();
     }
@@ -166,6 +201,27 @@ public class OrderServiceimpl implements OrderService {
         }
 
         orderRepository.updateOrderStatusToPaid(orderId);
+
+        // Tạo StorageTransaction khi đơn hàng được đánh dấu là PAID
+        StorageTransaction transaction = new StorageTransaction();
+        transaction.setType(TransactionType.PAID);
+        transaction.setTransactionDate(LocalDateTime.now()); // sửa thành LocalDateTime.now()
+        transaction.setAmount(order.getTotalAmount());
+        transaction.setStorage(order.getStorage());
+        transaction.setCustomer(order.getCustomer());
+        transaction.setOrder(order); // Liên kết đến order đầy đủ hơn
+
+        storageTransactionService.save(transaction);
+
+        // ---------- GHI LOG HOẠT ĐỘNG ----------
+        activityLogService.logActivity(
+                "Thanh toán đơn hàng",
+                "Khách hàng " + order.getCustomer().getFullname() + " đã thanh toán đơn hàng #" + order.getId(),
+                order.getCustomer(),
+                order,
+                transaction,
+                null, null, null
+        );
     }
 
     // Trong OrderServiceImpl
@@ -187,10 +243,6 @@ public class OrderServiceimpl implements OrderService {
     @Override
     public boolean isStorageAvailable(int storageId, LocalDate startDate, LocalDate endDate) {
         return orderRepository.countOverlapOrders(storageId, startDate, endDate) == 0;
-
-
-
-
     }
 
     @Override
@@ -216,12 +268,44 @@ public class OrderServiceimpl implements OrderService {
         // Cần setRentalArea từ controller truyền vào!
         // order.setRentalArea(rentalArea);
 
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+
+        // ----------- GHI LOG HOẠT ĐỘNG -----------
+        activityLogService.logActivity(
+                "Tạo đơn booking",
+                "Khách hàng " + customer.getFullname() + " tạo đơn booking #" + savedOrder.getId(),
+                customer,
+                savedOrder,
+                null, null, null, null
+        );
+        // -----------------------------------------
+
+        return savedOrder;
     }
+
 
     @Override
     public double getTotalRentedArea(int storageId) {
         return 0;
+    }
+    @Transactional
+    public void updateOrderStatusToPaid(int orderId) {
+        Optional<Order> optionalOrder = orderRepository.findById(orderId);
+        if (optionalOrder.isPresent()) {
+            Order order = optionalOrder.get();
+            if (!"PAID".equals(order.getStatus())) {
+                order.setStatus("PAID");
+
+                // ✅ Cộng điểm cho khách hàng
+                Customer customer = order.getCustomer();
+                if (customer != null) {
+                    customer.setPoints(customer.getPoints() + 5); // cộng 5 điểm
+                    customerRepository.save(customer); // lưu lại customer
+                }
+
+                orderRepository.updateOrderStatusToPaid(orderId);
+            }
+        }
     }
 
     @Override
@@ -237,6 +321,9 @@ public class OrderServiceimpl implements OrderService {
             if (used > maxUsed) maxUsed = used;
         }
         return Math.max(0, totalArea - maxUsed);
+    }
+    public Optional<Order> findOrderByCustomerAndStorage(int customerId, int storageId) {
+        return orderRepository.findByCustomer_IdAndStorage_Storageid(customerId, storageId);
     }
 
 //    @Override

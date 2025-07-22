@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>So sánh kho</title>
+    <!-- Link to Font Awesome for icons (optional, but recommended for full visual fidelity) -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> -->
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            color: #333;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: #2c3e50;
+            color: white;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .logo i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+        .sidebar-menu {
+            flex: 1;
+            list-style: none;
+            padding: 20px 0;
+        }
+        .menu-item {
+            margin-bottom: 5px;
+        }
+        .menu-item a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        .menu-item a:hover,
+        .menu-item.active a {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: #fff;
+        }
+        .menu-item i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+        .user-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .user-role {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px; /* Space for the fixed sidebar */
+            min-height: 100vh;
+        }
+        .header {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .sidebar-toggle {
+            display: none; /* Hidden by default, would be shown on mobile */
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            color: #2c3e50;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            color: #666;
+        }
+        .search-box input {
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            width: 300px;
+            font-size: 0.9rem;
+        }
+
+        /* Page Content */
+        .page-content {
+            padding: 30px;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .page-title {
+            font-size: 2rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .page-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-header h3 {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 60px 30px;
+            text-align: center;
+        }
+        .empty-content {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            color: #bbb;
+            margin-bottom: 20px;
+        }
+        .empty-state h3 {
+            font-size: 1.5rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .empty-state p {
+            color: #999;
+            font-size: 1rem;
+        }
+
+        /* Feedback Styles */
+        .feedback-container {
+            padding: 20px 30px;
+        }
+        .feedback-item {
+            margin-bottom: 20px;
+        }
+        .feedback-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        .feedback-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .id-badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .rating-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .stars {
+            display: flex;
+            gap: 2px;
+        }
+        .stars i {
+            color: #ffc107;
+            font-size: 1rem;
+        }
+        .rating-number {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .feedback-content {
+            margin-bottom: 20px;
+        }
+        .feedback-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #333;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .feedback-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .feedback-info {
+            display: flex;
+            gap: 20px;
+        }
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .info-item i {
+            color: #667eea;
+            width: 16px;
+        }
+        .feedback-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .btn-icon {
+            background: none;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .btn-icon:hover {
+            background: #f0f0f0;
+        }
+        .btn-icon.danger:hover {
+            background: #fee;
+            color: #e74c3c;
+        }
+
+        /* Buttons */
+        .btn-primary,
+        .btn-secondary {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+        .btn-back {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-back:hover {
+            background: #5a6268;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .filter-group label {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        /* Pagination (Not directly used in this HTML, but included for completeness) */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .pagination button:hover {
+            background: #f8f9fa;
+        }
+        .pagination button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .search-box input {
+                width: 200px;
+            }
+            .feedback-footer {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .sidebar-toggle {
+                display: block;
+            }
+            .header {
+                padding: 15px 20px;
+            }
+            .page-content {
+                padding: 20px 15px;
+            }
+            .search-box {
+                display: none;
+            }
+            .page-header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            .filter-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .feedback-container {
+                padding: 15px;
+            }
+            .feedback-card {
+                padding: 15px;
+            }
+            .feedback-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.4rem;
+            }
+            .page-title {
+                font-size: 1.5rem;
+            }
+            .feedback-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            .feedback-text {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Table specific styles */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #eee; /* Lighter border for consistency */
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa; /* Lighter background for consistency */
+            color: #2c3e50;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-warehouse"></i> <!-- Placeholder for icon -->
+            <span>Quản lý kho</span>
+        </div>
+    </div>
+    <nav class="sidebar-menu">
+        <ul>
+            <li class="menu-item"><a href="#"><i class="fas fa-home"></i> Trang chủ</a></li>
+            <li class="menu-item"><a href="#"><i class="fas fa-box"></i> Quản lý kho</a></li>
+            <li class="menu-item active"><a href="#"><i class="fas fa-star"></i> Feedback</a></li>
+            <li class="menu-item"><a href="#"><i class="fas fa-users"></i> Người dùng</a></li>
+            <li class="menu-item"><a href="#"><i class="fas fa-cog"></i> Cài đặt</a></li>
+        </ul>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">JD</div>
+            <div class="user-details">
+                <span class="user-name">John Doe</span>
+                <span class="user-role">Admin</span>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<div class="main-content">
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle" aria-label="Toggle Sidebar">
+                <i class="fas fa-bars"></i> <!-- Placeholder for icon -->
+            </button>
+            <h1 class="page-title">So sánh kho bãi</h1>
+        </div>
+        <div class="header-right">
+            <div class="search-box">
+                <i class="fas fa-search"></i> <!-- Placeholder for icon -->
+                <input type="text" placeholder="Tìm kiếm...">
+            </div>
+            <!-- Add other header elements like user avatar, notifications if needed -->
+        </div>
+    </header>
+
+    <div class="page-content">
+        <div class="filter-section">
+            <form method="get" th:action="@{/SWP/storages/compare}" class="filter-group">
+                <label for="id1">Chọn kho 1:</label>
+                <select name="id1" id="id1" required class="filter-select">
+                    <option th:each="storage : ${storageList}"
+                            th:value="${storage.storageid}"
+                            th:text="${storage.storagename}"
+                            th:selected="${storage1 != null and storage1.storageid == storage.storageid}">
+                    </option>
+                </select>
+                <label for="id2">Chọn kho 2:</label>
+                <select name="id2" id="id2" required class="filter-select">
+                    <option th:each="storage : ${storageList}"
+                            th:value="${storage.storageid}"
+                            th:text="${storage.storagename}"
+                            th:selected="${storage2 != null and storage2.storageid == storage.storageid}">
+                    </option>
+                </select>
+                <button type="submit" class="btn-primary">So sánh</button>
+            </form>
+        </div>
+
+        <div th:if="${storage1 == null or storage2 == null}" class="empty-state card">
+            <div class="empty-content">
+                <i class="fas fa-warehouse"></i> <!-- Placeholder for icon -->
+                <h3>Vui lòng chọn hai kho bãi để so sánh.</h3>
+                <p>Chọn hai kho từ danh sách trên để xem chi tiết so sánh.</p>
+            </div>
+        </div>
+
+        <div th:if="${storage1 != null and storage2 != null}" class="card">
+            <div class="card-header">
+                <h3>Chi tiết so sánh</h3>
+            </div>
+            <table>
+                <tr>
+                    <th>Tiêu chí</th>
+                    <th th:text="${storage1.storagename}">Kho 1</th>
+                    <th th:text="${storage2.storagename}">Kho 2</th>
+                </tr>
+                <tr>
+                    <td>Địa chỉ</td>
+                    <td th:text="${storage1.address} + ', ' + ${storage1.city} + ', ' + ${storage1.state}"></td>
+                    <td th:text="${storage2.address} + ', ' + ${storage2.city} + ', ' + ${storage2.state}"></td>
+                </tr>
+                <tr>
+                    <td>Diện tích (m²)</td>
+                    <td th:text="${storage1.area}"></td>
+                    <td th:text="${storage2.area}"></td>
+                </tr>
+                <tr>
+                    <td>Giá thuê (VND/ngày)</td>
+                    <td th:text="${storage1.pricePerDay}"></td>
+                    <td th:text="${storage2.pricePerDay}"></td>
+                </tr>
+                <tr>
+                    <td>Trạng thái</td>
+                    <td th:text="${storage1.status ? 'Còn trống' : 'Đang cho thuê'}"></td>
+                    <td th:text="${storage2.status ? 'Còn trống' : 'Đang cho thuê'}"></td>
+                </tr>
+                <tr>
+                    <td>Mô tả</td>
+                    <td th:text="${storage1.description}"></td>
+                    <td th:text="${storage2.description}"></td>
+                </tr>
+            </table>
+
+            <div class="card-header">
+                <h3>Feedback từ khách hàng</h3>
+            </div>
+            <div class="feedback-container" style="display: flex; gap: 30px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 300px;">
+                    <h3 th:text="'Feedback cho ' + ${storage1.storagename}"></h3>
+                    <ul th:if="${not #lists.isEmpty(feedbacks1)}">
+                        <li th:each="fb : ${feedbacks1}" class="feedback-item">
+                            <div class="feedback-card">
+                                <div class="feedback-header">
+                                    <span class="id-badge" th:text="${fb.id}">FB001</span>
+                                    <div class="rating-section">
+                                        <div class="stars">
+                                            <i th:each="i : ${#numbers.sequence(1, fb.rating)}">&#9733;</i>
+                                            <i th:each="i : ${#numbers.sequence(fb.rating + 1, 5)}" style="color: #ccc;">&#9733;</i>
+                                        </div>
+                                        <span class="rating-number" th:text="${fb.rating} + '/5'">5/5</span>
+                                    </div>
+                                </div>
+                                <div class="feedback-content">
+                                    <p class="feedback-text" th:text="${fb.content}"></p>
+                                </div>
+                                <div class="feedback-footer">
+                                    <div class="feedback-info">
+                                        <div class="info-item">
+                                            <i class="fas fa-user"></i> <!-- Placeholder for icon -->
+                                            <span th:text="${fb.customer.fullname}">Anonymous</span>
+                                        </div>
+                                    </div>
+                                    <div class="feedback-actions">
+                                        <button class="btn-icon" aria-label="Edit feedback"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-icon danger" aria-label="Delete feedback"><i class="fas fa-trash-alt"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <p th:if="${#lists.isEmpty(feedbacks1)}" class="empty-state">Chưa có feedback nào.</p>
+                </div>
+
+                <div style="flex: 1; min-width: 300px;">
+                    <h3 th:text="'Feedback cho ' + ${storage2.storagename}"></h3>
+                    <ul th:if="${not #lists.isEmpty(feedbacks2)}">
+                        <li th:each="fb : ${feedbacks2}" class="feedback-item">
+                            <div class="feedback-card">
+                                <div class="feedback-header">
+                                    <span class="id-badge" th:text="${fb.id}">FB002</span>
+                                    <div class="rating-section">
+                                        <div class="stars">
+                                            <i th:each="i : ${#numbers.sequence(1, fb.rating)}">&#9733;</i>
+                                            <i th:each="i : ${#numbers.sequence(fb.rating + 1, 5)}" style="color: #ccc;">&#9733;</i>
+                                        </div>
+                                        <span class="rating-number" th:text="${fb.rating} + '/5'">5/5</span>
+                                    </div>
+                                </div>
+                                <div class="feedback-content">
+                                    <p class="feedback-text" th:text="${fb.content}"></p>
+                                </div>
+                                <div class="feedback-footer">
+                                    <div class="feedback-info">
+                                        <div class="info-item">
+                                            <i class="fas fa-user"></i> <!-- Placeholder for icon -->
+                                            <span th:text="${fb.customer.fullname}">Anonymous</span>
+                                        </div>
+                                    </div>
+                                    <div class="feedback-actions">
+                                        <button class="btn-icon" aria-label="Edit feedback"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-icon danger" aria-label="Delete feedback"><i class="fas fa-trash-alt"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <p th:if="${#lists.isEmpty(feedbacks2)}" class="empty-state">Chưa có feedback nào.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
