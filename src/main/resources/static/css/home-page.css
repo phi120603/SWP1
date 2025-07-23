@@ -855,3 +855,114 @@ body {
         padding: 60px 0;
     }
 }
+
+/* NAVBAR CHUNG */
+.navbar {
+    height: 60px;
+    background: rgba(0, 0, 0, 0.75);
+    padding: 0 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 10;
+}
+
+.navbar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* USER MENU CHUNG */
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* CHUÔNG THÔNG BÁO */
+.notification-bell {
+    position: relative;
+    color: white;
+    font-size: 1.5rem;
+    transition: transform 0.2s ease;
+}
+
+.notification-bell:hover {
+    transform: scale(1.1);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+/* ICON NGƯỜI */
+.profile-menu > a {
+    font-size: 1.8rem;
+    color: white;
+    transition: transform 0.2s ease;
+}
+
+.profile-menu > a:hover {
+    transform: scale(1.1);
+}
+
+/* DROPDOWN MENU */
+.profile-dropdown {
+    display: none; !important;
+    position: absolute;
+    top: 140%; /* cách icon 1 tí */
+    right: 0;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    min-width: 200px;
+    z-index: 100;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.profile-dropdown li {
+    border-bottom: 1px solid #eee;
+}
+
+.profile-dropdown li:last-child {
+    border-bottom: none;
+}
+
+.profile-dropdown a,
+.profile-dropdown button {
+    display: block; !important;
+    padding: 12px 18px;
+    color: #2c3e50;
+    text-decoration: none;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.profile-dropdown a:hover,
+.profile-dropdown button:hover {
+    background-color: #f6f8fa;
+    color: #000;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
