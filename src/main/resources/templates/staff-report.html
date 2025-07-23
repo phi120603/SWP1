@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Report - Issue List</title>
     <link rel="stylesheet" th:href="@{/css/staff-dashboard.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         .action-bar {
             display: flex;
@@ -116,12 +117,13 @@
                 <div class="filter-group-container">
                     <div class="filter-group">
                         <label for="statusFilter"><i class="fa-solid fa-filter"></i> Lọc trạng thái:</label>
-                        <select id="statusFilter" class="filter-select">
+                        <select id="statusFilter" class="filter-select" onchange="filterIssues()">
                             <option value="all">Tất cả</option>
                             <option value="resolved">Đã xử lý</option>
-                            <option value="unresolved">Chưa xử lý</option>
+                            <option value="unresolved">Chờ xử lý</option>
                         </select>
                     </div>
+
                     <div class="filter-group">
                         <label for="sortSelect"><i class="fa-solid fa-filter"></i> Sắp xếp:</label>
                         <select id="sortSelect" class="filter-select">
@@ -133,9 +135,14 @@
                         </select>
                     </div>
                 </div>
-                <a th:href="@{/SWP/issues/staff-send-report}" class="btn btn-primary">
-                    <i class="fa-solid fa-paper-plane"></i> Gửi báo cáo
-                </a>
+                <div style="display: flex; gap: 10px;">
+                    <a th:href="@{/SWP/issues/staff-send-report}" class="btn btn-primary">
+                        <i class="fa-solid fa-paper-plane"></i> Gửi báo cáo
+                    </a>
+                    <button onclick="exportIssuesExcel()" class="btn btn-success">
+                        <i class="fa-solid fa-download"></i> Xuất Excel
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -160,6 +167,7 @@
                         <th>Mô tả</th>
                         <th>Khách hàng</th>
                         <th>Nhân viên xử lý</th>
+                        <th>Người tạo</th>
                         <th>Trạng thái</th>
                         <th>Hành động</th>
                     </tr>
@@ -172,21 +180,17 @@
                         <td th:text="${issue.customer?.fullname ?: 'Không xác định'}"></td>
                         <td th:text="${issue.assignedStaff?.fullname ?: 'Chưa gán'}"></td>
                         <td>
+                            <span class="created-by-badge" th:text="${issue.createdByType == 'STAFF' ? 'Nhân viên' : 'Khách hàng'}"></span>
+                        </td>
+                        <td>
                             <span th:if="${issue.resolved}" class="status-badge active">Đã xử lý</span>
-                            <span th:if="${!issue.resolved}" class="status-badge warning">Chưa xử lý</span>
+                            <span th:if="${!issue.resolved}" class="status-badge warning">Chờ xử lý</span>
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <a th:href="@{'/SWP/issues/' + ${issue.id} + '/detail'}" class="btn-icon" title="Xem chi tiết">
+                                <a th:href="@{'/SWP/staffdb/van-de/view/' + ${issue.id}}" class="btn-icon" title="Xem chi tiết">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <form th:action="@{'/SWP/issues/' + ${issue.id} + '/toggle-status'}" method="post"
-                                      onsubmit="return confirm('Bạn có chắc muốn chuyển trạng thái của vấn đề này?');"
-                                      style="display: inline;">
-                                    <button type="submit" class="btn-icon" title="Chuyển trạng thái">
-                                        <i class="fas fa-exchange-alt"></i>
-                                    </button>
-                                </form>
                             </div>
                         </td>
                     </tr>
@@ -368,5 +372,58 @@
         }
     }
 </script>
+    <script>
+        function filterIssues() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const rows = document.querySelectorAll('.data-table tbody tr');
+
+            rows.forEach(row => {
+                const statusCell = row.querySelector('.status-badge');
+                let showRow = true;
+
+                if (statusFilter !== 'all') {
+                    const statusText = statusCell.textContent.trim();
+                    if (statusFilter === 'resolved' && statusText !== 'Đã xử lý') showRow = false;
+                    if (statusFilter === 'unresolved' && statusText !== 'Chờ xử lý') showRow = false;
+                }
+
+                row.style.display = showRow ? '' : 'none';
+            });
+
+            currentPage = 1;
+            applyFiltersAndPaginate();
+        }
+
+        function exportIssuesExcel() {
+            const table = document.querySelector('.data-table');
+            const visibleRows = Array.from(table.querySelectorAll('tbody tr')).filter(row => row.style.display !== 'none');
+
+            const data = [];
+            data.push(['ID', 'Tiêu đề', 'Mô tả', 'Khách hàng', 'Nhân viên xử lý', 'Ngày tạo', 'Trạng thái']);
+
+            visibleRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const rowData = [
+                    cells[0].textContent.trim(),
+                    cells[1].textContent.trim(),
+                    cells[2].textContent.trim(),
+                    cells[3].textContent.trim(),
+                    cells[4].textContent.trim(),
+                    cells[5].textContent.trim(),
+                    cells[6].textContent.trim()
+                ];
+                data.push(rowData);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Issues');
+
+            const fileName = 'danh_sach_van_de_' + new Date().toISOString().slice(0, 10) + '.xlsx';
+            XLSX.writeFile(wb, fileName);
+        }
+
+        document.getElementById('sortSelect').addEventListener('change', filterIssues);
+    </script>
 </body>
 </html>

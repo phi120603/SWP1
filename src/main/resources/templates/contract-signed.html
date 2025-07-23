@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Thông báo ký hợp đồng thành công</title>
+    <style>
+        /* Basic inline CSS cho email */
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { max-width:600px; margin:0 auto; padding:20px; }
+        .btn { display:inline-block; padding:10px 20px; background:#2563eb; color:#fff; text-decoration:none; border-radius:4px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>🎉 Hợp đồng <span th:text="${contract.contractCode}">HD-XXXX</span> đã được ký thành công!</h2>
+    <p>Xin chào <strong th:text="${customerName}">Nguyễn Văn A</strong>,</p>
+    <p>Bạn vừa ký hợp đồng thuê kho với mã <strong th:text="${contract.contractCode}">HD-XXXX</strong>.</p>
+    <p>Vui lòng bấm vào nút dưới đây để hoàn tất thanh toán:</p>
+    <p>
+        <a th:href="${paymentLink}" class="btn">Thanh toán ngay</a>
+    </p>
+    <p>Nếu bạn không bấm được, hãy sao chép và dán đường link sau vào trình duyệt:</p>
+    <p><a th:href="${paymentLink}" th:text="${paymentLink}">https://...</a></p>
+    <hr/>
+    <p>Xin cảm ơn bạn đã sử dụng dịch vụ!</p>
+</div>
+</body>
+</html>

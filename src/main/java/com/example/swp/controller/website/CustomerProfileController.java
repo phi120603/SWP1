@@ -4,6 +4,7 @@ import com.example.swp.dto.ChangePasswordRequest;
 import com.example.swp.dto.CustomerProfileUpdateRequest;
 import com.example.swp.dto.ForgotPasswordRequest;
 import com.example.swp.entity.Customer;
+import com.example.swp.service.ActivityLogService;
 import com.example.swp.service.CustomerService;
 import com.example.swp.service.NotificationService;
 import jakarta.servlet.http.HttpSession;
@@ -31,6 +32,10 @@ public class CustomerProfileController {
 
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private ActivityLogService activityLogService;
+
+
 
     /**
      * Trang profile khách hàng
@@ -106,6 +111,13 @@ public class CustomerProfileController {
             }
             customerService.save(customer);
             notificationService.createNotification("Bạn vừa cập nhật thông tin cá nhân thành công.", customer);
+
+            activityLogService.logActivity(
+                    "Cập nhật hồ sơ",
+                    "Khách hàng " + customer.getFullname() + " đã cập nhật thông tin cá nhân.",
+                    customer,
+                    null, null, null, null, null
+            );
 
             Customer updated = customerService.findByEmail(email);
             model.addAttribute("customerProfile", form);
@@ -213,6 +225,13 @@ public class CustomerProfileController {
         customerService.save(customer);
 
         notificationService.createNotification("Bạn vừa đổi mật khẩu thành công.", customer);
+        activityLogService.logActivity(
+                "Đổi mật khẩu",
+                "Khách hàng " + customer.getFullname() + " đã đổi mật khẩu thành công.",
+                customer,
+                null, null, null, null, null
+        );
+
 
         model.addAttribute("success", "Đổi mật khẩu thành công!");
         return "customer-profile";

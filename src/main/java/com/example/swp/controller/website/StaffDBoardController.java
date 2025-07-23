@@ -120,28 +120,7 @@ public class StaffDBoardController {
         model.addAttribute("customers", customers);
         return "customer-list"; // Trang HTML hiển thị danh sách người dùng
     }
-    @GetMapping("/transactions")
-    public String showTransactionList(Model model) {
-        List<StorageTransaction> transactions = storageTransactionService.getAllStorageTransactions();
-        model.addAttribute("transactions", transactions);
-        return "staff-transaction-list";
-    }
-    @PostMapping("/transactions/{id}/update")
-    public String updateTransaction(@PathVariable Integer id,
-                                    @RequestParam String type,
-                                    RedirectAttributes redirectAttributes) {
-        StorageTransaction tran = storageTransactionService.findById(id);
-        if (tran == null) {
-            redirectAttributes.addFlashAttribute("error", "Không tìm thấy giao dịch ID: " + id);
-            return "redirect:/SWP/staff/transactions";
-        }
 
-        tran.setType(type);
-        storageTransactionService.save(tran);
-
-        redirectAttributes.addFlashAttribute("success", "Cập nhật thành công giao dịch #" + id);
-        return "redirect:/SWP/staff/transactions";
-    }
 
     @GetMapping("/staff-add-storage")
     public String showAddStorageForm(Model model) {
@@ -172,7 +151,7 @@ public class StaffDBoardController {
     public String showAllRecentActivity(Model model) {
         List<RecentActivity> recentActivities = recentActivityService.getAllActivities();
         model.addAttribute("recentActivities", recentActivities);
-        return "all-recent-activity"; // Tên file Thymeleaf: all-recent-activity.html
+        return "all-recent-activity"; // Tên file Thymeleaf: all-customer-recent-activity-list.html
     }
 
     @PostMapping("/staff-add-storage")

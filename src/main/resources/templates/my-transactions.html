@@ -16,14 +16,13 @@
                 <a href="/home-page">
                     <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
                          alt="QVL Storage Logo" class="navbar-logo">
-
                 </a>
             </div>
             <ul class="navbar-nav">
-                <li><a href="/SWP/home">Trang chủ</a></li>
+                <li><a href="/home-page">Trang chủ</a></li>
                 <li><a href="/SWP/customers/my-bookings">Đơn hàng của tôi</a></li>
                 <li><a href="/SWP/customers/my-transactions" class="active">Lịch sử giao dịch</a></li>
-                <li><a href="/SWP/logout">Đăng xuất</a></li>
+                <li><a href="/api/logout">Đăng xuất</a></li>
             </ul>
         </div>
     </nav>
@@ -32,9 +31,7 @@
     <div class="hero-section">
         <div class="hero-content">
             <h1>Lịch sử giao dịch</h1>
-            <p th:text="'Xin chào, ' + ${customer.fullname} + '. Đây là tất cả giao dịch của bạn.'">
-
-            </p>
+            <p th:text="'Xin chào, ' + ${customer.fullname} + '. Đây là tất cả giao dịch của bạn.'"></p>
         </div>
     </div>
 
@@ -43,24 +40,21 @@
         <div class="content-section">
             <div class="section-header">
                 <div class="header-info">
-                    <h2>
-                        <i class="fas fa-history"></i>
-                        Danh sách giao dịch
-                    </h2>
+                    <h2><i class="fas fa-history"></i> Danh sách giao dịch</h2>
                     <p>Theo dõi tất cả các giao dịch của bạn tại đây</p>
                 </div>
                 <div class="header-actions">
-                    <div class="filter-group">
-                        <select class="filter-select">
-                            <option value="">Tất cả loại giao dịch</option>
-                            <option value="IMPORT">Nhập kho</option>
-                            <option value="EXPORT">Xuất kho</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-secondary">
-                        <i class="fas fa-download"></i>
-                        Xuất báo cáo
-                    </button>
+                    <form method="get" action="/SWP/customers/my-transactions" style="display: flex; align-items: center; gap: 12px;">
+                        <div class="filter-group">
+                            <select name="type" class="filter-select" onchange="this.form.submit()">
+                                <option value="">Tất cả loại giao dịch</option>
+                                <option value="PAID" th:selected="${type == 'PAID'}">Thanh toán</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-secondary">
+                            <i class="fas fa-download"></i> Xuất báo cáo
+                        </button>
+                    </form>
                 </div>
             </div>
 
@@ -74,45 +68,36 @@
                             <th class="col-type"><i class="fas fa-tag"></i> Loại giao dịch</th>
                             <th class="col-storage"><i class="fas fa-warehouse"></i> Kho lưu trữ</th>
                             <th class="col-amount"><i class="fas fa-money-bill-wave"></i> Số tiền</th>
+                            <th class="col-action"><i class="fas fa-cogs"></i> Thao tác</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="transaction : ${transactions}">
-                            <td class="transaction-id">
-                                <span class="id-badge" th:text="'#' + ${transaction.id}"></span>
-                            </td>
-                            <td class="transaction-date">
+                            <td><span class="id-badge" th:text="'#' + ${transaction.id}"></span></td>
+                            <td>
                                 <div class="date-container">
-                                    <span class="date-main"
-                                          th:text="${#temporals.format(transaction.transactionDate, 'dd/MM/yyyy')}"></span>
-                                    <span class="date-time"
-                                          th:text="${#temporals.format(transaction.transactionDate, 'HH:mm')}"></span>
-
+                                    <span class="date-main" th:text="${#temporals.format(transaction.transactionDate, 'dd/MM/yyyy')}"></span>
+                                    <span class="date-time" th:text="${#temporals.format(transaction.transactionDate, 'HH:mm')}"></span>
                                 </div>
                             </td>
-                            <td class="transaction-type">
-    <span th:if="${transaction.type == 'IMPORT'}"
-          th:class="'type-badge type-deposit'"
-          th:text="'Nhập kho'">
-    </span>
-                                <span th:if="${transaction.type == 'EXPORT'}"
-                                      th:class="'type-badge type-payment'"
-                                      th:text="'Xuất kho'">
-    </span>
-                                <span th:if="${transaction.type == 'PENDING'}"
-                                      th:class="'type-badge type-pending'"
-                                      th:text="'Đang xử lý'">
-    </span>
+                            <td>
+                                <span th:switch="${transaction.type.name()}">
+                                    <span th:case="'PAID'" class="type-badge type-payment">Thanh toán</span>
+                                    <span th:case="*" class="type-badge">Không xác định</span>
+                                </span>
                             </td>
-
-                            <td class="storage-info">
+                            <td>
                                 <div class="storage-container">
                                     <span class="storage-name" th:text="${transaction.storage.storagename}"></span>
                                     <span class="storage-code" th:text="'ID: ' + ${transaction.storage.storageid}"></span>
                                 </div>
                             </td>
-                            <td class="transaction-amount">
-                                <span class="amount" th:text="${transaction.amount} + ' VND'"></span>
+                            <td>
+                                <span class="amount" th:text="${#numbers.formatDecimal(transaction.amount, 1, 2)} + ' VND'"></span>
+                            </td>
+                            <td>
+                                <!-- Không còn thao tác hoàn tiền hoặc trạng thái liên quan -->
+                                <span class="badge badge-default">-</span>
                             </td>
                         </tr>
                         </tbody>
@@ -121,16 +106,10 @@
 
                 <!-- Empty State -->
                 <div th:if="${transactions == null or transactions.isEmpty()}" class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-receipt"></i>
-                    </div>
+                    <div class="empty-icon"><i class="fas fa-receipt"></i></div>
                     <h3>Chưa có giao dịch nào</h3>
-                    <p>Hệ thống chưa ghi nhận bất kỳ giao dịch nào của bạn.<br>
-                        Các giao dịch sẽ xuất hiện tại đây khi bạn thực hiện.</p>
-                    <a href="/SWP/storages" class="btn btn-primary">
-                        <i class="fas fa-plus"></i>
-                        Bắt đầu giao dịch
-                    </a>
+                    <p>Hệ thống chưa ghi nhận bất kỳ giao dịch nào của bạn.<br> Các giao dịch sẽ xuất hiện tại đây khi bạn thực hiện.</p>
+                    <a href="/SWP/storages" class="btn btn-primary"><i class="fas fa-plus"></i> Bắt đầu giao dịch</a>
                 </div>
             </div>
         </div>
@@ -144,7 +123,6 @@
                     <div class="brand-header">
                         <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
                              alt="QVL Storage Logo" class="footer-logo">
-
                     </div>
                     <p class="brand-description">Hệ thống cho thuê kho hàng chuyên nghiệp trên toàn quốc.</p>
                 </div>

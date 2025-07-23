@@ -1,14 +1,59 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
   <title>Ký hợp đồng</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    /* Common styles */
+  <meta charset="UTF-8"/>
+  <!-- không nhất thiết phải có viewport cho PDF nhưng cũng không hại -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <!-- Preconnect (nếu có dùng Google Fonts online) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <!-- phải có giá trị cho crossorigin trong XHTML -->
+  <link rel="preconnect" href="https://fonts.gstatic.com"
+        crossorigin="anonymous"/>
+
+  <!-- Nhúng CSS Google Fonts (chú ý &amp;) -->
+  <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+          rel="stylesheet"/>
+
+  <!-- Bọc CSS vào CDATA để khỏi lỗi entity -->
+  <style type="text/css" th:inline="none">
+    /*<![CDATA[*/
+    @font-face {
+      font-family: 'Inter';
+      src: url('/fonts/Roboto-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    h2, p, ul, li, table {
+      line-height: 1.4;
+      color: #333;
+    }
+    h2 {
+      font-weight: 600;
+      margin-bottom: 0.5em;
+    }
+    ul {
+      padding-left: 1.2em;
+    }
+    li {
+      margin-bottom: 0.3em;
+    }
+    .footer {
+      position: fixed;
+      bottom: 1cm;
+      width: 100%;
+      text-align: center;
+      font-size: 0.8em;
+      color: #666;
+    }
     :root {
       --primary-color: #2563eb;
       --primary-hover: #1d4ed8;
@@ -29,26 +74,24 @@
       --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
       --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
     }
-
     * {
       box-sizing: border-box;
     }
-
     body {
-      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Roboto, sans-serif;
       line-height: 1.6;
       color: var(--gray-800);
-      background: linear-gradient(135deg, var(--gray-50) 0%, #ffffff 50%, var(--gray-50) 100%);
+      background: linear-gradient(135deg, var(--gray-50) 0%,
+      #ffffff 50%, var(--gray-50) 100%);
       margin: 0;
       padding: 2rem 1rem;
       min-height: 100vh;
     }
-
     .contract-view {
       max-width: 900px;
       margin: 0 auto;
     }
-
     .contract-document {
       background: white;
       border-radius: var(--border-radius);
@@ -57,7 +100,6 @@
       border: 1px solid var(--gray-200);
       animation: slideUp 0.6s ease-out;
     }
-
     @keyframes slideUp {
       from {
         opacity: 0;
@@ -68,16 +110,15 @@
         transform: translateY(0);
       }
     }
-
     .contract-header {
-      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+      background: linear-gradient(135deg,
+      var(--primary-color) 0%, var(--primary-hover) 100%);
       color: white;
       padding: 3rem 2rem;
       text-align: center;
       position: relative;
       overflow: hidden;
     }
-
     .contract-header::before {
       content: "";
       position: absolute;
@@ -85,10 +126,10 @@
       left: -50%;
       width: 200%;
       height: 200%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      background: radial-gradient(circle,
+      rgba(255, 255, 255, 0.1) 0%, transparent 70%);
       animation: shimmer 4s ease-in-out infinite;
     }
-
     @keyframes shimmer {
       0%, 100% {
         transform: translateX(-100%) translateY(-100%) rotate(0deg);
@@ -97,7 +138,6 @@
         transform: translateX(0%) translateY(0%) rotate(180deg);
       }
     }
-
     .contract-header h2 {
       color: white;
       margin: 0;
@@ -107,19 +147,16 @@
       z-index: 1;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
-
     .contract-body {
       padding: 3rem 2rem;
     }
-
-    /* Contract info grid */
     .contract-info {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns:
+        repeat(auto-fit, minmax(280px, 1fr));
       gap: 2rem;
       margin-bottom: 3rem;
     }
-
     .info-item {
       background: var(--gray-50);
       padding: 1.5rem;
@@ -127,12 +164,10 @@
       border-left: 4px solid var(--primary-color);
       transition: all 0.3s ease;
     }
-
     .info-item:hover {
       transform: translateY(-2px);
       box-shadow: var(--shadow-md);
     }
-
     .info-label {
       font-size: 0.875rem;
       font-weight: 600;
@@ -141,33 +176,28 @@
       letter-spacing: 0.05em;
       margin-bottom: 0.5rem;
     }
-
     .info-value {
       font-size: 1.25rem;
       font-weight: 700;
       color: var(--gray-900);
     }
-
     .info-value.highlight {
       color: var(--primary-color);
       font-size: 1.5rem;
     }
-
     .info-value.amount {
       color: var(--success-color);
       font-size: 1.5rem;
     }
-
-    /* Contract terms */
     .contract-terms {
-      background: linear-gradient(135deg, var(--gray-50) 0%, #ffffff 100%);
+      background: linear-gradient(135deg,
+      var(--gray-50) 0%, #ffffff 100%);
       border-radius: var(--border-radius);
       padding: 2rem;
       margin: 3rem 0;
       border: 2px solid var(--gray-200);
       border-left: 6px solid var(--primary-color);
     }
-
     .contract-terms h3 {
       color: var(--gray-900);
       margin-bottom: 1.5rem;
@@ -177,18 +207,15 @@
       align-items: center;
       gap: 0.75rem;
     }
-
     .contract-terms h3::before {
       content: "⚖️";
       font-size: 1.25rem;
     }
-
     .contract-terms ul {
       list-style: none;
       padding: 0;
       margin: 0;
     }
-
     .contract-terms li {
       padding: 1rem 0;
       border-bottom: 1px solid var(--gray-200);
@@ -196,16 +223,13 @@
       padding-left: 2rem;
       transition: all 0.2s ease;
     }
-
     .contract-terms li:hover {
       background-color: rgba(37, 99, 235, 0.02);
       padding-left: 2.5rem;
     }
-
     .contract-terms li:last-child {
       border-bottom: none;
     }
-
     .contract-terms li::before {
       content: "•";
       color: var(--primary-color);
@@ -215,10 +239,9 @@
       left: 0.5rem;
       top: 1rem;
     }
-
-    /* Signature section */
     .signature-section {
-      background: linear-gradient(135deg, #ffffff 0%, var(--gray-50) 100%);
+      background: linear-gradient(135deg,
+      #ffffff 0%, var(--gray-50) 100%);
       border: 3px solid var(--primary-color);
       border-radius: var(--border-radius);
       padding: 3rem 2rem;
@@ -227,7 +250,6 @@
       position: relative;
       overflow: hidden;
     }
-
     .signature-section::before {
       content: "";
       position: absolute;
@@ -235,22 +257,21 @@
       left: 0;
       right: 0;
       height: 4px;
-      background: linear-gradient(90deg, var(--primary-color), var(--success-color), var(--primary-color));
+      background: linear-gradient(90deg,
+      var(--primary-color), var(--success-color),
+      var(--primary-color));
       animation: gradientShift 3s ease-in-out infinite;
     }
-
     @keyframes gradientShift {
       0%, 100% { transform: translateX(-100%); }
-      50% { transform: translateX(100%); }
+      50%    { transform: translateX(100%); }
     }
-
     .signature-form {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 2rem;
     }
-
     .checkbox-container {
       display: flex;
       align-items: flex-start;
@@ -263,12 +284,10 @@
       border: 2px solid var(--gray-200);
       transition: all 0.3s ease;
     }
-
     .checkbox-container:hover {
       border-color: var(--primary-color);
       box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
     }
-
     .checkbox-container input[type="checkbox"] {
       width: 1.5rem;
       height: 1.5rem;
@@ -276,7 +295,6 @@
       cursor: pointer;
       margin-top: 0.25rem;
     }
-
     .checkbox-container label {
       font-size: 1rem;
       line-height: 1.6;
@@ -284,9 +302,9 @@
       cursor: pointer;
       font-weight: 500;
     }
-
     .sign-button {
-      background: linear-gradient(135deg, var(--success-color) 0%, #047857 100%);
+      background: linear-gradient(135deg,
+      var(--success-color) 0%, #047857 100%);
       color: white;
       border: none;
       padding: 1.25rem 3rem;
@@ -301,7 +319,6 @@
       position: relative;
       overflow: hidden;
     }
-
     .sign-button::before {
       content: "";
       position: absolute;
@@ -309,28 +326,25 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      background: linear-gradient(90deg,
+      transparent, rgba(255, 255, 255, 0.2), transparent);
       transition: left 0.5s;
     }
-
     .sign-button:hover::before {
       left: 100%;
     }
-
     .sign-button:hover {
       transform: translateY(-3px);
       box-shadow: var(--shadow-xl);
     }
-
     .sign-button:disabled {
       opacity: 0.6;
       cursor: not-allowed;
       transform: none;
     }
-
-    /* Signed status */
     .signed-status {
-      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+      background: linear-gradient(135deg,
+      #ecfdf5 0%, #d1fae5 100%);
       border: 3px solid var(--success-color);
       border-radius: var(--border-radius);
       padding: 3rem 2rem;
@@ -339,7 +353,6 @@
       position: relative;
       overflow: hidden;
     }
-
     .signed-status::before {
       content: "✅";
       position: absolute;
@@ -349,12 +362,10 @@
       opacity: 0.1;
       animation: bounce 2s ease-in-out infinite;
     }
-
     @keyframes bounce {
       0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
+      50%      { transform: translateY(-10px); }
     }
-
     .signed-status p {
       font-size: 1.5rem;
       font-weight: 700;
@@ -363,15 +374,13 @@
       position: relative;
       z-index: 1;
     }
-
-    /* Export PDF button */
     .export-section {
       text-align: center;
       margin-top: 2rem;
     }
-
     .export-button {
-      background: linear-gradient(135deg, var(--gray-700) 0%, var(--gray-800) 100%);
+      background: linear-gradient(135deg,
+      var(--gray-700) 0%, var(--gray-800) 100%);
       color: white;
       border: none;
       padding: 1rem 2.5rem;
@@ -384,70 +393,56 @@
       text-transform: uppercase;
       letter-spacing: 0.025em;
     }
-
     .export-button:hover {
       transform: translateY(-2px);
       box-shadow: var(--shadow-lg);
     }
-
-    /* Responsive design */
     @media (max-width: 768px) {
       body {
         padding: 1rem 0.75rem;
       }
-
       .contract-header {
         padding: 2rem 1.5rem;
       }
-
       .contract-header h2 {
         font-size: 2rem;
       }
-
       .contract-body {
         padding: 2rem 1.5rem;
       }
-
       .contract-info {
         grid-template-columns: 1fr;
         gap: 1.5rem;
       }
-
       .contract-terms {
         padding: 1.5rem;
       }
-
       .signature-section {
         padding: 2rem 1.5rem;
       }
-
       .checkbox-container {
         padding: 1rem;
       }
-
       .sign-button {
         padding: 1rem 2rem;
         font-size: 1rem;
       }
     }
-
-    /* Print styles */
     @media print {
       body {
         background: white;
         padding: 0;
       }
-
       .signature-section,
       .export-section {
         display: none;
       }
-
       .contract-document {
         box-shadow: none;
         border: none;
       }
     }
+    /*]]>*/
   </style>
 </head>
 <body>
@@ -514,13 +509,16 @@
       </div>
 
       <div th:if="${contract.status.name() != 'SIGNED'}" class="signature-section">
-        <form th:action="${'/econtract/sign/' + contract.id}" method="post" class="signature-form">
+        <form th:action="@{/econtract/sign/{id}(id=${contract.id})}"
+              method="post"
+              class="signature-form">
           <div class="checkbox-container">
-            <input type="checkbox" id="agree" required="required" />
-            <label for="agree">Tôi đã đọc, hiểu rõ và đồng ý với tất cả các điều khoản được nêu trong hợp đồng này. Tôi cam kết thực hiện đúng các nghĩa vụ và quyền lợi được quy định.</label>
+            <input type="checkbox" id="agree" required />
+            <label for="agree">Tôi đã đọc, hiểu rõ và đồng ý…</label>
           </div>
-          <button type="submit" class="sign-button">🖊️ Ký hợp đồng</button>
+          <button type="submit" class="sign-button" disabled>🖊️ Ký hợp đồng</button>
         </form>
+
       </div>
 
       <div th:if="${contract.status.name() == 'SIGNED'}" class="signed-status">
@@ -536,7 +534,9 @@
   </div>
 </div>
 
-<script>
+<script th:inline="javascript">
+  /* MDN khuyến nghị: mã JS cũng nên để th:inline nếu dùng inline expressions */
+  /*<![CDATA[*/
   document.addEventListener('DOMContentLoaded', function() {
     // Add smooth scrolling to signature section
     const signButton = document.querySelector('.sign-button');
@@ -563,6 +563,7 @@
       submitButton.style.opacity = checkbox.checked ? '1' : '0.6';
     }
   });
+  /*]]>*/
 </script>
 </body>
 </html>

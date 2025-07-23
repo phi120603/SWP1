@@ -11,6 +11,18 @@ body {
     color: #333;
     line-height: 1.6;
 }
+.status-badge.requested {
+    background: linear-gradient(135deg, #ffe6e6 0%, #ffc2c2 100%);
+    color: #b30000;
+}
+.status-badge.approved {
+    background: linear-gradient(135deg, #d4edda 0%, #b3e6c3 100%);
+    color: #155724;
+}
+.status-badge.denied {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #721c24;
+}
 
 /* Sidebar Styles */
 .sidebar {
@@ -1067,6 +1079,7 @@ body {
     transform: scale(0.95);
 }
 
+
 /* Toggle button when voucher is INACTIVE → vàng */
 .btn-icon.toggle-inactive {
     background: #fff3cd;
@@ -1086,4 +1099,49 @@ body {
     background: #ffecb5;
     color: #533f03;
     transform: scale(0.95);
+}
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none; /* sẽ chuyển sang display:flex trong JS */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 24px;
+    border-radius: 10px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h3 {
+    margin-bottom: 12px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+.modal-content textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: vertical;
+    margin-bottom: 16px;
+    font-family: inherit;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
 }

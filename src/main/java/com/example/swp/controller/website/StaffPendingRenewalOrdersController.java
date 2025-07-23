@@ -30,9 +30,9 @@ public class StaffPendingRenewalOrdersController {
         List<Order> orders = pendingRenewalOrderService.getPaidRenewalOrders(days);
         LocalDate today = LocalDate.now();
 
-        Map<Integer, Long> remainingDaysMap = new HashMap<>();
+        Map<Integer, Integer> remainingDaysMap = new HashMap<>();
         for (Order order : orders) {
-            long diff = today.until(order.getEndDate()).getDays();
+            int diff = today.until(order.getEndDate()).getDays();
             remainingDaysMap.put(order.getId(), diff);
         }
 
@@ -41,4 +41,5 @@ public class StaffPendingRenewalOrdersController {
         model.addAttribute("selectedDays", days);
         return "staff-pending-renewal-orders";
     }
+
 }

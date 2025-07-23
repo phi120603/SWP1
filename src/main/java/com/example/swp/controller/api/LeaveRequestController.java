@@ -21,17 +21,17 @@ public class LeaveRequestController {
     @Autowired
     private StaffRepository staffReponsitory;
 
-//    private Staff getCurrentStaff(Principal principal) {
-//        String email = principal.getName();
-//        return staffReponsitory.findByEmail(email)
-//                .orElseThrow(() -> new RuntimeException("Không tìm thấy staff"));
-//    }
-
     private Staff getCurrentStaff(Principal principal) {
-        // Tạm test: lấy staff có email cố định
-        return staffReponsitory.findByEmail("hongquanvjp@gmail.com")
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy staff test"));
+        String email = principal.getName();
+        return staffReponsitory.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy staff"));
     }
+
+//    private Staff getCurrentStaff(Principal principal) {
+//        // Tạm test: lấy staff có email cố định
+//        return staffReponsitory.findByEmail("hongquanvjp@gmail.com")
+//                .orElseThrow(() -> new RuntimeException("Không tìm thấy staff test"));
+//    }
 
     // Staff gửi đơn nghỉ phép
     @PostMapping
@@ -47,6 +47,17 @@ public class LeaveRequestController {
         Staff staff = getCurrentStaff(principal);
         return leaveRequestService.getRequestsByStaff(staff);
     }
+
+    @GetMapping("/api/leave-requests")
+    public List<LeaveRequest> getRequests(@RequestParam(required = false) String status) {
+        if (status == null) {
+            return leaveRequestService.getAllRequests();
+        } else {
+            return leaveRequestService.getRequestsByStatus(status);
+        }
+    }
+
+
 
     // Manager xem tất cả đơn nghỉ phép đang chờ duyệt
     @GetMapping("/pending")
@@ -64,5 +75,10 @@ public class LeaveRequestController {
     @PutMapping("/{id}/reject")
     public LeaveRequest rejectRequest(@PathVariable Long id, @RequestBody ManagerNoteDTO noteDto) {
         return leaveRequestService.rejectRequest(id, noteDto.getManagerNote());
+    }
+
+    @GetMapping
+    public List<LeaveRequest> getAllRequests() {
+        return leaveRequestService.getAllRequests();
     }
 }

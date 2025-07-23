@@ -2,76 +2,41 @@ package com.example.swp.controller.website;
 
 import com.example.swp.entity.EContract;
 import com.example.swp.enums.EContractStatus;
-import com.example.swp.repository.EContractRepository;
 import com.example.swp.service.ContractService;
-import com.example.swp.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-
 @Controller
-@RequestMapping("/manager/contracts")
+@RequestMapping("/admin/contracts")
 public class ManagerContractController {
 
     @Autowired
     private ContractService contractService;
 
     @GetMapping
-    public String showAllContracts(Model model) {
-        List<EContract> contracts = contractService.getAllContracts();
-        model.addAttribute("contracts", contracts);
-        model.addAttribute("statuses", EContractStatus.values()); // Dùng cho dropdown
-        return "manager/contract-management";
+    public String viewContracts(Model model,
+                                @RequestParam(defaultValue = "0") int page,
+                                @RequestParam(defaultValue = "7") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<EContract> contractPage = contractService.getContractsPage(pageable); // ✅ gọi đúng hàm
+
+        model.addAttribute("contracts", contractPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", contractPage.getTotalPages());
+        model.addAttribute("pageSize", size);
+        model.addAttribute("statuses", EContractStatus.values());
+
+        return "manager-contract-list";
     }
 
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model) {
-        EContract contract = contractService.getContractById(id).orElse(null);
-        if (contract == null) return "redirect:/manager/contracts";
-        model.addAttribute("contract", contract);
-        model.addAttribute("statuses", EContractStatus.values()); // thêm dòng này để dropdown hoạt động
-        return "manager/edit-contract";
+    @PostMapping("/change-status/{id}")
+    public String changeContractStatus(@PathVariable Integer id, @RequestParam("status") String status) {
+        contractService.updateContractStatus(id.longValue(), status);
+        return "redirect:/admin/contracts";
     }
-
-    @PostMapping("/edit")
-    public String updateContract(@ModelAttribute EContract contract) {
-        contractService.updateContract(contract);
-        return "redirect:/manager/contracts";
-    }
-
-    @PostMapping("/delete/{id}")
-    public String deleteContract(@PathVariable Long id) {
-        contractService.deleteContract(id);
-        return "redirect:/manager/contracts";
-    }
-
-    @PostMapping("/update-status")
-    public String updateStatus(@RequestParam Long id, @RequestParam String status) {
-        contractService.updateContractStatus(id, status);
-        return "redirect:/manager/contracts";
-    }
-    @Autowired
-    private NotificationService notificationService;
-    @Autowired
-    private EContractRepository eContractRepository;
-
-    @PostMapping("/update-status/{id}")
-    public String updateContractStatus(@PathVariable("id") Long id, @RequestParam("status") String status) {
-        Optional<EContract> optionalContract = eContractRepository.findById(id);
-        if (optionalContract.isPresent()) {
-            EContract contract = optionalContract.get();
-            contract.setStatus(EContractStatus.valueOf(status));
-            eContractRepository.save(contract);
-
-            // Gửi thông báo cho Customer của hợp đồng
-            String message = "Trạng thái hợp đồng " + contract.getContractCode() + " đã được cập nhật thành: " + status;
-            notificationService.createNotification(message, contract.getOrder().getCustomer());
-        }
-        return "redirect:/manager/contracts";
-    }
-
 }

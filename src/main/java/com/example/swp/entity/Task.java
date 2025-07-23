@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
 
 
 @Getter
@@ -28,7 +30,15 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
+    @ManyToMany
+    @JoinTable(
+        name = "task_staff",
+        joinColumns = @JoinColumn(name = "task_id"),
+        inverseJoinColumns = @JoinColumn(name = "staff_id")
+    )
+    private List<Staff> assignedStaff = new ArrayList<>();
+
     @ManyToOne
-    @JoinColumn(name = "staff_id")
-    private Staff assignedStaff;
+    @JoinColumn(name = "manager_id")
+    private Manager assignedManager;
 }

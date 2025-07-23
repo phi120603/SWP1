@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
-<html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trang chủ</title>
   <link rel="stylesheet" href="/css/home-page.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
 </head>
 <body>
 <!-- Navigation -->
@@ -28,33 +29,39 @@
   <div class="user-menu" style="display: flex; align-items: center; gap: 15px;">
 
     <!-- Notification Bell -->
-    <li>
-      <a th:href="@{/notifications}" class="notification-bell" title="Thông báo" style="position:relative;">
-        <i class="fa fa-bell" style="font-size:1.5rem;"></i>
-        <span class="notification-badge"
-              th:if="${unreadCount > 0}"
-              th:text="${unreadCount}"
-              style="position:absolute;top:-8px;right:-8px;background:#e74c3c;color:white;border-radius:50%;padding:2px 7px;font-size:0.9rem;"></span>
-      </a>
-    </li>
-    <!-- Profile Menu (icon người) -->
-    <li class="profile-menu" style="position:relative;">
-      <a href="javascript:void(0);" id="profileMenuBtn" title="Tài khoản">
-        <i class="fa fa-user-circle" style="font-size: 1.8rem; color: white;"></i>
-      </a>
-      <ul class="profile-dropdown" id="profileDropdown">
-        <li><a th:href="@{/profile(tab='info')}"><i class="fa fa-id-card"></i> Thông tin cá nhân</a></li>
-        <li><a th:href="@{/profile(tab='update')}"><i class="fa fa-edit"></i> Cập nhật thông tin</a></li>
-        <li><a th:href="@{/profile(tab='forgot')}"><i class="fa fa-unlock-alt"></i> Quên mật khẩu</a></li>
-        <li>
-          <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" style="background:none;border:none;padding:10px 22px;width:100%;text-align:left;cursor:pointer;">
-              <i class="fa fa-sign-out-alt"></i> Đăng xuất
-            </button>
-          </form>
-        </li>
-      </ul>
-    </li>
+    <ul style="display: flex; align-items: center; gap: 24px; list-style: none; margin: 0;">
+      <!-- Chuông thông báo -->
+      <li>
+        <a th:href="@{/notifications}" class="notification-bell" title="Thông báo" style="position:relative; color: white;">
+          <i class="fa fa-bell" style="font-size:1.5rem;"></i>
+          <span class="notification-badge"
+                th:if="${unreadCount > 0}"
+                th:text="${unreadCount}"
+                style="position:absolute;top:-8px;right:-8px;background:#e74c3c;color:white;border-radius:50%;padding:2px 7px;font-size:0.8rem;"></span>
+        </a>
+      </li>
+
+      <!-- Hồ sơ người dùng -->
+      <li class="profile-menu" style="position:relative;">
+        <a href="javascript:void(0);" id="profileMenuBtn" title="Tài khoản" style="color:white;">
+          <i class="fa fa-user-circle" style="font-size: 1.8rem;"></i>
+        </a>
+        <ul class="profile-dropdown" id="profileDropdown"
+            style="display:none;position:absolute;right:0;top:40px;background:white;padding:0;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:999;width:200px;">
+          <li style="border-bottom: 1px solid #eee;"><a th:href="@{/profile(tab='info')}" style="display:block;padding:10px 16px;text-decoration:none;color:#333;"><i class="fa fa-id-card"></i> Thông tin cá nhân</a></li>
+          <li style="border-bottom: 1px solid #eee;"><a th:href="@{/profile(tab='update')}" style="display:block;padding:10px 16px;text-decoration:none;color:#333;"><i class="fa fa-edit"></i> Cập nhật thông tin</a></li>
+          <li style="border-bottom: 1px solid #eee;"><a th:href="@{/profile(tab='forgot')}" style="display:block;padding:10px 16px;text-decoration:none;color:#333;"><i class="fa fa-unlock-alt"></i> Quên mật khẩu</a></li>
+          <li>
+            <form th:action="@{/logout}" method="post" style="margin:0;">
+              <button type="submit" style="background:none;border:none;padding:10px 16px;width:100%;text-align:left;color:#333;cursor:pointer;">
+                <i class="fa fa-sign-out-alt"></i> Đăng xuất
+              </button>
+            </form>
+          </li>
+        </ul>
+      </li>
+    </ul>
+
     </ul>
   </div>
 </nav>

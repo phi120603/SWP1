@@ -71,7 +71,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Loại giao dịch</th>
-                        <th>Khách hàng</th>
+                        <th>ID Khách hàng</th>
                         <th>Kho</th>
                         <th>Ngày giao dịch</th>
                         <th>Hành động</th>
@@ -81,7 +81,7 @@
                     <tr th:each="tran : ${transactions}">
                         <td th:text="${tran.id}"></td>
                         <td th:text="${tran.type}"></td>
-                        <td th:text="${tran.customer.fullname}"></td>
+                        <td th:text="${tran.customer.id}"></td>
                         <td th:text="${tran.storage.storagename}"></td>
                         <td th:text="${#temporals.format(tran.transactionDate, 'dd/MM/yyyy HH:mm')}"></td>
                         <td>

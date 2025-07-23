@@ -1,5 +1,6 @@
 package com.example.swp.controller.website;
 
+import com.example.swp.annotation.LogActivity;
 import com.example.swp.entity.Voucher;
 import com.example.swp.entity.VoucherUsage;
 import com.example.swp.service.VoucherService;
@@ -38,6 +39,7 @@ public class VoucherController {
         return "add-voucher";
     }
 
+    @LogActivity(action = "Tạo voucher mới")
     @PostMapping("/staff/addvoucher")
     public String addVoucher(@ModelAttribute Voucher voucher, RedirectAttributes redirectAttributes) {
         try {
@@ -72,6 +74,7 @@ public class VoucherController {
         }
     }
 
+    @LogActivity(action = "Cập nhật voucher")
     @PostMapping("/staff/vouchers/{id}/edit")
     public String editVoucher(@PathVariable Integer id,
                               @ModelAttribute Voucher voucher,
@@ -101,6 +104,7 @@ public class VoucherController {
         return "redirect:/SWP/staff/vouchers";
     }
 
+    @LogActivity(action = "Xóa voucher")
     @PostMapping("/staff/vouchers/{id}/delete")
     public String deleteVoucher(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         try {
