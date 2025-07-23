@@ -181,16 +181,16 @@ public class IssueController {
     }
 
     // ----------- Xem chi tiết Issue -----------
-    @GetMapping("/view")
-    public String viewIssue(@RequestParam("id") int id, Model model) {
-        Optional<Issue> issueOpt = issueService.getIssueById(id);
-        if (issueOpt.isEmpty()) {
-            model.addAttribute("error", "Không tìm thấy Issue!");
-            return "issue-view";
-        }
-        model.addAttribute("issue", issueOpt.get());
-        return "issue-view";
-    }
+//    @GetMapping("/view")
+//    public String viewIssue(@RequestParam("id") int id, Model model) {
+//        Optional<Issue> issueOpt = issueService.getIssueById(id);
+//        if (issueOpt.isEmpty()) {
+//            model.addAttribute("error", "Không tìm thấy Issue!");
+//            return "issue-view";
+//        }
+//        model.addAttribute("issue", issueOpt.get());
+//        return "issue-view";
+//    }
 
     // ----------- Hiển thị form sửa Issue -----------
     @GetMapping("/edit")
@@ -306,15 +306,15 @@ public class IssueController {
         return "staff-issue-list";
     }
 
-//    @GetMapping("/staff/view/{id}")
-//    public String viewIssue(@PathVariable int id, Model model) {
-//        Optional<Issue> issueOpt = issueService.getIssueById(id);
-//        if (issueOpt.isPresent()) {
-//            model.addAttribute("issue", issueOpt.get());
-//            return "staff-issue-detail";
-//        }
-//        return "redirect:/SWP/issues/staff";
-//    }
+    @GetMapping("/staff/view/{id}")
+    public String viewIssue(@PathVariable int id, Model model) {
+        Optional<Issue> issueOpt = issueService.getIssueById(id);
+        if (issueOpt.isPresent()) {
+            model.addAttribute("issue", issueOpt.get());
+            return "staff-issue-detail";
+        }
+        return "redirect:/SWP/issues/staff";
+    }
 
     @GetMapping("/{id}/detail")
     public String issueDetail(@PathVariable("id") int id, Model model) {
