@@ -158,16 +158,18 @@ body {
 }
 
 .search-grid {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr 1fr;
+    display: flex;
+    flex-wrap: nowrap;
     gap: 1.5rem;
-    align-items: end;
+    align-items: flex-end;
+    margin-left: 60px;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    flex: 1;
 }
 
 .form-group label {
@@ -182,6 +184,18 @@ body {
     position: relative;
     display: flex;
     align-items: center;
+}
+
+.input-with-button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.select-with-button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .input-with-icon i {
@@ -245,16 +259,6 @@ body {
     box-shadow: 0 0 0 4px rgba(44, 62, 80, 0.1);
 }
 
-.form-actions {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: flex-start;
-    grid-column: 1 / -1;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-}
-
 /* Buttons */
 .btn {
     display: inline-flex;
@@ -301,9 +305,32 @@ body {
     transform: translateY(-2px);
 }
 
-.btn-full {
-    width: 100%;
+.btn-search, .btn-reset {
+    height: 48px;
+}
+
+.btn-cart-icon {
+    padding: 0.875rem;
+    width: 48px;
+    height: 48px;
+    display: flex;
     justify-content: center;
+    align-items: center;
+}
+
+.btn-cart-icon i {
+    position: static;
+    width: 20px;
+    height: 20px;
+}
+
+/* Card Footer */
+.card-footer {
+    padding: 1rem 1.5rem 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: space-between;
+    align-items: center;
 }
 
 /* Results Section */
@@ -475,10 +502,6 @@ body {
     color: #9ca3af;
 }
 
-.card-footer {
-    padding: 1rem 1.5rem 1.5rem;
-}
-
 /* No Results */
 .no-results {
     text-align: center;
@@ -646,13 +669,8 @@ body {
 /* Responsive Design */
 @media (max-width: 1200px) {
     .search-grid {
-        grid-template-columns: 1fr 1fr;
+        flex-wrap: wrap;
         gap: 1rem;
-    }
-
-    .form-actions {
-        grid-column: 1 / -1;
-        justify-content: center;
     }
 }
 
@@ -684,8 +702,22 @@ body {
     }
 
     .search-grid {
-        grid-template-columns: 1fr;
+        flex-direction: column;
         gap: 1rem;
+    }
+
+    .input-with-button, .select-with-button {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .form-input, .form-select {
+        width: 100%;
+    }
+
+    .btn-search, .btn-reset {
+        width: 100%;
+        justify-content: center;
     }
 
     .results-header {
@@ -731,11 +763,13 @@ body {
     display: inline-flex;
     align-items: center;
 }
+
 .btn-back-floating:hover {
     background: #e3fbe7;
     color: #127734;
     border-color: #127734;
 }
+
 @media (max-width: 600px) {
     .btn-back-floating {
         top: 8px;
@@ -744,7 +778,6 @@ body {
         padding: 6px 12px 6px 10px;
     }
 }
-
 
 @media (max-width: 480px) {
     .hero-content h1 {
@@ -766,26 +799,28 @@ body {
 }
 
 input[name="userAddress"] {
-    border: 1px solid #d1d5db; /* Similar border as other inputs */
-    border-radius: 8px; /* Common border-radius (e.g., 6px) */
-    padding: 0.75rem 1rem; /* Adjust padding to match other inputs */
-    font-size: 1rem; /* Standard font size */
-    line-height: 1.5rem; /* Standard line height */
-    color: #1f2937; /* Text color */
-    background-color: #ffffff; /* White background */
-    width: 325%; /* Ensure it takes full width of its container */
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Subtle shadow if others have it */
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    color: #1f2937;
+    background-color: #ffffff;
+    width: 325%;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
 
-    &::placeholder {
-        color: #6b7280; /* Placeholder text color */
-        opacity: 1; /* Ensure placeholder is not transparent */
-    }
+input[name="userAddress"]::placeholder {
+    color: #6b7280;
+    opacity: 1;
+}
 
-    &:focus {
-        outline: none; /* Remove default outline */
-        border-color: #3b82f6; /* A common focus border color (e.g., blue) */
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* Focus ring */
-    }
+input[name="userAddress"]:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
 
-    min-height: 2.75rem; /* Example: adjust based on other inputs' height */
+input[name="userAddress"] {
+    min-height: 2.75rem;
 }
