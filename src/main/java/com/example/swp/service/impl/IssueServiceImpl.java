@@ -52,7 +52,7 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public Issue createIssue(IssueRequest issueRequest) {
+    public Issue createIssue(IssueRequest issueRequest, String createdByType) {
         Customer customer = null;
         if (issueRequest.getCustomerId() != null) {
             customer = customerRepository.findById(issueRequest.getCustomerId())
@@ -69,8 +69,7 @@ public class IssueServiceImpl implements IssueService {
         issue.setAssignedStaff(staff);
         issue.setCreatedDate(new Date());
         issue.setResolved(false);
-        issue.setCreatedByType("CUSTOMER");
-//        issue.setStatus(IssueStatus.Pending);
+        issue.setCreatedByType(createdByType);
         issue.setStatus(IssueStatus.Pending);
 
         Issue savedIssue = issueRepository.save(issue);

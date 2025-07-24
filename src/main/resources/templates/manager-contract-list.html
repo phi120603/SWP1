@@ -5,22 +5,35 @@
     <title>Quản lý hợp đồng - QVL</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
-        /* Base styles & Reset */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
-        body {
+        html, body {
+            height: 100%;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #1f2937;
             background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #e0e7ff 100%);
-            min-height: 100vh;
-            padding: 2rem 1.5rem;
+            color: #1f2937;
+        }
+        .layout-wrapper {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px; /* hoặc kích thước bạn muốn */
+            background-color: #6c5ce7;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-x: auto;
         }
 
         .container {
@@ -28,11 +41,10 @@
             margin: 0 auto;
             background: rgba(255,255,255,0.9);
             border-radius: 1rem;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1),0 8px 10px -6px rgba(0,0,0,0.1);
-            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
             border: 1px solid #e5e7eb;
+            overflow-x: auto;
         }
-
         h2 {
             display: flex;
             align-items: center;
@@ -44,160 +56,146 @@
             background: linear-gradient(to right, #f9fafb 0%, #f3f4f6 100%);
             border-bottom: 1px solid #e5e7eb;
         }
-
-        h2 svg { width: 1.75rem; height: 1.75rem; color: #2563eb; }
-
+        h2 svg {
+            width: 1.75rem;
+            height: 1.75rem;
+            color: #2563eb;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 900px;
         }
-
-        thead { background-color: #f9fafb; }
-        th {
-            padding: 1.25rem 1.5rem;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.875rem;
-            color: #374151;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 2px solid #e5e7eb;
-            white-space: nowrap;
+        thead {
+            background-color: #f9fafb;
         }
-
-        td {
+        th, td {
             padding: 1rem 1.5rem;
-            border-bottom: 1px solid #f3f4f6;
-            vertical-align: middle;
-            font-size: 0.9375rem;
-            color: #374151;
+            text-align: left;
+            font-size: 0.875rem;
+            border-bottom: 1px solid #e5e7eb;
             white-space: nowrap;
         }
-
-        tbody tr { transition: background-color .2s ease, transform .2s ease; }
+        th {
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #374151;
+            letter-spacing: 0.05em;
+        }
+        td {
+            color: #374151;
+        }
         tbody tr:hover {
             background-color: #eff6ff;
             transform: translateY(-2px);
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -2px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
         }
-
-        .contract-code { font-family: Monaco, Menlo, Ubuntu Mono, monospace; font-size: .875rem;
-            background: #e0e7ff; color: #1d4ed8; padding:.3rem .6rem; border-radius:.375rem;
-            font-weight:600; border:1px solid #93c5fd; display:inline-block;
+        .contract-code {
+            font-family: monospace;
+            font-size: 0.875rem;
+            background: #e0e7ff;
+            color: #1d4ed8;
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            border: 1px solid #93c5fd;
         }
-
-        .amount { font-weight:700; color:#059669; font-size:1rem; }
-        .status-text { font-weight:600; color:#2563eb; }
-
-        form.status-form { display:flex; align-items:center; gap:.5rem; }
-        form.status-form input[type=hidden] { display:none; }
-
+        .amount {
+            font-weight: 700;
+            color: #059669;
+        }
+        .status-text {
+            font-weight: 600;
+            color: #2563eb;
+        }
+        form.status-form {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        select, button[type=submit] {
+            font-size: 0.875rem;
+            border-radius: 0.375rem;
+        }
         select {
-            padding:.5rem .75rem; border:1px solid #d1d5db; border-radius:.375rem;
-            font-size:.875rem; font-weight:500; background:white;
-            min-width:120px; transition:all .2s ease; appearance:none;
-            background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23374151' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-            background-repeat:no-repeat; background-position:right .75rem center;
-            background-size:.625rem .625rem;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            background: white;
         }
-
-        select:focus { outline:none; border-color:#2563eb;
-            box-shadow:0 0 0 3px rgba(37,99,235,0.1);
-        }
-
         button[type=submit] {
-            display:inline-flex; align-items:center; justify-content:center;
-            padding:.5rem 1rem; font-size:.875rem; font-weight:600;
-            border-radius:.375rem; border:none; cursor:pointer;
-            background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);
-            color:#fff; transition:all .2s ease; text-transform:uppercase;
-            letter-spacing:.025em;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
         }
-
-        button[type=submit]:hover { opacity:.9; transform:translateY(-1px);
-            box-shadow:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -2px rgba(0,0,0,0.1);
-        }
-
-        button.loading { opacity:.6; pointer-events:none; }
-        button.loading::after {
-            content:""; width:1rem; height:1rem;
-            border:2px solid transparent; border-top:2px solid #fff;
-            border-radius:50%; animation:spin 1s linear infinite;
-            margin-left:.5rem;
-            display:inline-block; vertical-align:middle;
-        }
-
-        @keyframes spin { to { transform:rotate(360deg); } }
-
-        /* Responsive */
-        @media (max-width:1024px) { .container { overflow-x:auto; } table { min-width:900px; } }
-        @media (max-width:768px) {
-            body { padding:1rem; }
-            h2 { font-size:1.5rem; padding:1rem 1.25rem; }
-            th, td { padding:.75rem 1rem; font-size:.8125rem; }
-            form.status-form { flex-direction:column; align-items:stretch; gap:.25rem; }
-            select, button { width:100%; min-width:unset; }
-        }
-
-        .success-notification {
-            position:fixed; top:2rem; right:2rem;
-            background:#059669; color:#fff; padding:1rem 1.5rem;
-            border-radius:.5rem; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);
-            transform:translateX(100%); transition:transform .3s ease-out; z-index:1000;
-            font-weight:600;
-        }
-        .success-notification.show { transform:translateX(0); }
         .pagination {
-            margin-top: 30px;
+            margin-top: 2rem;
             display: flex;
             justify-content: center;
             gap: 8px;
-            flex-wrap: wrap;
         }
-
         .page-link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
             width: 38px;
             height: 38px;
-            background-color: white;
-            color: #2d3748;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             border: 2px solid #e2e8f0;
             border-radius: 6px;
-            font-weight: 500;
-            font-size: 14px;
             text-decoration: none;
-            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+            background: white;
+            color: #2d3748;
         }
-
-        .page-link:hover:not(.active):not(.disabled) {
-            background-color: #4c51bf;
-            color: white;
-            border-color: #4c51bf;
-            transform: translateY(-2px);
-        }
-
-        .page-link.active {
-            background-color: #4c51bf;
+        .page-link.active, .page-link:hover:not(.disabled) {
+            background: #4c51bf;
             color: white;
             border-color: #4c51bf;
         }
-
         .page-link.disabled {
             pointer-events: none;
             opacity: 0.5;
-            background-color: #edf2f7;
-            color: #a0aec0;
-            border-color: #e2e8f0;
         }
 
+        body {
+            margin: 0;
+            display: flex;
+            font-family: Arial, sans-serif;
+        }
 
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: linear-gradient(to bottom right, #7b6ee6, #7753c0);
+            color: white;
+            padding: 20px 10px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            flex: 1;
+            background-color: #f4f7ff;
+            min-height: 100vh;
+            overflow-x: auto;
+        }
 
     </style>
 </head>
 <body>
-<div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
+<div class="layout-wrapper">
+    <aside class="sidebar">
+        <div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
+    </aside>
+    <div class="main-content">
 <div class="container">
     <h2>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-signature"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M10 14.5c.3.3.6.5.9.7c.3.2.7.3 1.1.3c.4 0 .8-.1 1.1-.3c.3-.2.6-.4.9-.7"/><path d="M12 17v-2.5s1.5-1.5 3-3"/><path d="M12 17v-2.5s-1.5-1.5-3-3"/></svg>
@@ -272,13 +270,12 @@
                 <i class="fas fa-chevron-right"></i>
             </a>
         </div>
-
-
-
     </div>
 </div>
+</div>
+</div>
 
-<div id="successNotification" class="success-notification">✅ Cập nhật thành công!</div>
+<!--<div id="successNotification" class="success-notification">✅ Cập nhật thành công!</div>-->
 
 <script>
     document.addEventListener('DOMContentLoaded', ()=>{
