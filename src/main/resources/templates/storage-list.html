@@ -155,10 +155,14 @@
 </script>
 <div id="toast" class="toast"></div>
 <script>
-    let wishlistItems = new Set();
-    document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+
+    const wishlistItems = new Set();
+
+    document.addEventListener('DOMContentLoaded', () => {
         loadWishlist();
     });
+
     async function loadWishlist() {
         try {
             const response = await fetch('/api/wishlist/my');
@@ -166,33 +170,36 @@
                 const wishlist = await response.json();
                 wishlistItems.clear();
                 wishlist.forEach(item => {
-                    if (item.storage && item.storage.storageid) {
+                    if (item.storage?.storageid) {
                         wishlistItems.add(item.storage.storageid);
                     }
                 });
                 updateWishlistUI();
-                updateCartCount();
             } else if (response.status === 401) {
                 console.log('User not logged in');
-                updateCartCount();
+            } else {
+                console.error('Failed to load wishlist:', response.status);
             }
         } catch (error) {
-            console.log('Error loading wishlist:', error);
+            console.error('Error loading wishlist:', error);
+        } finally {
             updateCartCount();
         }
     }
+
     async function toggleWishlist(button) {
-        const storageId = parseInt(button.getAttribute('data-storage-id'));
+        const storageId = parseInt(button.dataset.storageId);
         const isInWishlist = wishlistItems.has(storageId);
+        const url = isInWishlist ? '/api/wishlist/remove' : '/api/wishlist/add';
+
         try {
-            const url = isInWishlist ? '/api/wishlist/remove' : '/api/wishlist/add';
+            button.disabled = true;
             const response = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ storageId })
             });
+
             if (response.ok) {
                 if (isInWishlist) {
                     wishlistItems.delete(storageId);
@@ -202,30 +209,32 @@
                     showToast('Đã thêm vào wishlist!', 'success');
                 }
                 updateWishlistUI();
-                updateCartCount();
             } else {
                 const errorText = await response.text();
                 showToast(errorText || 'Có lỗi xảy ra!', 'error');
             }
         } catch (error) {
-            showToast('Có lỗi xảy ra!', 'error');
             console.error('Error:', error);
+            showToast('Có lỗi xảy ra!', 'error');
         } finally {
             button.disabled = false;
+            updateCartCount();
         }
     }
+
     function updateWishlistUI() {
         document.querySelectorAll('.btn-wishlist').forEach(button => {
-            const storageId = parseInt(button.getAttribute('data-storage-id'));
-            if (wishlistItems.has(storageId)) {
-                button.classList.add('in-wishlist');
-                button.innerHTML = '<i data-lucide="check"></i>';
-            } else {
-                button.classList.remove('in-wishlist');
-                button.innerHTML = '<i data-lucide="shopping-cart"></i>';
-            }
+            const storageId = parseInt(button.dataset.storageId);
+            const inWishlist = wishlistItems.has(storageId);
+
+            button.classList.toggle('in-wishlist', inWishlist);
+            button.innerHTML = inWishlist
+                ? '<i data-lucide="check"></i>'
+                : '<i data-lucide="shopping-cart"></i>';
         });
+        lucide.createIcons();
     }
+
     function updateCartCount() {
         const count = wishlistItems.size;
         const cartCountElement = document.getElementById('cartCount');
@@ -234,24 +243,22 @@
             cartCountElement.style.display = count === 0 ? 'none' : 'flex';
         }
     }
+
     function goToWishlist() {
-        try {
-            window.location.href = '/SWP/wishlist';
-        } catch (error) {
-            console.error('Error navigating to wishlist:', error);
-            showToast('Có lỗi khi chuyển trang!', 'error');
-        }
+        window.location.href = '/SWP/wishlist';
     }
+
     function showToast(message, type = 'success') {
         const toast = document.getElementById('toast');
-        if (toast) {
-            toast.textContent = message;
-            toast.className = 'toast ' + type;
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
+        if (!toast) return;
+
+        toast.textContent = message;
+        toast.className = `toast ${type}`;
+        toast.classList.add('show');
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
     }
 </script>
 </body>

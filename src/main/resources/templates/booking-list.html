@@ -14,7 +14,7 @@
     }
 
     .results-section {
-      max-width: 1500px; /* Cùng độ rộng với search-card */
+      max-width: 1500px;
       margin-left: auto;
       margin-right: auto;
     }
@@ -29,51 +29,50 @@
     .btn-primary:hover { background: #4e9d05; color: #fff; }
 
     .search-card {
-      max-width: 1500px; /* Giới hạn chiều rộng tối đa */
+      max-width: 1500px;
       margin-left: auto;
       margin-right: auto;
     }
 
     .search-grid {
-      grid-template-columns: 1fr 1fr auto; /* Chỉ 2 cột chính + 1 cột nút */
+      grid-template-columns: 1fr 1fr 1fr auto; /* Thêm cột cho userAddress */
       gap: 1rem;
     }
-    /* Đảm bảo storage grid luôn hiển thị 3 cột */
+
     .storage-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr) !important; /* Force 3 cột bằng nhau */
+      grid-template-columns: repeat(3, 1fr) !important;
       gap: 1.5rem;
       width: 100%;
       box-sizing: border-box;
     }
 
-    /* Responsive cho màn hình nhỏ */
     @media (max-width: 1200px) {
       .search-grid {
-        grid-template-columns: 1fr 1fr; /* 2 cột trên màn hình vừa */
+        grid-template-columns: 1fr 1fr;
       }
     }
 
     @media (max-width: 900px) {
       .storage-grid {
-        grid-template-columns: repeat(2, 1fr) !important; /* 2 cột trên tablet */
+        grid-template-columns: repeat(2, 1fr) !important;
       }
     }
 
     @media (max-width: 768px) {
       .search-grid {
-        grid-template-columns: 1fr; /* 1 cột trên mobile */
+        grid-template-columns: 1fr;
       }
 
       .storage-grid {
-        grid-template-columns: 1fr !important; /* 1 cột trên mobile */
+        grid-template-columns: 1fr !important;
       }
     }
   </style>
 </head>
 <body>
 <a href="javascript:history.back()" class="btn-back-floating" title="Quay lại" style="display:inline-block;position:fixed;left:15px;top:20px;z-index:999; margin-top:-5px;">
-  <span style="font-size: 22px; vertical-align: middle;">&#8592;</span>
+  <span style="font-size: 22px; vertical-align: middle;">←</span>
   <span style="margin-left: 4px; vertical-align: middle;">Quay lại</span>
 </a>
 
@@ -91,6 +90,8 @@
 
   <!-- MAIN CONTENT -->
   <div class="container" style="max-width: 100%; width: 100%;box-sizing: border-box;">
+    <!-- Error Message -->
+    <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
 
     <!-- Bộ lọc tìm kiếm -->
     <div class="search-section">
@@ -130,6 +131,19 @@
             </div>
 
             <div class="form-group">
+              <label for="userAddress">Địa chỉ của bạn</label>
+              <div class="input-with-icon">
+                <i data-lucide="map-pin"></i>
+                <input type="text"
+                       id="userAddress"
+                       name="userAddress"
+                       th:value="${userAddress}"
+                       placeholder="Nhập địa chỉ để tìm kho gần nhất"
+                       class="form-input">
+              </div>
+            </div>
+
+            <div class="form-group">
               <label for="sortOption">Sắp xếp</label>
               <div class="select-wrapper">
                 <select name="sortOption" id="sortOption" class="form-select">
@@ -147,14 +161,13 @@
 
           </div>
 
-          <!-- Advanced Filters - Collapsible section -->
+          <!-- Advanced Filters -->
           <div class="advanced-filters" style="margin-top: 1.5rem;">
             <details>
               <summary style="cursor: pointer; font-weight: 600; color: #374151; margin-bottom: 1rem;">
                 <i data-lucide="sliders-horizontal" style="margin-right: 0.5rem;"></i>
                 Bộ lọc
               </summary>
-
               <div class="advanced-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
                 <div class="form-group">
                   <label for="minArea">Diện tích tối thiểu (m²)</label>
@@ -169,7 +182,6 @@
                            class="form-input">
                   </div>
                 </div>
-
                 <div class="form-group">
                   <label for="minPrice">Giá từ (VNĐ/ngày)</label>
                   <div class="input-with-icon">
@@ -183,7 +195,6 @@
                            class="form-input">
                   </div>
                 </div>
-
                 <div class="form-group">
                   <label for="maxPrice">Giá đến (VNĐ/ngày)</label>
                   <div class="input-with-icon">
@@ -199,6 +210,12 @@
                 </div>
               </div>
             </details>
+          </div>
+
+          <div style="margin-top: 1rem; text-align: right;">
+            <button type="submit" class="btn btn-primary">
+              <i data-lucide="search"></i> Tìm kiếm
+            </button>
           </div>
         </form>
       </div>
@@ -258,6 +275,11 @@
               <div class="info-item">
                 <i data-lucide="globe"></i>
                 <span th:text="${storage.city}">Thành phố</span>
+              </div>
+              <!-- Display distance if userAddress is provided -->
+              <div class="info-item" th:if="${userAddress != null and not #strings.isEmpty(userAddress)}">
+                <i data-lucide="map"></i>
+                <span th:text="${haversineUtil != null ? #numbers.formatDecimal(haversineUtil.haversine(userCoordinates[0], userCoordinates[1], storage.latitude, storage.longitude), 1, 2, 'POINT') + ' km' : 'N/A'}">0 km</span>
               </div>
             </div>
           </div>

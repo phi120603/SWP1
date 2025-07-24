@@ -162,7 +162,6 @@ body {
     flex-wrap: nowrap;
     gap: 1.5rem;
     align-items: flex-end;
-    margin-left: 60px;
 }
 
 .form-group {
@@ -802,11 +801,12 @@ input[name="userAddress"] {
     border: 1px solid #d1d5db;
     border-radius: 8px;
     padding: 0.75rem 1rem;
+    margin-top: 15px;
     font-size: 1rem;
     line-height: 1.5rem;
     color: #1f2937;
     background-color: #ffffff;
-    width: 325%;
+    width: 100%;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
