@@ -4,6 +4,7 @@ import com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Storage;
 import com.example.swp.repository.StorageRepository;
 import com.example.swp.repository.StorageRepository;
+import com.example.swp.service.GeocodingService;
 import com.example.swp.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,10 @@ import java.util.Optional;
 public class StorageServiceimpl implements StorageService {
     @Autowired
     private StorageRepository storageRepository;
+
+    @Autowired
+    private GeocodingService geocodingService;
+
     private List<Storage> storageList = new ArrayList<>();
     private Storage storage;
     @Override
@@ -40,6 +45,11 @@ public class StorageServiceimpl implements StorageService {
         if (storageRequest.getImUrl() != null && !storageRequest.getImUrl().isEmpty()) {
             storage.setImUrl(storageRequest.getImUrl());
         }
+
+        geocodingService.geocode(storage.getAddress()).ifPresent(coords -> {
+            storage.setLatitude(coords[0]);
+            storage.setLongitude(coords[1]);
+        });
 
         return storageRepository.save(storage);
     }
@@ -66,6 +76,11 @@ public class StorageServiceimpl implements StorageService {
         if (storageRequest.getImUrl() != null && !storageRequest.getImUrl().isEmpty()) {
             storage.setImUrl(storageRequest.getImUrl());
         }
+
+        geocodingService.geocode(storage.getAddress()).ifPresent(coords -> {
+            storage.setLatitude(coords[0]);
+            storage.setLongitude(coords[1]);
+        });
 
         return storageRepository.save(storage);
     }

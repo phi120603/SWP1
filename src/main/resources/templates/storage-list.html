@@ -1,38 +1,35 @@
-    <!DOCTYPE html>
-    <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <meta charset="UTF-8">
-        <title>Danh sách kho</title>
-        <link rel="stylesheet" th:href="@{/css/storage-list.css}">
-        <!-- Thêm vào phần <head> hoặc trước script cuối trang -->
-        <script src="https://unpkg.com/lucide@latest"></script>
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách kho</title>
+    <link rel="stylesheet" th:href="@{/css/storage-list.css}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="page-wrapper">
+    <!-- Navigation Bar -->
+    <div th:replace="taskbar/customer-navbar :: customerNavbar"></div>
 
-    </head>
-
-    <body>
-    <div class="page-wrapper">
-        <!-- Navigation Bar -->
-        <div th:replace="taskbar/customer-navbar :: customerNavbar"></div>
-
-        <!-- Hero Section -->
-        <div class="hero-section">
-            <div class="hero-content">
-                <h1>Tìm kiếm kho lưu trữ</h1>
-                <p>Hệ thống cho thuê kho hàng chuyên nghiệp với hơn 1000+ kho trên toàn quốc</p>
-            </div>
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1>Tìm kiếm kho lưu trữ</h1>
+            <p>Hệ thống cho thuê kho hàng chuyên nghiệp với hơn 1000+ kho trên toàn quốc</p>
         </div>
+    </div>
 
-        <!-- Main Content -->
-        <div class="container">
-            <!-- Search Section -->
-            <div class="search-section">
-                <div class="search-card">
-                    <form method="get" th:action="@{/SWP/storages}" class="search-form">
-                        <div class="search-grid">
-                            <div class="form-group">
-                                <label for="storageName">Tên kho</label>
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-card">
+                <form method="get" th:action="@{/SWP/storages}" class="search-form">
+                    <div class="search-grid">
+                        <div class="form-group">
+                            <label for="storageName">Tên kho</label>
+                            <div class="input-with-button">
                                 <div class="input-with-icon">
-                                    <i data-lucide="search"></i>
                                     <input type="text"
                                            id="storageName"
                                            name="storageName"
@@ -40,311 +37,222 @@
                                            placeholder="Tìm theo tên kho..."
                                            class="form-input">
                                 </div>
+                                <button type="submit" class="btn btn-primary btn-search">
+                                    <i data-lucide="search"></i>
+                                    Tìm kiếm
+                                </button>
                             </div>
-
-                            <div class="form-group">
-                                <label for="city">Thành phố</label>
-                                <div class="select-wrapper">
-                                    <select name="city" id="city" class="form-select">
-                                        <option value="">Tất cả thành phố</option>
-                                        <option th:each="city : ${cities}"
-                                                th:value="${city}"
-                                                th:text="${city}"
-                                                th:selected="${param.city != null and param.city.equals(city)}">
-                                        </option>
-                                    </select>
-                                    <i data-lucide="chevron-down"></i>
-                                </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="city">Thành phố</label>
+                            <div class="select-wrapper">
+                                <select name="city" id="city" class="form-select">
+                                    <option value="">Tất cả thành phố</option>
+                                    <option th:each="city : ${cities}"
+                                            th:value="${city}"
+                                            th:text="${city}"
+                                            th:selected="${param.city != null and param.city.equals(city)}">
+                                    </option>
+                                </select>
                             </div>
-
-                            <div class="form-group">
-                                <label for="status">Trạng thái</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Trạng thái</label>
+                            <div class="select-with-button">
                                 <div class="select-wrapper">
                                     <select name="status" id="status" class="form-select">
                                         <option value="">Tất cả trạng thái</option>
                                         <option value="true" th:selected="${param.status != null and param.status.equals('true')}">Còn trống</option>
                                         <option value="false" th:selected="${param.status != null and param.status.equals('false')}">Đang thuê</option>
                                     </select>
-                                    <i data-lucide="chevron-down"></i>
                                 </div>
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">
-                                    <i data-lucide="search"></i>
-                                    Tìm kiếm
-                                </button>
-                                <a th:href="@{/SWP/storages}" class="btn btn-secondary">
+                                <a th:href="@{/SWP/storages}" class="btn btn-secondary btn-reset">
                                     <i data-lucide="filter-x"></i>
                                     Xóa bộ lọc
                                 </a>
                             </div>
                         </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Results Section -->
-            <div class="results-section">
-                <div class="results-header">
-                    <div class="results-info">
-                        <h2>Tìm thấy <span class="count" th:text="${storages.size()}">0</span> kho</h2>
                     </div>
-                </div>
-
-                <!-- Storage Grid -->
-                <div class="storage-grid" id="storageGrid">
-                    <div class="storage-card" th:each="storage : ${storages}">
-                        <div class="card-header">
-                            <h3 class="storage-name" th:text="${storage.storagename}">Tên kho</h3>
-                            <div th:class="${storage.status} ? 'status-badge status-available' : 'status-badge status-rented'"
-                                 th:text="${storage.status} ? 'Còn trống' : 'Đang thuê'">
-                                Trạng thái
-                            </div>
-                        </div>
-
-                        <div class="card-content">
-                            <div class="storage-info">
-                                <div class="info-item">
-                                    <i data-lucide="map-pin"></i>
-                                    <span th:text="${storage.address + ', ' + storage.state + ', ' + storage.city}">Địa chỉ</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card-footer">
-                            <a th:href="@{'/SWP/storages/' + ${storage.storageid}}" class="btn btn-primary btn-full">
-                                <i data-lucide="eye"></i>
-                                Xem chi tiết
-                            </a>
-                            <button class="btn-wishlist"
-                                    th:attr="data-storage-id=${storage.storageid}"
-                                    onclick="toggleWishlist(this)">
-                                + Thêm vào giỏ
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- No Results Message -->
-                <div th:if="${storages.isEmpty()}" class="no-results">
-                    <div class="no-results-icon">
-                        <i data-lucide="search-x"></i>
-                    </div>
-                    <h3>Không tìm thấy kho nào</h3>
-                    <p>Thử thay đổi bộ lọc tìm kiếm để xem thêm kết quả</p>
-                </div>
+                </form>
             </div>
         </div>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="container">
-                <div class="footer-content">
-                    <div class="footer-brand">
-                        <div class="brand-header">
-                            <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
-                                 alt="QVL Storage Logo" class="footer-logo">
-                            <h2 class="brand-name">QVL Storage</h2>
-                        </div>
-                        <p class="brand-description">
-                            Hệ thống cho thuê kho hàng chuyên nghiệp trên toàn quốc. Chúng tôi cung cấp giải pháp lưu trữ an toàn, tiện lợi và hiệu quả cho mọi nhu cầu kinh doanh.
-                        </p>
-                    </div>
-
-                    <div class="footer-column">
-                        <h3>Về chúng tôi</h3>
-                        <ul class="footer-links">
-                            <li><a href="#">Dịch vụ</a></li>
-                            <li><a href="#">Tin tức</a></li>
-                            <li><a href="#">Liên hệ</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="footer-column">
-                        <h3>Hỗ trợ</h3>
-                        <ul class="footer-links">
-                            <li><a href="#">Trung tâm trợ giúp</a></li>
-                            <li><a href="#">Chat trực tuyến</a></li>
-                            <li><a href="#">Hotline 24/7</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="footer-column">
-                        <h3>Sản phẩm</h3>
-                        <ul class="footer-links">
-                            <li><a href="#">Kho nhỏ</a></li>
-                            <li><a href="#">Kho vừa</a></li>
-                            <li><a href="#">Kho lớn</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="footer-divider"></div>
-
-                <div class="footer-bottom">
-                    <p class="copyright">Bản quyền ©2024. Tất cả quyền được bảo lưu. — QVL Storage System</p>
-                    <ul class="footer-bottom-links">
-                        <li><a href="#">Điều khoản & Điều kiện</a></li>
-                        <li><a href="#">Chính sách bảo mật</a></li>
-                    </ul>
+        <!-- Results Section -->
+        <div class="results-section">
+            <div class="results-header">
+                <div class="results-info">
+                    <h2>Tìm thấy <span class="count" th:text="${storages.size()}">0</span> kho</h2>
                 </div>
             </div>
-        </footer>
+
+            <!-- Storage Grid -->
+            <div class="storage-grid" id="storageGrid">
+                <div class="storage-card" th:each="storage : ${storages}">
+                    <div class="card-header">
+                        <h3 class="storage-name" th:text="${storage.storagename}">Tên kho</h3>
+                        <div th:class="${storage.status} ? 'status-badge status-available' : 'status-badge status-rented'"
+                             th:text="${storage.status} ? 'Còn trống' : 'Đang thuê'">
+                            Trạng thái
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="storage-info">
+                            <div class="info-item">
+                                <i data-lucide="map-pin"></i>
+                                <span th:text="${storage.address + ', ' + storage.state + ', ' + storage.city}">Địa chỉ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a th:href="@{'/SWP/storages/' + ${storage.storageid}}" class="btn btn-primary" style="width: 230px">
+                            <i data-lucide="eye"></i>
+                            Chi tiết
+                        </a>
+                        <button class="btn btn-wishlist btn-cart-icon"
+                                th:attr="data-storage-id=${storage.storageid}"
+                                onclick="toggleWishlist(this)">
+                            <i data-lucide="shopping-cart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No Results Message -->
+            <div th:if="${storages.isEmpty()}" class="no-results">
+                <div class="no-results-icon">
+                    <i data-lucide="search-x"></i>
+                </div>
+                <h3>Không tìm thấy kho nào</h3>
+                <p>Thử thay đổi bộ lọc tìm kiếm để xem thêm kết quả</p>
+            </div>
+        </div>
     </div>
 
-    <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
+    <!-- Footer -->
+    <div th:replace="taskbar/customer-footer :: customerFooter"></div>
+</div>
 
-        // View toggle functionality
-        const viewButtons = document.querySelectorAll('.view-btn');
-        const storageGrid = document.getElementById('storageGrid');
-
-        viewButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                viewButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-
-                const view = btn.dataset.view;
-                storageGrid.className = view === 'list' ? 'storage-list' : 'storage-grid';
+<script>
+    lucide.createIcons();
+    const viewButtons = document.querySelectorAll('.view-btn');
+    const storageGrid = document.getElementById('storageGrid');
+    viewButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            viewButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const view = btn.dataset.view;
+            storageGrid.className = view === 'list' ? 'storage-list' : 'storage-grid';
+        });
+    });
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
             });
         });
-
-        // Add smooth scroll behavior
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-    </script>
-    <div id="toast" class="toast"></div>
-
-    <script>
-        // Wishlist management
-        let wishlistItems = new Set();
-
-        // Load wishlist from server on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadWishlist();
-        });
-
-        async function loadWishlist() {
-            try {
-                const response = await fetch('/api/wishlist/my');
-                if (response.ok) {
-                    const wishlist = await response.json();
-                    wishlistItems.clear();
-                    wishlist.forEach(item => {
-                        if (item.storage && item.storage.storageid) {
-                            wishlistItems.add(item.storage.storageid);
-                        }
-                    });
-                    updateWishlistUI();
-                    updateCartCount();
-                } else if (response.status === 401) {
-                    // User not logged in, that's ok
-                    console.log('User not logged in');
-                    updateCartCount(); // Still update UI even if not logged in
-                }
-            } catch (error) {
-                console.log('Error loading wishlist:', error);
-                updateCartCount(); // Still update UI on error
-            }
-        }
-
-        async function toggleWishlist(button) {
-            const storageId = parseInt(button.getAttribute('data-storage-id'));
-            const isInWishlist = wishlistItems.has(storageId);
-
-            try {
-                const url = isInWishlist ? '/api/wishlist/remove' : '/api/wishlist/add';
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ storageId })
-                });
-
-                if (response.ok) {
-                    if (isInWishlist) {
-                        wishlistItems.delete(storageId);
-                        showToast('Đã xóa khỏi wishlist!', 'success');
-                    } else {
-                        wishlistItems.add(storageId);
-                        showToast('Đã thêm vào wishlist!', 'success');
+    });
+</script>
+<div id="toast" class="toast"></div>
+<script>
+    let wishlistItems = new Set();
+    document.addEventListener('DOMContentLoaded', function() {
+        loadWishlist();
+    });
+    async function loadWishlist() {
+        try {
+            const response = await fetch('/api/wishlist/my');
+            if (response.ok) {
+                const wishlist = await response.json();
+                wishlistItems.clear();
+                wishlist.forEach(item => {
+                    if (item.storage && item.storage.storageid) {
+                        wishlistItems.add(item.storage.storageid);
                     }
-                    updateWishlistUI();
-                    updateCartCount();
-                } else {
-                    const errorText = await response.text();
-                    showToast(errorText || 'Có lỗi xảy ra!', 'error');
-                }
-            } catch (error) {
-                showToast('Có lỗi xảy ra!', 'error');
-                console.error('Error:', error);
-                button.textContent = originalText;
-            } finally {
-                button.disabled = false;
+                });
+                updateWishlistUI();
+                updateCartCount();
+            } else if (response.status === 401) {
+                console.log('User not logged in');
+                updateCartCount();
             }
+        } catch (error) {
+            console.log('Error loading wishlist:', error);
+            updateCartCount();
         }
-
-        function updateWishlistUI() {
-            document.querySelectorAll('.btn-wishlist').forEach(button => {
-                const storageId = parseInt(button.getAttribute('data-storage-id'));
-                if (wishlistItems.has(storageId)) {
-                    button.classList.add('in-wishlist');
-                    button.textContent = '✓ Đã thêm';
-                } else {
-                    button.classList.remove('in-wishlist');
-                    button.textContent = '+ Thêm vào giỏ';
-                }
+    }
+    async function toggleWishlist(button) {
+        const storageId = parseInt(button.getAttribute('data-storage-id'));
+        const isInWishlist = wishlistItems.has(storageId);
+        try {
+            const url = isInWishlist ? '/api/wishlist/remove' : '/api/wishlist/add';
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ storageId })
             });
-        }
-
-        function updateCartCount() {
-            const count = wishlistItems.size;
-            const cartCountElement = document.getElementById('cartCount');
-
-            if (cartCountElement) {
-                cartCountElement.textContent = count;
-
-                // Hide count if 0
-                if (count === 0) {
-                    cartCountElement.style.display = 'none';
+            if (response.ok) {
+                if (isInWishlist) {
+                    wishlistItems.delete(storageId);
+                    showToast('Đã xóa khỏi wishlist!', 'success');
                 } else {
-                    cartCountElement.style.display = 'flex';
+                    wishlistItems.add(storageId);
+                    showToast('Đã thêm vào wishlist!', 'success');
                 }
+                updateWishlistUI();
+                updateCartCount();
+            } else {
+                const errorText = await response.text();
+                showToast(errorText || 'Có lỗi xảy ra!', 'error');
             }
+        } catch (error) {
+            showToast('Có lỗi xảy ra!', 'error');
+            console.error('Error:', error);
+        } finally {
+            button.disabled = false;
         }
-
-        // FIX: Add error handling for wishlist navigation
-        function goToWishlist() {
-            try {
-                window.location.href = '/SWP/wishlist';
-            } catch (error) {
-                console.error('Error navigating to wishlist:', error);
-                showToast('Có lỗi khi chuyển trang!', 'error');
+    }
+    function updateWishlistUI() {
+        document.querySelectorAll('.btn-wishlist').forEach(button => {
+            const storageId = parseInt(button.getAttribute('data-storage-id'));
+            if (wishlistItems.has(storageId)) {
+                button.classList.add('in-wishlist');
+                button.innerHTML = '<i data-lucide="check"></i>';
+            } else {
+                button.classList.remove('in-wishlist');
+                button.innerHTML = '<i data-lucide="shopping-cart"></i>';
             }
+        });
+    }
+    function updateCartCount() {
+        const count = wishlistItems.size;
+        const cartCountElement = document.getElementById('cartCount');
+        if (cartCountElement) {
+            cartCountElement.textContent = count;
+            cartCountElement.style.display = count === 0 ? 'none' : 'flex';
         }
-
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            if (toast) {
-                toast.textContent = message;
-                toast.className = 'toast ' + type;
-                toast.classList.add('show');
-
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 3000);
-            }
+    }
+    function goToWishlist() {
+        try {
+            window.location.href = '/SWP/wishlist';
+        } catch (error) {
+            console.error('Error navigating to wishlist:', error);
+            showToast('Có lỗi khi chuyển trang!', 'error');
         }
-    </script>
-
-    </body>
-    </html>
+    }
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        if (toast) {
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    }
+</script>
+</body>
+</html>

@@ -30,8 +30,10 @@ public class Storage {
     private String imUrl;
 
     private boolean status; // true: còn trống, false: đang bị thuê
+    private Double latitude;
+    private Double longitude;
 
-//    private String imageUrl; // hoặc dùng List<StorageImage> nếu nhiều ảnh
+    //    private String imageUrl; // hoặc dùng List<StorageImage> nếu nhiều ảnh
 public Storage(Integer id) {
     this.storageid = id;
 }
