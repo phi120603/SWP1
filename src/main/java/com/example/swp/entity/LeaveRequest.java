@@ -34,6 +34,11 @@ public class LeaveRequest {
         CHO_DUYET, DUYET, TU_CHOI
     }
 
+    public void setStaff(Staff staff) {
+        this.staff = staff;
+    }
+
+
     @PrePersist
     public void prePersist() {
         createdAt = LocalDateTime.now();
