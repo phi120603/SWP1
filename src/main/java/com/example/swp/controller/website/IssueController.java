@@ -105,7 +105,7 @@ public class IssueController {
         }
 
         try {
-            issueService.createIssue(issueRequest);
+            issueService.createIssue(issueRequest, "CUSTOMER");
             model.addAttribute("success", "Tạo Issue thành công!");
             model.addAttribute("issueRequest", new com.example.swp.dto.IssueRequest());
 
@@ -270,7 +270,7 @@ public class IssueController {
                 issueRequest.setCustomerId(customerId); // có thể null cho vấn đề nội bộ
                 issueRequest.setAssignedStaffId(assignedStaffId);
 
-                Issue issue = issueService.createIssue(issueRequest);
+                Issue issue = issueService.createIssue(issueRequest, "STAFF");
                 issue.setCreatedByType("STAFF");
                 issueService.save(issue);
             }
