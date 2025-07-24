@@ -1,71 +1,244 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Danh sách đơn hàng</title>
-    <link rel="stylesheet" th:href="@{/order-list.css}">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách đơn hàng - QVL Storage</title>
+    <link rel="stylesheet" th:href="@{/customer-list.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-<!-- Navbar đồng bộ home-page -->
-<nav class="navbar">
-    <div class="nav-container">
-        <div class="logo">QVL Storage</div>
-        <ul class="nav-links">
-            <li><a href="/SWP">Home</a></li>
-            <li><a href="/SWP/orders">Orders</a></li>
-        </ul>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-database"></i>
+            <span>Bảng điều khiển Nhân viên</span>
+        </div>
+    </div>
+
+    <ul class="sidebar-menu">
+        <li class="menu-item" id="dashboard-menu">
+            <a href="/SWP/staff/staff-dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Trang chủ</span>
+            </a>
+        </li>
+        <li class="menu-item" id="addstorage-menu">
+            <a href="addstorage">
+                <i class="fas fa-hdd"></i>
+                <span>Thêm kho</span>
+            </a>
+        </li>
+        <li class="menu-item" id="storagelist-menu">
+            <a href="/SWP/storages">
+                <i class="fas fa-warehouse"></i>
+                <span>Danh sách kho</span>
+            </a>
+        </li>
+        <li class="menu-item active" id="orderlist-menu">
+            <a href="/SWP/orders">
+                <i class="fas fa-chart-bar"></i>
+                <span>Danh sách đơn hàng</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/feedbacks">
+                <i class="fas fa-boxes"></i>
+                <span>Phản hồi</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/issues/report">
+                <i class="fas fa-file-alt"></i>
+                <span>Báo cáo</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/statistics">
+                <i class="fas fa-chart-bar"></i>
+                <span>Thống kê doanh thu</span>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="/SWP/support">
+                <i class="fas fa-chart-bar"></i>
+                <span>Hỗ trợ khách hàng</span>
+            </a>
+        </li>
+        <li class="menu-item" id="customers-menu">
+            <a href="customer-list">
+                <i class="fas fa-users"></i>
+                <span>Danh sách người dùng</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details">
+                <span class="user-name">John Nhân viên</span>
+                <span class="user-role">Nhân viên</span>
+            </div>
+        </div>
     </div>
 </nav>
 
-<!-- Container -->
-<div class="container">
-    <h1>Danh sách đơn hàng</h1>
-    <div class="form-row-spacebetween">
-        <!-- Filter bên trái -->
-        <form action="/SWP/orders" method="get" class="filter-form">
-            <label for="status">Lọc theo trạng thái:</label>
-            <select id="status" name="status" onchange="this.form.submit()">
-                <option value="ALL" th:selected="${selectedStatus == 'ALL'}">Tất cả</option>
-                <option value="PENDING" th:selected="${selectedStatus == 'Pending'}">PENDING</option>
-                <option value="APPROVED" th:selected="${selectedStatus == 'Approved'}">APPROVED</option>
-                <option value="REJECTED" th:selected="${selectedStatus == 'Rejected'}">REJECTED</option>
-                <option value="PAID" th:selected="${selectedStatus == 'Paid'}">PAID</option>
-            </select>
-        </form>
-        <!-- Tìm kiếm bên phải -->
-        <form action="/SWP/orders" method="get" class="search-form">
-            <label for="orderId">Tìm kiếm theo ID:</label>
-            <input type="number" id="orderId" name="orderId" placeholder="Nhập mã đơn..." required>
-            <button type="submit" class="btn btn-dark">Tìm</button>
-        </form>
-    </div>
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>Quản lý đơn hàng</h1>
+        </div>
 
-    <!-- Bảng danh sách đơn hàng -->
-    <table>
-        <thead>
-        <tr>
-            <th>Mã đơn hàng</th>
-            <th>Ngày đặt</th>
-            <th>Tổng tiền</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="order : ${orders}">
-            <td th:text="${order.getId()}"></td>
-            <td th:text="${order.getOrderDate()}"></td>
-            <td th:text="${order.getTotalAmount()}"></td>
-            <td>
-                    <span th:text="${order.getStatus()}"
-                          th:class="'status-badge ' + ${order.getStatus()?.toLowerCase()}"></span>
-            </td>
-            <td>
-                <a th:href="@{/SWP/orders/{id}(id=${order.getId()})}" class="text-blue-500">Xem chi tiết</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+        <div class="header-right">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Tìm kiếm đơn hàng..." id="searchInput">
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="page-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2 class="page-title">Cơ sở dữ liệu đơn hàng</h2>
+            <div class="page-actions">
+                <button class="btn-secondary btn-back">
+                    <a href="/homepage" style="color: inherit; text-decoration: none;">
+                        <i class="fas fa-arrow-left"></i>
+                        Về trang chủ
+                    </a>
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <form action="/SWP/orders" method="get" class="filter-form">
+                <div class="filter-group">
+                    <label for="status">Trạng thái:</label>
+                    <select id="status" name="status" class="filter-select" onchange="this.form.submit()">
+                        <option value="ALL" th:selected="${selectedStatus == 'ALL'}">Tất cả</option>
+                        <option value="PENDING" th:selected="${selectedStatus == 'Pending'}">PENDING</option>
+                        <option value="APPROVED" th:selected="${selectedStatus == 'Approved'}">APPROVED</option>
+                        <option value="REJECTED" th:selected="${selectedStatus == 'Rejected'}">REJECTED</option>
+                        <option value="PAID" th:selected="${selectedStatus == 'Paid'}">PAID</option>
+                    </select>
+                </div>
+            </form>
+
+            <form action="/SWP/orders" method="get" class="search-form">
+                <div class="filter-group">
+                    <label for="orderId">Tìm theo ID:</label>
+                    <input type="number" id="orderId" name="orderId" placeholder="Nhập mã đơn hàng..." class="filter-select">
+                    <button type="submit" class="btn-secondary">
+                        <i class="fas fa-search"></i>
+                        Tìm
+                    </button>
+                </div>
+            </form>
+
+            <button class="btn-secondary" onclick="clearFilters()">
+                <i class="fas fa-times"></i>
+                Xóa bộ lọc
+            </button>
+        </div>
+
+        <!-- Order Table -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Tất cả đơn hàng (<span id="totalCount" th:text="${#lists.size(orders)}">0</span>)</h3>
+                <div class="card-actions">
+                    <button class="btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Xuất file
+                    </button>
+                    <button class="btn-secondary">
+                        <i class="fas fa-print"></i>
+                        In danh sách
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td th:text="${order.id}"></td>
+                        <td th:text="${order.orderDate}"></td>
+                        <td th:text="${order.totalAmount} + ' đ'"></td>
+                        <td>
+                            <span class="status-badge" th:text="${order.status}"
+                                  th:classappend="' ' + ${order.status?.toLowerCase()}"></span>
+                        </td>
+                        <td>
+                            <a th:href="@{/SWP/orders/{id}(id=${order.id})}" class="btn-icon" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button><i class="fas fa-chevron-left"></i></button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('.data-table tbody tr');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    function clearFilters() {
+        document.getElementById('status').value = 'ALL';
+        document.getElementById('orderId').value = '';
+        document.querySelector('.filter-form').submit();
+    }
+
+    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('open');
+    });
+
+    window.onload = function() {
+        var pathname = window.location.pathname;
+        if (pathname.includes("orders")) {
+            document.getElementById('orderlist-menu').classList.add('active');
+        }
+    };
+</script>
 </body>
 </html>
