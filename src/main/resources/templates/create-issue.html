@@ -12,47 +12,43 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
             min-height: 100vh;
-            padding: 20px;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
+            flex-direction: column;
+            color: #2c3e50;
         }
 
         /* Back Button */
         .back-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            padding: 12px 20px;
-            border-radius: 50px;
+            background: #2c3e50;
+            color: #ffffff;
+            border: 2px solid rgba(44, 62, 80, 0.2);
+            padding: 10px 18px;
+            border-radius: 8px;
             text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            display: flex;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            margin: 20px 0 20px 20px;
+            width: 120px;
         }
 
         .back-button:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
+            background: #34495e;
+            border-color: rgba(44, 62, 80, 0.3);
             transform: translateX(-3px);
-            color: white;
+            color: #ffffff;
             text-decoration: none;
         }
 
         .back-arrow {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             transition: transform 0.3s ease;
         }
 
@@ -61,21 +57,24 @@
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
-            max-width: 600px;
+            background: #ffffff;
+            border-radius: 16px;
+            max-width: 500px;
             width: 100%;
-            padding: 40px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
             position: relative;
             overflow: hidden;
             animation: slideUp 0.5s ease;
+            flex: 1 0 auto;
+            max-height: 70vh;
         }
 
         @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
@@ -89,43 +88,42 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 4px;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 35px;
+            margin-bottom: 32px;
         }
 
         .header h1 {
-            color: #2d3748;
-            font-size: 2.2rem;
+            color: #2c3e50;
+            font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 8px;
         }
 
         .header p {
-            color: #718096;
-            font-size: 1rem;
+            color: #64748b;
+            font-size: 0.95rem;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 24px;
             position: relative;
         }
 
         .form-label {
             display: block;
-            font-weight: 600;
+            font-weight: 500;
             margin-bottom: 8px;
-            color: #2d3748;
-            font-size: 0.95rem;
+            color: #2c3e50;
+            font-size: 0.9rem;
         }
 
         .required {
-            color: #e53e3e;
-            margin-left: 3px;
+            color: #e74c3c;
+            margin-left: 4px;
         }
 
         .input-wrapper {
@@ -134,83 +132,83 @@
 
         .form-input, .form-textarea, .form-select {
             width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 1rem;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
-            background: #fafafa;
+            background: #f9fafb;
+            color: #2c3e50;
             font-family: inherit;
             box-sizing: border-box;
         }
 
         .form-input:focus, .form-textarea:focus, .form-select:focus {
             outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-            transform: translateY(-1px);
+            border-color: #3498db;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
 
         .form-textarea {
             resize: vertical;
-            min-height: 120px;
-            line-height: 1.6;
+            min-height: 100px;
+            line-height: 1.5;
         }
 
         .form-select {
             cursor: pointer;
             appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: right 12px center;
-            background-size: 20px;
-            padding-right: 45px;
+            background-size: 18px;
+            padding-right: 40px;
         }
 
         .form-select option {
-            padding: 12px;
-            background: white;
-            color: #374151;
+            background: #ffffff;
+            color: #2c3e50;
+            padding: 10px;
         }
 
         .char-counter {
             position: absolute;
             top: -2px;
-            right: 0;
-            font-size: 0.85rem;
-            color: #718096;
+            right: 8px;
+            font-size: 0.8rem;
+            color: #64748b;
             font-weight: 500;
-            background: white;
+            background: #f9fafb;
             padding: 2px 6px;
             border-radius: 4px;
         }
 
         .char-counter.warning {
-            color: #d69e2e;
-            background: #fef5e7;
+            color: #f1c40f;
+            background: #fef3c7;
         }
 
         .char-counter.danger {
-            color: #e53e3e;
-            background: #fed7d7;
+            color: #e74c3c;
+            background: #fee2e2;
         }
 
         .form-error {
-            color: #e53e3e;
-            font-size: 0.9rem;
+            color: #e74c3c;
+            font-size: 0.85rem;
             margin-top: 6px;
             display: flex;
             align-items: center;
-            gap: 5px;
-            min-height: 20px;
+            gap: 4px;
+            min-height: 18px;
         }
 
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 25px;
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
         .form-grid .form-group {
@@ -219,16 +217,16 @@
 
         .btn {
             width: 100%;
-            padding: 16px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-size: 1.1rem;
+            padding: 14px 24px;
+            background: #2c3e50;
+            color: #ffffff;
+            font-size: 1rem;
             font-weight: 600;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 10px;
+            margin-top: 8px;
             position: relative;
             overflow: hidden;
         }
@@ -240,7 +238,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
             transition: left 0.5s;
         }
 
@@ -249,8 +247,9 @@
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+            background: #34495e;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(44, 62, 80, 0.3);
         }
 
         .btn:active {
@@ -258,7 +257,7 @@
         }
 
         .btn:disabled {
-            background: #a0aec0;
+            background: #94a3b8;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
@@ -271,12 +270,12 @@
         .btn.loading::after {
             content: '';
             position: absolute;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             top: 50%;
             left: 50%;
-            margin-left: -10px;
-            margin-top: -10px;
+            margin-left: -9px;
+            margin-top: -9px;
             border: 2px solid #ffffff;
             border-radius: 50%;
             border-top-color: transparent;
@@ -290,19 +289,19 @@
         .loading {
             display: none;
             text-align: center;
-            color: #667eea;
-            font-weight: 600;
-            margin-top: 15px;
+            color: #3498db;
+            font-weight: 500;
+            margin-top: 12px;
         }
 
         .alert {
-            padding: 16px 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             animation: slideDown 0.3s ease;
         }
 
@@ -318,58 +317,50 @@
         }
 
         .alert.success {
-            background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
-            color: #22543d;
-            border: 1px solid #9ae6b4;
+            background: #ecfdf5;
+            color: #059669;
+            border: 1px solid #6ee7b7;
         }
 
         .alert.error {
-            background: linear-gradient(135deg, #fed7d7 0%, #fbb6ce 100%);
-            color: #742a2a;
-            border: 1px solid #feb2b2;
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #f87171;
         }
 
         .back-link {
             display: block;
             text-align: center;
-            margin-top: 25px;
+            margin-top: 20px;
             text-decoration: none;
-            color: #667eea;
-            font-weight: 600;
-            padding: 12px;
-            border-radius: 8px;
+            color: #3498db;
+            font-weight: 500;
+            padding: 10px;
+            border-radius: 6px;
             transition: all 0.3s ease;
         }
 
         .back-link:hover {
-            background: #f7fafc;
-            color: #5a67d8;
+            background: #f1f5f9;
+            color: #2563eb;
             text-decoration: none;
-            transform: translateY(-1px);
         }
 
-        /* Input focus effects */
-        .form-input:focus + .input-icon,
-        .form-textarea:focus + .input-icon,
-        .form-select:focus + .input-icon {
-            color: #667eea;
-        }
-
-        /* Validation states */
+        /* Input validation states */
         .form-input.error, .form-textarea.error, .form-select.error {
-            border-color: #e53e3e;
+            border-color: #e74c3c;
             background: #fef2f2;
         }
 
         .form-input.success, .form-textarea.success, .form-select.success {
-            border-color: #10b981;
-            background: #f0fdf4;
+            border-color: #2ecc71;
+            background: #ecfdf5;
         }
 
         /* Placeholder styling */
         .form-input::placeholder, .form-textarea::placeholder {
-            color: #9ca3af;
-            font-style: italic;
+            color: #94a3b8;
+            font-style: normal;
         }
 
         /* Custom scrollbar for textarea */
@@ -378,69 +369,66 @@
         }
 
         .form-textarea::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: #f1f5f9;
             border-radius: 3px;
         }
 
         .form-textarea::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
+            background: #94a3b8;
             border-radius: 3px;
         }
 
         .form-textarea::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
+            background: #6b7280;
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
             body {
-                padding: 10px;
+                padding: 15px;
             }
 
             .back-button {
-                position: relative;
-                top: 0;
-                left: 0;
-                margin-bottom: 20px;
-                align-self: flex-start;
+                margin: 16px 0 16px 16px;
             }
 
             .container {
-                padding: 25px;
-                margin-top: 0;
+                padding: 24px;
+                margin: 16px;
             }
 
             .header h1 {
-                font-size: 1.8rem;
+                font-size: 1.6rem;
             }
 
             .form-grid {
                 grid-template-columns: 1fr;
-                gap: 25px;
+                gap: 20px;
             }
 
             .form-grid .form-group {
-                margin-bottom: 25px;
+                margin-bottom: 20px;
             }
         }
 
         @media (max-width: 480px) {
             .container {
                 padding: 20px;
+                margin: 12px;
             }
 
             .header h1 {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
             }
 
             .form-input, .form-textarea, .form-select {
-                padding: 12px 14px;
-                font-size: 16px; /* Prevents zoom on iOS */
+                padding: 10px 12px;
+                font-size: 0.9rem;
             }
 
             .btn {
-                padding: 14px 20px;
-                font-size: 1rem;
+                padding: 12px 20px;
+                font-size: 0.95rem;
             }
         }
 
@@ -458,7 +446,7 @@
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(15px);
             }
             to {
                 opacity: 1;
@@ -468,6 +456,7 @@
     </style>
 </head>
 <body>
+<div th:replace="taskbar/customer-navbar :: customerNavbar"></div>
 
 <a href="javascript:history.back()" class="back-button" title="Quay lại trang trước">
     <svg class="back-arrow" fill="currentColor" viewBox="0 0 20 20">
@@ -525,13 +514,13 @@
                 <span class="char-counter" id="description-count">0/500</span>
             </label>
             <div class="input-wrapper">
-                    <textarea class="form-textarea"
-                              th:field="*{description}"
-                              name="description"
-                              required
-                              maxlength="500"
-                              placeholder="Mô tả chi tiết vấn đề bạn gặp phải, các bước tái hiện lỗi, hoặc yêu cầu cụ thể..."
-                              oninput="updateCount('description', 500)"></textarea>
+                <textarea class="form-textarea"
+                          th:field="*{description}"
+                          name="description"
+                          required
+                          maxlength="500"
+                          placeholder="Mô tả chi tiết vấn đề bạn gặp phải, các bước tái hiện lỗi, hoặc yêu cầu cụ thể..."
+                          oninput="updateCount('description', 500)"></textarea>
             </div>
             <div class="form-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">
                 <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
@@ -580,7 +569,6 @@
             </div>
         </div>
 
-
         <button type="submit" class="btn" id="submitBtn">
             <span id="btnText">Tạo Issue</span>
         </button>
@@ -590,8 +578,7 @@
             Đang xử lý...
         </div>
 
-        <a th:href="@{/SWP/issues/my-issues}">Xem danh sách Issue của bạn</a>
-
+        <a th:href="@{/SWP/issues/my-issues}" class="back-link">Xem danh sách Issue của bạn</a>
     </form>
 </div>
 
@@ -604,7 +591,6 @@
         if (counter) {
             counter.textContent = count + "/" + max;
 
-            // Add warning colors
             counter.classList.remove('warning', 'danger');
             if (count > max * 0.8) {
                 counter.classList.add('warning');
@@ -615,25 +601,21 @@
         }
     }
 
-    // Auto update count on page load
     document.addEventListener("DOMContentLoaded", function() {
         updateCount('subject', 100);
         updateCount('description', 500);
 
-        // Form submission handling
         const form = document.getElementById('issueForm');
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
         const loading = document.getElementById('loading');
 
         form.addEventListener('submit', function(e) {
-            // Show loading state
             submitBtn.disabled = true;
             submitBtn.classList.add('loading');
             btnText.textContent = 'Đang tạo...';
             loading.style.display = 'block';
 
-            // Basic validation
             const requiredFields = form.querySelectorAll('[required]');
             let isValid = true;
 
@@ -656,7 +638,6 @@
             }
         });
 
-        // Real-time validation
         const inputs = form.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {
             input.addEventListener('blur', function() {

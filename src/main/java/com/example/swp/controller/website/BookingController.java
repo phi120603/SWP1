@@ -5,6 +5,7 @@ import com.example.swp.enums.RoleName;
 import com.example.swp.service.ContractService;
 import com.example.swp.enums.VoucherStatus;
 import com.example.swp.service.*;
+import com.example.swp.util.HaversineUtil;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -43,6 +44,9 @@ public class BookingController {
 
     @Autowired
     private GeocodingService geocodingService;
+
+    @Autowired
+    private HaversineUtil haversineUtil;
 
     @GetMapping("/search")
     public String showBookingSearchForm(Model model, HttpSession session) {
@@ -98,24 +102,40 @@ public class BookingController {
         }
 
         // Sort theo địa chỉ nếu có
-        if (userAddress != null && !userAddress.isBlank()) {
+        double[] userCoordinates;
+        if (userAddress != null && !userAddress.trim().isEmpty()) {
             Optional<double[]> userCoordinatesOpt = geocodingService.geocode(userAddress);
             if (userCoordinatesOpt.isPresent()) {
-                double[] coords = userCoordinatesOpt.get();
-                storages.sort(Comparator.comparingDouble(s ->
-                        haversine(coords[0], coords[1], s.getLatitude(), s.getLongitude())
-                ));
+                userCoordinates = userCoordinatesOpt.get();
+                System.out.println("Geocoding successful for address: " + userAddress + ", Coordinates: [" + userCoordinates[0] + ", " + userCoordinates[1] + "]");
+
+                // Sort by distance
+                storages = storages.stream()
+                        .filter(s -> s.getLatitude() != null && s.getLongitude() != null)
+                        .sorted(Comparator.comparingDouble(s -> {
+                            double distance = haversine(userCoordinates[0], userCoordinates[1], s.getLatitude(), s.getLongitude());
+                            System.out.println("Storage: " + s.getStoragename() + ", Distance: " + distance + " km");
+                            return distance;
+                        }))
+                        .collect(Collectors.toList());
             } else {
-                model.addAttribute("error", "Không thể định vị địa chỉ bạn nhập.");
+                userCoordinates = null;
+                System.out.println("Geocoding failed for address: " + userAddress);
+                model.addAttribute("error", "Không thể định vị địa chỉ bạn nhập. Sử dụng sắp xếp mặc định.");
             }
-        } else if (sortOption != null) {
-            switch (sortOption) {
-                case "priceAsc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay));
-                case "priceDesc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay).reversed());
-                case "areaAsc" -> storages.sort(Comparator.comparing(Storage::getArea));
-                case "areaDesc" -> storages.sort(Comparator.comparing(Storage::getArea).reversed());
-                case "nameAsc" -> storages.sort(Comparator.comparing(Storage::getStoragename, String.CASE_INSENSITIVE_ORDER));
-                case "nameDesc" -> storages.sort(Comparator.comparing(Storage::getStoragename, String.CASE_INSENSITIVE_ORDER).reversed());
+        } else {
+            userCoordinates = null;
+            if (sortOption != null && !sortOption.isEmpty()) {
+                // Apply alternative sorting
+                switch (sortOption) {
+                    case "priceAsc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay));
+                    case "priceDesc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay).reversed());
+                    case "areaAsc" -> storages.sort(Comparator.comparing(Storage::getArea));
+                    case "areaDesc" -> storages.sort(Comparator.comparing(Storage::getArea).reversed());
+                    case "nameAsc" -> storages.sort(Comparator.comparing(Storage::getStoragename, String.CASE_INSENSITIVE_ORDER));
+                    case "nameDesc" -> storages.sort(Comparator.comparing(Storage::getStoragename, String.CASE_INSENSITIVE_ORDER).reversed());
+                    default -> System.out.println("Invalid sortOption: " + sortOption);
+                }
             }
         }
 
@@ -131,6 +151,7 @@ public class BookingController {
         model.addAttribute("citySelected", city);
         model.addAttribute("cities", storageService.findAllCities());
         model.addAttribute("userAddress", userAddress);
+        model.addAttribute("userCoordinates", userCoordinates);
 
         return "booking-list";
     }
@@ -373,14 +394,16 @@ public class BookingController {
         return "my-bookings";
     }
 
-    private double haversine(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371;
+    public static double haversine(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371; // Bán kính trái đất (km)
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
+
+        return R * c; // trả về km
     }
 }
