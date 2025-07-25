@@ -2,31 +2,77 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Đặt lịch xem kho</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt lịch xem kho - QVL Storage</title>
+    <link rel="stylesheet" th:href="@{/css/storage-appointment.css}">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-<h2>Đặt lịch xem kho: <span th:text="${storage.storagename}"></span></h2>
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <h1>Đặt lịch xem kho</h1>
+        </div>
+        <div class="header-right">
+            <!-- You can add search or user info here if needed, similar to feedback-list -->
+        </div>
+    </header>
 
-<form th:action="@{'/SWP/storages/' + ${storage.storageid} + '/appointment/save'}" method="post">
-    <label>Họ tên:</label>
-    <input type="text" name="customerName" required><br>
+    <!-- Page Content -->
+    <div class="page-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2 class="page-title">Đặt lịch xem kho: <span th:text="${storage.storagename}"></span></h2>
+            <div class="page-actions">
+                <button class="btn-secondary btn-back" onclick="window.history.back()">
+                    <i class="fas fa-arrow-left"></i>
+                    Quay lại
+                </button>
+            </div>
+        </div>
 
-    <label>Email:</label>
-    <input type="email" name="email" required><br>
-
-    <label>Số điện thoại:</label>
-    <input type="text" name="phone" required><br>
-
-    <label>Thời gian muốn xem:</label>
-    <input type="datetime-local" name="datetime" required><br>
-
-    <label>Mục đích thuê kho:</label>
-    <input type="text" name="viewingPurpose"><br>
-
-    <label>Ghi chú thêm:</label>
-    <textarea name="note"></textarea><br>
-
-    <button type="submit">Đặt lịch</button>
-</form>
+        <!-- Appointment Form Card -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Thông tin đặt lịch</h3>
+            </div>
+            <div class="card-content">
+                <form th:action="@{'/SWP/storages/' + ${storage.storageid} + '/appointment/save'}" method="post">
+                    <div class="form-group">
+                        <label for="customerName">Họ tên:</label>
+                        <input type="text" id="customerName" name="customerName" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Số điện thoại:</label>
+                        <input type="text" id="phone" name="phone" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="datetime">Thời gian muốn xem:</label>
+                        <input type="datetime-local" id="datetime" name="datetime" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="viewingPurpose">Mục đích thuê kho:</label>
+                        <input type="text" id="viewingPurpose" name="viewingPurpose" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="note">Ghi chú thêm:</label>
+                        <textarea id="note" name="note" class="form-textarea"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-calendar-check"></i>
+                        Đặt lịch
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
 </body>
 </html>

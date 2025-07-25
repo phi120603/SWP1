@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leave Request Management - QVL Storage</title>
-    <link rel="stylesheet" href="/manager-leave-requests.css">
+    <link rel="stylesheet" th:href="@{/css/manager-leave-requests.css}">
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -310,11 +311,12 @@
 
 
     function mapStatus(status) {
-        if (status === 'CHO_DUYET') return 'pending';
-        if (status === 'DA_DUYET') return 'approved';
-        if (status === 'TU_CHOI') return 'rejected';
+        if (status === 'CHO_DUYET') return 'Chờ duyệt';
+        if (status === 'DA_DUYET') return 'Đã duyệt';
+        if (status === 'TU_CHOI') return 'Từ chối';
         return status;
     }
+
 
 
     function showLoading(show) {
@@ -365,9 +367,6 @@
                     </td>
                     <td>
                         <div class="employee-info">
-                            <div class="employee-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
                             <div class="employee-details">
                                 <span class="employee-name">${r.staff.fullname}</span>
                                 <span class="employee-dept">${r.staff.department || 'N/A'}</span>

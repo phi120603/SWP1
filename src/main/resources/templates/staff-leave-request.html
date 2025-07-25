@@ -4,69 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Leave Request - QVL Storage</title>
-    <link rel="stylesheet" href="/staff-leave-request.css">
+    <link rel="stylesheet" th:href="@{/css/staff-leave-request.css}">
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <!-- Sidebar -->
-<nav class="sidebar">
-    <div class="sidebar-header">
-        <div class="logo">
-            <i class="fas fa-database"></i>
-            <span>QVL Storage</span>
-        </div>
-    </div>
-    <ul class="sidebar-menu">
-        <li class="menu-item">
-            <a href="/SWP">
-                <i class="fas fa-home"></i>
-                <span>Trang chủ</span>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="/SWP/dashboard">
-                <i class="fas fa-tachometer-alt"></i>
-                <span>Dashboard</span>
-            </a>
-        </li>
-        <li class="menu-item active" id="leave-request-menu">
-            <a href="/SWP/leave-request">
-                <i class="fas fa-calendar-alt"></i>
-                <span>Xin nghỉ phép</span>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="/SWP/my-schedule">
-                <i class="fas fa-calendar"></i>
-                <span>Lịch làm việc</span>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="/SWP/profile">
-                <i class="fas fa-user"></i>
-                <span>Hồ sơ cá nhân</span>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="#settings">
-                <i class="fas fa-cog"></i>
-                <span>Cài đặt</span>
-            </a>
-        </li>
-    </ul>
-
-    <div class="sidebar-footer">
-        <div class="user-info">
-            <div class="user-avatar">
-                <i class="fas fa-user"></i>
-            </div>
-            <div class="user-details">
-                <span class="user-name">Nhân viên</span>
-                <span class="user-role">Employee</span>
-            </div>
-        </div>
-    </div>
-</nav>
+<div th:replace="taskbar/staff-taskbar :: staffTaskbar"></div>
 
 <!-- Main Content -->
 <main class="main-content">

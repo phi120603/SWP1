@@ -12,16 +12,16 @@
 <body>
 <!-- Navigation -->
 <nav class="navbar" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
-  <div class="nav-container" style="display: flex; align-items: center; gap: 30px;">
-    <div class="logo" style="font-weight: bold; font-size: 24px;">QVL Storage</div>
-    <ul class="nav-links" style="display: flex; gap: 20px; list-style: none; margin: 0; padding: 0;">
-      <li><a th:href="@{/}">Home</a></li>
-      <li><a th:href="@{/SWP/issues/create}">Tạo Issue</a></li>
-      <li><a th:href="@{/SWP/storages}">List</a></li>
+  <div class="nav-container" style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 1000px; margin: 0 200px; padding: 0 40px;">
+    <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png" style="height: 40px;">
+
+    <ul class="nav-links" style="display: flex; gap: 20px; list-style: none; padding: 0; margin: 0;">
+      <li><a th:href="@{/}">Trang chủ</a></li>
+      <li><a th:href="@{/SWP/issues/create}">Vấn đề</a></li>
+      <li><a th:href="@{/SWP/storages}">Danh sách</a></li>
+      <li><a th:href="@{/SWP/booking/search}">Đặt kho</a></li>
       <li><a th:href="@{/customer/support}">Hỗ trợ</a></li>
       <li><a th:href="@{/SWP/customers/my-bookings}">Đơn hàng của tôi</a></li>
-
-      <li><a th:href="@{/SWP/booking/search}">Đặt kho</a></li>
     </ul>
   </div>
 
@@ -74,7 +74,7 @@
         <h1>Hệ Thống Quản Lý Kho Chuyên Nghiệp</h1>
         <p>An toàn, tin cậy và hiệu quả cho nhu cầu lưu trữ doanh nghiệp của bạn. Hệ thống quản lý tiên tiến giúp hàng hóa của bạn luôn được sắp xếp và dễ dàng truy xuất.</p>
         <div class="hero-buttons">
-          <a href="#" class="btn btn-outline-white">Bắt đầu ngay</a>
+          <a href="/SWP/storages" class="btn btn-outline-white">Bắt đầu ngay</a>
         </div>
       </div>
     </div>
@@ -237,59 +237,7 @@
   </div>
 </section>
 
-<footer class="footer">
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-brand">
-        <h2 class="brand-name">QVL Storage</h2>
-        <p class="brand-description">
-          Hệ thống cho thuê kho hàng chuyên nghiệp trên toàn quốc. Chúng tôi cung cấp giải pháp lưu trữ an toàn, tiện lợi và hiệu quả cho mọi nhu cầu kinh doanh. Với mạng lưới kho bãi hiện đại và dịch vụ quản lý tận tâm, QVL Storage là đối tác tin cậy cho sự phát triển bền vững của doanh nghiệp bạn.
-        </p>
-        <div class="social-links">
-          <!-- giữ nguyên các icon SVG -->
-        </div>
-      </div>
-
-      <div class="footer-column">
-        <h3>Về chúng tôi</h3>
-        <ul class="footer-links">
-          <li><a href="#">Dịch vụ</a></li>
-          <li><a href="#">Tin tức</a></li>
-          <li><a href="#">Liên hệ</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-column">
-        <h3>Hỗ trợ</h3>
-        <ul class="footer-links">
-          <li><a href="#">Trung tâm trợ giúp</a></li>
-          <li><a href="#">Chat trực tuyến</a></li>
-          <li><a href="#">Hotline 24/7</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-column">
-        <h3>Sản phẩm</h3>
-        <ul class="footer-links">
-          <li><a href="#">Kho nhỏ</a></li>
-          <li><a href="#">Kho vừa</a></li>
-          <li><a href="#">Kho lớn</a></li>
-          <li><a href="#">Dịch vụ vận chuyển</a></li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="footer-divider"></div>
-
-    <div class="footer-bottom">
-      <p class="copyright">Bản quyền ©2024. Tất cả quyền được bảo lưu. — QVL Storage System</p>
-      <ul class="footer-bottom-links">
-        <li><a href="#">Điều khoản & Điều kiện</a></li>
-        <li><a href="#">Chính sách bảo mật</a></li>
-      </ul>
-    </div>
-  </div>
-</footer>
+<div th:replace="taskbar/customer-footer :: customerFooter"></div>
 
 <script>
   let currentTestimonial = 0;

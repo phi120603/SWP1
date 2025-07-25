@@ -7,8 +7,11 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
   <link rel="stylesheet" th:href="@{/css/booking-form.css}" />
   <style>
-    .info-card { margin-bottom: 1rem;}
+    .info-card {
+      margin-bottom: 1rem;
+    }
     .highlight {background: #f6ffe0; border-radius: 6px;}
+    .highlight-final {background: #e8f5e8; border-radius: 6px; border: 2px solid #28a745;}
     .storage-img {
       width: 100%;
       max-width: 250px;
@@ -16,37 +19,23 @@
       box-shadow: 0 2px 10px #ddd;
       margin-bottom: 16px;
     }
-    .remain-label { font-weight: bold; color: #159700;}
-    .remain-value { font-weight: bold; }
-    .remain-header { font-size: 13px; color: #888; }
+    .voucher-discount {
+      color: #dc3545;
+      font-weight: bold;
+      display: none;
+    }
+    .voucher-applied {
+      color: #28a745;
+      font-size: 12px;
+      font-style: italic;
+      display: none;
+    }
   </style>
 </head>
 <body>
 <div class="page-wrapper">
   <!-- NAVBAR -->
-  <nav class="navbar">
-    <div class="navbar-content">
-      <div class="navbar-brand">
-        <a href="/homepage">
-          <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
-               alt="QVL Storage Logo" class="navbar-logo" />
-        </a>
-      </div>
-      <ul class="navbar-nav">
-        <li><a href="/home-page">Trang chủ</a></li>
-        <li><a href="/SWP/booking/search" class="active">Đặt kho</a></li>
-        <li><a href="/SWP/storages">Danh sách</a></li>
-        <li><a href="/SWP/customers/my-bookings">Đơn hàng của tôi</a></li>
-      </ul>
-      <div class="user-info">
-        <i class="fas fa-user"></i>
-        <span th:text="${customer != null ? customer.fullname : 'Khách'}"></span>
-        <span th:if="${customer != null}" style="margin-left: 10px; color: #fca311; font-weight: bold;">
-    (<span th:text="${customer.points}">0</span> điểm)
-  </span>
-      </div>
-    </div>
-  </nav>
+  <div th:replace="taskbar/customer-navbar :: customerNavbar"></div>
 
   <!-- MAIN CONTENT -->
   <main class="main">
@@ -83,7 +72,7 @@
                         th:src="${storage.imUrl != null && !storage.imUrl.isEmpty() ? storage.imUrl : 'https://img.freepik.com/premium-photo/warehouse-with-shelves-filled-with-boxes-storage-facility-ai_97167-3669.jpg'}"
                         alt="Ảnh kho"
                         class="storage-img"
-                        style="max-width: 100%; height: 140px; object-fit:cover; border-radius:8px; margin-bottom:10px;">
+                        style="max-width: 100%; height: 200px; object-fit:cover; border-radius:8px; margin-bottom:10px;">
               </div>
               <div class="info-card">
                 <div class="info-label">TÊN KHO</div>
@@ -116,9 +105,24 @@
                 <div class="info-label">NGÀY KẾT THÚC</div>
                 <div class="info-value" th:text="${#temporals.format(endDate, 'dd/MM/yyyy')}">Ngày kết thúc</div>
               </div>
+
+              <!-- Tổng chi phí gốc -->
               <div class="info-card highlight">
-                <div class="info-label">TỔNG CHI PHÍ (dự kiến)</div>
-                <div class="info-value" id="totalCostDisplay">0 VNĐ</div>
+                <div class="info-label">TỔNG CHI PHÍ GỐC</div>
+                <div class="info-value" id="originalCostDisplay">0 VNĐ</div>
+              </div>
+
+              <!-- Giảm giá từ voucher -->
+              <div class="info-card voucher-discount" id="voucherDiscountCard">
+                <div class="info-label">GIẢM GIÁ VOUCHER</div>
+                <div class="info-value" id="voucherDiscountDisplay">- 0 VNĐ</div>
+                <div class="voucher-applied" id="voucherAppliedText">Đã áp dụng voucher</div>
+              </div>
+
+              <!-- Tổng chi phí cuối cùng -->
+              <div class="info-card highlight-final">
+                <div class="info-label">TỔNG THANH TOÁN</div>
+                <div class="info-value" id="finalCostDisplay" style="font-size: 18px; color: #28a745;">0 VNĐ</div>
               </div>
             </div>
           </div>
@@ -133,49 +137,46 @@
           </div>
           <input type="hidden" name="voucherId" id="voucherId" />
 
-            <!-- Trường chọn diện tích thuê -->
-            <div class="form-group">
-              <label for="rentalArea" class="form-label">Diện tích muốn thuê (m²) *</label>
-              <input type="number"
-                     id="rentalArea"
-                     name="rentalArea"
-                     class="form-input"
-                     min="1"
-                     th:attr="max=${remainArea}"
-                     th:placeholder="'Tối đa ' + ${remainArea} + ' m²'"
-                     required
-                     step="0.01" />
-              <small class="form-text" th:text="'Có thể thuê tối đa ' + ${remainArea} + ' m².'"></small>
-            </div>
+          <!-- Trường chọn diện tích thuê -->
+          <div class="form-group">
+            <label for="rentalArea" class="form-label">Diện tích muốn thuê (m²) *</label>
+            <input type="number"
+                   id="rentalArea"
+                   name="rentalArea"
+                   class="form-input"
+                   min="1"
+                   th:attr="max=${remainArea}"
+                   th:placeholder="'Tối đa ' + ${remainArea} + ' m²'"
+                   required
+                   step="0.01" />
+            <small class="form-text" th:text="'Có thể thuê tối đa ' + ${remainArea} + ' m².'"></small>
+          </div>
 
-            <div class="form-group">
-              <label for="name" class="form-label">Họ và tên *</label>
-              <input type="text" id="name" name="name" class="form-input"
-                     th:value="${customer != null ? customer.fullname : ''}" required maxlength="50" />
-            </div>
-            <div class="form-group">
-              <label for="email" class="form-label">Email *</label>
-              <input type="email" id="email" name="email" class="form-input"
-                     th:value="${customer != null ? customer.email : ''}" required />
-            </div>
-            <div class="form-group">
-              <label for="phone" class="form-label">Số điện thoại *</label>
-              <input type="tel" id="phone" name="phone" class="form-input"
-                     th:value="${customer != null ? customer.phone : ''}" required pattern="[0-9]{10,11}" />
-            </div>
-            <div class="form-group">
-              <label for="id_citizen" class="form-label">Số CCCD *</label>
-              <input type="text"
-                     id="id_citizen"
-                     name="id_citizen"
-                     class="form-input"
-                     maxlength="20"
-                     th:value="${customer != null ? customer.id_citizen : ''}"
-                     required />
-            </div>
-
-
-
+          <div class="form-group">
+            <label for="name" class="form-label">Họ và tên *</label>
+            <input type="text" id="name" name="name" class="form-input"
+                   th:value="${customer != null ? customer.fullname : ''}" required maxlength="50" />
+          </div>
+          <div class="form-group">
+            <label for="email" class="form-label">Email *</label>
+            <input type="email" id="email" name="email" class="form-input"
+                   th:value="${customer != null ? customer.email : ''}" required />
+          </div>
+          <div class="form-group">
+            <label for="phone" class="form-label">Số điện thoại *</label>
+            <input type="tel" id="phone" name="phone" class="form-input"
+                   th:value="${customer != null ? customer.phone : ''}" required pattern="[0-9]{10,11}" />
+          </div>
+          <div class="form-group">
+            <label for="id_citizen" class="form-label">Số CCCD *</label>
+            <input type="text"
+                   id="id_citizen"
+                   name="id_citizen"
+                   class="form-input"
+                   maxlength="20"
+                   th:value="${customer != null ? customer.id_citizen : ''}"
+                   required />
+          </div>
 
           <div class="submit-section">
             <button type="submit" class="submit-btn">
@@ -188,13 +189,13 @@
     </div>
   </main>
 
-<div id="voucherModal" class="voucher-modal" style="display: none;">
-  <div class="voucher-modal-content">
-    <span class="voucher-close" onclick="toggleVoucherModal()">&times;</span>
-    <h3>Danh sách voucher</h3>
-    <div id="voucherList"></div>
+  <div id="voucherModal" class="voucher-modal" style="display: none;">
+    <div class="voucher-modal-content">
+      <span class="voucher-close" onclick="toggleVoucherModal()">&times;</span>
+      <h3>Danh sách voucher</h3>
+      <div id="voucherList"></div>
+    </div>
   </div>
-</div>
 
 
   <footer class="footer">
@@ -261,13 +262,31 @@
   function calculateTotal() {
     const rentalArea = parseFloat(document.getElementById('rentalArea').value) || 0;
     const days = Math.max(1, Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)));
-    let total = (days * pricePerDay * rentalArea / area);
+    const originalTotal = (days * pricePerDay * rentalArea / area);
+
+    // Hiển thị tổng chi phí gốc
+    document.getElementById('originalCostDisplay').innerText = originalTotal.toLocaleString('vi-VN') + ' VNĐ';
+
+    let finalTotal = originalTotal;
+    const voucherDiscountCard = document.getElementById('voucherDiscountCard');
+    const voucherAppliedText = document.getElementById('voucherAppliedText');
 
     if (selectedVoucher && selectedVoucher.discountAmount) {
-      total = Math.max(0, total - selectedVoucher.discountAmount);
+      const discountAmount = selectedVoucher.discountAmount;
+      finalTotal = Math.max(0, originalTotal - discountAmount);
+
+      // Hiển thị khối giảm giá voucher
+      document.getElementById('voucherDiscountDisplay').innerText = '- ' + discountAmount.toLocaleString('vi-VN') + ' VNĐ';
+      voucherDiscountCard.style.display = 'block';
+      voucherAppliedText.style.display = 'block';
+    } else {
+      // Ẩn khối giảm giá voucher
+      voucherDiscountCard.style.display = 'none';
+      voucherAppliedText.style.display = 'none';
     }
 
-    document.getElementById('totalCostDisplay').innerText = total.toLocaleString('vi-VN') + ' VNĐ';
+    // Hiển thị tổng thanh toán cuối cùng
+    document.getElementById('finalCostDisplay').innerText = finalTotal.toLocaleString('vi-VN') + ' VNĐ';
   }
 
   function applyVoucher() {
@@ -276,6 +295,14 @@
     document.getElementById('voucherModal').style.display = 'none';
     alert('Đã áp dụng voucher: ' + selectedVoucher.name);
     calculateTotal();
+  }
+
+  // Hàm để xóa voucher đã áp dụng
+  function removeVoucher() {
+    selectedVoucher = null;
+    document.getElementById('voucherId').value = '';
+    calculateTotal();
+    alert('Đã xóa voucher');
   }
 
   window.onclick = function(event) {

@@ -5,6 +5,7 @@ import com.example.swp.enums.RoleName;
 import com.example.swp.service.ContractService;
 import com.example.swp.enums.VoucherStatus;
 import com.example.swp.service.*;
+import com.example.swp.util.HaversineUtil;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -41,6 +42,11 @@ public class BookingController {
     @Autowired
     private VoucherUsageService voucherUsageService;
 
+    @Autowired
+    private GeocodingService geocodingService;
+
+    @Autowired
+    private HaversineUtil haversineUtil;
 
     @GetMapping("/search")
     public String showBookingSearchForm(Model model, HttpSession session) {
@@ -54,7 +60,6 @@ public class BookingController {
         return "booking-search";
     }
 
-
     @GetMapping("/search/result")
     public String processBookingSearch(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -65,6 +70,7 @@ public class BookingController {
             @RequestParam(value = "maxPrice", required = false) Double maxPrice,
             @RequestParam(value = "city", required = false) String city,
             @RequestParam(value = "sortOption", required = false) String sortOption,
+            @RequestParam(value = "userAddress", required = false) String userAddress,
             Model model,
             HttpSession session) {
 
@@ -80,31 +86,56 @@ public class BookingController {
         Customer customer = (Customer) session.getAttribute("loggedInCustomer");
         if (customer != null) {
             storages = storages.stream()
-                    .filter(storage ->
-                            orderService.countOverlapOrdersByCustomer(
-                                    customer.getId(),
-                                    storage.getStorageid(),
-                                    startDate,
-                                    endDate
-                            ) == 0
-                    )
+                    .filter(storage -> orderService.countOverlapOrdersByCustomer(
+                            customer.getId(),
+                            storage.getStorageid(),
+                            startDate,
+                            endDate
+                    ) == 0)
                     .collect(Collectors.toList());
         }
+
         Map<Integer, Double> remainAreas = new HashMap<>();
         for (Storage s : storages) {
             double remain = orderService.getRemainArea(s.getStorageid(), startDate, endDate);
             remainAreas.put(s.getStorageid(), remain);
         }
 
-        // SORT giữ nguyên như cũ
-        if (sortOption != null) {
-            switch (sortOption) {
-                case "priceAsc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay));
-                case "priceDesc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay).reversed());
-                case "areaAsc" -> storages.sort(Comparator.comparing(Storage::getArea));
-                case "areaDesc" -> storages.sort(Comparator.comparing(Storage::getArea).reversed());
-                case "nameAsc" -> storages.sort(Comparator.comparing(Storage::getStoragename, String.CASE_INSENSITIVE_ORDER));
-                case "nameDesc" -> storages.sort(Comparator.comparing(Storage::getStoragename, String.CASE_INSENSITIVE_ORDER).reversed());
+        // Sort theo địa chỉ nếu có
+        double[] userCoordinates;
+        if (userAddress != null && !userAddress.trim().isEmpty()) {
+            Optional<double[]> userCoordinatesOpt = geocodingService.geocode(userAddress);
+            if (userCoordinatesOpt.isPresent()) {
+                userCoordinates = userCoordinatesOpt.get();
+                System.out.println("Geocoding successful for address: " + userAddress + ", Coordinates: [" + userCoordinates[0] + ", " + userCoordinates[1] + "]");
+
+                // Sort by distance
+                storages = storages.stream()
+                        .filter(s -> s.getLatitude() != null && s.getLongitude() != null)
+                        .sorted(Comparator.comparingDouble(s -> {
+                            double distance = haversine(userCoordinates[0], userCoordinates[1], s.getLatitude(), s.getLongitude());
+                            System.out.println("Storage: " + s.getStoragename() + ", Distance: " + distance + " km");
+                            return distance;
+                        }))
+                        .collect(Collectors.toList());
+            } else {
+                userCoordinates = null;
+                System.out.println("Geocoding failed for address: " + userAddress);
+                model.addAttribute("error", "Không thể định vị địa chỉ bạn nhập. Sử dụng sắp xếp mặc định.");
+            }
+        } else {
+            userCoordinates = null;
+            if (sortOption != null && !sortOption.isEmpty()) {
+                // Apply alternative sorting
+                switch (sortOption) {
+                    case "priceAsc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay));
+                    case "priceDesc" -> storages.sort(Comparator.comparing(Storage::getPricePerDay).reversed());
+                    case "areaAsc" -> storages.sort(Comparator.comparing(Storage::getArea));
+                    case "areaDesc" -> storages.sort(Comparator.comparing(Storage::getArea).reversed());
+                    case "nameAsc" -> storages.sort(Comparator.comparing(Storage::getStoragename, String.CASE_INSENSITIVE_ORDER));
+                    case "nameDesc" -> storages.sort(Comparator.comparing(Storage::getStoragename, String.CASE_INSENSITIVE_ORDER).reversed());
+                    default -> System.out.println("Invalid sortOption: " + sortOption);
+                }
             }
         }
 
@@ -119,11 +150,11 @@ public class BookingController {
         model.addAttribute("sortOption", sortOption);
         model.addAttribute("citySelected", city);
         model.addAttribute("cities", storageService.findAllCities());
+        model.addAttribute("userAddress", userAddress);
+        model.addAttribute("userCoordinates", userCoordinates);
 
         return "booking-list";
     }
-
-
 
     @GetMapping("/{storageId}/booking")
     public String showBookingForm(@PathVariable int storageId,
@@ -361,5 +392,18 @@ public class BookingController {
         model.addAttribute("orders", orders);
         model.addAttribute("customer", customer);
         return "my-bookings";
+    }
+
+    public static double haversine(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371; // Bán kính trái đất (km)
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return R * c; // trả về km
     }
 }
