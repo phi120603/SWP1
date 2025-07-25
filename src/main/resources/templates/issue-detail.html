@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết Issue</title>
-    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/staff.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -106,10 +106,6 @@
             <div class="issue-header">
                 <h1 class="issue-title" th:text="${issue.subject}"></h1>
                 <div class="issue-meta">
-                    <div class="meta-item">
-                        <i class="fas fa-hashtag"></i>
-                        <span>ID: <strong th:text="${issue.id}"></strong></span>
-                    </div>
                     <div class="meta-item">
                         <i class="fas fa-calendar"></i>
                         <span>Ngày tạo: <strong th:text="${issue.createdDate != null ? #dates.format(issue.createdDate, 'dd/MM/yyyy HH:mm') : 'Không có thông tin'}"></strong></span>

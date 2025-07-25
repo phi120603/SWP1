@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+<div th:replace="taskbar/manager-taskbar :: managerTaskbar"></div>
+
 <div class="container">
     <!-- Header nhân viên -->
     <div class="profile-header">
@@ -32,10 +34,13 @@
 
     <!-- Thông tin nhân viên -->
     <div class="info-section">
-        <h3><i class="fas fa-info-circle"></i> Thông tin nhân viên</h3>
+        <h3 class="mb-0">
+            <i class="bi bi-person-badge-fill text-primary me-2"></i>
+            Thông tin nhân viên
+        </h3>
 
         <div class="info-item">
-            <i class="fas fa-envelope"></i>
+            <i class="fas fa-envelope "></i>
             <span class="info-label">Địa chỉ Email:</span>
             <span th:text="${staff.email}"></span>
         </div>
@@ -67,9 +72,10 @@
     </div>
 
     <!-- Nút sửa -->
-    <a th:href="@{/admin/staff/edit/{id}(id=${staff.staffid})}" class="btn-edit">
+    <a th:href="@{'/admin/staff-list/edit/' + ${staff.staffid}}" class="btn-edit">
         <i class="fas fa-edit"></i> Sửa nhân viên
     </a>
 </div>
+
 </body>
 </html>

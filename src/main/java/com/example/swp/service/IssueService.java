@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface IssueService {
     List<Issue> getAllIssues();
     Optional<Issue> getIssueById(int id);
-    Issue createIssue(IssueRequest issueRequest);
+    Issue createIssue(IssueRequest issueRequest, String createdByType);
     List<Issue> getIssuesByCustomerId(int customerId);
     Issue getIssueByIdOrThrow(int id);
     Issue saveIssue(Issue issue);

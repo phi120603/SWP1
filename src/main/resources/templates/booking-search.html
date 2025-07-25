@@ -63,7 +63,13 @@
                                 <input type="number" id="minArea" name="minArea" min="0" class="form-input" placeholder="Nhập diện tích">
                             </div>
                         </div>
-                        <div class="form-actions">
+                    </div>
+                    <div class="search-grid">
+                        <div class="form-group full-width">
+                            <input type="text" name="userAddress" placeholder="Nhập địa chỉ để tìm kho gần nhất"
+                                   class="form-input">
+                        </div>
+                        <div class="form-actions full-width">
                             <button type="submit" class="btn btn-primary">
                                 <i data-lucide="search"></i>
                                 Tìm kho
@@ -80,51 +86,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="brand-header">
-                        <img src="https://res.cloudinary.com/dpkxslork/image/upload/v1750066568/logoooooooo_j1ynjc.png"
-                             alt="QVL Storage Logo" class="footer-logo">
-                    </div>
-                    <p class="brand-description">Hệ thống cho thuê kho hàng chuyên nghiệp trên toàn quốc.</p>
-                </div>
-                <div class="footer-column">
-                    <h3>Về chúng tôi</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Dịch vụ</a></li>
-                        <li><a href="#">Tin tức</a></li>
-                        <li><a href="#">Liên hệ</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h3>Hỗ trợ</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Trung tâm trợ giúp</a></li>
-                        <li><a href="#">Chat trực tuyến</a></li>
-                        <li><a href="#">Hotline 24/7</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h3>Sản phẩm</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Kho nhỏ</a></li>
-                        <li><a href="#">Kho vừa</a></li>
-                        <li><a href="#">Kho lớn</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-divider"></div>
-            <div class="footer-bottom">
-                <p class="copyright">© 2025 QVL STORAGE. All rights reserved.</p>
-                <ul class="footer-bottom-links">
-                    <li><a href="#">Điều khoản & Điều kiện</a></li>
-                    <li><a href="#">Chính sách bảo mật</a></li>
-                </ul>
-            </div>
-        </div>
-    </footer>
+    <div th:replace="taskbar/customer-footer :: customerFooter"></div>
 </div>
 </body>
 </html>

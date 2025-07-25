@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -104,7 +105,7 @@ public class IssueController {
         }
 
         try {
-            issueService.createIssue(issueRequest);
+            issueService.createIssue(issueRequest, "CUSTOMER");
             model.addAttribute("success", "Tạo Issue thành công!");
             model.addAttribute("issueRequest", new com.example.swp.dto.IssueRequest());
 
@@ -180,16 +181,16 @@ public class IssueController {
     }
 
     // ----------- Xem chi tiết Issue -----------
-    @GetMapping("/view")
-    public String viewIssue(@RequestParam("id") int id, Model model) {
-        Optional<Issue> issueOpt = issueService.getIssueById(id);
-        if (issueOpt.isEmpty()) {
-            model.addAttribute("error", "Không tìm thấy Issue!");
-            return "issue-view";
-        }
-        model.addAttribute("issue", issueOpt.get());
-        return "issue-view";
-    }
+//    @GetMapping("/view")
+//    public String viewIssue(@RequestParam("id") int id, Model model) {
+//        Optional<Issue> issueOpt = issueService.getIssueById(id);
+//        if (issueOpt.isEmpty()) {
+//            model.addAttribute("error", "Không tìm thấy Issue!");
+//            return "issue-view";
+//        }
+//        model.addAttribute("issue", issueOpt.get());
+//        return "issue-view";
+//    }
 
     // ----------- Hiển thị form sửa Issue -----------
     @GetMapping("/edit")
@@ -269,7 +270,7 @@ public class IssueController {
                 issueRequest.setCustomerId(customerId); // có thể null cho vấn đề nội bộ
                 issueRequest.setAssignedStaffId(assignedStaffId);
 
-                Issue issue = issueService.createIssue(issueRequest);
+                Issue issue = issueService.createIssue(issueRequest, "STAFF");
                 issue.setCreatedByType("STAFF");
                 issueService.save(issue);
             }
@@ -288,6 +289,31 @@ public class IssueController {
             model.addAttribute("staffs", staffRepository.findAll());
             return "staff-send-report";
         }
+    }
+
+
+    @GetMapping("/staff")
+    public String showListStaffIssue(Model model) {
+        List<Issue> issues = issueService.getAllIssues();
+        if (issues == null) {
+            issues = new ArrayList<>();
+        }
+        // Chỉ hiển thị issues được tạo bởi nhân viên
+        issues = issues.stream()
+                .filter(issue -> "STAFF".equals(issue.getCreatedByType()))
+                .collect(Collectors.toList());
+        model.addAttribute("issues", issues);
+        return "staff-issue-list";
+    }
+
+    @GetMapping("/staff/view/{id}")
+    public String viewIssue(@PathVariable int id, Model model) {
+        Optional<Issue> issueOpt = issueService.getIssueById(id);
+        if (issueOpt.isPresent()) {
+            model.addAttribute("issue", issueOpt.get());
+            return "staff-issue-detail";
+        }
+        return "redirect:/SWP/issues/staff";
     }
 
     @GetMapping("/{id}/detail")
