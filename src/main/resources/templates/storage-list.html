@@ -26,7 +26,7 @@
             <div class="search-card">
                 <form method="get" th:action="@{/SWP/storages}" class="search-form">
                     <div class="search-grid">
-                        <div class="form-group">
+                        <div class="form-group" style="margin-left: 20px">
                             <label for="storageName">Tên kho</label>
                             <div class="input-with-button">
                                 <div class="input-with-icon">
@@ -35,17 +35,14 @@
                                            name="storageName"
                                            th:value="${param.storageName}"
                                            placeholder="Tìm theo tên kho..."
-                                           class="form-input">
+                                           class="form-input"
+                                           style="width: 400px;">
                                 </div>
-                                <button type="submit" class="btn btn-primary btn-search">
-                                    <i data-lucide="search"></i>
-                                    Tìm kiếm
-                                </button>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="city">Thành phố</label>
-                            <div class="select-wrapper">
+                            <div class="select-wrapper" style=" width: 300px;">
                                 <select name="city" id="city" class="form-select">
                                     <option value="">Tất cả thành phố</option>
                                     <option th:each="city : ${cities}"
@@ -58,7 +55,7 @@
                         </div>
                         <div class="form-group">
                             <label for="status">Trạng thái</label>
-                            <div class="select-with-button">
+                            <div class="select-with-button" style="width: 800px;">
                                 <div class="select-wrapper">
                                     <select name="status" id="status" class="form-select">
                                         <option value="">Tất cả trạng thái</option>
@@ -66,6 +63,10 @@
                                         <option value="false" th:selected="${param.status != null and param.status.equals('false')}">Đang thuê</option>
                                     </select>
                                 </div>
+                                <button type="submit" class="btn btn-primary btn-search">
+                                    <i data-lucide="search"></i>
+                                    Tìm kiếm
+                                </button>
                                 <a th:href="@{/SWP/storages}" class="btn btn-secondary btn-reset">
                                     <i data-lucide="filter-x"></i>
                                     Xóa bộ lọc
@@ -104,13 +105,14 @@
                         </div>
                     </div>
                     <div class="card-footer">
-                        <a th:href="@{'/SWP/storages/' + ${storage.storageid}}" class="btn btn-primary" style="width: 230px">
+                        <a th:href="@{'/SWP/storages/' + ${storage.storageid}}" class="btn btn-primary" style="width: 190px">
                             <i data-lucide="eye"></i>
                             Chi tiết
                         </a>
                         <button class="btn btn-wishlist btn-cart-icon"
                                 th:attr="data-storage-id=${storage.storageid}"
-                                onclick="toggleWishlist(this)">
+                                onclick="toggleWishlist(this)"
+                                style="width: 120px;">
                             <i data-lucide="shopping-cart"></i>
                         </button>
                     </div>
@@ -155,14 +157,10 @@
 </script>
 <div id="toast" class="toast"></div>
 <script>
-    lucide.createIcons();
-
-    const wishlistItems = new Set();
-
-    document.addEventListener('DOMContentLoaded', () => {
+    let wishlistItems = new Set();
+    document.addEventListener('DOMContentLoaded', function() {
         loadWishlist();
     });
-
     async function loadWishlist() {
         try {
             const response = await fetch('/api/wishlist/my');
@@ -170,36 +168,33 @@
                 const wishlist = await response.json();
                 wishlistItems.clear();
                 wishlist.forEach(item => {
-                    if (item.storage?.storageid) {
+                    if (item.storage && item.storage.storageid) {
                         wishlistItems.add(item.storage.storageid);
                     }
                 });
                 updateWishlistUI();
+                updateCartCount();
             } else if (response.status === 401) {
                 console.log('User not logged in');
-            } else {
-                console.error('Failed to load wishlist:', response.status);
+                updateCartCount();
             }
         } catch (error) {
-            console.error('Error loading wishlist:', error);
-        } finally {
+            console.log('Error loading wishlist:', error);
             updateCartCount();
         }
     }
-
     async function toggleWishlist(button) {
-        const storageId = parseInt(button.dataset.storageId);
+        const storageId = parseInt(button.getAttribute('data-storage-id'));
         const isInWishlist = wishlistItems.has(storageId);
-        const url = isInWishlist ? '/api/wishlist/remove' : '/api/wishlist/add';
-
         try {
-            button.disabled = true;
+            const url = isInWishlist ? '/api/wishlist/remove' : '/api/wishlist/add';
             const response = await fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({ storageId })
             });
-
             if (response.ok) {
                 if (isInWishlist) {
                     wishlistItems.delete(storageId);
@@ -209,32 +204,30 @@
                     showToast('Đã thêm vào wishlist!', 'success');
                 }
                 updateWishlistUI();
+                updateCartCount();
             } else {
                 const errorText = await response.text();
                 showToast(errorText || 'Có lỗi xảy ra!', 'error');
             }
         } catch (error) {
-            console.error('Error:', error);
             showToast('Có lỗi xảy ra!', 'error');
+            console.error('Error:', error);
         } finally {
             button.disabled = false;
-            updateCartCount();
         }
     }
-
     function updateWishlistUI() {
         document.querySelectorAll('.btn-wishlist').forEach(button => {
-            const storageId = parseInt(button.dataset.storageId);
-            const inWishlist = wishlistItems.has(storageId);
-
-            button.classList.toggle('in-wishlist', inWishlist);
-            button.innerHTML = inWishlist
-                ? '<i data-lucide="check"></i>'
-                : '<i data-lucide="shopping-cart"></i>';
+            const storageId = parseInt(button.getAttribute('data-storage-id'));
+            if (wishlistItems.has(storageId)) {
+                button.classList.add('in-wishlist');
+                button.innerHTML = '<i data-lucide="check"></i>';
+            } else {
+                button.classList.remove('in-wishlist');
+                button.innerHTML = '<i data-lucide="shopping-cart"></i>';
+            }
         });
-        lucide.createIcons();
     }
-
     function updateCartCount() {
         const count = wishlistItems.size;
         const cartCountElement = document.getElementById('cartCount');
@@ -243,22 +236,24 @@
             cartCountElement.style.display = count === 0 ? 'none' : 'flex';
         }
     }
-
     function goToWishlist() {
-        window.location.href = '/SWP/wishlist';
+        try {
+            window.location.href = '/SWP/wishlist';
+        } catch (error) {
+            console.error('Error navigating to wishlist:', error);
+            showToast('Có lỗi khi chuyển trang!', 'error');
+        }
     }
-
     function showToast(message, type = 'success') {
         const toast = document.getElementById('toast');
-        if (!toast) return;
-
-        toast.textContent = message;
-        toast.className = `toast ${type}`;
-        toast.classList.add('show');
-
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 3000);
+        if (toast) {
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
     }
 </script>
 </body>
