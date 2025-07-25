@@ -35,7 +35,7 @@ public class ChatbotServiceImpl implements ChatbotService {
     @Autowired
     private StaffReponsitory staffReponsitory;
 
-    private static final String API_KEY = "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";
+    private static final String API_KEY = "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";
     private static final String OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
     static {
@@ -146,7 +146,7 @@ public class ChatbotServiceImpl implements ChatbotService {
         Map<String, Object> body = new HashMap<>();
         body.put("model", "openai/gpt-4o");
         body.put("messages", messages);
-        body.put("max_tokens", 256);
+        body.put("max_tokens", 100);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
