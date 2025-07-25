@@ -324,13 +324,20 @@
                     Đặt thuê ngay
                 </button>
 
-                <button type="button"
-                        class="btn-wishlist flex items-center gap-2 border border-green-600 text-green-600 px-4 py-2 rounded"
-                        data-storage-id="[[${storage.storageid}]]"
-                        onclick="toggleWishlist(this)">
-                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                    <span>Thêm vào giỏ</span>
-                </button>
+                <a th:href="@{'/storages/' + ${storage.getStorageid()} + '/appointment/save'}" class="appointment-save-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+                    </svg>
+                    Tạo lịch hẹn
+                </a>
+
+<!--                <button type="button"-->
+<!--                        class="btn-wishlist flex items-center gap-2 border border-green-600 text-green-600 px-4 py-2 rounded"-->
+<!--                        data-storage-id="[[${storage.storageid}]]"-->
+<!--                        onclick="toggleWishlist(this)">-->
+<!--                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>-->
+<!--                    <span>Thêm vào giỏ</span>-->
+<!--                </button>-->
             </div>
         </div>
     </div>
