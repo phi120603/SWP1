@@ -43,6 +43,8 @@ public class OrderServiceimpl implements OrderService {
     private CustomerRepository customerRepository;
     @Autowired
     private ActivityLogService activityLogService;
+    @Autowired
+    private StorageService storageService;
 
     @Autowired
     private StorageTransactionService storageTransactionService;
@@ -111,6 +113,8 @@ public class OrderServiceimpl implements OrderService {
         order.setStorage(storage);
 
         Order savedOrder = orderRepository.save(order);
+        storageService.updateStatusBasedOnAvailability(storage.getStorageid(), order.getStartDate(), order.getEndDate());
+
         activityLogService.logActivity(
                 "Tạo đơn hàng",
                 "Khách hàng " + customer.getFullname() + " đã tạo đơn hàng #" + savedOrder.getId(),
@@ -207,6 +211,9 @@ public class OrderServiceimpl implements OrderService {
         }
 
         orderRepository.updateOrderStatusToPaid(orderId);
+        Storage storage = order.getStorage();
+        storage.setStatus(false); // Đang được thuê
+        storageReponsitory.save(storage); // lưu lại thay đổi
 
         // Tạo StorageTransaction khi đơn hàng được đánh dấu là PAID
         StorageTransaction transaction = new StorageTransaction();
@@ -227,6 +234,11 @@ public class OrderServiceimpl implements OrderService {
                 order,
                 transaction,
                 null, null, null
+        );
+        storageService.updateStatusBasedOnAvailability(
+                storage.getStorageid(),
+                order.getStartDate(),
+                order.getEndDate()
         );
     }
 
@@ -275,7 +287,7 @@ public class OrderServiceimpl implements OrderService {
         // order.setRentalArea(rentalArea);
 
         Order savedOrder = orderRepository.save(order);
-
+        storageService.updateStatusBasedOnAvailability(storage.getStorageid(), startDate, endDate);
         // ----------- GHI LOG HOẠT ĐỘNG -----------
         activityLogService.logActivity(
                 "Tạo đơn booking",

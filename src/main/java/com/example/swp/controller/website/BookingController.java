@@ -270,7 +270,12 @@ public class BookingController {
             return "redirect:/SWP/booking/search";
         }
         Storage storage = optionalStorage.get();
-
+        boolean isAvailable = orderService.isStorageAvailable(storageId, startDate, endDate);
+        if (!isAvailable) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Kho đã được đặt bởi người khác trong thời gian này. Vui lòng chọn thời gian khác.");
+            return "redirect:/SWP/booking/" + storageId + "/booking?startDate=" + startDate + "&endDate=" + endDate;
+        }
         // Kiểm tra diện tích còn lại
         double remainArea = orderService.getRemainArea(storageId, startDate, endDate);
         if (rentalArea <= 0 || rentalArea > remainArea) {
@@ -291,6 +296,7 @@ public class BookingController {
                     "Bạn đã từng đặt kho này trong khoảng thời gian này. Vui lòng kiểm tra lại đơn hàng hoặc chọn thời gian khác.");
             return "redirect:/SWP/booking/search";
         }
+
 
         // Tính tiền
         long days = ChronoUnit.DAYS.between(startDate, endDate);
@@ -351,6 +357,8 @@ public class BookingController {
 
         Order savedOrder = orderService.save(order);
         contractService.createContractForOrder(savedOrder);
+        storageService.updateStatusBasedOnAvailability(storageId, startDate, endDate);
+
 
         // Ghi log lịch sử sử dụng voucher
         if (voucher != null) {

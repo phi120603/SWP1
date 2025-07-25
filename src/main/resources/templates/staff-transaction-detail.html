@@ -208,15 +208,9 @@
             color: #155724;
         }
 
-        .status-badge.refund {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
-            color: #856404;
-        }
 
-        .status-badge.pending {
-            background: linear-gradient(135deg, #cce5ff 0%, #b3d9ff 100%);
-            color: #004085;
-        }
+
+        .
 
         .actions {
             background: rgba(102, 126, 234, 0.05);
@@ -245,19 +239,7 @@
             flex: 1;
         }
 
-        .btn-danger {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 16px rgba(220, 53, 69, 0.3);
-        }
+
 
         .btn-danger:hover {
             transform: translateY(-2px);
@@ -419,59 +401,19 @@
                     <div class="info-row status">
                         <div class="label">Trạng thái</div>
                         <div class="value">
-                            <span class="status-badge paid" th:classappend="${transaction.type.name().toLowerCase()}" th:text="${transaction.type}">
-                                PAID
-                            </span>
+                <span class="status-badge paid" th:classappend="${transaction.type.name().toLowerCase()}" th:text="${transaction.type}">
+                    PAID
+                </span>
                         </div>
                     </div>
                 </div>
-                <div class="info-row" th:if="${transaction.refundReason}">
-                    <div class="label">Lý do hoàn tiền</div>
-                    <div class="value" th:text="${transaction.refundReason}">Khách yêu cầu vì không sử dụng dịch vụ</div>
-                </div>
+            </div>
 
 
 
 
-                <!-- Action Buttons -->
-                <div class="actions" th:if="${transaction.type.name() == 'PAID' or transaction.type.name() == 'REFUND'}">
-                    <h3>Thao tác</h3>
 
-                    <!-- Refund Button -->
-                    <form th:if="${transaction.type.name() == 'PAID'}"
-                          th:action="@{'/SWP/storage-transactions/' + ${transaction.id} + '/mark-refund'}"
-                          method="post">
-                        <button class="btn btn-danger" type="submit" onclick="return confirm('Bạn có chắc chắn muốn hoàn tiền cho giao dịch này?')">
-                            <i class="fas fa-undo-alt"></i> Hoàn tiền
-                        </button>
-                    </form>
 
-                    <!-- Restore to Paid Button -->
-                    <form th:if="${transaction.type.name() == 'REFUND'}"
-                          th:action="@{'/SWP/storage-transactions/' + ${transaction.id} + '/mark-paid'}"
-                          method="post">
-                        <button class="btn btn-primary" type="submit" onclick="return confirm('Bạn có chắc chắn muốn khôi phục giao dịch này về trạng thái PAID?')">
-                            <i class="fas fa-check-circle"></i> Khôi phục thanh toán
-                        </button>
-                    </form>
-                </div>
-                <div class="actions" th:if="${transaction.type.name() == 'REQUESTED'}">
-                    <h3>Phê duyệt yêu cầu hoàn tiền</h3>
-
-                    <form th:action="@{'/SWP/storage-transactions/' + ${transaction.id} + '/approve-refund'}" method="post">
-                        <button class="btn btn-primary" type="submit"
-                                onclick="return confirm('Bạn có chắc chắn muốn duyệt hoàn tiền?')">
-                            <i class="fas fa-check-circle"></i> Duyệt hoàn tiền
-                        </button>
-                    </form>
-
-                    <form th:action="@{'/SWP/storage-transactions/' + ${transaction.id} + '/deny-refund'}" method="post">
-                        <button class="btn btn-danger" type="submit"
-                                onclick="return confirm('Bạn có chắc chắn muốn từ chối hoàn tiền?')">
-                            <i class="fas fa-times-circle"></i> Từ chối hoàn tiền
-                        </button>
-                    </form>
-                </div>
 
             </div>
         </div>

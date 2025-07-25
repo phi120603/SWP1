@@ -1,11 +1,13 @@
 package com.example.swp.service.impl;
 
-import com.example.swp.dto.StorageRequest;
+import  com.example.swp.dto.StorageRequest;
 import com.example.swp.entity.Storage;
 import com.example.swp.repository.StorageRepository;
 import com.example.swp.service.GeocodingService;
+import com.example.swp.service.OrderService;
 import com.example.swp.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -22,6 +24,11 @@ public class StorageServiceImpl implements StorageService {
     @Autowired
     private GeocodingService geocodingService;
 
+    @Autowired
+    @Lazy
+    private OrderService orderService;
+    private List<Storage> storageList = new ArrayList<>();
+    private Storage storage;
     @Override
     public List<Storage> getAll() {
         return storageRepository.findAll().stream()
@@ -132,4 +139,24 @@ public class StorageServiceImpl implements StorageService {
     public List<String> findAllCities() {
         return storageRepository.findAllCities();
     }
+
+
+    @Override
+    public void updateStatusBasedOnAvailability(int storageId, LocalDate startDate, LocalDate endDate) {
+        Optional<Storage> storageOpt = findByID(storageId);
+        if (storageOpt.isPresent()) {
+            Storage storage = storageOpt.get();
+            double remain = orderService.getRemainArea(storageId, startDate, endDate);
+            boolean isAvailable = remain > 0;
+            storage.setStatus(isAvailable);
+            save(storage); // đã có method này
+        }
+    }
+
+
+
+
+
+
+
 }

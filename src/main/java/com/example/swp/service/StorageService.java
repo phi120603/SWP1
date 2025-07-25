@@ -34,4 +34,7 @@ public interface StorageService {
 
     long countAvailableStorages(); // còn trống (status == true)
     long countRentedStorages();    // đang thuê (status == false)
+    void updateStatusBasedOnAvailability(int storageId, LocalDate startDate, LocalDate endDate);
+
+
 }
