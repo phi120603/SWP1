@@ -26,22 +26,21 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = 'PAID'")
     Double calculateTotalRevenue();
 
-    @Query("""
-        SELECT COUNT(o)
-        FROM Order o
-        WHERE o.storage.storageid = :storageId
-          AND o.status IN ('PENDING','APPROVED','PAID')
-          AND o.startDate <= :endDate
-          AND o.endDate >= :startDate
-    """)
-    long countOverlapOrders(
-            @Param("storageId") int storageId,
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate
-    );
+    @Query("SELECT COUNT(o) FROM Order o " +
+            "WHERE o.storage.storageid = :storageId " +
+            "AND o.status IN ('PAID', 'APPROVED', 'ACTIVE') " +
+            "AND o.startDate < :endDate AND o.endDate > :startDate")
+    long countOverlapOrders(@Param("storageId") int storageId,
+                            @Param("startDate") LocalDate startDate,
+                            @Param("endDate") LocalDate endDate);
 
-    @Query("SELECT COALESCE(SUM(o.rentalArea), 0.0) FROM Order o WHERE o.storage.storageid = :storageId AND o.status IN ('PENDING','CONFIRMED','ACTIVE') AND :targetDate BETWEEN o.startDate AND o.endDate")
+
+    @Query("SELECT COALESCE(SUM(o.rentalArea), 0.0) FROM Order o " +
+            "WHERE o.storage.storageid = :storageId " +
+            "AND o.status IN ('PENDING','CONFIRMED','ACTIVE', 'PAID') " +
+            "AND :targetDate BETWEEN o.startDate AND o.endDate")
     Double sumRentedAreaForStorageOnDate(@Param("storageId") int storageId, @Param("targetDate") LocalDate targetDate);
+
 
 
     @Query("""
