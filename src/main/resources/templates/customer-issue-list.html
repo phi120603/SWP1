@@ -503,10 +503,10 @@
         /*]]>*/
     </style>
 </head>
+<body>
 <div class="navbar" style="margin-bottom: 10px;">
     <div th:replace="taskbar/customer-navbar :: customerNavbar"></div>
 </div>
-<body>
 <!-- Nút quay lại -->
 <a href="javascript:history.back()" class="back-button" title="Quay lại trang trước">← Quay lại</a>
 <div class="container">
@@ -685,13 +685,13 @@
 
     // Click vào stat-card để lọc nhanh
     document.querySelectorAll('.stat-card').forEach(function(card, idx) {
-        card.onclick = function() {
+        card.addEventListener('click', function() {
             let statusArr = ["Pending", "In_Progress", "Resolved", ""];
             let status = statusArr[idx];
             let select = document.querySelector('select[name="status"]');
             select.value = status;
             select.form.submit();
-        }
+        })
     });
 
     // Add loading state to action buttons (trừ delete)

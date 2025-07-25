@@ -323,14 +323,6 @@
                     </svg>
                     Đặt thuê ngay
                 </button>
-
-                <button type="button"
-                        class="btn-wishlist flex items-center gap-2 border border-green-600 text-green-600 px-4 py-2 rounded"
-                        data-storage-id="[[${storage.storageid}]]"
-                        onclick="toggleWishlist(this)">
-                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                    <span>Thêm vào giỏ</span>
-                </button>
             </div>
         </div>
     </div>
@@ -462,104 +454,5 @@
         window.location.href = url;
     });
 </script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const today = new Date().toISOString().split('T')[0];
-        const startInput = document.getElementById('startDate');
-        const endInput = document.getElementById('endDate');
-
-        startInput.setAttribute('min', today);
-        endInput.setAttribute('min', today);
-
-        startInput.addEventListener('change', function () {
-            endInput.setAttribute('min', startInput.value);
-        });
-    });
-
-    lucide.createIcons();
-
-    // Wishlist functionality
-    let wishlistItems = new Set();
-
-    // Load wishlist state from localStorage (simulated)
-    function loadWishlist() {
-        const savedWishlist = localStorage.getItem('wishlist');
-        if (savedWishlist) {
-            wishlistItems = new Set(JSON.parse(savedWishlist));
-        } else {
-            wishlistItems = new Set();
-        }
-        updateWishlistUI();
-    }
-
-    // Toggle wishlist item
-    function toggleWishlist(button) {
-        const storageId = parseInt(button.dataset.storageId);
-        if (isNaN(storageId)) {
-            console.error("Invalid storageId:", button.dataset.storageId);
-            showToast('Không thể thêm vào giỏ hàng. Mã kho không hợp lệ.', 'error');
-            return;
-        }
-
-        const isInWishlist = wishlistItems.has(storageId);
-
-        if (isInWishlist) {
-            wishlistItems.delete(storageId);
-            showToast('Đã xóa khỏi giỏ hàng!', 'success');
-        } else {
-            wishlistItems.add(storageId);
-            showToast('Đã thêm vào giỏ hàng!', 'success');
-        }
-
-        // Save to localStorage
-        localStorage.setItem('wishlist', JSON.stringify(Array.from(wishlistItems)));
-        updateWishlistUI();
-    }
-
-    // Update UI based on wishlist state
-    function updateWishlistUI() {
-        document.querySelectorAll('.btn-wishlist').forEach(button => {
-            const storageId = parseInt(button.dataset.storageId);
-            const inWishlist = wishlistItems.has(storageId);
-
-            button.classList.toggle('in-wishlist', inWishlist);
-            button.innerHTML = inWishlist
-                ? '<i data-lucide="check"></i> <span>Đã thêm</span>'
-                : '<i data-lucide="shopping-cart"></i> <span>Thêm vào giỏ</span>';
-        });
-
-        lucide.createIcons(); // re-render Lucide icons
-        updateCartCount();
-    }
-
-    // Update cart count in navbar (if exists)
-    function updateCartCount() {
-        const count = wishlistItems.size;
-        const cartCountElement = document.getElementById('cartCount');
-        if (cartCountElement) {
-            cartCountElement.textContent = count;
-            cartCountElement.style.display = count === 0 ? 'none' : 'flex';
-        }
-    }
-
-    // Navigate to wishlist page
-    function goToWishlist() {
-        window.location.href = '/SWP/wishlist';
-    }
-
-    // Toast notification
-    function showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = `fixed bottom-4 right-4 p-4 rounded-lg text-white ${type === 'success' ? 'bg-green-600' : 'bg-red-600'} shadow-lg z-50`;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.classList.add('opacity-0');
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }
-
-    // Initialize on load
-    document.addEventListener('DOMContentLoaded', loadWishlist);
-</script>
+</body>
+</html>
