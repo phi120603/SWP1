@@ -44,13 +44,13 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
 
     @Query("""
-        SELECT COUNT(o)
-        FROM Order o
-        WHERE o.customer.id = :customerId
-          AND o.storage.storageid = :storageId
-          AND o.status IN ('PENDING','CONFIRMED','ACTIVE')
-          AND o.startDate <= :endDate
-          AND o.endDate >= :startDate
+    SELECT COUNT(o)
+    FROM Order o
+    WHERE o.customer.id = :customerId
+      AND o.storage.storageid = :storageId
+      AND o.status IN ('CONFIRMED','ACTIVE') 
+      AND o.startDate <= :endDate
+      AND o.endDate >= :startDate
     """)
     long countOverlapOrdersByCustomer(
             @Param("customerId") int customerId,
