@@ -51,13 +51,17 @@ public class StaffTaskController {
         model.addAttribute("taskStatuses", TaskStatus.values());
         return "staff-tasks";
     }
-
-    @PostMapping("/tasks/update-status")
-    public String updateMyTaskStatus(@RequestParam("taskId") int taskId,
-                                   @RequestParam("status") TaskStatus status) {
-        taskService.updateTaskStatus(taskId, status);
+    @PostMapping("/tasks/update-status/{id}")
+    public String updateTaskStatus(@PathVariable int id, @RequestParam("status") TaskStatus status) {
+        taskService.updateTaskStatus(id, status);
         return "redirect:/staff/tasks";
     }
+//    @PostMapping("/tasks/update-status")
+//    public String updateMyTaskStatus(@RequestParam("taskId") int taskId,
+//                                   @RequestParam("status") TaskStatus status) {
+//        taskService.updateTaskStatus(taskId, status);
+//        return "redirect:/staff/tasks";
+//    }
 
     @GetMapping("/tasks/view/{id}")
     public String viewTask(@PathVariable int id, Model model) {

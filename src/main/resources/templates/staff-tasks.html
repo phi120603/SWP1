@@ -260,6 +260,9 @@
                             <a th:href="@{/staff/tasks/view/{id}(id=${task.id})}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i> Xem
                             </a>
+                            <button class="btn btn-info btn-sm" th:onclick="'openStatusModal(' + ${task.id} + ')'">
+                                <i class="fas fa-exchange-alt"></i> Đổi trạng thái
+                            </button>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(tasks)}">
@@ -290,6 +293,28 @@
                     <i class="fas fa-chevron-right"></i>
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal đổi trạng thái -->
+    <div id="statusModal" class="modal">
+        <div class="modal-content" style="width: 400px;">
+            <span class="close" onclick="closeStatusModal()">&times;</span>
+            <h3>Đổi trạng thái công việc</h3>
+            <form id="statusForm" method="post">
+                <div class="form-group">
+                    <label for="newStatus">Chọn trạng thái mới:</label>
+                    <select id="newStatus" name="status" class="form-control" required>
+                        <option value="PENDING">Đã giao</option>
+                        <option value="RESOLVED">Đã hoàn thành</option>
+                        <option value="REJECTED">Đã hủy</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeStatusModal()">Hủy</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -324,6 +349,36 @@
             }
 
             rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function openStatusModal(taskId) {
+            document.getElementById('statusModal').style.display = 'block';
+            document.getElementById('statusForm').action = '/staff/tasks/update-status/' + taskId;
+        }
+
+        function closeStatusModal() {
+            document.getElementById('statusModal').style.display = 'none';
+        }
+
+        function updateStatus(taskId, status) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/staff/tasks/update-status';
+
+            const taskIdInput = document.createElement('input');
+            taskIdInput.type = 'hidden';
+            taskIdInput.name = 'taskId';
+            taskIdInput.value = taskId;
+
+            const statusInput = document.createElement('input');
+            statusInput.type = 'hidden';
+            statusInput.name = 'status';
+            statusInput.value = status;
+
+            form.appendChild(taskIdInput);
+            form.appendChild(statusInput);
+            document.body.appendChild(form);
+            form.submit();
         }
 
         function exportTasksExcel() {
